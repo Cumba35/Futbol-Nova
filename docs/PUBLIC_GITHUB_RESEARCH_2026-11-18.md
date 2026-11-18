@@ -56,3 +56,12 @@ La investigación se realizó sobre README, páginas de repositorio, documentaci
 | [Habeeb-Rahman-CA/soccer5v5-game-godot](https://github.com/Habeeb-Rahman-CA/soccer5v5-game-godot) | MIT; Godot 4.6; 5v5 | Estructura de partidos pequeños, señales y controles de dos jugadores | No copiar recursos ni elevar el motor: alcance 5v5 y versión 4.6 no corresponden al amistoso 11v11 en Godot 4.4.1. |
 | [ryan-haskell/godot-soccer-demo](https://github.com/ryan-haskell/godot-soccer-demo) | No se encontró archivo LICENSE en la raíz examinada | Experimento de física básica del balón | Lectura conceptual únicamente; sin licencia identificada no se reutiliza código ni assets. |
 | [matheuscumpian/godot-soccer](https://github.com/matheuscumpian/godot-soccer) | Proyecto de curso GameDev.tv; licencia de reutilización no confirmada | Referencia visual de prototipo Godot | No incorporar código ni recursos sin comprobar los derechos y atribuciones de cada recurso. |
+
+
+## Revisión adicional de proyectos móviles
+
+| Repositorio | Licencia / tecnología | Utilidad potencial | Decisión |
+|---|---|---|---|
+| [devinarena/Pixel-Striker](https://github.com/devinarena/Pixel-Striker) | MIT declarada; Godot; juego móvil con Android, tiros libres, penaltis y portero | Referencia para flujos táctiles, modos de práctica y exportación móvil | No sustituye ni aporta un motor 11v11: sus modos son minijuegos de fútbol. Se estudian patrones de interacción y empaquetado, sin incorporar assets ni código en esta fase. |
+
+**Criterio de compatibilidad:** Pixel-Striker y FreeKick se desarrollan con versiones de Godot distintas a la versión 4.4.1 fijada en Fútbol Nova. Antes de considerar cualquier componente, debe portarse de forma explícita y pasar las pruebas headless y Android del proyecto; no se eleva la versión del motor solo para copiar una demo.
