@@ -1,68 +1,46 @@
-# Fútbol Nova — APK de prueba para Android
+# Fútbol Nova — pruebas y APK Android
 
-## Objetivo
+## Repositorio y proyecto
 
-Crear una APK de depuración ARM64 para instalar y probar Fútbol Nova en Android, sin que el usuario tenga que instalar Godot ni programar desde el teléfono.
-
-## Configuración verificada en GitHub
-
-- Repositorio: `Cumba35/Nova-Workspace`.
-- Rama: `main`.
-- Proyecto: `proyectos/juegos/futbol-nova`.
-- Workflow: `.github/workflows/futbol-nova-android-apk.yml`.
-- Godot: 4.4.1, con plantillas de exportación Android.
-- Android: ARM64, paquete `com.nova.futbolnova`.
-- Artefacto de prueba: `futbol-nova-android-debug`.
-- El workflow se ejecuta automáticamente al actualizar `main` o ramas `work/**`, al abrir/actualizar PR hacia `main`, y también manualmente.
-
-## Criterios de aceptación previos a exportar
-
-1. La escena principal crea el campo, HUD, menú y controlador 11v11.
-2. Las cuatro pantallas principales (Inicio, Online, Modos y Configuración) abren y muestran contenido.
-3. El catálogo local aporta al menos dos clubes distintos con once titulares seleccionables.
-4. La preparación crea dos alineaciones 4-3-3 válidas con once identificadores únicos por club.
-5. El motor inicia el amistoso y crea 22 futbolistas: el jugador controlado y 21 futbolistas de IA.
-6. El HUD identifica los equipos y muestra el reloj del primer tiempo.
-7. El controlador en vivo alcanza el descanso, permite continuar y finaliza el segundo tiempo en la prueba de integración.
-
-Estos criterios se ejecutan en:
-- `tests/test_game_hub.gd`
-- `tests/test_match_11v11_foundation.gd`
-- `tests/test_friendly_match_runtime.gd`
-
-## Orden del workflow
-
-1. Importar recursos.
-2. Ejecutar las pruebas de aceptación del juego base.
-3. Ejecutar una prueba de arranque de la escena.
-4. Exportar la APK ARM64 y subir el artefacto.
-5. Ejecutar la regresión extendida de ligas, temporadas, carreras, módulos y bases de datos.
-
-La APK queda disponible como artefacto cuando se superan los criterios básicos y la exportación, aunque una prueba extendida posterior falle. El resultado global del workflow seguirá reflejando los fallos de regresión.
-
-## Descargar e instalar desde Android
-
-1. Abre [Fútbol Nova — pruebas y APK Android](https://github.com/Cumba35/Nova-Workspace/actions/workflows/futbol-nova-android-apk.yml).
-2. Abre la ejecución más reciente de `main`.
-3. Si no hay una ejecución nueva, pulsa **Run workflow** y selecciona `main`.
-4. Espera a que aparezca el artefacto `futbol-nova-android-debug`.
-5. Descarga y extrae el ZIP; instala `FutbolNova-debug.apk`.
+- Repositorio independiente: Cumba35/Futbol-Nova.
+- Proyecto Godot: raíz del repositorio (archivo project.godot).
+- Repositorio maestro NOVA: Cumba35/Nova-Workspace, carpeta proyectos/juegos/futbol-nova/. La copia original allí se conserva intacta.
+- Motor fijado para CI: Godot 4.4.1.
+- Plataforma: Android ARM64.
+- Identificador: com.nova.futbolnova.
+- Workflow: .github/workflows/futbol-nova-android-apk.yml.
 
 ## Desarrollo sin aplicaciones externas
 
-El propietario desarrolla exclusivamente con ChatGPT y GitHub. No necesita instalar Godot, Android Studio, un editor de código ni herramientas de compilación. Godot 4.4.1, sus plantillas y el SDK Android se descargan y ejecutan dentro del runner temporal de GitHub Actions. El usuario solo descarga el ZIP del artefacto y, cuando esté disponible, instala la APK en Android.
+El propietario trabaja exclusivamente con ChatGPT y GitHub. No debe requerírsele instalar Godot, Android Studio, Unity, editores o compiladores en Android. El motor, las plantillas y el SDK se instalan temporalmente dentro de GitHub Actions.
 
-## Bloqueo conocido de GitHub Actions
+## Ejecución del workflow
 
-Las últimas ejecuciones fueron rechazadas antes de asignar un runner: `runner_id=0`, sin pasos ejecutados y sin logs de trabajo descargables. Esto ocurre antes de importar o compilar el proyecto, por lo que no demuestra un error de Godot ni puede corregirse modificando archivos del juego. Debe estar habilitada la facturación/límite de uso de GitHub Actions en la cuenta para que GitHub asigne el runner.
+El workflow se ejecuta al actualizar archivos de proyecto en main o ramas work/**, al abrir o actualizar un pull request hacia main y manualmente desde GitHub Actions.
 
-Hasta que una ejecución consiga runner, no se puede afirmar que la APK fue compilada ni que las pruebas pasaron.
+1. Importa recursos Godot en modo headless.
+2. Ejecuta validaciones de nombres de clubes y archivo histórico.
+3. Ejecuta pruebas de aceptación del hub, amistoso 11v11 y ciclo de reloj hasta el final.
+4. Comprueba el arranque de la escena.
+5. Exporta la APK Android ARM64 de depuración.
+6. Publica el artefacto futbol-nova-android-debug si las pruebas y exportación terminan correctamente.
+7. Ejecuta después la regresión extendida.
 
-## Límites funcionales de esta versión de prueba
+También publica el ZIP futbol-nova-godot-source para conservar el proyecto editable en caso de que una etapa Android posterior falle.
 
-- El modo amistoso 11v11 es el único modo de partido incluido en esta fase.
-- Online muestra el estado del módulo, pero no ofrece partidas reales sin backend.
-- Modos y catálogo permiten navegar y consultar contenido; los módulos no instalados no se presentan como jugables.
-- Algunas categorías de Configuración siguen siendo informativas y no tienen controles persistentes.
-- La tanda de penaltis, árbitro completo, porteros con IA avanzada, animaciones finales y reglas completas siguen fuera del alcance de esta APK de prueba.
-- Se necesita una prueba física en Android para confirmar tacto, orientación, rendimiento y escalado visual.
+## Descargar APK desde Android
+
+1. Abre [Fútbol Nova — pruebas y APK Android](https://github.com/Cumba35/Futbol-Nova/actions/workflows/futbol-nova-android-apk.yml).
+2. Selecciona la ejecución más reciente de main.
+3. Abre Artifacts y descarga futbol-nova-android-debug.
+4. Extrae el ZIP e instala FutbolNova-debug.apk.
+
+## Estado de la primera ejecución
+
+La importación del proyecto desde Web-Publica-Nova terminó correctamente. En la primera ejecución del workflow de APK, la creación del ZIP de código y la configuración de Java terminaron correctamente, pero la acción Android SDK v3 falló al solicitar el paquete obsoleto tools (Google ya no publica ese paquete). El workflow se actualizó a android-actions/setup-android@v4 y se eliminó esa dependencia obsoleta.
+
+La corrección debe verificarse con una nueva ejecución. No se debe afirmar que la APK está generada hasta que exista un artefacto descargable y la ejecución de exportación haya terminado correctamente.
+
+## Alcance funcional
+
+La prueba de integración verifica el ciclo del reloj del amistoso a través del controlador: primer tiempo, descanso, continuación y final del segundo tiempo. Esto no certifica por sí solo todas las mecánicas de juego, la física, la IA, las animaciones ni el equilibrio completo de un partido 11 contra 11.
