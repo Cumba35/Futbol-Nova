@@ -463,7 +463,14 @@ func _add_continental_competition_cards() -> void:
 		for item in grouped[region]:
 			var name := str(item.get("name", item.get("id", "Competición")))
 			var status := str(item.get("runtime_status", ""))
-			var founding_year := int(item.get("founding_year", 0))
+			var founding_year_value: Variant = item.get("founding_year", 0)
+			var founding_year := 0
+			if founding_year_value is int:
+				founding_year = founding_year_value
+			elif founding_year_value is float:
+				founding_year = floori(founding_year_value)
+			elif founding_year_value is String and str(founding_year_value).is_valid_int():
+				founding_year = str(founding_year_value).to_int()
 			var detail := "Fundada en %d" % founding_year if founding_year > 0 else "Año de fundación por verificar"
 			if status != "":
 				detail += " · " + ("Motor pendiente" if status.contains("pending") else "Catálogo registrado")
