@@ -18,30 +18,31 @@ El propietario trabaja exclusivamente con ChatGPT y GitHub. No debe requerírsel
 
 El workflow se ejecuta al actualizar archivos de proyecto en main o ramas work/**, al abrir o actualizar un pull request hacia main y manualmente desde GitHub Actions.
 
-1. Importa recursos Godot en modo headless.
-2. Ejecuta validaciones de nombres de clubes y archivo histórico.
-3. Ejecuta pruebas de aceptación del hub, amistoso 11v11 y ciclo de reloj hasta el final.
-4. Comprueba el arranque de la escena.
-5. Exporta la APK Android ARM64 de depuración.
-6. Publica el artefacto futbol-nova-android-debug si las pruebas y exportación terminan correctamente.
-7. Cada prueba Godot tiene un límite individual de 180 segundos (smoke test: 120 segundos) y aparece agrupada en los logs para facilitar el diagnóstico.
-7. Ejecuta después la regresión extendida.
+1. Empaqueta y publica el ZIP del código fuente editable.
+2. Instala Java 17, Android SDK y Godot 4.4.1 con sus plantillas dentro del runner temporal.
+3. Importa recursos Godot en modo headless.
+4. Ejecuta validaciones de nombres de clubes y archivo histórico.
+5. Ejecuta pruebas de aceptación del hub, amistoso 11v11, marcador, cambio de lado, reloj y ciclo hasta el pitido final.
+6. Comprueba el arranque de la escena.
+7. Exporta la APK Android ARM64 de depuración.
+8. Publica el artefacto futbol-nova-android-debug si las pruebas y exportación terminan correctamente.
+9. Ejecuta después la regresión extendida.
 
-También publica el ZIP futbol-nova-godot-source para conservar el proyecto editable en caso de que una etapa Android posterior falle.
+Cada prueba Godot tiene un límite individual de 180 segundos (smoke test: 120 segundos) y aparece agrupada en los logs para facilitar el diagnóstico. Si una prueba se bloquea, falla con un límite claro y no deja el job indefinidamente detenido.
 
 ## Descargar APK desde Android
 
 1. Abre [Fútbol Nova — pruebas y APK Android](https://github.com/Cumba35/Futbol-Nova/actions/workflows/futbol-nova-android-apk.yml).
-2. Selecciona la ejecución más reciente de main.
+2. Selecciona la ejecución más reciente de main que tenga conclusión exitosa.
 3. Abre Artifacts y descarga futbol-nova-android-debug.
 4. Extrae el ZIP e instala FutbolNova-debug.apk.
 
-## Estado de la primera ejecución
+## Estado de compilación
 
-La importación del proyecto desde Web-Publica-Nova terminó correctamente. En la primera ejecución del workflow de APK, la creación del ZIP de código y la configuración de Java terminaron correctamente, pero la acción Android SDK v3 falló al solicitar el paquete obsoleto tools (Google ya no publica ese paquete). El workflow se actualizó a android-actions/setup-android@v4 y se eliminó esa dependencia obsoleta.
+La primera importación del código fuente desde Web-Publica-Nova terminó correctamente. Una ejecución posterior detectó el uso del paquete Android SDK obsoleto tools; el workflow se actualizó a android-actions/setup-android@v4 y dejó de solicitar ese paquete. Las siguientes ejecuciones llegaron a la etapa de pruebas Godot, pero se cancelaron al actualizar el workflow. Se añadieron límites individuales y logs agrupados, y se ampliaron las pruebas del marcador y el cambio de lado.
 
-La corrección debe verificarse con una nueva ejecución. No se debe afirmar que la APK está generada hasta que exista un artefacto descargable y la ejecución de exportación haya terminado correctamente.
+El artefacto futbol-nova-godot-source conserva el código fuente editable. No se debe afirmar que la APK está generada ni que la suite ha pasado hasta que GitHub Actions publique futbol-nova-android-debug y la ejecución termine correctamente.
 
 ## Alcance funcional
 
-La prueba de integración verifica el ciclo del reloj del amistoso a través del controlador: primer tiempo, descanso, continuación y final del segundo tiempo. Esto no certifica por sí solo todas las mecánicas de juego, la física, la IA, las animaciones ni el equilibrio completo de un partido 11 contra 11.
+La prueba de integración verifica inicio del amistoso, marcador de ambos equipos, rechazo de goles fuera de un partido activo, pausa, cambio de lado al descanso, reanudación, ciclo de prórroga y final del segundo tiempo. Esto no certifica por sí solo todas las mecánicas de juego, la física, la IA, las animaciones ni el equilibrio completo de un partido 11 contra 11.
