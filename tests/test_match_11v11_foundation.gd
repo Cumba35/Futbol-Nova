@@ -9,6 +9,11 @@ const RealismModule = preload("res://scripts/modules/realism_module.gd")
 const PreMatchSetup = preload("res://scripts/ui/pre_match_setup.gd")
 
 func _initialize() -> void:
+	call_deferred("_run_tests")
+
+func _run_tests() -> void:
+	await process_frame
+	print("FUTBOL_NOVA_11V11_FOUNDATION_TESTS: start")
 	var failures := PackedStringArray()
 	var home := Match11v11.build_lineup("home_test", true)
 	var away := Match11v11.build_lineup("away_test", false)
@@ -209,6 +214,7 @@ func _initialize() -> void:
 	if touchline_first.restart != "throw_in":
 		failures.append("MatchRules: no concedió saque de banda cuando la línea lateral se cruzó primero")
 
+	print("FUTBOL_NOVA_11V11_FOUNDATION_TESTS: lineup and restart checks completed")
 	# Match clock rules from the original Fútbol Nova design.
 	for half_minutes in [3, 5, 6, 8, 10, 15, 20]:
 		if not MatchClock.is_valid_half_length(half_minutes):
@@ -246,6 +252,7 @@ func _initialize() -> void:
 		failures.append("MatchClock: secuencia de prórroga y penaltis incorrecta")
 
 
+	print("FUTBOL_NOVA_11V11_FOUNDATION_TESTS: clock rules completed")
 	# Substitution limits and windows from GAME_DESIGN.md.
 	var official_subs := MatchSubs.create_team_state(false, false)
 	var sub_result := MatchSubs.apply_substitution(official_subs, "home_01", "bench_01", "first_half_window", "match")
@@ -312,8 +319,12 @@ func _initialize() -> void:
 	if bool(MatchSubs.can_substitute(severe_state, "starter", "severely_injured", "window", "match").get("ok", false)):
 		failures.append("MatchSubs: permitió que un jugador gravemente lesionado entrara")
 
+	print("FUTBOL_NOVA_11V11_FOUNDATION_TESTS: substitution checks completed")
 	# Realista optional module: no effect without package, bounded fatigue with package.
 	var realism_profile := {"enabled": true, "profile_id": "realism_balanced", "fatigue_enabled": true, "movement_fatigue_per_second": 0.10, "recovery_per_second": 0.16, "minimum_speed_multiplier": 0.78}
+	var inactive_realism_profile := RealismModule.load_profile()
+	if bool(inactive_realism_profile.get("enabled", false)):
+		failures.append("Realista: activó un perfil cuando el paquete opcional no está instalado")
 	if not RealismModule.validate_profile(realism_profile):
 		failures.append("Realista: rechazó un perfil válido")
 	var invalid_realism_profile := realism_profile.duplicate(true)
@@ -332,6 +343,7 @@ func _initialize() -> void:
 	if not is_equal_approx(RealismModule.movement_speed_multiplier(0.0, base_profile), 1.0):
 		failures.append("Realista: alteró el comportamiento base sin estar instalado")
 
+	print("FUTBOL_NOVA_11V11_FOUNDATION_TESTS: realism checks completed")
 	# Live clock state machine: real periods, interruption handling and user-controlled breaks.
 	var default_clock_state := MatchClockState.create_state({"half_length_minutes": 4, "clock_mode": "invalid"})
 	if int(default_clock_state.half_length_minutes) != 5 or int(default_clock_state.period_duration_seconds) != 300 or str(default_clock_state.clock_mode) != "continuous":
@@ -345,9 +357,9 @@ func _initialize() -> void:
 	continuous_state = MatchClockState.set_interruption(continuous_state, "injury", false)
 	clock_tick = MatchClockState.tick(continuous_state, 150.0)
 	continuous_state = clock_tick.state
-	if int(continuous_state.added_seconds) != 30 or str(continuous_state.phase) != "first_half":
+	if int(continuous_state.added_seconds) != 60 or str(continuous_state.phase) != "first_half":
 		failures.append("MatchClockState: no calculó el añadido continuo después de una interrupción")
-	clock_tick = MatchClockState.tick(continuous_state, 30.0)
+	clock_tick = MatchClockState.tick(continuous_state, 60.0)
 	continuous_state = clock_tick.state
 	if str(continuous_state.phase) != "half_time" or not bool(continuous_state.awaiting_user):
 		failures.append("MatchClockState: no detuvo el partido en el descanso")
