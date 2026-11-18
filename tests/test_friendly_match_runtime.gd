@@ -111,6 +111,34 @@ func _run_acceptance_test() -> void:
 				if game.match_clock_label == null or not game.match_clock_label.text.contains("PRIMER TIEMPO"):
 					failures.append("El reloj del amistoso no muestra el primer tiempo.")
 
+				# Goal areas must not change the score in training or after full time.
+				var score_before_inactive_goal := game.score_home
+				game.match_11v11_controller.stop_match()
+				game.ball.global_position = Vector3(0.0, 1.0, -53.0)
+				game._on_goal_body_entered(game.ball, "home")
+				if game.score_home != score_before_inactive_goal:
+					failures.append("Una entrada en portería fuera de un amistoso activo modificó el marcador.")
+				var restarted_match: Dictionary = game.match_11v11_controller.start_match(game.player, game.ball, {
+					"home_team_id": selected_home_id,
+					"away_team_id": selected_away_id,
+					"half_length_minutes": 3,
+					"clock_mode": "continuous"
+				})
+				if not bool(restarted_match.get("ok", false)):
+					failures.append("No se pudo reiniciar el amistoso para comprobar los goles.")
+				else:
+					game._on_goal_body_entered(game.ball, "home")
+					if game.score_home != 1 or game.score_away != 0:
+						failures.append("El gol válido en la portería visitante no actualizó el marcador local.")
+					if game.ball.global_position.distance_to(Vector3(0.0, 0.35, 0.0)) > 0.01:
+						failures.append("El balón no se reinició en el centro tras el gol local.")
+					game.ball.global_position = Vector3(0.0, 1.0, 53.0)
+					game._on_goal_body_entered(game.ball, "away")
+					if game.score_home != 1 or game.score_away != 1:
+						failures.append("El gol válido en la portería local no actualizó el marcador visitante.")
+					if game.ball.global_position.distance_to(Vector3(0.0, 0.35, 0.0)) > 0.01:
+						failures.append("El balón no se reinició en el centro tras el gol visitante.")
+
 				# Exercise the live controller through both regulation periods, not only kickoff.
 				game.match_11v11_controller._match_clock_state = MATCH_CLOCK_STATE.create_state({
 					"half_length_minutes": 3,
