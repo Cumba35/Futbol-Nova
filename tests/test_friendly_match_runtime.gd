@@ -15,6 +15,9 @@ func _test_watchdog() -> void:
 
 func _run_acceptance_test() -> void:
 	var failures := PackedStringArray()
+	var moments_service: Node = root.get_node_or_null("MomentsService")
+	var original_moments_state: Dictionary = {}
+	var training_moments_progress := -1
 	print("FRIENDLY_TEST: creating main scene")
 	var main_scene := load(MAIN_SCENE_PATH) as PackedScene
 	if main_scene == null:
@@ -64,6 +67,26 @@ func _run_acceptance_test() -> void:
 		game.game_hub._show_home()
 		await process_frame
 		print("FRIENDLY_TEST: hub navigation complete")
+
+	# A valid training goal must advance daily Moments, while a friendly-match goal must not.
+	if moments_service == null:
+		failures.append("El servicio de Momentos diarios no está disponible.")
+	else:
+		var daily_before: Dictionary = moments_service.call("get_daily_challenge")
+		original_moments_state = moments_service.get("_state").duplicate(true)
+		var clean_moments_state: Dictionary = MOMENTS_SERVICE_SCRIPT.create_daily_state(str(daily_before.get("date", "")), 0)
+		moments_service.set("_state", clean_moments_state)
+		game._on_training_mode_selected("free_practice")
+		game.ball.global_position = Vector3(0.0, 0.35, 53.0)
+		game._on_goal_body_entered(game.ball, "away")
+		var daily_after_training: Dictionary = moments_service.call("get_daily_challenge")
+		training_moments_progress = int(daily_after_training.get("progress", 0))
+		if training_moments_progress != 1:
+			failures.append("Un gol válido en práctica libre no avanzó el reto de Momentos diarios.")
+		if str(game.current_training_mode_id) != "free_practice":
+			failures.append("El juego no conservó el modo de entrenamiento activo para registrar el gol.")
+		if game.ball.global_position.distance_to(Vector3(0.0, 0.35, 0.0)) > 0.01:
+			failures.append("El balón no regresó al punto de inicio de práctica libre después del gol.")
 
 	# Use the same pre-match screen and button path as a real player.
 	if game.match_11v11_controller != null and football_registry != null:
@@ -175,6 +198,10 @@ func _run_acceptance_test() -> void:
 						failures.append("El gol válido en la portería local no actualizó el marcador visitante.")
 					if game.ball.global_position.distance_to(Vector3(0.0, 0.35, 0.0)) > 0.01:
 						failures.append("El balón no se reinició en el centro tras el gol visitante.")
+					if moments_service != null and training_moments_progress >= 0:
+						var daily_after_match_goals: Dictionary = moments_service.call("get_daily_challenge")
+						if int(daily_after_match_goals.get("progress", 0)) != training_moments_progress:
+							failures.append("Los goles de un amistoso no deben contar como goles de entrenamiento.")
 
 				# Exercise the live controller through both regulation periods, not only kickoff.
 				game.match_11v11_controller._match_clock_state = MATCH_CLOCK_STATE.create_state({
@@ -251,6 +278,9 @@ func _run_acceptance_test() -> void:
 	print("FRIENDLY_TEST: assertions completed")
 	if game.match_11v11_controller != null:
 		game.match_11v11_controller.stop_match()
+	if moments_service != null and not original_moments_state.is_empty():
+		moments_service.set("_state", original_moments_state)
+		moments_service.call("_save")
 	game.queue_free()
 
 	if not failures.is_empty():
