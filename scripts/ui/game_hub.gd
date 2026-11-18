@@ -301,13 +301,47 @@ func _show_online() -> void:
 	current_subpage = ""
 	_clear_content()
 	_update_header("ONLINE", "Módulo descargable • No forma parte del juego base.")
-	_add_info_card(DOWNLOAD_ICON + " MULTIJUGADOR ONLINE", "Las partidas online, las salas, el emparejamiento, la sincronización y la selección de futbolistas requieren instalar el módulo Online. El juego base no incluye servicios de red.")
+	_add_info_card(DOWNLOAD_ICON + " MULTIJUGADOR ONLINE", "Las partidas online, las salas, el emparejamiento y la sincronización requieren instalar el módulo Online. El juego base no incluye servicios de red.")
 	_add_info_card("ESTADO DEL MÓDULO", "El módulo se mostrará como disponible únicamente cuando su paquete esté publicado, validado y sea compatible con esta versión.")
 	var download := _nav_button(DOWNLOAD_ICON + " VER MÓDULOS DESCARGABLES")
 	download.custom_minimum_size.y = 48
 	download.pressed.connect(_request_catalog)
+
+	# The base game stores only user-created players for a future Online module.
+	# Catalog players are never copied into the isolated custom roster.
+	var roster_panel := _make_panel()
+	content_box.add_child(roster_panel)
+	var roster_column := VBoxContainer.new()
+	roster_column.add_theme_constant_override("separation", 8)
+	roster_panel.add_child(roster_column)
+	roster_column.add_child(_label("MIS JUGADORES CREADOS", 16, LIME))
+	var custom_players: Array = CustomPlayerRoster.get_created_players()
+	var selected_player_id := CustomPlayerRoster.get_online_selected_player_id()
+	if custom_players.is_empty():
+		var empty_note := _label("Todavía no has creado futbolistas. Los jugadores que crees aparecerán aquí para prepararlos para el módulo Online.", 12, MUTED)
+		empty_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		roster_column.add_child(empty_note)
+	else:
+		for raw_player in custom_players:
+			if not raw_player is Dictionary:
+				continue
+			var player_id := str(raw_player.get("id", "")).strip_edges()
+			if player_id.is_empty():
+				continue
+			var player_name := str(raw_player.get("display_name", raw_player.get("full_name", player_id))).strip_edges()
+			var player_row := HBoxContainer.new()
+			player_row.add_theme_constant_override("separation", 8)
+			var player_label := _label(player_name, 13, WHITE)
+			player_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			player_row.add_child(player_label)
+			var select_button := _nav_button("SELECCIONAR")
+			select_button.pressed.connect(_select_custom_player_for_online.bind(player_id))
+			player_row.add_child(select_button)
+			roster_column.add_child(player_row)
+			if player_id == selected_player_id:
+				roster_column.add_child(_label("JUGADOR PREPARADO: " + player_name, 12, LIME))
 	content_box.add_child(download)
-	status_label.text = "Online • Instalación opcional e independiente"
+	status_label.text = "Online • Selección local de futbolistas preparada; el módulo de red sigue siendo independiente."
 
 
 func _select_custom_player_for_online(player_id: String) -> void:
