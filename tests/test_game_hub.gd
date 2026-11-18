@@ -6,6 +6,13 @@ var selected_mode := ""
 
 func _initialize() -> void:
 	call_deferred("_run_tests")
+	call_deferred("_test_watchdog")
+
+func _test_watchdog() -> void:
+	await create_timer(120.0).timeout
+	push_error("GAME HUB TEST: la prueba superó el límite interno de 120 segundos.")
+	quit(1)
+
 
 func _run_tests() -> void:
 	var hub_script = load("res://scripts/ui/game_hub.gd")
@@ -52,6 +59,7 @@ func _run_tests() -> void:
 	var home_help_column: Control = home_help_panel.get_child(0)
 	var help_button: Button = home_help_column.get_child(2)
 	help_button.pressed.emit()
+	await process_frame
 	assert(hub.current_subpage == "help", "Help must be available in the base game")
 	assert(hub.content_box.get_child_count() >= 6, "Help must explain the base game and downloadable modules")
 	var help_titles := PackedStringArray()
