@@ -237,3 +237,8 @@ Se amplió la comparación de alternativas a FreeKick (MIT), OpenSWOS (MIT), Lea
 Resultado: se conserva GDScript/Godot 4.4.1 y el funcionamiento offline; no se incorporan motores C++/GDExtension, servicios, ni código o assets con licencia incierta. La física de vuelo y el gesto táctil propios siguen siendo componentes iniciales pendientes de conexión y pruebas.
 
 El cambio de lado también anula la velocidad residual del futbolista controlado y reinicia la interpolación física de los modelos, evitando que un jugador arrastre el impulso del primer tiempo o aparezca visualmente desplazándose entre extremos.
+
+
+### Colisiones físicas de porterías — 18 noviembre 2026
+
+Se añadieron cuerpos estáticos para los dos postes y el larguero de cada portería, más paneles físicos trasero, laterales y superior con una visualización translúcida ligera. Esto evita que el balón atraviese el marco o entre desde detrás para activar el sensor de gol. La prueba `tests/test_goal_frame_physics.gd` verifica las 14 colisiones, el bloqueo en un poste y larguero, la contención trasera y que una entrada desde detrás no concede gol. Esta es contención física básica, no una red deformable ni una simulación completa de la deformación del balón/red.
