@@ -265,3 +265,9 @@ La carga del perfil Realista ya no referencia `ContentPackages` como identificad
 ### Coherencia de prueba del reloj continuo — 18 noviembre 2026
 
 La prueba de integración del estado del reloj esperaba 30 segundos de añadido tras una interrupción de 30 segundos, pero la regla ya fijada en `match_clock_rules.gd` exige un mínimo de 60 segundos en todos los períodos. Se corrigió la expectativa de la prueba y se avanza el reloj esos 60 segundos para comprobar el descanso y la pausa a la espera del usuario. No se redujo el mínimo reglamentario.
+
+
+
+### Resolución del catálogo en la escena principal y prueba runtime — 18 noviembre 2026
+
+La clase principal y la prueba del amistoso también usaban `FootballData` como identificador global dentro de scripts cargados de forma dinámica. Se cambió a resolver el nodo autoload `/root/FootballData` y leer su registro de forma explícita. El juego muestra el estado de catálogo no disponible si el servicio no está en el árbol; el test runtime valida el registro antes de usarlo.
