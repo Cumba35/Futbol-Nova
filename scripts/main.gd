@@ -427,6 +427,10 @@ func _on_skill_circle_gesture_completed() -> void:
 func _on_goal_body_entered(body: Node3D, scoring_side: String) -> void:
 	if body != ball:
 		return
+	# Goal areas also exist in training and free-practice modes. Only an active
+	# 11v11 match may change the official match score.
+	if match_11v11_controller == null or not match_11v11_controller.is_match_active():
+		return
 	var goal_result: Dictionary = MATCH_RULES.classify_ball_exit(ball.global_position, false, FIELD_WIDTH * 0.5, FIELD_LENGTH * 0.5)
 	if str(goal_result.get("restart", "")) != "goal":
 		return
