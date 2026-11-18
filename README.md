@@ -27,3 +27,8 @@ La importación copia el contenido de Cumba35/Web-Publica-Nova/futbol-nova/ desd
 ## Investigación técnica
 
 Las alternativas públicas, sus licencias, compatibilidad Android y decisiones de reutilización se registran en [la auditoría de repositorios públicos](docs/PUBLIC_GITHUB_RESEARCH_2026-11-18.md).
+
+
+## Investigación complementaria — 18-11-2026
+
+- [Anexo de repositorios públicos Godot, controles Android y prioridades de validación](docs/GITHUB_RESEARCH_ADDENDUM_2026-11-18.md).
