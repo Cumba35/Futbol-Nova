@@ -507,7 +507,9 @@ func _on_goal_body_entered(body: Node3D, _scoring_side: String) -> void:
 	if match_11v11_controller != null:
 		match_11v11_controller.set_match_score(score_home, score_away)
 	score_label.text = "%s  %d - %d  %s" % [home_team_display_name, score_home, score_away, away_team_display_name]
-	MomentsService.record_event("goal_scored", 1)
+	var moments_service := get_node_or_null("/root/MomentsService")
+	if moments_service != null and moments_service.has_method("record_event"):
+		moments_service.call("record_event", "goal_scored", 1)
 	_reset_ball()
 
 func _reset_ball() -> void:
