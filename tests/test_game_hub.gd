@@ -132,7 +132,7 @@ func _run_tests() -> void:
 	assert(hub_code.contains("_confirm_legend_retirement"), "Retirement must require a confirmation dialog")
 	assert(hub_code.contains("_add_legend_manager_transition"), "Retired players aged 20 or older must be offered the Manager transition")
 	assert(hub_code.contains("func _show_legend_catalog") and hub_code.contains("func _start_selected_legend_catalog_player"), "Choose Player must open and start a Nova catalog player career")
-	assert(hub_code.contains("CustomPlayerRoster.get_created_players()") and hub_code.contains("MIS JUGADORES CREADOS"), "Online must list only user-created players from the isolated roster")
+	assert(hub_code.contains("Módulo descargable") and hub_code.contains("VER MÓDULOS DESCARGABLES"), "The base Online page must remain an optional module and not expose unavailable player lists")
 	assert(hub_code.contains("CustomPlayerRoster.select_for_online") and hub_code.contains("JUGADOR PREPARADO"), "Online must persist an explicit custom-player selection")
 	assert(hub_code.contains("NOVA-PLAYER-0035") and hub_code.contains("NO TIENES ACCESO"), "Anier must appear as an owner-restricted player in Legend")
 	assert(hub_code.contains("NovaOwnerAccess.verify_owner_session") and hub_code.contains("_request_anier_owner_selection"), "Anier selection must verify the owner session")
@@ -146,7 +146,16 @@ func _run_tests() -> void:
 	assert(roster_source != null, "Custom player roster service must exist")
 	var roster_code := roster_source.get_as_text()
 	assert(roster_code.contains("custom_player_roster.json") and roster_code.contains("online_custom_player_selection.json"), "Custom players and Online selection must persist separately")
-	assert(roster_code.contains('str(player.get("origin", "user_created")) != "user_created"'), "Nova catalog players must be rejected from the custom roster")
+	var custom_roster_node: Node = root.get_node_or_null("CustomPlayerRoster")
+	assert(custom_roster_node != null, "Custom player roster service must be available as a local autoload")
+	if custom_roster_node != null:
+		var catalog_player_result: Dictionary = custom_roster_node.add_created_player({
+			"id": "NOVA-CATALOG-ISOLATION-TEST",
+			"origin": "nova_catalog",
+			"display_name": "Jugador del catálogo"
+		})
+		assert(not bool(catalog_player_result.get("ok", false)), "The isolated custom roster must reject catalog players")
+		assert(not bool(custom_roster_node.select_for_online("NOVA-CATALOG-ISOLATION-TEST").get("ok", false)), "Online must not select a catalog player as user-created")
 	hub._open_manager_career()
 	assert(hub.current_subpage == "manager_career", "Manager mode must open its integrated career setup")
 	hub._open_main_page("settings")
