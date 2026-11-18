@@ -340,7 +340,7 @@ func _show_online() -> void:
 			roster_column.add_child(player_row)
 			if player_id == selected_player_id:
 				roster_column.add_child(_label("JUGADOR PREPARADO: " + player_name, 12, LIME))
-	roster_column.add_child(download)
+	content_box.add_child(download)
 	status_label.text = "Online • Selección local de futbolistas preparada; el módulo de red sigue siendo independiente."
 
 
