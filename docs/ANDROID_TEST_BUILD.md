@@ -60,3 +60,9 @@ Esta cobertura es automatizada en GitHub Actions; no sustituye la prueba visual 
 ### SDK mínimo para este proyecto
 
 Fútbol Nova utiliza GDScript y no contiene extensiones nativas, archivos C/C++ ni bibliotecas `.so`. Por ello, el workflow instala platform-tools, Android platform 35 y build-tools 35.0.0; no descarga el NDK, que solo sería necesario si se incorporara una extensión nativa o se compilaran plantillas personalizadas. Esto reduce tiempo de instalación y superficie de dependencias.
+
+
+
+## Pantalla Online y jugadores personalizados
+
+La pantalla Online del juego base permite revisar exclusivamente los futbolistas creados por el usuario y guardar cuál queda preparado para el futuro módulo Online. La selección se almacena aparte del catálogo oficial; no convierte el juego base en multijugador ni activa servicios de red. El catálogo oficial no se copia ni se modifica.
