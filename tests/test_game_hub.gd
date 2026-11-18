@@ -6,6 +6,13 @@ var selected_mode := ""
 
 func _initialize() -> void:
 	call_deferred("_run_tests")
+	call_deferred("_test_watchdog")
+
+func _test_watchdog() -> void:
+	await create_timer(120.0).timeout
+	push_error("GAME HUB TEST: la prueba superó el límite interno de 120 segundos.")
+	quit(1)
+
 
 func _run_tests() -> void:
 	var hub_script = load("res://scripts/ui/game_hub.gd")
@@ -52,6 +59,7 @@ func _run_tests() -> void:
 	var home_help_column: Control = home_help_panel.get_child(0)
 	var help_button: Button = home_help_column.get_child(2)
 	help_button.pressed.emit()
+	await process_frame
 	assert(hub.current_subpage == "help", "Help must be available in the base game")
 	assert(hub.content_box.get_child_count() >= 6, "Help must explain the base game and downloadable modules")
 	var help_titles := PackedStringArray()
@@ -61,24 +69,31 @@ func _run_tests() -> void:
 			help_titles.append(str(help_column.get_child(0).text))
 	assert(help_titles.has("QUÉ INCLUYE EL JUEGO BASE") and help_titles.has("MÓDULOS DESCARGABLES"), "Help must explain both base-game features and downloadable modules")
 	hub._show_home()
+	await process_frame
 	assert(hub.back_navigation_button != null and hub.back_navigation_button.text == "ATRÁS", "Persistent bottom Back button must exist")
 	assert(hub.next_navigation_button != null and hub.next_navigation_button.text == "SIGUIENTE", "Persistent bottom Next button must exist")
 	assert(hub.back_navigation_button.disabled, "Back must be disabled on the first main screen")
 	hub._navigate_next()
+	await process_frame
 	assert(hub.current_page == "online", "Next must move from Home to Online")
 	hub._navigate_back()
+	await process_frame
 	assert(hub.current_page == "home", "Back must return from Online to Home")
 	assert(hub.content_box.get_child_count() == 3, "Base Home must show welcome, friendly match and Help only")
 	hub._open_main_page("online")
+	await process_frame
 	assert(hub.current_page == "online", "Online main screen must open")
 	assert(hub.content_box.get_child_count() == 3, "Online must show network status, custom-player selection and multiplayer status")
 	hub._open_main_page("modes")
+	await process_frame
 	assert(hub.current_page == "modes", "Modes main screen must open")
 	assert(hub.content_box.get_child_count() == 8, "Modes must list downloadable modules and the module catalogue")
 	hub._show_tas_competition()
+	await process_frame
 	assert(hub.current_subpage == "tas", "TAS must open its competition screen")
 	assert(hub.content_box.get_child_count() >= 4, "TAS screen must explain its single-match format and regional qualification requirements")
 	hub._show_modes()
+	await process_frame
 	var catalog_requests := [0]
 	hub.catalog_requested.connect(func(): catalog_requests[0] += 1)
 	var legend_panel: Control = hub.content_box.get_child(1)
@@ -90,9 +105,11 @@ func _run_tests() -> void:
 	hub._request_catalog()
 	assert(catalog_requests[0] == 2, "Catalog action must emit integration signal")
 	hub._show_new_game_menu()
+	await process_frame
 	assert(hub.current_subpage == "new_game" and hub.current_page == "home", "New Game must open a mode selection from Home")
 	assert(hub.content_box.get_child_count() >= 3, "New Game must offer Manager, Legend and a return action")
 	hub._show_league_browser()
+	await process_frame
 	assert(hub.current_subpage == "league_browser", "Leagues and Cups must open the playable competition browser")
 	assert(hub.content_box.get_child_count() >= 2, "Competition browser must show competitions and download catalog access")
 	var football_data: Node = root.get_node_or_null("FootballData")
@@ -100,8 +117,10 @@ func _run_tests() -> void:
 	var competition_ids: Array = football_data.registry.competitions_by_id.keys()
 	if not competition_ids.is_empty():
 		hub._show_competition_detail(str(competition_ids[0]))
+	await process_frame
 		assert(hub.current_subpage == "competition:" + str(competition_ids[0]), "Competition detail must open its league table and calendar")
 	hub._open_legend_career()
+	await process_frame
 	assert(hub.current_subpage == "legend_career", "Legend mode must open its player career")
 	assert(hub.content_box.get_child_count() == 4, "Legend must first offer the two player-entry modes")
 	var create_option := hub.content_box.get_child(1) as Control
@@ -111,8 +130,10 @@ func _run_tests() -> void:
 	assert(create_button.text == "SELECCIONAR", "Create Player option must be available")
 	assert(choose_button.text == "SELECCIONAR", "Choose Player option must be available")
 	hub._show_legend_creator()
+	await process_frame
 	assert(hub.content_box.get_child_count() >= 8, "Create Player must open the complete player creator")
 	hub._show_modes()
+	await process_frame
 	var legend_source := FileAccess.open("res://scripts/legend/legend_career_service.gd", FileAccess.READ)
 	assert(legend_source != null, "Legend career service must exist")
 	var legend_code := legend_source.get_as_text()
@@ -141,16 +162,21 @@ func _run_tests() -> void:
 	assert(roster_code.contains("custom_player_roster.json") and roster_code.contains("online_custom_player_selection.json"), "Custom players and Online selection must persist separately")
 	assert(roster_code.contains('str(player.get("origin", "user_created")) != "user_created"'), "Nova catalog players must be rejected from the custom roster")
 	hub._open_manager_career()
+	await process_frame
 	assert(hub.current_subpage == "manager_career", "Manager mode must open its integrated career setup")
 	hub._open_main_page("settings")
+	await process_frame
 	assert(hub.current_page == "settings", "Settings main screen must open")
 	assert(hub.content_box.get_child_count() == 11, "Settings must expose eleven categories")
 	hub._open_settings_category("Controles")
+	await process_frame
 	assert(hub.current_subpage == "Controles", "Controller settings subpage must open")
 	hub._open_settings_category("Módulos")
+	await process_frame
 	assert(hub.current_subpage == "Módulos", "Modules settings subpage must open")
 	assert(hub.content_box.get_child_count() == 3, "Modules subpage must expose catalog action and back navigation")
 	hub._show_training()
+	await process_frame
 	assert(hub.current_page == "home", "Training remains a subpage of Home")
 	assert(hub.current_subpage == "training", "Training subpage must open")
 	assert(hub.content_box.get_child_count() == 4, "Training must expose four configured cards")
