@@ -106,22 +106,23 @@ jobs:
       - name: Validate historical competition archive
         run: python tools/validate_historical_competitions.py
 
-      - name: Run core APK acceptance tests
-        shell: bash
-        run: |
-          set -euo pipefail
-          run_godot_test() {
-            local test_path="$1"
-            echo "::group::Godot test: $test_path"
-            timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script "res://$test_path"
-            echo "::endgroup::"
-          }
-          run_godot_test "tests/test_game_hub.gd"
-          run_godot_test "tests/test_match_11v11_foundation.gd"
-          run_godot_test "tests/test_friendly_match_runtime.gd"
-          run_godot_test "tests/test_maximo_padilla_profile.gd"
-          run_godot_test "tests/test_nova_owner_access.gd"
-          run_godot_test "tests/test_nova_resource_policy.gd"
+      - name: Core test — hub and main screens
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_game_hub.gd
+
+      - name: Core test — 11v11 match foundation
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_match_11v11_foundation.gd
+
+      - name: Core test — live friendly match, goals and periods
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_friendly_match_runtime.gd
+
+      - name: Core test — Máximo Padilla player profile
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_maximo_padilla_profile.gd
+
+      - name: Core test — NOVA owner access
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_nova_owner_access.gd
+
+      - name: Core test — NOVA resource policy
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_nova_resource_policy.gd
 
       - name: Smoke test the Android game scene
         run: timeout --signal=TERM --kill-after=15s 120s godot --headless --path . --quit-after 5
@@ -139,41 +140,77 @@ jobs:
           path: build/FutbolNova-debug.apk
           if-no-files-found: error
           retention-days: 14
-      - name: Run extended regression suite after publishing the test APK
-        shell: bash
-        run: |
-          set -euo pipefail
-          run_godot_test() {
-            local test_path="$1"
-            echo "::group::Godot regression: $test_path"
-            timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script "res://$test_path"
-            echo "::endgroup::"
-          }
-          for test_path in \
-            tests/test_mens_scope.gd \
-            tests/test_anier_cumba_profile.gd \
-            tests/test_player_statistics_consistency.gd \
-            tests/test_season_progression.gd \
-            tests/test_base_league_data.gd \
-            tests/test_ten_base_leagues_complete.gd \
-            tests/test_legend_career.gd \
-            tests/test_nova_owner_access.gd \
-            tests/test_custom_player_roster.gd \
-            tests/test_moments_service.gd \
-            tests/test_controller_support.gd \
-            tests/test_football_database.gd \
-            tests/test_shared_foundation.gd \
-            tests/test_continental_league_modules.gd \
-            tests/test_tas_match_decision_engine.gd \
-            tests/test_tas_competition_engine.gd \
-            tests/test_competition_draw_ceremony.gd \
-            tests/test_national_team_competition_catalog.gd \
-            tests/test_caribbean_champions_league.gd \
-            tests/test_american_regional_champions_engine.gd \
-            tests/test_usa_league_data.gd \
-            tests/test_pending_league_calendars.gd \
-            tests/test_league_and_manager_systems.gd \
-            scripts/tests/validate_download_catalog.gd \
-            scripts/tests/validate_optional_modules.gd; do
-            run_godot_test "$test_path"
-          done
+      - name: Regression — test_mens_scope.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_mens_scope.gd
+
+      - name: Regression — test_anier_cumba_profile.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_anier_cumba_profile.gd
+
+      - name: Regression — test_player_statistics_consistency.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_player_statistics_consistency.gd
+
+      - name: Regression — test_season_progression.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_season_progression.gd
+
+      - name: Regression — test_base_league_data.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_base_league_data.gd
+
+      - name: Regression — test_ten_base_leagues_complete.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_ten_base_leagues_complete.gd
+
+      - name: Regression — test_legend_career.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_legend_career.gd
+
+      - name: Regression — test_nova_owner_access.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_nova_owner_access.gd
+
+      - name: Regression — test_custom_player_roster.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_custom_player_roster.gd
+
+      - name: Regression — test_moments_service.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_moments_service.gd
+
+      - name: Regression — test_controller_support.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_controller_support.gd
+
+      - name: Regression — test_football_database.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_football_database.gd
+
+      - name: Regression — test_shared_foundation.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_shared_foundation.gd
+
+      - name: Regression — test_continental_league_modules.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_continental_league_modules.gd
+
+      - name: Regression — test_tas_match_decision_engine.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_tas_match_decision_engine.gd
+
+      - name: Regression — test_tas_competition_engine.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_tas_competition_engine.gd
+
+      - name: Regression — test_competition_draw_ceremony.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_competition_draw_ceremony.gd
+
+      - name: Regression — test_national_team_competition_catalog.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_national_team_competition_catalog.gd
+
+      - name: Regression — test_caribbean_champions_league.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_caribbean_champions_league.gd
+
+      - name: Regression — test_american_regional_champions_engine.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_american_regional_champions_engine.gd
+
+      - name: Regression — test_usa_league_data.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_usa_league_data.gd
+
+      - name: Regression — test_pending_league_calendars.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_pending_league_calendars.gd
+
+      - name: Regression — test_league_and_manager_systems.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_league_and_manager_systems.gd
+
+      - name: Regression — validate_download_catalog.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://scripts/tests/validate_download_catalog.gd
+
+      - name: Regression — validate_optional_modules.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://scripts/tests/validate_optional_modules.gd
