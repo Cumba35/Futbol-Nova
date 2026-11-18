@@ -7,13 +7,31 @@ on:
       - 'work/**'
     paths:
       - '.github/workflows/futbol-nova-android-apk.yml'
-      - '**'
+      - '.github/workflows/futbol-nova-android-apk.yml'
+      - 'project.godot'
+      - 'export_presets.cfg'
+      - 'scenes/**'
+      - 'scripts/**'
+      - 'data/**'
+      - 'tests/**'
+      - 'assets/**'
+      - 'modules/**'
+      - 'tools/**'
   pull_request:
     branches:
       - main
     paths:
       - '.github/workflows/futbol-nova-android-apk.yml'
-      - '**'
+      - '.github/workflows/futbol-nova-android-apk.yml'
+      - 'project.godot'
+      - 'export_presets.cfg'
+      - 'scenes/**'
+      - 'scripts/**'
+      - 'data/**'
+      - 'tests/**'
+      - 'assets/**'
+      - 'modules/**'
+      - 'tools/**'
   workflow_dispatch:
 
 concurrency:
@@ -56,12 +74,12 @@ jobs:
           java-version: "17"
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       - name: Install Android SDK packages
         run: |
           yes | sdkmanager --licenses
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0" "cmdline-tools;latest" "ndk;23.2.8568313"
+          sdkmanager "platforms;android-35" "build-tools;35.0.0" "ndk;23.2.8568313"
 
       - name: Set up Godot and matching export templates
         uses: chickensoft-games/setup-godot@v2
