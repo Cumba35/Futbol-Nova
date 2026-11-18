@@ -46,6 +46,9 @@ func _kick_ball(force: float) -> void:
 	var direction := (forward * 0.7 + Vector3.UP * 0.08).normalized()
 	var match_controller := get_tree().get_first_node_in_group("match_controller")
 	if match_controller != null and match_controller.has_method("has_controlled_possession") and bool(match_controller.has_controlled_possession()):
-		if match_controller.release_controlled_ball(direction, force):
+		# Lateral body movement adds a small, bounded side-spin to the kick.
+		var lateral_speed := velocity.dot(global_transform.basis.x)
+		var flight_spin := Vector3.UP * clampf(lateral_speed * 2.0, -24.0, 24.0)
+		if match_controller.release_controlled_ball(direction, force, flight_spin):
 			return
 	ball.apply_central_impulse(direction * force)
