@@ -1,7 +1,7 @@
 # Fútbol Nova — Hoja de ruta de finalización del motor de partido
 
 **Actualizado:** 18 noviembre 2026  
-**Repositorio:** `Cumba35/Nova-Workspace` · rama `main`  
+**Repositorio:** `Cumba35/Futbol-Nova` · rama `main` (copia independiente). **Proyecto maestro:** `Cumba35/Nova-Workspace/proyectos/juegos/futbol-nova/`  
 **Objetivo:** llevar el prototipo 11 contra 11 a un partido local completo, verificable y optimizado para Android, sin presentar funciones planificadas como terminadas.
 
 ## Estados
