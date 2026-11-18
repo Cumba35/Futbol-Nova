@@ -228,3 +228,10 @@ El workflow de APK tenía filtros de rutas duplicados y ejecutaba cada prueba Go
 La auditoría del ciclo reglamentario encontró que el reloj podía pasar del primer al segundo tiempo, pero las dos alineaciones y sus direcciones tácticas permanecían en los mismos extremos. Esto hacía que el equipo local siguiera atacando la misma portería durante todo el partido. El controlador ahora intercambia las posiciones longitudinales de los 22 futbolistas en el descanso del tiempo reglamentario y en el descanso de la prórroga, invierte la orientación corporal, reinicia el balón en el centro y actualiza las direcciones de ataque, las zonas defensivas, la selección de pases y los despejes de los porteros. El estado de cambio de lado se incluye en el resumen del partido.
 
 La prueba runtime comprueba que el futbolista controlado y el portero visitante cambian de extremo, que los despejes de ambos porteros siguen orientándose hacia el campo rival, que el segundo tiempo comienza correctamente y que la prórroga vuelve a intercambiar los extremos en su propio descanso. Se mantiene el código original GDScript sin dependencias nativas.
+
+
+## Investigación pública adicional — 18 noviembre 2026
+
+Se amplió la comparación de alternativas a FreeKick (MIT), OpenSWOS (MIT), League-Soccer (Apache-2.0), Godotball (licencia no identificada), Soccer Box Game (licencia no confirmada), GodotBasic3DFootball (sin licencia clara), Agentic FC (MIT), FootPong (MIT), ODS-RL/football-env (licencia no confirmada) y OpenFoot Manager (GPLv3). La evaluación de compatibilidad, decisiones y límites de reutilización está en [`docs/PUBLIC_GITHUB_RESEARCH_2026-11-18.md`](PUBLIC_GITHUB_RESEARCH_2026-11-18.md).
+
+Resultado: se conserva GDScript/Godot 4.4.1 y el funcionamiento offline; no se incorporan motores C++/GDExtension, servicios, ni código o assets con licencia incierta. La física de vuelo y el gesto táctil propios siguen siendo componentes iniciales pendientes de conexión y pruebas.
