@@ -25,3 +25,19 @@
 La consulta de un repositorio público no concede derechos para copiar su código, modelos, sonidos, imágenes o bases de datos. Antes de incorporar cualquier componente de terceros se debe comprobar el archivo LICENSE en el commit exacto, su procedencia, las licencias de los assets y las obligaciones de atribución. Si la compatibilidad técnica o legal no está clara, se conserva únicamente la idea general y se implementa una solución original.
 
 No se copiaron código ni assets de los repositorios enumerados.
+
+## Otras alternativas examinadas — 18 de noviembre de 2026
+
+| Repositorio | Licencia / motor | Utilidad potencial | Decisión |
+|---|---|---|---|
+| [nicolasbize/soccer-course](https://github.com/nicolasbize/soccer-course) | MIT; Godot 4.4; juego 2D de fútbol local. | Arquitectura sencilla de eventos, entrada, gestor de juego y organización de escenas en una versión de motor coincidente. | No trasladar sus escenas, arte ni lógica: está diseñado para 2D y dos jugadores locales, no para la simulación 3D 11v11. Se mantiene como referencia de organización y separación de responsabilidades. |
+| [Habeeb-Rahman-CA/soccer5v5-game-godot](https://github.com/Habeeb-Rahman-CA/soccer5v5-game-godot) | MIT; Godot 4.6; fútbol 5v5. | Referencia para entrada de dos jugadores, señales/eventos y estructura de juego pequeño. | No copiar código ni recursos: versión más nueva y alcance 5v5; Fútbol Nova se mantiene en Godot 4.4.1 y 11v11. |
+| [ryan-haskell/godot-soccer-demo](https://github.com/ryan-haskell/godot-soccer-demo) | No se encontró archivo LICENSE en la raíz examinada. | Experimento de física básica del balón en Godot. | Solo lectura conceptual; sin licencia verificada no se reutiliza código ni assets. |
+| [matheuscumpian/godot-soccer](https://github.com/matheuscumpian/godot-soccer) | Proyecto de curso GameDev.tv; licencia de reutilización de código y assets no confirmada en la inspección. | Referencia visual de un prototipo de fútbol Godot. | No incorporar código ni assets sin comprobar derechos y atribuciones de cada recurso. |
+
+### Principios técnicos extraídos, sin copiar implementación
+
+- Mantener un límite claro entre entrada del jugador, controlador de partido, reglas y presentación/HUD.
+- Probar el balón con escenarios reproducibles: impulso, rebote, fricción, límites del campo y reinicio después de gol.
+- Separar las reglas de un partido 11v11 de los prototipos 2D o de fútbol 5v5.
+- Evitar elevar la versión del motor o agregar extensiones nativas solo para aprovechar una demo; la compatibilidad Android ARM64 y el build de GitHub Actions tienen prioridad.
