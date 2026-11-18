@@ -248,12 +248,15 @@ func _swap_ends_for_next_period() -> void:
 			actor_position.z = -actor_position.z
 			actor.global_position = actor_position
 			actor.rotation.y = wrapf(actor.rotation.y + PI, -PI, PI)
+			actor.reset_physics_interpolation()
 		_actors[index] = actor_data
 	if is_instance_valid(_player):
 		var player_position := _player.global_position
 		player_position.z = -player_position.z
 		_player.global_position = player_position
+		_player.velocity = Vector3.ZERO
 		_player.rotation.y = wrapf(_player.rotation.y + PI, -PI, PI)
+		_player.reset_physics_interpolation()
 	reset_ball_for_restart(Vector3(0.0, 0.35, 0.0))
 
 func get_clock_summary() -> Dictionary:
