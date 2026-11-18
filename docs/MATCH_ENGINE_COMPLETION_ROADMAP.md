@@ -235,3 +235,5 @@ La prueba runtime comprueba que el futbolista controlado y el portero visitante 
 Se amplió la comparación de alternativas a FreeKick (MIT), OpenSWOS (MIT), League-Soccer (Apache-2.0), Godotball (licencia no identificada), Soccer Box Game (licencia no confirmada), GodotBasic3DFootball (sin licencia clara), Agentic FC (MIT), FootPong (MIT), ODS-RL/football-env (licencia no confirmada) y OpenFoot Manager (GPLv3). La evaluación de compatibilidad, decisiones y límites de reutilización está en [`docs/PUBLIC_GITHUB_RESEARCH_2026-11-18.md`](PUBLIC_GITHUB_RESEARCH_2026-11-18.md).
 
 Resultado: se conserva GDScript/Godot 4.4.1 y el funcionamiento offline; no se incorporan motores C++/GDExtension, servicios, ni código o assets con licencia incierta. La física de vuelo y el gesto táctil propios siguen siendo componentes iniciales pendientes de conexión y pruebas.
+
+El cambio de lado también anula la velocidad residual del futbolista controlado y reinicia la interpolación física de los modelos, evitando que un jugador arrastre el impulso del primer tiempo o aparezca visualmente desplazándose entre extremos.
