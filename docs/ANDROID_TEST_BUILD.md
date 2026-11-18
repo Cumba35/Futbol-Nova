@@ -75,3 +75,7 @@ Una ejecución llegó a Godot 4.4.1 y detectó dos defectos en la pantalla Onlin
 
 
 La prueba `test_match_11v11_foundation.gd` ejecuta ahora su cuerpo mediante `call_deferred` después de inicializar `SceneTree`. Así el comando headless puede procesar correctamente su resultado y terminar con el código de salida correspondiente.
+
+
+
+La prueba runtime del amistoso se concentra ahora en la preparación del partido, los 22 jugadores, los goles, el reloj, los descansos y el final. La navegación del hub y sus once categorías se valida por separado en `test_game_hub.gd`, evitando repetir trabajo costoso en ambas pruebas. El test runtime dispone de watchdog y puntos de diagnóstico.
