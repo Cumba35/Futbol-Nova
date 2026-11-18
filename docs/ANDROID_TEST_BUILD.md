@@ -63,3 +63,8 @@ La siguiente ejecución debe validar estos cambios; hasta entonces no se conside
 ### Corrección del módulo de realismo opcional — 18 noviembre 2026
 
 La suite 11v11 detectó que `realism_module.gd` hacía referencia directa al autoload `ContentPackages` al compilarse como script aislado, impidiendo cargar el controlador y validar el perfil. El módulo ahora resuelve el servicio de forma dinámica desde `/root/ContentPackages` cuando existe; si no está disponible, desactiva el perfil y conserva el juego base. También valida tipos de `schema_version`, `profile` y valores numéricos antes de usarlos. Esto mantiene la regla de que el paquete de realismo es opcional y no debe impedir iniciar el juego base.
+
+
+### Dependencia del módulo de realismo en pruebas headless — 18 noviembre 2026
+
+La primera ejecución de la prueba de base 11v11 compiló el controlador y detectó que `realism_module.gd` aún referenciaba el autoload `ContentPackages` como identificador global. El módulo ahora resuelve el servicio desde `Engine.get_main_loop() as SceneTree` y accede a sus métodos dinámicamente; si el servicio no está disponible, el módulo opcional devuelve el perfil base desactivado. También valida tipos numéricos y rangos antes de habilitar el perfil. `validate_profile()` sí existe; el error de llamada observado era consecuencia del fallo de compilación de la dependencia. La próxima ejecución debe confirmar la compilación del controlador y la prueba de reglas.
