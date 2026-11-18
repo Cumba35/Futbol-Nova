@@ -4,7 +4,7 @@ Repositorio independiente del videojuego **Fútbol Nova**. Contiene la copia del
 
 ## Desarrollo y compilación
 
-El desarrollo se administra mediante **ChatGPT y GitHub**. No es necesario instalar Godot, Android Studio, Unity ni otro editor en el teléfono. Las pruebas y exportaciones se ejecutan en GitHub Actions.
+El desarrollo se administra mediante **ChatGPT y GitHub**. No es necesario instalar Godot, Android Studio, Unity ni otro editor en el teléfono. Las pruebas y exportaciones se ejecutan en GitHub Actions. El flujo de pruebas y APK Android está en [Fútbol Nova — pruebas y APK](https://github.com/Cumba35/Futbol-Nova/actions/workflows/futbol-nova-android-apk.yml).
 
 - Proyecto Godot: project.godot
 - Documentación del juego: GAME_README.md y docs/
