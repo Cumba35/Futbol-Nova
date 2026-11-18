@@ -1,3 +1,5 @@
+> **Aviso actualizado 18-11-2026:** este documento queda como referencia histórica, no como instrucción del flujo vigente. El propietario decidió desarrollar Fútbol Nova exclusivamente con ChatGPT y GitHub. No debe instalar Godot Android ni ninguna aplicación externa. La edición, las pruebas y la exportación se realizan en el repositorio y en GitHub Actions; consulta [ANDROID_TEST_BUILD.md](ANDROID_TEST_BUILD.md).
+
 # Fútbol Nova — edición desde Godot en Android
 
 **Proyecto:** Fútbol Nova  
