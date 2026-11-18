@@ -46,3 +46,8 @@ El artefacto futbol-nova-godot-source conserva el código fuente editable. No se
 ## Alcance funcional
 
 La prueba de integración verifica inicio del amistoso, marcador de ambos equipos, rechazo de goles fuera de un partido activo, colisiones de postes/larguero/red, pausa, cambio de lado al descanso, reanudación, ciclo de prórroga y final del segundo tiempo. Esto no certifica por sí solo todas las mecánicas de juego, la física, la IA, las animaciones ni el equilibrio completo de un partido 11 contra 11.
+
+
+### Último diagnóstico de CI — 18 noviembre 2026
+
+La ejecución `44415238766` llegó a las pruebas de Godot y falló en `test_game_hub.gd`: el preload de `pre_match_setup.gd` resolvía `FootballData` como identificador global durante el modo SceneTree headless y la pantalla Ayuda se comprobaba antes de retirar nodos anteriores encolados para liberar. Se corrigió la resolución del autoload mediante `/root/FootballData`, se retiraron inmediatamente los nodos antiguos del contenedor y se añadieron comprobaciones por títulos de ayuda y un watchdog interno de 120 segundos. La validación previa de datos sí pasó: 519 nombres de clubes únicos y archivo histórico con 15 competiciones, 410 ediciones y 571 resultados. La siguiente ejecución debe confirmar estas correcciones y las pruebas de goles/porterías antes de exportar una APK.
