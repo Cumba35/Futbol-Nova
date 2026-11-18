@@ -6,6 +6,13 @@ var selected_mode := ""
 
 func _initialize() -> void:
 	call_deferred("_run_tests")
+	call_deferred("_test_watchdog")
+
+
+func _test_watchdog() -> void:
+	await create_timer(120.0).timeout
+	push_error("GAME HUB TEST: la prueba superó el límite interno de 120 segundos.")
+	quit(1)
 
 func _run_tests() -> void:
 	var hub_script = load("res://scripts/ui/game_hub.gd")
