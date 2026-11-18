@@ -115,6 +115,10 @@ jobs:
       - name: Core test — live friendly match, goals and periods
         run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_friendly_match_runtime.gd
 
+      - name: Core test — goal frame physics
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_goal_frame_physics.gd
+
+
       - name: Core test — Máximo Padilla player profile
         run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_maximo_padilla_profile.gd
 
