@@ -13,7 +13,7 @@ Crear una APK de depuración ARM64 para instalar y probar Fútbol Nova en Androi
 - Godot: 4.4.1, con plantillas de exportación Android.
 - Android: ARM64, paquete `com.nova.futbolnova`.
 - Artefacto de prueba: `futbol-nova-android-debug`.
-- El workflow se inicia con cambios del proyecto en `main` o manualmente.
+- El workflow se ejecuta automáticamente al actualizar `main` o ramas `work/**`, al abrir/actualizar PR hacia `main`, y también manualmente.
 
 ## Criterios de aceptación previos a exportar
 
@@ -23,6 +23,7 @@ Crear una APK de depuración ARM64 para instalar y probar Fútbol Nova en Androi
 4. La preparación crea dos alineaciones 4-3-3 válidas con once identificadores únicos por club.
 5. El motor inicia el amistoso y crea 22 futbolistas: el jugador controlado y 21 futbolistas de IA.
 6. El HUD identifica los equipos y muestra el reloj del primer tiempo.
+7. El controlador en vivo alcanza el descanso, permite continuar y finaliza el segundo tiempo en la prueba de integración.
 
 Estos criterios se ejecutan en:
 - `tests/test_game_hub.gd`
@@ -46,6 +47,10 @@ La APK queda disponible como artefacto cuando se superan los criterios básicos 
 3. Si no hay una ejecución nueva, pulsa **Run workflow** y selecciona `main`.
 4. Espera a que aparezca el artefacto `futbol-nova-android-debug`.
 5. Descarga y extrae el ZIP; instala `FutbolNova-debug.apk`.
+
+## Desarrollo sin aplicaciones externas
+
+El propietario desarrolla exclusivamente con ChatGPT y GitHub. No necesita instalar Godot, Android Studio, un editor de código ni herramientas de compilación. Godot 4.4.1, sus plantillas y el SDK Android se descargan y ejecutan dentro del runner temporal de GitHub Actions. El usuario solo descarga el ZIP del artefacto y, cuando esté disponible, instala la APK en Android.
 
 ## Bloqueo conocido de GitHub Actions
 
