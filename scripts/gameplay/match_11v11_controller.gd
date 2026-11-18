@@ -47,6 +47,7 @@ var _possession_owner: Node3D
 var _possession_is_controlled := false
 var _active := false
 var _paused := false
+var _ends_swapped := false
 var _realism_profile: Dictionary = {}
 var _match_clock_state: Dictionary = {}
 var _home_team_id := "nova_home"
@@ -79,21 +80,29 @@ static func build_lineup(team_id: String, home_team: bool, player_ids: Array = [
 static func can_control_ball(distance: float, ball_height: float, ball_speed: float) -> bool:
 	return distance >= 0.0 and distance <= 1.15 and ball_height >= 0.0 and ball_height <= 1.1 and ball_speed <= 4.0
 
-static func is_ball_in_defensive_third(ball_z: float, home_team: bool, threshold: float = 22.0) -> bool:
+static func is_ball_in_defensive_third(ball_z: float, home_team: bool, threshold: float = 22.0, ends_swapped: bool = false) -> bool:
 	var own_goal_direction := 1.0 if home_team else -1.0
+	if ends_swapped:
+		own_goal_direction *= -1.0
 	return ball_z * own_goal_direction > threshold
 
-static func is_ball_in_attacking_third(ball_z: float, home_team: bool, threshold: float = 22.0) -> bool:
+static func is_ball_in_attacking_third(ball_z: float, home_team: bool, threshold: float = 22.0, ends_swapped: bool = false) -> bool:
 	var attack_direction := -1.0 if home_team else 1.0
+	if ends_swapped:
+		attack_direction *= -1.0
 	return ball_z * attack_direction > threshold
 
-static func forward_progress(origin_z: float, target_z: float, home_team: bool) -> float:
+static func forward_progress(origin_z: float, target_z: float, home_team: bool, ends_swapped: bool = false) -> float:
 	var attack_direction := -1.0 if home_team else 1.0
+	if ends_swapped:
+		attack_direction *= -1.0
 	return (target_z - origin_z) * attack_direction
 
 
-static func goalkeeper_clear_direction(home_team: bool, ball_x: float) -> Vector3:
+static func goalkeeper_clear_direction(home_team: bool, ball_x: float, ends_swapped: bool = false) -> Vector3:
 	var attack_direction := -1.0 if home_team else 1.0
+	if ends_swapped:
+		attack_direction *= -1.0
 	var clear_side := -1.0 if ball_x >= 0.0 else 1.0
 	return Vector3(clear_side * 0.72, 0.42, attack_direction).normalized()
 
@@ -126,6 +135,7 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 	if controlled_player == null or match_ball == null:
 		return {"ok": false, "error": "Falta el futbolista controlado o el balón."}
 	stop_match()
+	_ends_swapped = false
 	_realism_profile = REALISM_MODULE.load_profile()
 	_controlled_tackle_cooldown = 0.0
 	_player = controlled_player
@@ -204,15 +214,47 @@ func set_clock_interruption(reason: String, active: bool) -> void:
 func continue_after_period_break() -> bool:
 	if _match_clock_state.is_empty():
 		return false
+	var break_phase := str(_match_clock_state.get("phase", ""))
 	var result: Dictionary = MATCH_CLOCK_STATE.continue_after_break(_match_clock_state)
 	if not bool(result.get("ok", false)):
 		return false
 	_match_clock_state = result.state
+	if break_phase in ["half_time", "extra_time_half_time"]:
+		_swap_ends_for_next_period()
 	_paused = false
 	if is_instance_valid(_player):
 		_player.set_physics_process(true)
 	match_paused.emit(false)
 	return true
+
+func _attack_sign(home_team: bool) -> float:
+	var direction := -1.0 if home_team else 1.0
+	return -direction if _ends_swapped else direction
+
+
+func _swap_ends_for_next_period() -> void:
+	_ends_swapped = not _ends_swapped
+	for index in range(_actors.size()):
+		var actor_data: Dictionary = _actors[index]
+		var actor: Node3D = actor_data.get("node")
+		var home_position: Vector3 = actor_data.get("home_position", Vector3.ZERO)
+		var target: Vector3 = actor_data.get("target", home_position)
+		home_position.z = -home_position.z
+		target.z = -target.z
+		actor_data["home_position"] = home_position
+		actor_data["target"] = target
+		if is_instance_valid(actor):
+			var actor_position := actor.global_position
+			actor_position.z = -actor_position.z
+			actor.global_position = actor_position
+			actor.rotation.y = wrapf(actor.rotation.y + PI, -PI, PI)
+		_actors[index] = actor_data
+	if is_instance_valid(_player):
+		var player_position := _player.global_position
+		player_position.z = -player_position.z
+		_player.global_position = player_position
+		_player.rotation.y = wrapf(_player.rotation.y + PI, -PI, PI)
+	reset_ball_for_restart(Vector3(0.0, 0.35, 0.0))
 
 func get_clock_summary() -> Dictionary:
 	return _match_clock_state.duplicate(true)
@@ -505,9 +547,9 @@ func _choose_target(actor_index: int, actor_data: Dictionary) -> Vector3:
 	var tactical_shift := Vector3(clampf(ball_position.x * 0.14, -5.0, 5.0), 0.0, clampf(ball_position.z * 0.12, -7.0, 7.0))
 	var target := base + tactical_shift
 	if str(actor_data.role) == "GK":
-		var attack_sign := -1.0 if home_team else 1.0
-		var own_goal_z := 49.0 if home_team else -49.0
-		var in_defensive_third := is_ball_in_defensive_third(ball_position.z, home_team)
+		var attack_sign := _attack_sign(home_team)
+		var own_goal_z := -attack_sign * 49.0
+		var in_defensive_third := is_ball_in_defensive_third(ball_position.z, home_team, 22.0, _ends_swapped)
 		var step_out := 0.0
 		if in_defensive_third:
 			var depth := clampf((absf(ball_position.z) - 22.0) / 27.0, 0.0, 1.0)
@@ -517,7 +559,7 @@ func _choose_target(actor_index: int, actor_data: Dictionary) -> Vector3:
 		return Vector3(keeper_x, 0.0, keeper_z)
 	var nearest_index := _nearest_teammate_to_ball(home_team)
 	if nearest_index == actor_index and Vector2(ball_position.x, ball_position.z).distance_to(Vector2(base.x, base.z)) < 29.0:
-		var attack_sign := -1.0 if home_team else 1.0
+		var attack_sign := _attack_sign(home_team)
 		target = Vector3(ball_position.x, 0.0, ball_position.z + attack_sign * 1.25)
 	return Vector3(clampf(target.x, -FIELD_HALF_WIDTH + 2.0, FIELD_HALF_WIDTH - 2.0), 0.0, clampf(target.z, -FIELD_HALF_LENGTH + 3.0, FIELD_HALF_LENGTH - 3.0))
 
@@ -555,7 +597,7 @@ func _try_ai_ball_action(actor_index: int, actor_data: Dictionary) -> void:
 		if actor.global_position.distance_to(_ball.global_position) > 2.0 or _ball.global_position.y > 2.4:
 			return
 		# Atajada/despeje básico: el portero desvía hacia una zona lateral y segura.
-		var clear_direction := goalkeeper_clear_direction(home_team, _ball.global_position.x)
+		var clear_direction := goalkeeper_clear_direction(home_team, _ball.global_position.x, _ends_swapped)
 		if owns_ball:
 			_clear_ball_possession()
 		else:
@@ -564,8 +606,8 @@ func _try_ai_ball_action(actor_index: int, actor_data: Dictionary) -> void:
 		actor_data.kick_cooldown = 1.8
 		_actors[actor_index] = actor_data
 		return
-	var attack_sign := -1.0 if home_team else 1.0
-	var attacking_third := is_ball_in_attacking_third(_ball.global_position.z, home_team)
+	var attack_sign := _attack_sign(home_team)
+	var attacking_third := is_ball_in_attacking_third(_ball.global_position.z, home_team, 22.0, _ends_swapped)
 	var pass_target := _find_forward_pass_target(actor_index, home_team)
 	var impulse_direction: Vector3
 	var force: float
@@ -597,7 +639,7 @@ func _find_forward_pass_target(actor_index: int, home_team: bool) -> Vector3:
 			continue
 		var candidate := teammate.global_position
 		var distance := origin.distance_to(candidate)
-		var forward_gain := forward_progress(origin.z, candidate.z, home_team)
+		var forward_gain := forward_progress(origin.z, candidate.z, home_team, _ends_swapped)
 		if distance < 3.0 or distance > 19.0 or forward_gain < 1.0:
 			continue
 		if not _is_pass_lane_clear(origin, candidate, home_team):
