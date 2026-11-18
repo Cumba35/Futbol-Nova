@@ -58,3 +58,8 @@ La ejecución `44415238766` llegó a las pruebas de Godot y falló en `test_game
 La ejecución `44416626883` confirmó que la resolución de `FootballData` y la retirada inmediata de nodos del hub ya permitieron avanzar más. Después encontró dos problemas adicionales: el catálogo internacional contiene `founding_year: null` en varias competiciones, por lo que una conversión directa `int(null)` fallaba; y la prueba esperaba una lista de jugadores dentro de Online aunque el juego base muestra correctamente Online como módulo descargable. Se añadió `_safe_int()` para valores nulos/mixtos y se ajustó la prueba para validar que Online siga siendo opcional. También se reforzó el aislamiento del registro local: solo se cargan jugadores con origen `user_created`, y se rechazan jugadores `nova_catalog` tanto al guardar como al seleccionar para Online.
 
 La siguiente ejecución debe validar estos cambios; hasta entonces no se considera aprobada la suite ni generada una APK instalable.
+
+
+### Corrección del módulo de realismo opcional — 18 noviembre 2026
+
+La suite 11v11 detectó que `realism_module.gd` hacía referencia directa al autoload `ContentPackages` al compilarse como script aislado, impidiendo cargar el controlador y validar el perfil. El módulo ahora resuelve el servicio de forma dinámica desde `/root/ContentPackages` cuando existe; si no está disponible, desactiva el perfil y conserva el juego base. También valida tipos de `schema_version`, `profile` y valores numéricos antes de usarlos. Esto mantiene la regla de que el paquete de realismo es opcional y no debe impedir iniciar el juego base.
