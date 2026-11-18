@@ -110,7 +110,7 @@ func _run_acceptance_test() -> void:
 				game.match_11v11_controller._transfer_possession(game.player, true, "controlled_player")
 				if not game.ball.freeze:
 					failures.append("La prueba no pudo establecer la posesión previa al reinicio.")
-				var spin_release_ok := game.match_11v11_controller.release_controlled_ball(Vector3.FORWARD, 7.0, Vector3.UP * 18.0)
+				var spin_release_ok: bool = bool(game.match_11v11_controller.release_controlled_ball(Vector3.FORWARD, 7.0, Vector3.UP * 18.0))
 				if not spin_release_ok:
 					failures.append("El controlador no liberó el balón con spin válido desde la posesión controlada.")
 				if game.match_11v11_controller.has_controlled_possession():
