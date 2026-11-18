@@ -1,6 +1,6 @@
 # Fútbol Nova — Hoja de ruta de finalización del motor de partido
 
-**Actualizado:** 16 noviembre 2026  
+**Actualizado:** 18 noviembre 2026  
 **Repositorio:** `Cumba35/Nova-Workspace` · rama `main`  
 **Objetivo:** llevar el prototipo 11 contra 11 a un partido local completo, verificable y optimizado para Android, sin presentar funciones planificadas como terminadas.
 
@@ -200,3 +200,13 @@ Referencia técnica: [FreeKick — MIT](https://github.com/AKM-8byte/FreeKick), 
 La auditoría de las reglas detectó que `classify_ball_exit()` daba prioridad automática a la línea de meta cuando el balón terminaba fuera por dos límites a la vez. Eso podía conceder un córner o saque de puerta aunque el balón hubiera cruzado primero la línea lateral. La función ahora acepta la posición anterior del balón y compara el instante de cruce de cada límite usando el segmento de movimiento. Si ambos límites aparecen fuera pero no se aporta una posición anterior válida, devuelve `ambiguous_exit` en vez de inventar un reinicio. Se añadieron pruebas para línea de meta primero, banda primero y salida ambigua.
 
 Investigación pública: se consultó [Soccer-Manager-Pro](https://github.com/antonzymin-eng/Soccer-Manager-Pro), que documenta el orden de resolución entre movimiento, contactos y cruce de límites. GitHub no devuelve una licencia identificable (`license: null`), así que solo se estudió el enfoque y no se reutilizó código. Se mantiene la implementación original de Fútbol Nova.
+
+
+## Actualización 18-11-2026 — desarrollo exclusivo con ChatGPT y GitHub
+
+- El propietario confirmó que no utilizará Godot instalado, Android Studio ni otras aplicaciones externas para desarrollar los proyectos NOVA. ChatGPT se utiliza para diseñar, revisar y modificar el código; GitHub es el repositorio, el sistema de control de cambios y el entorno de ejecución CI.
+- El workflow Android ahora se dispara automáticamente en push a `main` y ramas `work/**`, en pull requests hacia `main`, y manualmente. Se añadió concurrencia por referencia para cancelar compilaciones obsoletas y permisos mínimos de solo lectura.
+- La prueba de aceptación del amistoso se amplió para ejecutar el controlador de reloj en vivo a través del descanso, la continuación y el pitido final del segundo tiempo. Esto es cobertura añadida, no una prueba aprobada: solo se considerará PASS después de que GitHub Actions asigne runner y termine los scripts Godot.
+- Referencias públicas estudiadas: [League-Soccer](https://github.com/awest813/League-Soccer) para arquitectura de motor/IA/árbitro; el README declara Apache-2.0, pero se exige confirmar el archivo LICENSE y procedencia antes de copiar. [Godotball](https://github.com/aliyavuzz/Godotball) muestra física y árbitro con GDExtension C++ pero añade compilación nativa; no se incorpora porque aumenta el coste y no se confirmó una licencia reutilizable. [Soccer Box Game](https://github.com/namelesssyf/soccer-box-game) aporta ideas de física y pruebas, pero su tecnología/backend no encaja con el juego offline actual y no se confirmó licencia; no se copia código ni assets.
+- No se añade ninguna dependencia runtime de esos proyectos. Se preserva la implementación GDScript ligera existente y se prioriza su validación en Android ARM64.
+- Bloqueo externo pendiente: las ejecuciones históricas fallaron antes de iniciar el job (`runner_id=0`, sin pasos ni logs). Este cambio no puede habilitar la cuota/facturación de Actions desde el repositorio. No se declara APK generada hasta verificar un artefacto real.
