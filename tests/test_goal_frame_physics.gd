@@ -1,6 +1,6 @@
 extends SceneTree
 
-const MAIN_SCENE := preload("res://scenes/main.tscn")
+const MAIN_SCENE_PATH := "res://scenes/main.tscn"
 const GOAL_PREFIXES := ["Home", "Away"]
 const GOAL_PARTS := [
 	"GoalPostLeftCollision",
@@ -17,7 +17,16 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var failures := PackedStringArray()
-	var game = MAIN_SCENE.instantiate()
+	var main_scene := load(MAIN_SCENE_PATH) as PackedScene
+	if main_scene == null:
+		push_error("GOAL_FRAME_TEST: no se pudo cargar scenes/main.tscn después de inicializar autoloads.")
+		quit(1)
+		return
+	var game = main_scene.instantiate()
+	if game == null or game.get_script() == null:
+		push_error("GOAL_FRAME_TEST: main.gd no se pudo cargar o compilar.")
+		quit(1)
+		return
 	root.add_child(game)
 	for _frame in range(60):
 		await process_frame
