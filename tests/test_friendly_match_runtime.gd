@@ -113,7 +113,7 @@ func _run_acceptance_test() -> void:
 					failures.append("El reloj del amistoso no muestra el primer tiempo.")
 
 				# Goal areas must not change the score in training or after full time.
-				var score_before_inactive_goal := game.score_home
+				var score_before_inactive_goal: int = int(game.score_home)
 				game.match_11v11_controller.stop_match()
 				game.ball.global_position = Vector3(0.0, 1.0, -53.0)
 				game._on_goal_body_entered(game.ball, "home")
@@ -145,7 +145,7 @@ func _run_acceptance_test() -> void:
 					"half_length_minutes": 3,
 					"clock_mode": "continuous"
 				})
-				var home_z_before_half_time := game.player.global_position.z
+				var home_z_before_half_time: float = float(game.player.global_position.z)
 				var away_goalkeeper: Node3D
 				for actor_data in game.match_11v11_controller._actors:
 					if not bool(actor_data.get("home_team", true)) and str(actor_data.get("role", "")) == "GK":
@@ -164,6 +164,17 @@ func _run_acceptance_test() -> void:
 					failures.append("El futbolista conservó la velocidad anterior al cambiar de lado.")
 				if is_instance_valid(away_goalkeeper) and not is_equal_approx(away_goalkeeper.global_position.z, -away_goalkeeper_z_before):
 					failures.append("El portero visitante no cambió de lado al comenzar el segundo tiempo.")
+				# Goal scoring follows the teams' swapped ends, not fixed goal-area labels.
+				var home_score_before_swapped_goal: int = int(game.score_home)
+				var away_score_before_swapped_goal: int = int(game.score_away)
+				game.ball.global_position = Vector3(0.0, 1.0, 53.0)
+				game._on_goal_body_entered(game.ball, "away")
+				if game.score_home != home_score_before_swapped_goal + 1 or game.score_away != away_score_before_swapped_goal:
+					failures.append("El gol local hacia +Z no se contabilizó después del cambio de lado.")
+				game.ball.global_position = Vector3(0.0, 1.0, -53.0)
+				game._on_goal_body_entered(game.ball, "home")
+				if game.score_away != away_score_before_swapped_goal + 1:
+					failures.append("El gol visitante hacia -Z no se contabilizó después del cambio de lado.")
 				if MATCH_11V11.goalkeeper_clear_direction(true, 0.0, true).z <= 0.0 or MATCH_11V11.goalkeeper_clear_direction(false, 0.0, true).z >= 0.0:
 					failures.append("Los despejes de los porteros no se orientaron hacia el campo rival después del cambio de lado.")
 				game.match_11v11_controller._update_match_clock(240.0)
