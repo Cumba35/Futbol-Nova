@@ -357,9 +357,9 @@ func _run_tests() -> void:
 	continuous_state = MatchClockState.set_interruption(continuous_state, "injury", false)
 	clock_tick = MatchClockState.tick(continuous_state, 150.0)
 	continuous_state = clock_tick.state
-	if int(continuous_state.added_seconds) != 30 or str(continuous_state.phase) != "first_half":
+	if int(continuous_state.added_seconds) != 60 or str(continuous_state.phase) != "first_half":
 		failures.append("MatchClockState: no calculó el añadido continuo después de una interrupción")
-	clock_tick = MatchClockState.tick(continuous_state, 30.0)
+	clock_tick = MatchClockState.tick(continuous_state, 60.0)
 	continuous_state = clock_tick.state
 	if str(continuous_state.phase) != "half_time" or not bool(continuous_state.awaiting_user):
 		failures.append("MatchClockState: no detuvo el partido en el descanso")
