@@ -322,6 +322,9 @@ func _run_tests() -> void:
 	print("FUTBOL_NOVA_11V11_FOUNDATION_TESTS: substitution checks completed")
 	# Realista optional module: no effect without package, bounded fatigue with package.
 	var realism_profile := {"enabled": true, "profile_id": "realism_balanced", "fatigue_enabled": true, "movement_fatigue_per_second": 0.10, "recovery_per_second": 0.16, "minimum_speed_multiplier": 0.78}
+	var inactive_realism_profile := RealismModule.load_profile()
+	if bool(inactive_realism_profile.get("enabled", false)):
+		failures.append("Realista: activó un perfil cuando el paquete opcional no está instalado")
 	if not RealismModule.validate_profile(realism_profile):
 		failures.append("Realista: rechazó un perfil válido")
 	var invalid_realism_profile := realism_profile.duplicate(true)
