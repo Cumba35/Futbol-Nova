@@ -18,6 +18,7 @@ func add_created_player(player: Dictionary) -> Dictionary:
 	if str(player.get("origin", "user_created")) != "user_created":
 		return {"ok": false, "error": "Solo se pueden guardar aquí jugadores creados por el usuario."}
 	var normalized_player: Dictionary = PLAYER_STATISTICS.normalize_player(player)
+	normalized_player["origin"] = "user_created"
 	var player_id := str(normalized_player.get("id", "")).strip_edges()
 	var player_name := str(normalized_player.get("display_name", normalized_player.get("full_name", ""))).strip_edges()
 	var attributes: Dictionary = normalized_player.get("attributes", {})
@@ -87,8 +88,10 @@ func _load_roster() -> void:
 	if parsed is Dictionary and str(parsed.get("schema_version", "")) == SCHEMA_VERSION and parsed.get("players", []) is Array:
 		_players = []
 		for player in parsed.get("players", []):
-			if player is Dictionary:
-				_players.append(PLAYER_STATISTICS.normalize_player(player))
+			if player is Dictionary and str(player.get("origin", "user_created")) == "user_created":
+				var normalized_player: Dictionary = PLAYER_STATISTICS.normalize_player(player)
+				normalized_player["origin"] = "user_created"
+				_players.append(normalized_player)
 
 func _load_selection() -> void:
 	if not _selected_online_player_id.is_empty() or not FileAccess.file_exists(SELECTION_PATH):
