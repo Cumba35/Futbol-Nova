@@ -96,3 +96,8 @@ La prueba runtime detectó una referencia global directa a `MomentsService` en `
 La ejecución `44419455179` pasó la preparación Android/Godot, importación, validaciones de clubes e histórico, prueba del hub y prueba de fundamentos 11v11. La prueba del reloj confirmó tiempo continuo/detenido, tiempo añadido mínimo de 60 segundos, descanso, pausa para decisión del usuario y continuación del segundo tiempo. La misma ejecución continúa con la prueba runtime del amistoso, goles y periodos; aún no hay resultado de APK.
 
 Las pruebas de escena cargan ahora `scenes/main.tscn` de forma dinámica después de que el proyecto haya inicializado los autoloads. Esto evita compilar la escena durante el parseo del script de test, antes de registrar los nombres globales de los servicios.
+
+
+### Dependencia de Momentos en la escena principal — 18 noviembre 2026
+
+La ejecución `44419455179` pasó fundamentos 11v11, pero el test runtime detectó una referencia estática a `MomentsService` al compilar `scripts/main.gd`. La escena principal ya resuelve el autoload desde `/root/MomentsService` en el árbol activo, evitando la dependencia del identificador global en headless. El error secundario de acceso a `game_hub` provenía de que el script principal no llegó a compilar. La nueva ejecución debe confirmar la carga de la escena y el amistoso runtime.
