@@ -74,3 +74,8 @@ La primera ejecución de la prueba de base 11v11 compiló el controlador y detec
 
 - Ejecución `44417940711`: preparación Android/Godot, importación, validación de 519 nombres de clubes, validación de 15 competiciones/410 ediciones/571 resultados y prueba del hub pasaron. La prueba de base 11v11 falló porque ese commit aún contenía la referencia estática antigua a `ContentPackages`.
 - Ejecución `44418906130`: usa el commit con el servicio de paquetes resuelto dinámicamente y vuelve a ejecutar la suite desde el inicio. Está en curso; aún no hay resultado de la prueba 11v11 ni APK.
+
+
+## Robustez de las pruebas headless — 18 noviembre 2026
+
+Las pruebas iniciadas con `godot --headless --script` no deben asumir que los autoloads están disponibles como identificadores globales al compilar scripts pre-cargados. La escena principal y la prueba runtime resuelven `FootballData` desde el árbol (`/root/FootballData` o `root.get_node_or_null("FootballData")`) y manejan el servicio ausente de forma explícita. La prueba de aceptación del amistoso se difiere con `call_deferred` después de crear el `SceneTree` y tiene un watchdog interno de 120 segundos; la prueba de base 11v11 también se difiere para ejecutar una vez inicializado el árbol. Esto evita falsos fallos de compilación y bloqueos silenciosos del runner. La validación final sigue dependiendo del resultado completo de GitHub Actions.
