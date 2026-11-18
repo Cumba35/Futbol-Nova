@@ -1,0 +1,90 @@
+name: Importar Fútbol Nova desde el repositorio público
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/import-public-game.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: futbol-nova-public-import
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del nuevo repositorio
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Descargar la copia pública de origen
+        uses: actions/checkout@v4
+        with:
+          repository: Cumba35/Web-Publica-Nova
+          ref: main
+          path: _public-source
+          persist-credentials: false
+
+      - name: Copiar el proyecto y registrar su procedencia
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f _public-source/futbol-nova/project.godot
+          cp -a _public-source/futbol-nova/. .
+          rm -rf _public-source
+          mkdir -p docs
+          cat > README.md <<'EOF'
+          # Fútbol Nova
+
+          Repositorio independiente del videojuego **Fútbol Nova**. Contiene la copia del proyecto publicada anteriormente dentro de Cumba35/Web-Publica-Nova/futbol-nova.
+
+          ## Desarrollo y compilación
+
+          El desarrollo se administra mediante **ChatGPT y GitHub**. No es necesario instalar Godot, Android Studio, Unity ni otro editor en el teléfono. Las pruebas y exportaciones se ejecutan en GitHub Actions.
+
+          - Proyecto Godot: project.godot
+          - Documentación del juego: GAME_README.md y docs/
+          - Datos, clubes y jugadores: data/
+          - Escenas y scripts: scenes/ y scripts/
+          - Pruebas: tests/
+
+          ## Repositorio maestro NOVA
+
+          La copia original y el historial principal del proyecto se conservan en el repositorio privado Cumba35/Nova-Workspace, en proyectos/juegos/futbol-nova/.
+
+          Este repositorio es la distribución independiente de Fútbol Nova. Los cambios no se sincronizan automáticamente hacia Nova Workspace: se revisan primero para evitar sobrescribir el proyecto maestro.
+
+          ## Origen de esta importación
+
+          La importación copia el contenido de Cumba35/Web-Publica-Nova/futbol-nova/ desde la rama main. El repositorio público de origen no se elimina ni se modifica.
+          EOF
+          cat > docs/REPOSITORY_ORIGIN.md <<'EOF'
+          # Procedencia y separación de repositorios
+
+          - Repositorio independiente: Cumba35/Futbol-Nova.
+          - Origen de esta copia: Cumba35/Web-Publica-Nova, carpeta futbol-nova/, rama main.
+          - Repositorio maestro NOVA: Cumba35/Nova-Workspace, carpeta proyectos/juegos/futbol-nova/.
+          - Política: conservar intacto el proyecto original de Nova Workspace. Esta importación es una copia independiente; no se borra ni se vacía el repositorio público anterior.
+          - Sincronización futura: cambios entre repositorios se comparan y revisan antes de integrarse. No se permite que la copia independiente sobrescriba automáticamente el proyecto maestro.
+          - Flujo de trabajo del usuario: ChatGPT + GitHub. Las herramientas de compilación y exportación se ejecutan dentro de GitHub Actions, no se requieren instalaciones locales.
+          EOF
+
+      - name: Guardar la importación en main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No hay cambios para importar."
+            exit 0
+          fi
+          git commit -m "Import Fútbol Nova public project as standalone repository"
+          git push origin HEAD:main
