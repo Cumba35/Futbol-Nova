@@ -36,25 +36,11 @@ func _run_acceptance_test() -> void:
 		failures.append("El catálogo offline no creó el registro de clubes.")
 
 	if game.game_hub != null:
-		for page in ["home", "online", "modes", "settings"]:
-			game.game_hub._open_main_page(page)
-			await process_frame
-			if game.game_hub.current_page != page:
-				failures.append("No se pudo abrir la pantalla principal: " + page)
-			if game.game_hub.content_box.get_child_count() == 0:
-				failures.append("La pantalla principal está vacía: " + page)
-
-		for category in ["Edición", "Módulos", "Música", "Juego", "Datos", "Controles", "Audio", "Gráficos", "Accesibilidad", "Administración", "Información"]:
-			game.game_hub._open_settings_category(category)
-			await process_frame
-			if game.game_hub.current_subpage != category:
-				failures.append("No se pudo abrir la categoría de configuración: " + category)
-			if game.game_hub.content_box.get_child_count() == 0:
-				failures.append("La categoría de configuración no muestra contenido: " + category)
-
+		# Navigation and all settings categories are covered by test_game_hub.gd.
+		# Keep this runtime test focused on the real match path.
 		game.game_hub._show_home()
 		await process_frame
-		print("FRIENDLY_TEST: hub navigation complete")
+		print("FRIENDLY_TEST: ready for pre-match setup")
 
 	# Use the same pre-match screen and button path as a real player.
 	if game.match_11v11_controller != null and football_registry != null:
