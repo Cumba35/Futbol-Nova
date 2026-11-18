@@ -84,3 +84,8 @@ Las pruebas iniciadas con `godot --headless --script` no deben asumir que los au
 ### Ajuste de expectativa del tiempo añadido — 18 noviembre 2026
 
 La ejecución `44418906130` superó la compilación del módulo de realismo y llegó a las pruebas del reloj. Detectó que el test esperaba 30 segundos de añadido continuo, pero la regla del motor aplica un mínimo reglamentario de 60 segundos; el test ahora espera 60 y avanza 60 segundos hasta el descanso. Los fallos de descanso/espera eran consecuencia de la expectativa anterior, no de una transición defectuosa del estado. La prueba corregida está en el siguiente commit de main y se volverá a ejecutar.
+
+
+### Corrección de MomentsService y carga de escena — 18 noviembre 2026
+
+La prueba runtime detectó una referencia global directa a `MomentsService` en `main.gd`, que impedía compilar la escena al cargarla desde un test headless. El registro de goles ahora resuelve el servicio con `/root/MomentsService` y verifica que el método exista antes de invocarlo. La prueba de amistoso comprueba además que el script principal se haya cargado antes de acceder a sus propiedades, evitando esperar hasta el timeout ante un error de compilación.
