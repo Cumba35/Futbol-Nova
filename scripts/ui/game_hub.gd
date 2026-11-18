@@ -283,7 +283,7 @@ func _show_help() -> void:
 
 func _claim_daily_reward() -> void:
 	var result: Dictionary = MomentsService.claim_reward()
-	status_label.text = "Recompensa añadida: %d puntos NOVA" % int(result.get("reward", 0)) if bool(result.get("ok", false)) else str(result.get("error", "No se pudo reclamar."))
+	status_label.text = "Recompensa añadida: %d puntos NOVA" % _safe_int(result.get("reward", 0)) if bool(result.get("ok", false)) else str(result.get("error", "No se pudo reclamar."))
 	_show_home()
 
 func _add_home_action(parent: VBoxContainer, caption: String, explanation: String, available: bool) -> void:
@@ -396,7 +396,7 @@ func _show_league_browser() -> void:
 	competition_ids.sort()
 	for competition_id in competition_ids:
 		var competition: Dictionary = FootballData.registry.competitions_by_id[competition_id]
-		var team_count := int(competition.get("team_ids", []).size())
+		var team_count := _safe_int(competition.get("team_ids", []).size())
 		var title_text := str(competition.get("name", competition.get("short_name", competition_id)))
 		var country := str(competition.get("country_name", _country_display_name(str(competition.get("country_code", competition.get("country_id", ""))))))
 		var panel := _make_panel()
@@ -469,8 +469,8 @@ func _add_continental_competition_cards() -> void:
 				founding_year = founding_year_value
 			elif founding_year_value is float:
 				founding_year = floori(founding_year_value)
-			elif founding_year_value is String and str(founding_year_value).is_valid_int():
-				founding_year = str(founding_year_value).to_int()
+			elif founding_year_value is String and str(founding_year_value).is_valid__safe_int():
+				founding_year = str(founding_year_value).to__safe_int()
 			var detail := "Fundada en %d" % founding_year if founding_year > 0 else "Año de fundación por verificar"
 			if status != "":
 				detail += " · " + ("Motor pendiente" if status.contains("pending") else "Catálogo registrado")
@@ -602,7 +602,7 @@ func _show_tas_competition() -> void:
 		"championship_final": "Final por el título",
 		"completed": "Edición finalizada"
 	}
-	_add_info_card("ESTADO DE LA EDICIÓN", "%s · %d participantes · %d partidos programados" % [str(status_names.get(status, status)), int(edition.get("participant_count", 9)), int(edition.get("total_scheduled_matches", 0))])
+	_add_info_card("ESTADO DE LA EDICIÓN", "%s · %d participantes · %d partidos programados" % [str(status_names.get(status, status)), _safe_int(edition.get("participant_count", 9)), _safe_int(edition.get("total_scheduled_matches", 0))])
 	if status == "completed":
 		var champion_id := str(edition.get("champion_team_id", ""))
 		var champion: Dictionary = FootballData.registry.teams_by_id.get(champion_id, {}) if FootballData.registry != null else {}
@@ -636,7 +636,7 @@ func _show_tas_competition() -> void:
 				draw_offset = 2
 			elif stage_id == "final_group":
 				draw_offset = 100
-			var draw_seed := maxi(1, int(edition.get("draw_seed", 1)) + draw_offset)
+			var draw_seed := maxi(1, _safe_int(edition.get("draw_seed", 1)) + draw_offset)
 			var ordered: Array = edition.get("ordered_standings_by_stage", {}).get(stage_id, []).duplicate(true)
 			if ordered.is_empty():
 				ordered = FootballData.get_ordered_tas_standings(table, draw_seed)
@@ -644,7 +644,7 @@ func _show_tas_competition() -> void:
 				var row: Dictionary = ordered[rank]
 				var team_id := str(row.get("team_id", ""))
 				var team: Dictionary = FootballData.registry.teams_by_id.get(team_id, {}) if FootballData.registry != null else {}
-				column.add_child(_label("%d. %s · %d pts · DG %d" % [rank + 1, str(team.get("short_name", team.get("name", team_id))), int(row.get("points", 0)), int(row.get("goal_difference", 0))], 12, WHITE))
+				column.add_child(_label("%d. %s · %d pts · DG %d" % [rank + 1, str(team.get("short_name", team.get("name", team_id))), _safe_int(row.get("points", 0)), _safe_int(row.get("goal_difference", 0))], 12, WHITE))
 		for fixture in fixtures:
 			var home_id := str(fixture.get("home_team_id", ""))
 			var away_id := str(fixture.get("away_team_id", ""))
@@ -655,11 +655,11 @@ func _show_tas_competition() -> void:
 				var result: Dictionary = fixture.get("result", {})
 				var score: Dictionary = result.get("final_score", {})
 				if score.is_empty():
-					line += " · %d-%d" % [int(fixture.get("home_goals", 0)), int(fixture.get("away_goals", 0))]
+					line += " · %d-%d" % [_safe_int(fixture.get("home_goals", 0)), _safe_int(fixture.get("away_goals", 0))]
 				else:
-					line += " · %d-%d" % [int(score.get("home", 0)), int(score.get("away", 0))]
+					line += " · %d-%d" % [_safe_int(score.get("home", 0)), _safe_int(score.get("away", 0))]
 					if bool(result.get("penalty_shootout", {}).get("played", false)):
-						line += " (pen. %d-%d)" % [int(result.penalty_shootout.get("home_score", 0)), int(result.penalty_shootout.get("away_score", 0))]
+						line += " (pen. %d-%d)" % [_safe_int(result.penalty_shootout.get("home_score", 0)), _safe_int(result.penalty_shootout.get("away_score", 0))]
 				column.add_child(_label(line, 12, MUTED))
 			else:
 				column.add_child(_label(line + " · pendiente", 12, WHITE))
@@ -719,19 +719,19 @@ func _show_competition_detail(competition_id: String) -> void:
 			var team_id := str(standing.get("team_id", ""))
 			var team: Dictionary = FootballData.registry.teams_by_id.get(team_id, {})
 			var team_name := str(team.get("name", team.get("short_name", team_id)))
-			var line := "%02d  %s   PJ %d   DG %d   PTS %d" % [rank + 1, team_name, int(standing.get("played", 0)), int(standing.get("goal_difference", 0)), int(standing.get("points", 0))]
+			var line := "%02d  %s   PJ %d   DG %d   PTS %d" % [rank + 1, team_name, _safe_int(standing.get("played", 0)), _safe_int(standing.get("goal_difference", 0)), _safe_int(standing.get("points", 0))]
 			column.add_child(_label(line, 12, WHITE))
 		var pending_round := 0
 		var next_fixtures: Array = []
 		for fixture in fixtures:
 			if str(fixture.get("status", "scheduled")) != "finished":
-				var fixture_round := int(fixture.get("round", 0))
+				var fixture_round := _safe_int(fixture.get("round", 0))
 				if pending_round == 0 or fixture_round < pending_round:
 					pending_round = fixture_round
 		for fixture in fixtures:
 			if next_fixtures.size() >= 5:
 				break
-			if pending_round > 0 and int(fixture.get("round", 0)) == pending_round:
+			if pending_round > 0 and _safe_int(fixture.get("round", 0)) == pending_round:
 				var home_id := str(fixture.get("home_team_id", ""))
 				var away_id := str(fixture.get("away_team_id", ""))
 				var home: Dictionary = FootballData.registry.teams_by_id.get(home_id, {})
@@ -760,7 +760,7 @@ func _start_next_league_season(stage_id: String, competition_id: String) -> void
 	for fixture in fixtures:
 		var season_id := str(fixture.get("season_id", "season_1"))
 		if season_id.begins_with("season_"):
-			current_season_number = maxi(current_season_number, int(season_id.trim_prefix("season_")))
+			current_season_number = maxi(current_season_number, _safe_int(season_id.trim_prefix("season_")))
 	var next_season_id := "season_%d" % (current_season_number + 1)
 	var table: Dictionary = FootballData.standings_by_stage.get(stage_id, {})
 	var team_ids: Array = table.keys()
@@ -769,7 +769,7 @@ func _start_next_league_season(stage_id: String, competition_id: String) -> void
 	var result: Dictionary = FootballData.start_next_season_for_stage(stage_id, next_season_id, team_ids, double_round_robin)
 	var status_message := ""
 	if bool(result.get("ok", false)):
-		status_message = "Comienza %s con %d partidos." % [next_season_id, int(result.get("fixture_count", 0))]
+		status_message = "Comienza %s con %d partidos." % [next_season_id, _safe_int(result.get("fixture_count", 0))]
 	else:
 		status_message = str(result.get("error", "No se pudo iniciar la nueva temporada."))
 	_show_competition_detail(competition_id)
@@ -780,7 +780,7 @@ func _simulate_league_round(stage_id: String, round_number: int, competition_id:
 	var status_message := ""
 	if bool(result.get("ok", false)):
 		_record_manager_league_results(result.get("results", []))
-		status_message = "Jornada %d completada: %d partidos." % [round_number, int(result.get("simulated", 0))]
+		status_message = "Jornada %d completada: %d partidos." % [round_number, _safe_int(result.get("simulated", 0))]
 	else:
 		status_message = str(result.get("error", "No se pudo simular la jornada."))
 	_show_competition_detail(competition_id)
@@ -801,14 +801,14 @@ func _record_manager_league_results(results: Array) -> void:
 		var is_home := club_id == home_id
 		var manager_match: Dictionary = result.duplicate(true)
 		manager_match["match_id"] = str(result.get("match_id", result.get("fixture_id", "")))
-		manager_match["team_goals"] = int(result.get("home_goals", 0)) if is_home else int(result.get("away_goals", 0))
-		manager_match["opponent_goals"] = int(result.get("away_goals", 0)) if is_home else int(result.get("home_goals", 0))
+		manager_match["team_goals"] = _safe_int(result.get("home_goals", 0)) if is_home else _safe_int(result.get("away_goals", 0))
+		manager_match["opponent_goals"] = _safe_int(result.get("away_goals", 0)) if is_home else _safe_int(result.get("home_goals", 0))
 		var scored_first_half := false
 		var scored_second_half := false
 		for event in result.get("events", []):
 			if str(event.get("type", "")) != "goal" or str(event.get("team_id", "")) != club_id:
 				continue
-			if int(event.get("minute", 0)) <= 45:
+			if _safe_int(event.get("minute", 0)) <= 45:
 				scored_first_half = true
 			else:
 				scored_second_half = true
@@ -880,12 +880,12 @@ func _show_manager_dashboard() -> void:
 				schedule_button.pressed.connect(_show_competition_detail.bind(str(competition_id)))
 				content_box.add_child(schedule_button)
 				break
-	_add_info_card("CONFIANZA DE LA JUNTA", "%d / 100" % int(state.get("board_confidence", 0)))
+	_add_info_card("CONFIANZA DE LA JUNTA", "%d / 100" % _safe_int(state.get("board_confidence", 0)))
 	_add_info_card("PUNTOS DE JUNTA", str(state.get("board_points", 0)))
 	_add_info_card("PARTIDOS DIRIGIDOS", str(state.get("matches_managed", 0)))
 	var objectives: Array = state.get("objectives", [])
 	for objective in objectives:
-		var line := "%s — %d/%d" % [str(objective.get("title", objective.get("id", "Objetivo"))), int(objective.get("progress", 0)), int(objective.get("target", 0))]
+		var line := "%s — %d/%d" % [str(objective.get("title", objective.get("id", "Objetivo"))), _safe_int(objective.get("progress", 0)), _safe_int(objective.get("target", 0))]
 		_add_info_card("OBJETIVO", line)
 	_add_settings_back_button()
 	status_label.text = "Carrera guardada localmente"
@@ -955,17 +955,17 @@ func _show_legend_catalog() -> void:
 					"nationality_id": str(custom_player.get("nationality", "CUB")),
 					"primary_position": str(custom_player.get("position", "MC")),
 					"secondary_positions": custom_player.get("secondary_positions", []),
-					"age": int(custom_player.get("age", 0)),
-					"estimated_overall": int(custom_player.get("overall", 0)),
-					"potential": int(custom_player.get("potential", 0)),
+					"age": _safe_int(custom_player.get("age", 0)),
+					"estimated_overall": _safe_int(custom_player.get("overall", 0)),
+					"potential": _safe_int(custom_player.get("potential", 0)),
 					"attributes": custom_player.get("attributes", {}).duplicate(true),
 					"birth_date": str(custom_player.get("birth_date", "")),
 					"owner_restricted": true
 				}
 				if custom_player.has("height_cm"):
-					owner_entry["height_cm"] = int(custom_player.height_cm)
+					owner_entry["height_cm"] = _safe_int(custom_player.height_cm)
 				if custom_player.has("weight_kg"):
-					owner_entry["weight_kg"] = int(custom_player.weight_kg)
+					owner_entry["weight_kg"] = _safe_int(custom_player.weight_kg)
 				legend_catalog_players.append(owner_entry)
 	for player_id in FootballData.registry.players_by_id:
 		var source: Dictionary = FootballData.registry.players_by_id[player_id].duplicate(true)
@@ -980,8 +980,8 @@ func _show_legend_catalog() -> void:
 		source["catalog_season"] = str(source.get("season", ""))
 		legend_catalog_players.append(source)
 	legend_catalog_players.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		var a_overall := int(a.get("estimated_overall", 0))
-		var b_overall := int(b.get("estimated_overall", 0))
+		var a_overall := _safe_int(a.get("estimated_overall", 0))
+		var b_overall := _safe_int(b.get("estimated_overall", 0))
 		if a_overall != b_overall:
 			return a_overall > b_overall
 		return str(a.get("display_name", "")).naturalnocasecmp_to(str(b.get("display_name", ""))) < 0
@@ -1058,12 +1058,12 @@ func _refresh_legend_catalog_results() -> void:
 		var detail_color := MUTED if not is_anier or owner_access else Color("68716a")
 		info.add_child(_label(str(player.get("display_name", "Jugador Nova")), 16, title_color))
 		if is_anier:
-			info.add_child(_label("%s • %s • %s/%s • %d años • GRL %d" % [str(player.get("club_name", "Club")), str(player.get("nationality_id", "")), str(player.get("primary_position", "")), str(player.get("secondary_positions", [""])[0] if not player.get("secondary_positions", []).is_empty() else ""), int(player.get("age", 0)), int(player.get("estimated_overall", 0))], 12, detail_color))
+			info.add_child(_label("%s • %s • %s/%s • %d años • GRL %d" % [str(player.get("club_name", "Club")), str(player.get("nationality_id", "")), str(player.get("primary_position", "")), str(player.get("secondary_positions", [""])[0] if not player.get("secondary_positions", []).is_empty() else ""), _safe_int(player.get("age", 0)), _safe_int(player.get("estimated_overall", 0))], 12, detail_color))
 		else:
 			info.add_child(_label("%s • %s • %d años • %s • OVR %d" % [
 				str(player.get("club_name", "Sin club")), str(player.get("nationality_id", "")),
-				int(player.get("age_at_generation", player.get("age", 0))),
-				str(player.get("primary_position", "")), int(player.get("estimated_overall", 0))
+				_safe_int(player.get("age_at_generation", player.get("age", 0))),
+				str(player.get("primary_position", "")), _safe_int(player.get("estimated_overall", 0))
 			], 12, detail_color))
 		var choose := _nav_button("NO TIENES ACCESO" if is_anier and not owner_access else "ELEGIR")
 		if is_anier and not owner_access:
@@ -1227,12 +1227,12 @@ func _create_legend_player(name_input: LineEdit, nationality: LineEdit, age: Spi
 		"display_name": name_input.text,
 		"shirt_name": name_input.text,
 		"nationality_id": nationality.text,
-		"age": int(age.value),
+		"age": _safe_int(age.value),
 		"primary_position": position.get_item_text(position.selected),
 		"secondary_position": secondary_code,
 		"preferred_foot": str(foot.get_item_metadata(foot.selected)),
-		"height_cm": int(height.value),
-		"weight_kg": int(weight.value),
+		"height_cm": _safe_int(height.value),
+		"weight_kg": _safe_int(weight.value),
 		"specialization": str(specialization.get_item_metadata(specialization.selected))
 	}
 	var result: Dictionary = LegendCareer.start_career(data)
@@ -1254,17 +1254,17 @@ func _show_legend_dashboard() -> void:
 	var state: Dictionary = LegendCareer.get_career_state()
 	var player: Dictionary = state.get("player", {})
 	var retired := bool(state.get("retired", false))
-	_update_header("MODO LEYENDA", "%s • %s • Temporada %d" % [str(player.get("display_name", "Jugador")), str(state.get("status", "")).to_upper(), int(state.get("season", 1))])
-	_add_info_card("FUTBOLISTA", "%s\nEdad: %d • %s • %s\nAltura: %d cm • Peso: %d kg • Pie: %s\nClub: %s" % [str(player.get("full_name", "")), int(player.get("age", 0)), str(player.get("nationality_id", "")), str(player.get("primary_position", "")), int(player.get("height_cm", 0)), int(player.get("weight_kg", 0)), str(player.get("preferred_foot", "")), str(state.get("club_name", "Sin club asignado"))])
-	_add_info_card("VALORACIÓN Y DESARROLLO", "Media: %d • Potencial: %d • Condición: %d • Forma: %d • Moral: %d" % [int(player.get("overall", 0)), int(player.get("potential", 0)), int(player.get("condition", 0)), int(player.get("form", 0)), int(player.get("morale", 0))])
+	_update_header("MODO LEYENDA", "%s • %s • Temporada %d" % [str(player.get("display_name", "Jugador")), str(state.get("status", "")).to_upper(), _safe_int(state.get("season", 1))])
+	_add_info_card("FUTBOLISTA", "%s\nEdad: %d • %s • %s\nAltura: %d cm • Peso: %d kg • Pie: %s\nClub: %s" % [str(player.get("full_name", "")), _safe_int(player.get("age", 0)), str(player.get("nationality_id", "")), str(player.get("primary_position", "")), _safe_int(player.get("height_cm", 0)), _safe_int(player.get("weight_kg", 0)), str(player.get("preferred_foot", "")), str(state.get("club_name", "Sin club asignado"))])
+	_add_info_card("VALORACIÓN Y DESARROLLO", "Media: %d • Potencial: %d • Condición: %d • Forma: %d • Moral: %d" % [_safe_int(player.get("overall", 0)), _safe_int(player.get("potential", 0)), _safe_int(player.get("condition", 0)), _safe_int(player.get("form", 0)), _safe_int(player.get("morale", 0))])
 	var grouped: Dictionary = player.get("attribute_groups", {})
 	for group_name in grouped:
 		var values: Dictionary = grouped[group_name]
 		var parts := PackedStringArray()
 		for key in values:
-			parts.append("%s %d" % [str(key).to_upper(), int(values[key])])
+			parts.append("%s %d" % [str(key).to_upper(), _safe_int(values[key])])
 		_add_info_card("ATRIBUTOS · " + str(group_name).to_upper(), "   ".join(parts))
-	_add_legend_statistics_card("ESTADÍSTICAS DE LA TEMPORADA %d" % int(state.get("season", 1)), state.get("season_stats", {}))
+	_add_legend_statistics_card("ESTADÍSTICAS DE LA TEMPORADA %d" % _safe_int(state.get("season", 1)), state.get("season_stats", {}))
 	_add_legend_statistics_card("ESTADÍSTICAS DE TODA LA CARRERA", state.get("career_stats", {}))
 	_add_info_card("REGISTRO ESTADÍSTICO", "Se muestran todas las estadísticas de temporada y carrera guardadas. El puente de resultados está disponible; la acumulación automática requiere que el motor del Modo Leyenda lo invoque al finalizar cada partido.")
 	var season_history: Array = state.get("season_history", [])
@@ -1273,10 +1273,10 @@ func _show_legend_dashboard() -> void:
 		for season_record in season_history:
 			var old_stats: Dictionary = season_record.get("statistics", {})
 			history_lines.append("Temporada %d — PJ %d • G %d • A %d • V %d • E %d • D %d • Media %.2f" % [
-				int(season_record.get("season", 0)), int(old_stats.get("appearances", 0)),
-				int(old_stats.get("goals", 0)), int(old_stats.get("assists", 0)),
-				int(old_stats.get("wins", 0)), int(old_stats.get("draws", 0)),
-				int(old_stats.get("losses", 0)), float(old_stats.get("average_rating", 0.0))
+				_safe_int(season_record.get("season", 0)), _safe_int(old_stats.get("appearances", 0)),
+				_safe_int(old_stats.get("goals", 0)), _safe_int(old_stats.get("assists", 0)),
+				_safe_int(old_stats.get("wins", 0)), _safe_int(old_stats.get("draws", 0)),
+				_safe_int(old_stats.get("losses", 0)), float(old_stats.get("average_rating", 0.0))
 			])
 		_add_info_card("HISTORIAL DE TEMPORADAS", "\n".join(history_lines))
 	var awards: Array = state.get("awards", [])
@@ -1291,7 +1291,7 @@ func _show_legend_dashboard() -> void:
 		"Sí" if bool(state.get("season_complete", false)) else "No"
 	])
 	if retired:
-		_add_info_card("CARRERA FINALIZADA", "Retirado a los %d años. Se conservan atributos, estadísticas, temporadas y premios." % int(player.get("age", 0)))
+		_add_info_card("CARRERA FINALIZADA", "Retirado a los %d años. Se conservan atributos, estadísticas, temporadas y premios." % _safe_int(player.get("age", 0)))
 		if bool(state.get("manager_unlocked", false)):
 			_add_legend_manager_transition()
 	else:
@@ -1307,7 +1307,7 @@ func _show_legend_dashboard() -> void:
 			var finish := _nav_button("FINALIZAR TEMPORADA")
 			finish.pressed.connect(_finish_legend_season)
 			content_box.add_child(finish)
-		elif int(player.get("age", 0)) < 45 and (bool(contract.get("active", false)) or str(state.get("status", "")) in ["academy", "catalog_player"]):
+		elif _safe_int(player.get("age", 0)) < 45 and (bool(contract.get("active", false)) or str(state.get("status", "")) in ["academy", "catalog_player"]):
 			var next_season := _nav_button("COMENZAR SIGUIENTE TEMPORADA")
 			next_season.pressed.connect(_advance_legend_season)
 			content_box.add_child(next_season)
@@ -1447,6 +1447,19 @@ func _add_info_card(title_text: String, body_text: String) -> void:
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	column.add_child(body)
 
+
+func _safe_int(value: Variant, fallback: int = 0) -> int:
+	if value is int:
+		return value
+	if value is float:
+		return int(value)
+	var text_value := str(value).strip_edges()
+	if text_value.is_valid_int():
+		return text_value.to_int()
+	if text_value.is_valid_float():
+		return int(text_value.to_float())
+	return fallback
+
 func _label(value: String, font_size: int, color: Color) -> Label:
 	var label := Label.new()
 	label.text = value
@@ -1520,7 +1533,7 @@ func _refresh_controller_labels() -> void:
 	if state == null or profile_label == null:
 		return
 	var active := bool(controller_status.get("enabled", false))
-	var count := int(controller_status.get("connected_count", 0))
+	var count := _safe_int(controller_status.get("connected_count", 0))
 	state.text = ("MÓDULO ACTIVO" if active else "MÓDULO NO INSTALADO") + " · " + ("%d mando(s) conectado(s)" % count)
 	profile_label.text = "Perfil: " + str(controller_status.get("profile", "Mando estándar"))
 
