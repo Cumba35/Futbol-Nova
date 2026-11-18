@@ -9,6 +9,9 @@ const RealismModule = preload("res://scripts/modules/realism_module.gd")
 const PreMatchSetup = preload("res://scripts/ui/pre_match_setup.gd")
 
 func _initialize() -> void:
+	call_deferred("_run_tests")
+
+func _run_tests() -> void:
 	var failures := PackedStringArray()
 	var home := Match11v11.build_lineup("home_test", true)
 	var away := Match11v11.build_lineup("away_test", false)
