@@ -469,8 +469,8 @@ func _add_continental_competition_cards() -> void:
 				founding_year = founding_year_value
 			elif founding_year_value is float:
 				founding_year = floori(founding_year_value)
-			elif founding_year_value is String and str(founding_year_value).is_valid__safe_int():
-				founding_year = str(founding_year_value).to__safe_int()
+			elif founding_year_value is String and str(founding_year_value).is_valid_int():
+				founding_year = str(founding_year_value).to_int()
 			var detail := "Fundada en %d" % founding_year if founding_year > 0 else "Año de fundación por verificar"
 			if status != "":
 				detail += " · " + ("Motor pendiente" if status.contains("pending") else "Catálogo registrado")
