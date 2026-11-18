@@ -77,7 +77,7 @@ jobs:
       - name: Install Android SDK packages
         run: |
           yes | sdkmanager --licenses
-          sdkmanager "platforms;android-35" "build-tools;35.0.0" "ndk;23.2.8568313"
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Set up Godot and matching export templates
         uses: chickensoft-games/setup-godot@v2
