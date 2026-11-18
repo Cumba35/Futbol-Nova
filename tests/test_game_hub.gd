@@ -84,7 +84,7 @@ func _run_tests() -> void:
 	hub._open_main_page("online")
 	await process_frame
 	_expect(hub.current_page == "online", "Online main screen must open")
-	_expect(hub.content_box.get_child_count() == 3, "Online must show network status, custom-player selection and multiplayer status")
+	_expect(hub.content_box.get_child_count() == 4, "Online must show network status, custom-player selection, module status and catalog action")
 	hub._open_main_page("modes")
 	await process_frame
 	_expect(hub.current_page == "modes", "Modes main screen must open")
