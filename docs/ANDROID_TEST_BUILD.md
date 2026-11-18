@@ -28,7 +28,7 @@ El workflow se ejecuta al actualizar archivos de proyecto en main o ramas work/*
 8. Publica el artefacto futbol-nova-android-debug si las pruebas y exportación terminan correctamente.
 9. Ejecuta después la regresión extendida.
 
-Cada prueba Godot tiene un límite individual de 180 segundos (smoke test: 120 segundos) y aparece agrupada en los logs para facilitar el diagnóstico. Si una prueba se bloquea, falla con un límite claro y no deja el job indefinidamente detenido.
+Cada prueba Godot se ejecuta en un paso independiente con un límite de 180 segundos (smoke test: 120 segundos). Así GitHub Actions muestra exactamente cuál prueba está ejecutándose o falló, sin ocultar el progreso dentro de un único bloque largo.
 
 ## Descargar APK desde Android
 
