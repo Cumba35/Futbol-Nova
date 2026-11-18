@@ -259,3 +259,9 @@ Una ejecución llegó a Godot 4.4.1 y detectó dos defectos en la pantalla Onlin
 ## Módulo Realista opcional en pruebas headless — 18 noviembre 2026
 
 La carga del perfil Realista ya no referencia `ContentPackages` como identificador global desde una clase GDScript pre-cargada. Resuelve el servicio por `Engine.get_main_loop()` y `/root/ContentPackages`, y devuelve el perfil base inactivo si el servicio no está disponible o el paquete no está instalado. La prueba 11v11 verifica expresamente ese comportamiento.
+
+
+
+### Coherencia de prueba del reloj continuo — 18 noviembre 2026
+
+La prueba de integración del estado del reloj esperaba 30 segundos de añadido tras una interrupción de 30 segundos, pero la regla ya fijada en `match_clock_rules.gd` exige un mínimo de 60 segundos en todos los períodos. Se corrigió la expectativa de la prueba y se avanza el reloj esos 60 segundos para comprobar el descanso y la pausa a la espera del usuario. No se redujo el mínimo reglamentario.
