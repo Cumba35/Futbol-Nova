@@ -1,0 +1,148 @@
+name: Fútbol Nova - pruebas y APK Android
+
+on:
+  push:
+    branches:
+      - main
+      - 'work/**'
+    paths:
+      - '.github/workflows/futbol-nova-android-apk.yml'
+      - '**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/futbol-nova-android-apk.yml'
+      - '**'
+  workflow_dispatch:
+
+concurrency:
+  group: futbol-nova-android-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-debug-apk:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Package Godot Android editor source
+        shell: bash
+        run: |
+          zip -qr "$RUNNER_TEMP/FutbolNova-Godot-Source.zip" . \
+            -x './.git/*' './.godot/*' './build/*' './.import/*'
+          test -s "$RUNNER_TEMP/FutbolNova-Godot-Source.zip"
+
+      - name: Upload Godot source project
+        uses: actions/upload-artifact@v4
+        with:
+          name: futbol-nova-godot-source
+          path: ${{ runner.temp }}/FutbolNova-Godot-Source.zip
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0" "cmdline-tools;latest" "ndk;23.2.8568313"
+
+      - name: Set up Godot and matching export templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+
+      - name: Create temporary Android debug signing key
+        shell: bash
+        run: |
+          keytool -genkeypair -v -keystore "$RUNNER_TEMP/futbol-nova-debug.keystore" \
+            -storepass android -alias androiddebugkey -keypass android \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=Android Debug,O=Android,C=US"
+          echo "GODOT_ANDROID_KEYSTORE_DEBUG_PATH=$RUNNER_TEMP/futbol-nova-debug.keystore" >> "$GITHUB_ENV"
+          echo "GODOT_ANDROID_KEYSTORE_DEBUG_USER=androiddebugkey" >> "$GITHUB_ENV"
+          echo "GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD=android" >> "$GITHUB_ENV"
+
+      - name: Import project resources
+        run: godot --headless --editor --path . --import --quit
+
+      - name: Validate original club display names
+        run: python tools/validate_club_identity_names.py
+
+      - name: Validate historical competition archive
+        run: python tools/validate_historical_competitions.py
+
+      - name: Run core APK acceptance tests
+        shell: bash
+        run: |
+          set -e
+          godot --headless --path . --script res://tests/test_game_hub.gd
+          godot --headless --path . --script res://tests/test_match_11v11_foundation.gd
+          godot --headless --path . --script res://tests/test_friendly_match_runtime.gd
+          godot --headless --path . --script res://tests/test_maximo_padilla_profile.gd
+          godot --headless --path . --script res://tests/test_nova_owner_access.gd
+          godot --headless --path . --script res://tests/test_nova_resource_policy.gd
+
+      - name: Smoke test the Android game scene
+        run: godot --headless --path . --quit-after 5
+
+      - name: Export arm64 debug APK
+        run: |
+          mkdir -p build
+          godot --headless --path . --export-debug "Android" build/FutbolNova-debug.apk
+          test -s build/FutbolNova-debug.apk
+
+      - name: Upload test APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: futbol-nova-android-debug
+          path: build/FutbolNova-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+      - name: Run extended regression suite after publishing the test APK
+        shell: bash
+        run: |
+          set -e
+          godot --headless --path . --script res://tests/test_mens_scope.gd
+          godot --headless --path . --script res://tests/test_anier_cumba_profile.gd
+          godot --headless --path . --script res://tests/test_player_statistics_consistency.gd
+          godot --headless --path . --script res://tests/test_season_progression.gd
+          godot --headless --path . --script res://tests/test_base_league_data.gd
+          godot --headless --path . --script res://tests/test_ten_base_leagues_complete.gd
+          godot --headless --path . --script res://tests/test_legend_career.gd
+          godot --headless --path . --script res://tests/test_nova_owner_access.gd
+          godot --headless --path . --script res://tests/test_custom_player_roster.gd
+          godot --headless --path . --script res://tests/test_moments_service.gd
+          godot --headless --path . --script res://tests/test_controller_support.gd
+          godot --headless --path . --script res://tests/test_football_database.gd
+          godot --headless --path . --script res://tests/test_shared_foundation.gd
+          godot --headless --path . --script res://tests/test_continental_league_modules.gd
+          godot --headless --path . --script res://tests/test_tas_match_decision_engine.gd
+          godot --headless --path . --script res://tests/test_tas_competition_engine.gd
+          godot --headless --path . --script res://tests/test_competition_draw_ceremony.gd
+          godot --headless --path . --script res://tests/test_national_team_competition_catalog.gd
+          godot --headless --path . --script res://tests/test_caribbean_champions_league.gd
+          godot --headless --path . --script res://tests/test_american_regional_champions_engine.gd
+          godot --headless --path . --script res://tests/test_usa_league_data.gd
+          godot --headless --path . --script res://tests/test_pending_league_calendars.gd
+          godot --headless --path . --script res://tests/test_league_and_manager_systems.gd
+          godot --headless --path . --script res://scripts/tests/validate_download_catalog.gd
+          godot --headless --path . --script res://scripts/tests/validate_optional_modules.gd
