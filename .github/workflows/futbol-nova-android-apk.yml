@@ -7,7 +7,6 @@ on:
       - 'work/**'
     paths:
       - '.github/workflows/futbol-nova-android-apk.yml'
-      - '.github/workflows/futbol-nova-android-apk.yml'
       - 'project.godot'
       - 'export_presets.cfg'
       - 'scenes/**'
@@ -21,7 +20,6 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/futbol-nova-android-apk.yml'
       - '.github/workflows/futbol-nova-android-apk.yml'
       - 'project.godot'
       - 'export_presets.cfg'
@@ -111,16 +109,22 @@ jobs:
       - name: Run core APK acceptance tests
         shell: bash
         run: |
-          set -e
-          godot --headless --path . --script res://tests/test_game_hub.gd
-          godot --headless --path . --script res://tests/test_match_11v11_foundation.gd
-          godot --headless --path . --script res://tests/test_friendly_match_runtime.gd
-          godot --headless --path . --script res://tests/test_maximo_padilla_profile.gd
-          godot --headless --path . --script res://tests/test_nova_owner_access.gd
-          godot --headless --path . --script res://tests/test_nova_resource_policy.gd
+          set -euo pipefail
+          run_godot_test() {
+            local test_path="$1"
+            echo "::group::Godot test: $test_path"
+            timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script "res://$test_path"
+            echo "::endgroup::"
+          }
+          run_godot_test "tests/test_game_hub.gd"
+          run_godot_test "tests/test_match_11v11_foundation.gd"
+          run_godot_test "tests/test_friendly_match_runtime.gd"
+          run_godot_test "tests/test_maximo_padilla_profile.gd"
+          run_godot_test "tests/test_nova_owner_access.gd"
+          run_godot_test "tests/test_nova_resource_policy.gd"
 
       - name: Smoke test the Android game scene
-        run: godot --headless --path . --quit-after 5
+        run: timeout --signal=TERM --kill-after=15s 120s godot --headless --path . --quit-after 5
 
       - name: Export arm64 debug APK
         run: |
@@ -138,29 +142,38 @@ jobs:
       - name: Run extended regression suite after publishing the test APK
         shell: bash
         run: |
-          set -e
-          godot --headless --path . --script res://tests/test_mens_scope.gd
-          godot --headless --path . --script res://tests/test_anier_cumba_profile.gd
-          godot --headless --path . --script res://tests/test_player_statistics_consistency.gd
-          godot --headless --path . --script res://tests/test_season_progression.gd
-          godot --headless --path . --script res://tests/test_base_league_data.gd
-          godot --headless --path . --script res://tests/test_ten_base_leagues_complete.gd
-          godot --headless --path . --script res://tests/test_legend_career.gd
-          godot --headless --path . --script res://tests/test_nova_owner_access.gd
-          godot --headless --path . --script res://tests/test_custom_player_roster.gd
-          godot --headless --path . --script res://tests/test_moments_service.gd
-          godot --headless --path . --script res://tests/test_controller_support.gd
-          godot --headless --path . --script res://tests/test_football_database.gd
-          godot --headless --path . --script res://tests/test_shared_foundation.gd
-          godot --headless --path . --script res://tests/test_continental_league_modules.gd
-          godot --headless --path . --script res://tests/test_tas_match_decision_engine.gd
-          godot --headless --path . --script res://tests/test_tas_competition_engine.gd
-          godot --headless --path . --script res://tests/test_competition_draw_ceremony.gd
-          godot --headless --path . --script res://tests/test_national_team_competition_catalog.gd
-          godot --headless --path . --script res://tests/test_caribbean_champions_league.gd
-          godot --headless --path . --script res://tests/test_american_regional_champions_engine.gd
-          godot --headless --path . --script res://tests/test_usa_league_data.gd
-          godot --headless --path . --script res://tests/test_pending_league_calendars.gd
-          godot --headless --path . --script res://tests/test_league_and_manager_systems.gd
-          godot --headless --path . --script res://scripts/tests/validate_download_catalog.gd
-          godot --headless --path . --script res://scripts/tests/validate_optional_modules.gd
+          set -euo pipefail
+          run_godot_test() {
+            local test_path="$1"
+            echo "::group::Godot regression: $test_path"
+            timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script "res://$test_path"
+            echo "::endgroup::"
+          }
+          for test_path in \
+            tests/test_mens_scope.gd \
+            tests/test_anier_cumba_profile.gd \
+            tests/test_player_statistics_consistency.gd \
+            tests/test_season_progression.gd \
+            tests/test_base_league_data.gd \
+            tests/test_ten_base_leagues_complete.gd \
+            tests/test_legend_career.gd \
+            tests/test_nova_owner_access.gd \
+            tests/test_custom_player_roster.gd \
+            tests/test_moments_service.gd \
+            tests/test_controller_support.gd \
+            tests/test_football_database.gd \
+            tests/test_shared_foundation.gd \
+            tests/test_continental_league_modules.gd \
+            tests/test_tas_match_decision_engine.gd \
+            tests/test_tas_competition_engine.gd \
+            tests/test_competition_draw_ceremony.gd \
+            tests/test_national_team_competition_catalog.gd \
+            tests/test_caribbean_champions_league.gd \
+            tests/test_american_regional_champions_engine.gd \
+            tests/test_usa_league_data.gd \
+            tests/test_pending_league_calendars.gd \
+            tests/test_league_and_manager_systems.gd \
+            scripts/tests/validate_download_catalog.gd \
+            scripts/tests/validate_optional_modules.gd; do
+            run_godot_test "$test_path"
+          done
