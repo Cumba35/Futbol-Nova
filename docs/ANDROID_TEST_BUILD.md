@@ -68,3 +68,9 @@ La suite 11v11 detectó que `realism_module.gd` hacía referencia directa al aut
 ### Dependencia del módulo de realismo en pruebas headless — 18 noviembre 2026
 
 La primera ejecución de la prueba de base 11v11 compiló el controlador y detectó que `realism_module.gd` aún referenciaba el autoload `ContentPackages` como identificador global. El módulo ahora resuelve el servicio desde `Engine.get_main_loop() as SceneTree` y accede a sus métodos dinámicamente; si el servicio no está disponible, el módulo opcional devuelve el perfil base desactivado. También valida tipos numéricos y rangos antes de habilitar el perfil. `validate_profile()` sí existe; el error de llamada observado era consecuencia del fallo de compilación de la dependencia. La próxima ejecución debe confirmar la compilación del controlador y la prueba de reglas.
+
+
+### Progreso de CI — 18 noviembre 2026
+
+- Ejecución `44417940711`: preparación Android/Godot, importación, validación de 519 nombres de clubes, validación de 15 competiciones/410 ediciones/571 resultados y prueba del hub pasaron. La prueba de base 11v11 falló porque ese commit aún contenía la referencia estática antigua a `ContentPackages`.
+- Ejecución `44418906130`: usa el commit con el servicio de paquetes resuelto dinámicamente y vuelve a ejecutar la suite desde el inicio. Está en curso; aún no hay resultado de la prueba 11v11 ni APK.
