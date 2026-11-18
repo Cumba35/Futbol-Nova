@@ -47,7 +47,8 @@ static func classify_ball_exit(
 	crossbar_height: float = 2.44,
 	ball_radius: float = 0.22,
 	previous_ball_position: Vector3 = Vector3.ZERO,
-	has_previous_ball_position: bool = false
+	has_previous_ball_position: bool = false,
+	home_attacks_positive_z: bool = false
 ) -> Dictionary:
 	var beyond_touchline := absf(ball_position.x) - ball_radius > half_width
 	var beyond_goal_line := absf(ball_position.z) - ball_radius > half_length
@@ -65,7 +66,7 @@ static func classify_ball_exit(
 			return {"restart": "ambiguous_exit", "awarded_home": false, "position": ball_position, "reason": "invalid_crossing_segment"}
 		exited_goal_line = goal_fraction <= touch_fraction
 	if exited_goal_line:
-		var defending_home := ball_position.z > 0.0
+		var defending_home := (ball_position.z > 0.0) != home_attacks_positive_z
 		var attacking_home := not defending_home
 		if absf(ball_position.x) + ball_radius <= goal_half_width and ball_position.y - ball_radius >= 0.0 and ball_position.y + ball_radius <= crossbar_height:
 			return {"restart": "goal", "awarded_home": attacking_home, "position": Vector3(0.0, 0.0, 0.0)}
@@ -73,7 +74,7 @@ static func classify_ball_exit(
 			var corner_x := signf(ball_position.x) * half_width
 			var corner_z := signf(ball_position.z) * half_length
 			return {"restart": "corner", "awarded_home": attacking_home, "position": Vector3(corner_x, 0.0, corner_z)}
-		return {"restart": "goal_kick", "awarded_home": defending_home, "position": Vector3(0.0, 0.0, half_length * (1.0 if defending_home else -1.0) * 0.88)}
+		return {"restart": "goal_kick", "awarded_home": defending_home, "position": Vector3(0.0, 0.0, signf(ball_position.z) * half_length * 0.88)}
 	var throw_x := clampf(ball_position.x, -half_width, half_width)
 	var throw_z := clampf(ball_position.z, -half_length, half_length)
 	return {"restart": "throw_in", "awarded_home": not last_touch_home, "position": Vector3(throw_x, 0.0, throw_z)}

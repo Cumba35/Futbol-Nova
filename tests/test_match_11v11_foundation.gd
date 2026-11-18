@@ -172,6 +172,15 @@ func _initialize() -> void:
 	var goal := MatchRules.classify_ball_exit(Vector3(0, 1, 53), false)
 	if goal.restart != "goal" or bool(goal.awarded_home):
 		failures.append("MatchRules: no reconoció gol válido hacia la portería local")
+	var switched_home_goal := MatchRules.classify_ball_exit(Vector3(0, 1, 53), false, 34.0, 52.5, 3.66, 2.44, 0.22, Vector3.ZERO, false, true)
+	if switched_home_goal.restart != "goal" or not bool(switched_home_goal.awarded_home):
+		failures.append("MatchRules: no atribuyó al local un gol hacia +Z después del cambio de lado")
+	var switched_away_goal := MatchRules.classify_ball_exit(Vector3(0, 1, -53), false, 34.0, 52.5, 3.66, 2.44, 0.22, Vector3.ZERO, false, true)
+	if switched_away_goal.restart != "goal" or bool(switched_away_goal.awarded_home):
+		failures.append("MatchRules: no atribuyó al visitante un gol hacia -Z después del cambio de lado")
+	var switched_home_goal_kick := MatchRules.classify_ball_exit(Vector3(10, 0, -53), false, 34.0, 52.5, 3.66, 2.44, 0.22, Vector3.ZERO, false, true)
+	if switched_home_goal_kick.restart != "goal_kick" or not bool(switched_home_goal_kick.awarded_home) or not is_equal_approx(switched_home_goal_kick.position.z, -46.2):
+		failures.append("MatchRules: no colocó el saque de puerta del local en la portería que defiende tras el cambio de lado")
 	var high_ball := MatchRules.classify_ball_exit(Vector3(0, 3.0, 53), false)
 	if high_ball.restart != "goal_kick":
 		failures.append("MatchRules: concedió gol a un balón que salió por encima del larguero")

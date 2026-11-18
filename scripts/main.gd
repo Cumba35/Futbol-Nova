@@ -424,19 +424,24 @@ func _create_touch_controls() -> void:
 func _on_skill_circle_gesture_completed() -> void:
 	gesture_hint_label.text = "Círculo reconocido. Evaluación contextual aún pendiente."
 
-func _on_goal_body_entered(body: Node3D, scoring_side: String) -> void:
+func _on_goal_body_entered(body: Node3D, _scoring_side: String) -> void:
 	if body != ball:
 		return
 	# Goal areas also exist in training and free-practice modes. Only an active
 	# 11v11 match may change the official match score.
 	if match_11v11_controller == null or not match_11v11_controller.is_match_active():
 		return
-	var goal_result: Dictionary = MATCH_RULES.classify_ball_exit(ball.global_position, false, FIELD_WIDTH * 0.5, FIELD_LENGTH * 0.5)
+	# Teams exchange physical goals at halftime and extra-time halftime.
+	# Resolve the scorer from current orientation, not the fixed Area3D name.
+	var match_summary: Dictionary = match_11v11_controller.get_match_summary()
+	var home_attacks_positive_z := bool(match_summary.get("ends_swapped", false))
+	var goal_result: Dictionary = MATCH_RULES.classify_ball_exit(
+		ball.global_position, false, FIELD_WIDTH * 0.5, FIELD_LENGTH * 0.5,
+		3.66, 2.44, 0.22, Vector3.ZERO, false, home_attacks_positive_z
+	)
 	if str(goal_result.get("restart", "")) != "goal":
 		return
-	var scoring_home := scoring_side == "home"
-	if bool(goal_result.get("awarded_home", false)) != scoring_home:
-		return
+	var scoring_home := bool(goal_result.get("awarded_home", false))
 	if scoring_home:
 		score_home += 1
 	else:
