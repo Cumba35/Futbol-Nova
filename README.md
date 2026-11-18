@@ -11,6 +11,7 @@ El desarrollo se administra mediante **ChatGPT y GitHub**. No es necesario insta
 - Datos, clubes y jugadores: data/
 - Escenas y scripts: scenes/ y scripts/
 - Pruebas: tests/
+- Investigación de repositorios públicos y política de reutilización: [docs/THIRD_PARTY_RESEARCH.md](docs/THIRD_PARTY_RESEARCH.md).
 
 ## Repositorio maestro NOVA
 
