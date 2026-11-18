@@ -16,12 +16,22 @@ static func aerodynamic_force(
 	magnus_coefficient: float = DEFAULT_MAGNUS,
 	max_force: float = 4.8
 ) -> Vector3:
-	var drag := -velocity * velocity.length() * maxf(0.0, drag_coefficient)
-	var magnus := spin.cross(velocity) * maxf(0.0, magnus_coefficient)
-	return drag + magnus.limit_length(maxf(0.0, max_force))
+	if not velocity.is_finite() or not spin.is_finite():
+		return Vector3.ZERO
+	var safe_drag := clampf(drag_coefficient, 0.0, 0.05) if is_finite(drag_coefficient) else DEFAULT_DRAG
+	var safe_magnus := clampf(magnus_coefficient, 0.0, 0.05) if is_finite(magnus_coefficient) else DEFAULT_MAGNUS
+	var safe_max_force := clampf(max_force, 0.0, 50.0) if is_finite(max_force) else 4.8
+	var drag := -velocity * velocity.length() * safe_drag
+	var magnus := spin.cross(velocity) * safe_magnus
+	var total := drag + magnus.limit_length(safe_max_force)
+	return total if total.is_finite() else Vector3.ZERO
 
 static func decay_spin(spin: Vector3, delta: float, decay: float = DEFAULT_SPIN_DECAY) -> Vector3:
-	return spin / (1.0 + maxf(0.0, decay) * maxf(0.0, delta))
+	if not spin.is_finite():
+		return Vector3.ZERO
+	var safe_delta := maxf(0.0, delta) if is_finite(delta) else 0.0
+	var safe_decay := clampf(decay, 0.0, 10.0) if is_finite(decay) else DEFAULT_SPIN_DECAY
+	return spin / (1.0 + safe_decay * safe_delta)
 
 static func integrate_step(
 	position: Vector3,
@@ -34,11 +44,15 @@ static func integrate_step(
 	magnus_coefficient: float = DEFAULT_MAGNUS,
 	spin_decay: float = DEFAULT_SPIN_DECAY
 ) -> Dictionary:
-	var safe_mass := maxf(0.01, mass)
+	if not position.is_finite() or not velocity.is_finite() or not spin.is_finite():
+		return {"position": Vector3.ZERO, "velocity": Vector3.ZERO, "spin": Vector3.ZERO}
+	var safe_mass := clampf(mass, 0.01, 100.0) if is_finite(mass) else 0.43
+	var safe_delta := clampf(delta, 0.0, 0.25) if is_finite(delta) else 0.0
+	var safe_gravity := clampf(gravity, 0.0, 50.0) if is_finite(gravity) else DEFAULT_GRAVITY
 	var force := aerodynamic_force(velocity, spin, drag_coefficient, magnus_coefficient)
-	var next_velocity := velocity + (force / safe_mass + Vector3.DOWN * gravity) * delta
-	var next_spin := decay_spin(spin.limit_length(MAX_SPIN), delta, spin_decay)
-	var next_position := position + (velocity + next_velocity) * 0.5 * delta
+	var next_velocity := velocity + (force / safe_mass + Vector3.DOWN * safe_gravity) * safe_delta
+	var next_spin := decay_spin(spin.limit_length(MAX_SPIN), safe_delta, spin_decay)
+	var next_position := position + (velocity + next_velocity) * 0.5 * safe_delta
 	return {
 		"position": next_position,
 		"velocity": next_velocity,
@@ -73,7 +87,7 @@ static func swipe_to_launch(
 	loft_scale: float = 0.42
 ) -> Dictionary:
 	var normalized := normalize_swipe_path(path)
-	if normalized.size() < 2:
+	if normalized.size() < 2 or not forward.is_finite():
 		return {"valid": false, "velocity": Vector3.ZERO, "spin": Vector3.ZERO}
 	var end_point := normalized[normalized.size() - 1]
 	var planar_forward := Vector3(forward.x, 0.0, forward.z).normalized()
