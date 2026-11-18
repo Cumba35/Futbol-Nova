@@ -24,6 +24,7 @@ El workflow se ejecuta al actualizar archivos de proyecto en main o ramas work/*
 4. Comprueba el arranque de la escena.
 5. Exporta la APK Android ARM64 de depuración.
 6. Publica el artefacto futbol-nova-android-debug si las pruebas y exportación terminan correctamente.
+7. Cada prueba Godot tiene un límite individual de 180 segundos (smoke test: 120 segundos) y aparece agrupada en los logs para facilitar el diagnóstico.
 7. Ejecuta después la regresión extendida.
 
 También publica el ZIP futbol-nova-godot-source para conservar el proyecto editable en caso de que una etapa Android posterior falle.
