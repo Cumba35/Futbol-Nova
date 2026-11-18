@@ -9,9 +9,17 @@ const INSTALL_ROOT := "user://futbol_nova/packages/"
 
 static func load_profile() -> Dictionary:
 	var inactive := {"enabled": false, "profile_id": "base_game"}
-	if not ContentPackages.is_package_installed(PACKAGE_ID):
+	var package_manager := _get_content_packages()
+	if package_manager == null:
 		return inactive
-	var installed: Dictionary = ContentPackages.get_installed_packages().get(PACKAGE_ID, {})
+	if not package_manager.has_method("is_package_installed") or not bool(package_manager.call("is_package_installed", PACKAGE_ID)):
+		return inactive
+	if not package_manager.has_method("get_installed_packages"):
+		return inactive
+	var installed_packages: Variant = package_manager.call("get_installed_packages")
+	if not (installed_packages is Dictionary):
+		return inactive
+	var installed: Dictionary = installed_packages.get(PACKAGE_ID, {})
 	var root := str(installed.get("installed_path", ""))
 	if not root.begins_with(INSTALL_ROOT) or root.contains(".."):
 		return inactive
@@ -62,3 +70,13 @@ static func update_stamina(stamina: float, is_moving: bool, delta: float, profil
 static func get_status() -> Dictionary:
 	var profile := load_profile()
 	return {"enabled": bool(profile.get("enabled", false)), "profile_id": str(profile.get("profile_id", "base_game")), "package_id": PACKAGE_ID}
+
+
+static func _get_content_packages() -> Node:
+	# Headless unit tests launched with --script do not instantiate project autoloads.
+	# Resolve the optional package service dynamically and keep the base game safe.
+	var main_loop := Engine.get_main_loop()
+	if main_loop == null or not (main_loop is SceneTree):
+		return null
+	var scene_tree: SceneTree = main_loop
+	return scene_tree.root.get_node_or_null("ContentPackages")
