@@ -6,9 +6,16 @@ const MATCH_11V11 := preload("res://scripts/gameplay/match_11v11_controller.gd")
 
 func _initialize() -> void:
 	call_deferred("_run_acceptance_test")
+	call_deferred("_test_watchdog")
+
+func _test_watchdog() -> void:
+	await create_timer(120.0).timeout
+	push_error("FÚTBOL NOVA ACCEPTANCE: el test runtime superó 120 segundos.")
+	quit(1)
 
 func _run_acceptance_test() -> void:
 	var failures := PackedStringArray()
+	print("FRIENDLY_TEST: creating main scene")
 	var game = MAIN_SCENE.instantiate()
 	root.add_child(game)
 
@@ -18,11 +25,14 @@ func _run_acceptance_test() -> void:
 		if game.game_hub != null and game.match_11v11_controller != null:
 			break
 
+	print("FRIENDLY_TEST: main scene initialized")
 	if game.game_hub == null:
 		failures.append("La escena principal no creó el menú de juego.")
 	if game.match_11v11_controller == null:
 		failures.append("La escena principal no creó el motor de partido 11 contra 11.")
-	if FootballData.registry == null:
+	var football_data_service: Node = root.get_node_or_null("FootballData")
+	var football_registry: Variant = football_data_service.get("registry") if football_data_service != null else null
+	if football_registry == null:
 		failures.append("El catálogo offline no creó el registro de clubes.")
 
 	if game.game_hub != null:
@@ -44,11 +54,13 @@ func _run_acceptance_test() -> void:
 
 		game.game_hub._show_home()
 		await process_frame
+		print("FRIENDLY_TEST: hub navigation complete")
 
 	# Use the same pre-match screen and button path as a real player.
-	if game.match_11v11_controller != null and FootballData.registry != null:
+	if game.match_11v11_controller != null and football_registry != null:
 		game._open_pre_match_setup()
 		await process_frame
+		print("FRIENDLY_TEST: pre-match setup opened")
 		var setup = game.pre_match_setup
 		if setup == null or not is_instance_valid(setup):
 			failures.append("No se abrió la preparación del amistoso.")
@@ -59,13 +71,14 @@ func _run_acceptance_test() -> void:
 				failures.append("El botón Iniciar amistoso está bloqueado pese a existir dos clubes válidos.")
 			var selected_home_id: String = str(setup._selected_team_id(setup._home_teams))
 			var selected_away_id: String = str(setup._selected_team_id(setup._away_teams))
-			var expected_home_name := str(FootballData.registry.teams_by_id.get(selected_home_id, {}).get("name", selected_home_id))
-			var expected_away_name := str(FootballData.registry.teams_by_id.get(selected_away_id, {}).get("name", selected_away_id))
+			var expected_home_name := str(football_registry.teams_by_id.get(selected_home_id, {}).get("name", selected_home_id))
+			var expected_away_name := str(football_registry.teams_by_id.get(selected_away_id, {}).get("name", selected_away_id))
 			if selected_home_id.is_empty() or selected_away_id.is_empty() or selected_home_id == selected_away_id:
 				failures.append("La selección inicial no contiene dos clubes distintos.")
 			else:
 				setup._start_match()
 				await process_frame
+				print("FRIENDLY_TEST: friendly match started")
 				var summary: Dictionary = game.match_11v11_controller.get_match_summary()
 				if not bool(summary.get("active", false)):
 					failures.append("El motor rechazó el amistoso iniciado desde la pantalla de preparación.")
@@ -212,6 +225,7 @@ func _run_acceptance_test() -> void:
 					if game.player.global_position.z >= 0.0:
 						failures.append("Los equipos no volvieron a cambiar de lado en el descanso de la prórroga.")
 
+	print("FRIENDLY_TEST: assertions completed")
 	if game.match_11v11_controller != null:
 		game.match_11v11_controller.stop_match()
 	game.queue_free()
