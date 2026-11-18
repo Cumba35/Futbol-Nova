@@ -21,3 +21,8 @@ Este repositorio es la distribución independiente de Fútbol Nova. Los cambios 
 ## Origen de esta importación
 
 La importación copia el contenido de Cumba35/Web-Publica-Nova/futbol-nova/ desde la rama main. El repositorio público de origen no se elimina ni se modifica.
+
+
+## Investigación técnica
+
+Las alternativas públicas, sus licencias, compatibilidad Android y decisiones de reutilización se registran en [la auditoría de repositorios públicos](docs/PUBLIC_GITHUB_RESEARCH_2026-11-18.md).
