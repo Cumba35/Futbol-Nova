@@ -79,3 +79,8 @@ La primera ejecución de la prueba de base 11v11 compiló el controlador y detec
 ## Robustez de las pruebas headless — 18 noviembre 2026
 
 Las pruebas iniciadas con `godot --headless --script` no deben asumir que los autoloads están disponibles como identificadores globales al compilar scripts pre-cargados. La escena principal y la prueba runtime resuelven `FootballData` desde el árbol (`/root/FootballData` o `root.get_node_or_null("FootballData")`) y manejan el servicio ausente de forma explícita. La prueba de aceptación del amistoso se difiere con `call_deferred` después de crear el `SceneTree` y tiene un watchdog interno de 120 segundos; la prueba de base 11v11 también se difiere para ejecutar una vez inicializado el árbol. Esto evita falsos fallos de compilación y bloqueos silenciosos del runner. La validación final sigue dependiendo del resultado completo de GitHub Actions.
+
+
+### Ajuste de expectativa del tiempo añadido — 18 noviembre 2026
+
+La ejecución `44418906130` superó la compilación del módulo de realismo y llegó a las pruebas del reloj. Detectó que el test esperaba 30 segundos de añadido continuo, pero la regla del motor aplica un mínimo reglamentario de 60 segundos; el test ahora espera 60 y avanza 60 segundos hasta el descanso. Los fallos de descanso/espera eran consecuencia de la expectativa anterior, no de una transición defectuosa del estado. La prueba corregida está en el siguiente commit de main y se volverá a ejecutar.
