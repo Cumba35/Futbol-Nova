@@ -36,7 +36,7 @@ Se priorizan soluciones GDScript/Godot compatibles con Android ARM64, modo local
 
 ## Próximas mejoras priorizadas
 
-- **P0 — calidad y seguridad:** completar pruebas headless de `BallFlightModel`, `SetPieceSwipeController`, reloj y puntuación; impedir goles fuera de partido activo; garantizar que el workflow no cancele builds principales por commits de documentación.
+- **P0 — validación pendiente:** completar CI de los cambios de porterías y atribución de goles; añadir pruebas headless de `BallFlightModel` y `SetPieceSwipeController`; comprobar exportación y artefacto APK en Android. La protección contra goles fuera de un partido activo y la conservación de ejecuciones CI ya están implementadas, pendientes de certificación por la suite.
 - **P1 — control del balón:** conectar pase, tiro, primer toque, posesión y gesto táctil al mismo modelo de balón, con límites de velocidad/altura y pruebas deterministas.
 - **P1 — porteros y reinicios:** conectar el predictor de intercepción, perfiles de reacción, barrera y reinicios reglamentarios; no marcar estas funciones como disponibles antes de probarlas.
 - **P2 — IA colectiva:** introducir presión por zonas, coberturas y roles de manera escalonada, midiendo coste de CPU con 22 futbolistas.
@@ -46,3 +46,17 @@ Se priorizan soluciones GDScript/Godot compatibles con Android ARM64, modo local
 ## Evidencia y límites
 
 La investigación se realizó sobre README, páginas de repositorio, documentación y licencias visibles públicamente. No se descargó ni incorporó código de terceros en esta revisión. Los proyectos de referencia no demuestran que Fútbol Nova tenga esas capacidades. La cobertura real se determina por el código propio, pruebas ejecutadas en GitHub Actions y validación final de la APK en Android.
+
+
+## Estado de mejoras aplicadas — 18 noviembre 2026
+
+**Implementado en el código propio:**
+- Colisiones físicas de postes y largueros, más paneles de red trasero, laterales y superior en ambas porterías.
+- Atribución de goles y saques de puerta basada en la orientación actual de los equipos después del descanso, sin depender del nombre fijo del sensor.
+- Protección del marcador para impedir que un área de gol altere el resultado cuando el amistoso no está activo.
+- Acceso dinámico al autoload de datos en la preparación del amistoso para que las pruebas headless no dependan de una referencia global estática.
+- CI Android con setup-android v4, pruebas individuales con timeout y ejecución no cancelable por commits posteriores de la misma rama.
+
+**Pendiente de demostrar con CI:** que las nuevas pruebas de física y de cambio de lado pasen en Godot 4.4.1; que las regresiones terminen; que se exporte y publique el artefacto APK Android ARM64. No se considera validado por el mero hecho de haber guardado el código.
+
+**Pendiente de integración funcional:** `BallFlightModel` y `SetPieceSwipeController` siguen siendo componentes iniciales sin conexión completa al balón real y al HUD. Se mantiene como siguiente prioridad su conexión con pase, tiro, primer toque y efecto, acompañada de pruebas deterministas.
