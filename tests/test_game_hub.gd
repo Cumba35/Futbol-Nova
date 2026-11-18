@@ -53,7 +53,13 @@ func _run_tests() -> void:
 	var help_button: Button = home_help_column.get_child(2)
 	help_button.pressed.emit()
 	assert(hub.current_subpage == "help", "Help must be available in the base game")
-	assert(hub.content_box.get_child_count() == 6, "Help must explain the base game and downloadable modules")
+	assert(hub.content_box.get_child_count() >= 6, "Help must explain the base game and downloadable modules")
+	var help_titles := PackedStringArray()
+	for help_card in hub.content_box.get_children():
+		var help_column := help_card.get_child(0) as VBoxContainer
+		if help_column != null and help_column.get_child_count() > 0:
+			help_titles.append(str(help_column.get_child(0).text))
+	assert(help_titles.has("QUÉ INCLUYE EL JUEGO BASE") and help_titles.has("MÓDULOS DESCARGABLES"), "Help must explain both base-game features and downloadable modules")
 	hub._show_home()
 	assert(hub.back_navigation_button != null and hub.back_navigation_button.text == "ATRÁS", "Persistent bottom Back button must exist")
 	assert(hub.next_navigation_button != null and hub.next_navigation_button.text == "SIGUIENTE", "Persistent bottom Next button must exist")
