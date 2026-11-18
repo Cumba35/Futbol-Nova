@@ -2,6 +2,7 @@ extends SceneTree
 
 const MAIN_SCENE := preload("res://scenes/main.tscn")
 const MATCH_CLOCK_STATE := preload("res://scripts/gameplay/match_clock_state_machine.gd")
+const MATCH_11V11 := preload("res://scripts/gameplay/match_11v11_controller.gd")
 
 func _initialize() -> void:
 	call_deferred("_run_acceptance_test")
@@ -144,17 +145,58 @@ func _run_acceptance_test() -> void:
 					"half_length_minutes": 3,
 					"clock_mode": "continuous"
 				})
+				var home_z_before_half_time := game.player.global_position.z
+				var away_goalkeeper: Node3D
+				for actor_data in game.match_11v11_controller._actors:
+					if not bool(actor_data.get("home_team", true)) and str(actor_data.get("role", "")) == "GK":
+						away_goalkeeper = actor_data.get("node")
+						break
+				var away_goalkeeper_z_before := away_goalkeeper.global_position.z if is_instance_valid(away_goalkeeper) else 0.0
 				game.match_11v11_controller._update_match_clock(240.0)
 				if str(game.match_11v11_controller.get_clock_summary().get("phase", "")) != "half_time":
 					failures.append("El motor en vivo no alcanzó el descanso después del primer tiempo y añadido.")
 				if not game.match_11v11_controller.continue_after_period_break():
 					failures.append("El motor en vivo no permitió continuar después del descanso.")
+				if not is_equal_approx(game.player.global_position.z, -home_z_before_half_time):
+					failures.append("El futbolista controlado no cambió de lado al comenzar el segundo tiempo.")
+				if is_instance_valid(away_goalkeeper) and not is_equal_approx(away_goalkeeper.global_position.z, -away_goalkeeper_z_before):
+					failures.append("El portero visitante no cambió de lado al comenzar el segundo tiempo.")
+				if MATCH_11V11.goalkeeper_clear_direction(true, 0.0, true).z <= 0.0 or MATCH_11V11.goalkeeper_clear_direction(false, 0.0, true).z >= 0.0:
+					failures.append("Los despejes de los porteros no se orientaron hacia el campo rival después del cambio de lado.")
 				game.match_11v11_controller._update_match_clock(240.0)
 				var finished_clock: Dictionary = game.match_11v11_controller.get_clock_summary()
 				if str(finished_clock.get("phase", "")) != "full_time":
 					failures.append("El motor en vivo no finalizó el amistoso después del segundo tiempo y añadido.")
 				if game.match_11v11_controller.is_match_active():
 					failures.append("El controlador mantuvo activo el partido después del pitido final.")
+
+				# Extra time has its own halftime; teams must swap ends again there.
+				var extra_match: Dictionary = game.match_11v11_controller.start_match(game.player, game.ball, {
+					"home_team_id": selected_home_id,
+					"away_team_id": selected_away_id,
+					"half_length_minutes": 3,
+					"clock_mode": "continuous",
+					"extra_time_enabled": true,
+					"competition_allows_extra_time": true,
+					"penalties_enabled": true,
+					"competition_allows_penalties": true
+				})
+				if not bool(extra_match.get("ok", false)):
+					failures.append("No se pudo iniciar el escenario de prueba de prórroga.")
+				else:
+					game.match_11v11_controller._update_match_clock(240.0)
+					game.match_11v11_controller.continue_after_period_break()
+					if game.player.global_position.z <= 0.0:
+						failures.append("El segundo tiempo no dejó al equipo local en el lado opuesto.")
+					game.match_11v11_controller._update_match_clock(240.0)
+					if str(game.match_11v11_controller.get_clock_summary().get("phase", "")) != "extra_time_first_half":
+						failures.append("El empate no inició la primera parte de la prórroga.")
+					game.match_11v11_controller._update_match_clock(120.0)
+					if str(game.match_11v11_controller.get_clock_summary().get("phase", "")) != "extra_time_half_time":
+						failures.append("La prórroga no alcanzó su descanso.")
+					game.match_11v11_controller.continue_after_period_break()
+					if game.player.global_position.z >= 0.0:
+						failures.append("Los equipos no volvieron a cambiar de lado en el descanso de la prórroga.")
 
 	if game.match_11v11_controller != null:
 		game.match_11v11_controller.stop_match()
