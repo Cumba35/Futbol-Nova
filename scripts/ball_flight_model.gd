@@ -67,9 +67,14 @@ static func normalize_swipe_path(path: PackedVector2Array) -> PackedVector2Array
 	if path.is_empty():
 		return result
 	var origin := path[0]
-	var direction := (path[path.size() - 1] - origin).normalized()
-	if direction.length_squared() < 0.0001:
+	if not origin.is_finite():
 		return result
+	var direction := (path[path.size() - 1] - origin).normalized()
+	if not direction.is_finite() or direction.length_squared() < 0.0001:
+		return result
+	for point in path:
+		if not point.is_finite():
+			return PackedVector2Array()
 	# Keep the screen-plane trajectory intact: vertical strokes must still
 	# control loft, lateral strokes aim across the field, and bends remain
 	# available to the curve estimator.
@@ -97,8 +102,11 @@ static func swipe_to_launch(
 	var aim_x := clampf(end_point.x, -1.0, 1.0)
 	var aim_y := clampf(end_point.y, -1.0, 1.0)
 	var direction := (planar_forward + right * aim_x * 0.85).normalized()
-	var strength := clampf(power, 0.0, 1.0)
-	var speed := lerpf(base_speed, max_speed, strength)
+	var safe_power := clampf(power, 0.0, 1.0) if is_finite(power) else 0.0
+	var safe_base_speed := clampf(base_speed, 0.0, 80.0) if is_finite(base_speed) else 13.0
+	var safe_max_speed := clampf(max_speed, safe_base_speed, 100.0) if is_finite(max_speed) else maxf(safe_base_speed, 32.0)
+	var strength := safe_power
+	var speed := lerpf(safe_base_speed, safe_max_speed, strength)
 	var chord := end_point
 	var chord_length := maxf(0.001, chord.length())
 	var signed_bend := 0.0
