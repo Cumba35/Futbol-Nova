@@ -17,6 +17,10 @@ func _run_acceptance_test() -> void:
 	var failures := PackedStringArray()
 	print("FRIENDLY_TEST: creating main scene")
 	var game = MAIN_SCENE.instantiate()
+	if game == null or game.get_script() == null:
+		push_error("FRIENDLY_TEST: main.gd no se pudo cargar o compilar.")
+		quit(1)
+		return
 	root.add_child(game)
 
 	# The main scene builds its field, HUD, hub and match controller over several frames.
