@@ -165,7 +165,18 @@ func _run_tests() -> void:
 	_expect(roster_source != null, "Custom player roster service must exist")
 	var roster_code := roster_source.get_as_text()
 	_expect(roster_code.contains("custom_player_roster.json") and roster_code.contains("online_custom_player_selection.json"), "Custom players and Online selection must persist separately")
-	_expect(roster_code.contains('str(player.get("origin", "user_created")) != "user_created"'), "Nova catalog players must be rejected from the custom roster")
+	var custom_roster_node: Node = root.get_node_or_null("CustomPlayerRoster")
+	_expect(custom_roster_node != null, "Custom player roster service must be available as a local autoload")
+	if custom_roster_node != null:
+		var catalog_player_result: Dictionary = custom_roster_node.add_created_player({
+			"id": "NOVA-CATALOG-ISOLATION-TEST",
+			"origin": "nova_catalog",
+			"display_name": "Jugador del catálogo"
+		})
+		_expect(not bool(catalog_player_result.get("ok", false)), "The isolated custom roster must reject catalog players")
+		_expect(not bool(custom_roster_node.select_for_online("NOVA-CATALOG-ISOLATION-TEST").get("ok", false)), "Online must not select a catalog player as user-created")
+		for saved_player in custom_roster_node.get_created_players():
+			_expect(str(saved_player.get("origin", "user_created")) == "user_created", "The local roster must only load user-created players")
 	hub._open_manager_career()
 	await process_frame
 	_expect(hub.current_subpage == "manager_career", "Manager mode must open its integrated career setup")
