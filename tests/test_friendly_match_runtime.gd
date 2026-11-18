@@ -113,6 +113,11 @@ func _run_acceptance_test() -> void:
 				var applied_flight_spin: Vector3 = game.match_11v11_controller.get("_ball_flight_spin")
 				if applied_flight_spin.length() < 1.0:
 					failures.append("El spin de vuelo no llegó al modelo aerodinámico.")
+				game.ball.sleeping = false
+				game.match_11v11_controller._apply_ball_aerodynamics(0.1)
+				var decayed_flight_spin: Vector3 = game.match_11v11_controller.get("_ball_flight_spin")
+				if decayed_flight_spin.length() >= applied_flight_spin.length():
+					failures.append("El controlador no aplicó el decaimiento del spin durante el vuelo.")
 				game.match_11v11_controller._transfer_possession(game.player, true, "controlled_player")
 				game.ball.freeze = false
 				game.ball.sleeping = true
