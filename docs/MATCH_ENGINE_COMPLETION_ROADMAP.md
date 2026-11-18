@@ -277,3 +277,9 @@ La clase principal y la prueba del amistoso también usaban `FootballData` como 
 ### Registro de eventos de gol sin dependencia global de autoload — 18 noviembre 2026
 
 La compilación headless también detectó una referencia global a `MomentsService` dentro de `main.gd`. Se sustituyó por la resolución explícita de `/root/MomentsService` y una llamada protegida, de modo que el gol se contabiliza aunque el servicio opcional de momentos no esté disponible en un contexto de prueba.
+
+
+
+### Validación reforzada del paquete Realista
+
+El cargador del módulo Realista también valida que el servicio de paquetes exponga los métodos esperados, que la ruta instalada permanezca dentro de `user://futbol_nova/packages/`, que el JSON sea un diccionario, que el esquema sea versión 1, que `module_id` coincida y que los parámetros numéricos sean finitos y estén dentro de límites. Si cualquier comprobación falla, vuelve al perfil base sin activar el módulo.
