@@ -54,3 +54,9 @@ La prueba de integración verifica inicio del amistoso, marcador de ambos equipo
 El proyecto incluye colisiones físicas para postes, larguero y paneles de red (fondo, laterales y techo). La prueba `tests/test_goal_frame_physics.gd` comprueba que el balón rebota en el poste y el larguero, queda contenido por la red y no recibe un gol falso al entrar desde detrás. También se prueba que la atribución del gol y el saque de puerta respeten el cambio de extremos del segundo tiempo y de la prórroga.
 
 Esta cobertura es automatizada en GitHub Actions; no sustituye la prueba visual de una APK instalada en un dispositivo Android real.
+
+
+
+### SDK mínimo para este proyecto
+
+Fútbol Nova utiliza GDScript y no contiene extensiones nativas, archivos C/C++ ni bibliotecas `.so`. Por ello, el workflow instala platform-tools, Android platform 35 y build-tools 35.0.0; no descarga el NDK, que solo sería necesario si se incorporara una extensión nativa o se compilaran plantillas personalizadas. Esto reduce tiempo de instalación y superficie de dependencias.
