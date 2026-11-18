@@ -41,3 +41,17 @@ No se copiaron código ni assets de los repositorios enumerados.
 - Probar el balón con escenarios reproducibles: impulso, rebote, fricción, límites del campo y reinicio después de gol.
 - Separar las reglas de un partido 11v11 de los prototipos 2D o de fútbol 5v5.
 - Evitar elevar la versión del motor o agregar extensiones nativas solo para aprovechar una demo; la compatibilidad Android ARM64 y el build de GitHub Actions tienen prioridad.
+
+
+## Otras alternativas examinadas
+
+| Repositorio | Licencia / tecnología | Idea útil | Decisión |
+|---|---|---|---|
+| [angree/openswos](https://github.com/angree/openswos) | MIT confirmada en `LICENSE`; Godot 4 + C#; requiere que el usuario aporte archivos originales de Sensible World of Soccer. | Cobertura de movimiento, balón, porteros, entradas, reinicios, lesiones, árbitro y descanso. | Referencia de amplitud funcional; no adoptar C# ni reutilizar los assets propietarios de SWOS. |
+| [gaemi/agentic-fc](https://github.com/gaemi/agentic-fc) | MIT confirmada; Go; simulación de gestión operada por agentes, con semilla y eventos auditables. | Reproducibilidad, registro de eventos y calibración de simulaciones de temporada. | Solo ideas para futuras simulaciones de gestión; no añadir Go ni MCP al APK. |
+| [lel1guy/FootPong](https://github.com/lel1guy/FootPong) | MIT confirmada; Godot 4.6 y GDScript; juego 2D tipo Pong. | Marcador, reinicio de balón y pausa sencilla. | Referencia menor de UI; no aporta simulación 3D 11v11 y usa otra versión de Godot. |
+| [ODS-RL/football-env](https://github.com/ODS-RL/football-env) | MIT confirmada; Python; simulación 2D para agentes con semillas reproducibles y repetición de logs. | Reproducibilidad de IA y registro de partidos. | Referencia conceptual; no integrar Python ni el entorno 2D en el juego Android. |
+| [openfootmanager/openfootmanager](https://github.com/openfootmanager/openfootmanager) | GPLv3 confirmada en `LICENSE.md`; Rust, Tauri y React. | Ideas de simulación de gestión de clubes. | No incorporar código por diferencia de stack y obligaciones copyleft; estudiar solo conceptos generales. |
+| [richardschembri/GodotBasic3DFootball](https://github.com/richardschembri/GodotBasic3DFootball) | No se encontró archivo LICENSE en la revisión; demo GDScript 3D de dos jugadores. | Referencia de prototipo 3D y controles básicos. | No copiar código ni assets; además, el proyecto declara recursos de terceros que requieren licencias separadas. |
+
+La revisión amplía el panorama, pero no cambia la decisión técnica: el juego base conserva GDScript/Godot 4.4.1, offline-first y sin dependencias nativas o servicios externos obligatorios.
