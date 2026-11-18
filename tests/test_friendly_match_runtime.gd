@@ -22,7 +22,9 @@ func _run_acceptance_test() -> void:
 		failures.append("La escena principal no creó el menú de juego.")
 	if game.match_11v11_controller == null:
 		failures.append("La escena principal no creó el motor de partido 11 contra 11.")
-	if FootballData.registry == null:
+	var football_data_service: Node = root.get_node_or_null("FootballData")
+	var football_registry: Variant = football_data_service.get("registry") if football_data_service != null else null
+	if football_registry == null:
 		failures.append("El catálogo offline no creó el registro de clubes.")
 
 	if game.game_hub != null:
@@ -46,7 +48,7 @@ func _run_acceptance_test() -> void:
 		await process_frame
 
 	# Use the same pre-match screen and button path as a real player.
-	if game.match_11v11_controller != null and FootballData.registry != null:
+	if game.match_11v11_controller != null and football_registry != null:
 		game._open_pre_match_setup()
 		await process_frame
 		var setup = game.pre_match_setup
@@ -59,8 +61,8 @@ func _run_acceptance_test() -> void:
 				failures.append("El botón Iniciar amistoso está bloqueado pese a existir dos clubes válidos.")
 			var selected_home_id: String = str(setup._selected_team_id(setup._home_teams))
 			var selected_away_id: String = str(setup._selected_team_id(setup._away_teams))
-			var expected_home_name := str(FootballData.registry.teams_by_id.get(selected_home_id, {}).get("name", selected_home_id))
-			var expected_away_name := str(FootballData.registry.teams_by_id.get(selected_away_id, {}).get("name", selected_away_id))
+			var expected_home_name := str(football_registry.teams_by_id.get(selected_home_id, {}).get("name", selected_home_id))
+			var expected_away_name := str(football_registry.teams_by_id.get(selected_away_id, {}).get("name", selected_away_id))
 			if selected_home_id.is_empty() or selected_away_id.is_empty() or selected_home_id == selected_away_id:
 				failures.append("La selección inicial no contiene dos clubes distintos.")
 			else:

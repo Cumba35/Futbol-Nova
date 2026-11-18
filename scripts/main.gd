@@ -396,7 +396,8 @@ func _create_hud() -> void:
 	data_status_label = Label.new()
 	data_status_label.position = Vector2(24, 112)
 	data_status_label.add_theme_font_size_override("font_size", 13)
-	var catalog_summary: Dictionary = FootballData.get_catalog_summary()
+	var football_data_service := get_node_or_null("/root/FootballData")
+	var catalog_summary: Dictionary = football_data_service.call("get_catalog_summary") if football_data_service != null else {}
 	if bool(catalog_summary.get("initialized", false)):
 		data_status_label.text = "Catálogo offline: %d clubes • %d competiciones • %d partidos programados" % [int(catalog_summary.get("teams", 0)), int(catalog_summary.get("competitions", 0)), int(catalog_summary.get("scheduled_matches", 0))]
 	else:
