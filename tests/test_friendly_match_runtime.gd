@@ -106,7 +106,8 @@ func _run_acceptance_test() -> void:
 					failures.append("El controlador no liberó el balón con spin válido desde la posesión controlada.")
 				if game.match_11v11_controller.has_controlled_possession():
 					failures.append("El balón conservó la posesión controlada después del lanzamiento.")
-				if float(game.match_11v11_controller.get("_ball_flight_spin").length()) < 1.0:
+				var applied_flight_spin: Vector3 = game.match_11v11_controller.get("_ball_flight_spin")
+				if applied_flight_spin.length() < 1.0:
 					failures.append("El spin de vuelo no llegó al modelo aerodinámico.")
 				game.match_11v11_controller._transfer_possession(game.player, true, "controlled_player")
 				game.ball.freeze = false
