@@ -218,11 +218,14 @@ func _load_eligible_teams() -> void:
 	_home_teams.clear()
 	_away_teams.clear()
 	_team_ids.clear()
-	if FootballData.registry == null:
+	# Resolve the autoload through the scene tree so this UI can also be
+	# preloaded by headless SceneTree tests without a parser-time singleton dependency.
+	var football_data := get_node_or_null("/root/FootballData")
+	if football_data == null or football_data.get("registry") == null:
 		_summary.text = "El catálogo de clubes no está disponible. No se puede iniciar el amistoso."
 		return
 
-	var registry = FootballData.registry
+	var registry = football_data.get("registry")
 	var ids: Array = registry.teams_by_id.keys()
 	ids.sort()
 	for raw_id in ids:
