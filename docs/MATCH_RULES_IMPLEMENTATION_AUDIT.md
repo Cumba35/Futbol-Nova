@@ -85,3 +85,10 @@ Se creó `scripts/gameplay/match_clock_state_machine.gd` y se conectó a `match_
 ## Ajustes previos al partido
 
 El HUD previo al partido ahora permite seleccionar duración por tiempo (3, 5, 6, 8, 10, 15 o 20 minutos), método de reloj continuo/detenido y, para el amistoso local de prueba, prórroga y penaltis. Estos indicadores se ocultan durante el partido y reaparecen al finalizar o salir. La configuración general persistente por modo y los reglamentos automáticos de competiciones aún están pendientes.
+
+
+## Orientación de porterías y atribución de goles tras el descanso — 18 noviembre 2026
+
+Las áreas de gol son nodos físicos persistentes y sus nombres no cambian cuando los equipos intercambian extremos. Por ello, la etiqueta fija del área no puede determinar al equipo anotador. `classify_ball_exit()` recibe ahora `home_attacks_positive_z` y calcula qué equipo defiende la línea de meta según `ends_swapped`. La atribución del gol y la posición del saque de puerta siguen la orientación actual.
+
+La prueba de reglas verifica goles para ambos equipos tras el cambio de lado y el saque de puerta del equipo que defiende la portería en -Z. La prueba runtime comprueba los dos goles en el segundo tiempo.

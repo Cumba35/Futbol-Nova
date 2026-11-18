@@ -239,6 +239,12 @@ Resultado: se conserva GDScript/Godot 4.4.1 y el funcionamiento offline; no se i
 El cambio de lado también anula la velocidad residual del futbolista controlado y reinicia la interpolación física de los modelos, evitando que un jugador arrastre el impulso del primer tiempo o aparezca visualmente desplazándose entre extremos.
 
 
-### Colisiones físicas de porterías — 18 noviembre 2026
 
-Se añadieron cuerpos estáticos para los dos postes y el larguero de cada portería, más paneles físicos trasero, laterales y superior con una visualización translúcida ligera. Esto evita que el balón atraviese el marco o entre desde detrás para activar el sensor de gol. La prueba `tests/test_goal_frame_physics.gd` verifica las 14 colisiones, el bloqueo en un poste y larguero, la contención trasera y que una entrada desde detrás no concede gol. Esta es contención física básica, no una red deformable ni una simulación completa de la deformación del balón/red.
+## Corrección de orientación de goles y física de porterías — 18 noviembre 2026
+
+- Las porterías físicas conservan sus nodos durante todo el partido, por lo que el nombre fijo del área no puede identificar al equipo goleador tras el descanso.
+- `match_rules.gd` acepta la orientación actual del equipo local; calcula qué equipo defiende cada línea de meta y ubica el saque de puerta en la misma línea por la que salió el balón.
+- `main.gd` resuelve el goleador desde el resumen del controlador (`ends_swapped`) y no desde la etiqueta fija del área.
+- Se incorporaron colisiones para postes, larguero, fondo, laterales y techo de las redes.
+- Las pruebas cubren goles de ambos equipos en el segundo tiempo, saque de puerta con extremos invertidos, contactos con postes/larguero, contención por la red y rechazo de entradas desde detrás.
+- Límite: falta ejecutar y completar la CI, exportar APK y validar el comportamiento visual/físico en Android real. No se considera el motor completo por tener estas pruebas.

@@ -22,7 +22,7 @@ El workflow se ejecuta al actualizar archivos de proyecto en main o ramas work/*
 2. Instala Java 17, Android SDK y Godot 4.4.1 con sus plantillas dentro del runner temporal.
 3. Importa recursos Godot en modo headless.
 4. Ejecuta validaciones de nombres de clubes y archivo histórico.
-5. Ejecuta pruebas de aceptación del hub, amistoso 11v11, marcador, colisiones de postes/larguero/red, cambio de lado, reloj y ciclo hasta el pitido final.
+5. Ejecuta pruebas de aceptación del hub, amistoso 11v11, marcador, cambio de lado, reloj y ciclo hasta el pitido final.
 6. Comprueba el arranque de la escena.
 7. Exporta la APK Android ARM64 de depuración.
 8. Publica el artefacto futbol-nova-android-debug si las pruebas y exportación terminan correctamente.
@@ -45,4 +45,12 @@ El artefacto futbol-nova-godot-source conserva el código fuente editable. No se
 
 ## Alcance funcional
 
-La prueba de integración verifica inicio del amistoso, marcador de ambos equipos, rechazo de goles fuera de un partido activo, colisiones de postes/larguero/red, pausa, cambio de lado al descanso, reanudación, ciclo de prórroga y final del segundo tiempo. Esto no certifica por sí solo todas las mecánicas de juego, la física, la IA, las animaciones ni el equilibrio completo de un partido 11 contra 11.
+La prueba de integración verifica inicio del amistoso, marcador de ambos equipos, rechazo de goles fuera de un partido activo, pausa, cambio de lado al descanso, reanudación, ciclo de prórroga y final del segundo tiempo. Esto no certifica por sí solo todas las mecánicas de juego, la física, la IA, las animaciones ni el equilibrio completo de un partido 11 contra 11.
+
+
+
+## Física de porterías y goles tras el descanso
+
+El proyecto incluye colisiones físicas para postes, larguero y paneles de red (fondo, laterales y techo). La prueba `tests/test_goal_frame_physics.gd` comprueba que el balón rebota en el poste y el larguero, queda contenido por la red y no recibe un gol falso al entrar desde detrás. También se prueba que la atribución del gol y el saque de puerta respeten el cambio de extremos del segundo tiempo y de la prórroga.
+
+Esta cobertura es automatizada en GitHub Actions; no sustituye la prueba visual de una APK instalada en un dispositivo Android real.
