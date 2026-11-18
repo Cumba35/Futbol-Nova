@@ -282,7 +282,12 @@ func _show_help() -> void:
 
 
 func _claim_daily_reward() -> void:
-	var result: Dictionary = MomentsService.claim_reward()
+	var moments_service := get_node_or_null("/root/MomentsService")
+	if moments_service == null or not moments_service.has_method("claim_reward"):
+		status_label.text = "Momentos diarios no están disponibles."
+		_show_home()
+		return
+	var result: Dictionary = moments_service.call("claim_reward")
 	status_label.text = "Recompensa añadida: %d puntos NOVA" % _safe_int(result.get("reward", 0)) if bool(result.get("ok", false)) else str(result.get("error", "No se pudo reclamar."))
 	_show_home()
 
