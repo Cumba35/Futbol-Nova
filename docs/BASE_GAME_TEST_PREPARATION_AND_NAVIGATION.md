@@ -43,3 +43,8 @@ La preparación se considerará completada cuando:
 ## Próximo paso
 
 Ejecutar el workflow de Godot 4.4.1, corregir cualquier error de análisis o prueba y comprobar la APK en Android. Las funciones de red y los modos de partido aún no completos deben seguir identificados como pendientes.
+
+
+## Pantalla Online: futbolistas creados por el usuario — 18 noviembre 2026
+
+La pantalla Online del juego base muestra una lista aislada de futbolistas creados por el usuario y permite preparar uno para el futuro módulo Online. La selección se guarda de forma independiente. El catálogo oficial de jugadores no se copia a esta lista y no se habilitan salas, emparejamiento, sincronización ni servicios de red mientras el módulo Online no esté instalado y validado. La prueba `tests/test_game_hub.gd` comprueba la presencia del panel de jugadores personalizados y la integración del servicio de selección.
