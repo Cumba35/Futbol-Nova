@@ -46,3 +46,13 @@ Se priorizan soluciones GDScript/Godot compatibles con Android ARM64, modo local
 ## Evidencia y límites
 
 La investigación se realizó sobre README, páginas de repositorio, documentación y licencias visibles públicamente. No se descargó ni incorporó código de terceros en esta revisión. Los proyectos de referencia no demuestran que Fútbol Nova tenga esas capacidades. La cobertura real se determina por el código propio, pruebas ejecutadas en GitHub Actions y validación final de la APK en Android.
+
+
+## Alternativas Godot adicionales
+
+| Repositorio | Licencia / tecnología | Utilidad potencial | Decisión |
+|---|---|---|---|
+| [nicolasbize/soccer-course](https://github.com/nicolasbize/soccer-course) | MIT; Godot 4.4; fútbol 2D local | Organización de escenas, eventos y entrada en una versión coincidente del motor | Solo referencia de arquitectura 2D; no importar escenas, arte ni lógica al juego 3D 11v11. |
+| [Habeeb-Rahman-CA/soccer5v5-game-godot](https://github.com/Habeeb-Rahman-CA/soccer5v5-game-godot) | MIT; Godot 4.6; 5v5 | Estructura de partidos pequeños, señales y controles de dos jugadores | No copiar recursos ni elevar el motor: alcance 5v5 y versión 4.6 no corresponden al amistoso 11v11 en Godot 4.4.1. |
+| [ryan-haskell/godot-soccer-demo](https://github.com/ryan-haskell/godot-soccer-demo) | No se encontró archivo LICENSE en la raíz examinada | Experimento de física básica del balón | Lectura conceptual únicamente; sin licencia identificada no se reutiliza código ni assets. |
+| [matheuscumpian/godot-soccer](https://github.com/matheuscumpian/godot-soccer) | Proyecto de curso GameDev.tv; licencia de reutilización no confirmada | Referencia visual de prototipo Godot | No incorporar código ni recursos sin comprobar los derechos y atribuciones de cada recurso. |
