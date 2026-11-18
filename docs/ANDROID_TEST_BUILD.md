@@ -71,3 +71,7 @@ La pantalla Online del juego base permite revisar exclusivamente los futbolistas
 ## Diagnóstico CI más reciente — 18 noviembre 2026
 
 Una ejecución llegó a Godot 4.4.1 y detectó dos defectos en la pantalla Online/Hub: una conversión de año de fundación que recibía un valor nulo y una lista de futbolistas creados que no estaba integrada en el panel principal. Se cambió la conversión a `String.to_int()` y se integró la selección local de jugadores creados en un único panel, manteniendo la estructura de navegación esperada. La ejecución que detectó esos fallos corresponde a un commit anterior; la nueva ejecución debe confirmar estas correcciones antes de continuar con el resto de pruebas y la exportación APK.
+
+
+
+La prueba `test_match_11v11_foundation.gd` ejecuta ahora su cuerpo mediante `call_deferred` después de inicializar `SceneTree`. Así el comando headless puede procesar correctamente su resultado y terminar con el código de salida correspondiente.
