@@ -249,3 +249,13 @@ Se añadieron cuerpos estáticos para los dos postes y el larguero de cada porte
 La auditoría del segundo tiempo encontró que el callback de gol aún podía inferir el goleador por el nombre fijo del área física. Como las porterías no se mueven al cambiar de lado, esa etiqueta queda obsoleta. Ahora el controlador expone `ends_swapped`, `main.gd` obtiene la orientación actual y `match_rules.gd` determina qué equipo ataca/defiende cada línea de meta según esa orientación. La ubicación del saque de puerta se calcula desde el lado real por el que salió el balón, no desde el lado inicial del local.
 
 Las pruebas de reglas y runtime comprueban goles de ambos equipos hacia +Z/-Z después del descanso y la ubicación del saque de puerta del equipo que defiende el extremo invertido. La etiqueta fija del Area3D ya no decide el marcador.
+
+
+## Modelo de vuelo del balón conectado al partido — 18 noviembre 2026
+
+- El controlador 11v11 aplica resistencia aerodinámica y fuerza de Magnus al balón cuando está libre y en vuelo; no modifica el estado del balón mientras está congelado o bajo posesión.
+- La rotación de vuelo se mantiene separada de la velocidad angular física del rigid body, se limita a un máximo y decae de forma gradual. Los reinicios y la adquisición de posesión limpian ese estado.
+- `release_controlled_ball(direction, power, spin)` permite entregar un spin validado y limitado al modelo de vuelo.
+- `BallFlightModel` ahora valida vectores no finitos, limita coeficientes, masa, gravedad, delta y parámetros del lanzamiento, y rechaza gestos sin longitud.
+- Se añadió `tests/test_ball_flight_model.gd` para arrastre, Magnus, decaimiento de spin, integración, estabilidad con delta negativo y conversión de gesto a lanzamiento. GitHub Actions ejecuta esta prueba antes del resto de la batería.
+- Límite: el controlador de gesto `SetPieceSwipeController` aún no está conectado a una interfaz de balón parado en el partido; el modelo de vuelo ya está conectado al movimiento libre del balón y acepta spin por API, pero no se debe anunciar todavía que los tiros libres por gesto estén implementados.
