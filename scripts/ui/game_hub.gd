@@ -306,7 +306,6 @@ func _show_online() -> void:
 	var download := _nav_button(DOWNLOAD_ICON + " VER MÓDULOS DESCARGABLES")
 	download.custom_minimum_size.y = 48
 	download.pressed.connect(_request_catalog)
-	content_box.add_child(download)
 
 	# The base game stores only user-created players for a future Online module.
 	# Catalog players are never copied into the isolated custom roster.
@@ -341,6 +340,7 @@ func _show_online() -> void:
 			roster_column.add_child(player_row)
 			if player_id == selected_player_id:
 				roster_column.add_child(_label("JUGADOR PREPARADO: " + player_name, 12, LIME))
+	roster_column.add_child(download)
 	status_label.text = "Online • Selección local de futbolistas preparada; el módulo de red sigue siendo independiente."
 
 
