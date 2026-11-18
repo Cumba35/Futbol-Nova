@@ -1,6 +1,6 @@
 extends SceneTree
 
-const MAIN_SCENE := preload("res://scenes/main.tscn")
+const MAIN_SCENE_PATH := "res://scenes/main.tscn"
 const MATCH_CLOCK_STATE := preload("res://scripts/gameplay/match_clock_state_machine.gd")
 const MATCH_11V11 := preload("res://scripts/gameplay/match_11v11_controller.gd")
 
@@ -16,7 +16,12 @@ func _test_watchdog() -> void:
 func _run_acceptance_test() -> void:
 	var failures := PackedStringArray()
 	print("FRIENDLY_TEST: creating main scene")
-	var game = MAIN_SCENE.instantiate()
+	var main_scene := load(MAIN_SCENE_PATH) as PackedScene
+	if main_scene == null:
+		push_error("FRIENDLY_TEST: no se pudo cargar scenes/main.tscn después de inicializar autoloads.")
+		quit(1)
+		return
+	var game = main_scene.instantiate()
 	if game == null or game.get_script() == null:
 		push_error("FRIENDLY_TEST: main.gd no se pudo cargar o compilar.")
 		quit(1)
