@@ -17,6 +17,7 @@ signal match_finished(phase: String)
 
 const REALISM_MODULE = preload("res://scripts/modules/realism_module.gd")
 const MATCH_CLOCK_STATE = preload("res://scripts/gameplay/match_clock_state_machine.gd")
+const BALL_FLIGHT_MODEL = preload("res://scripts/ball_flight_model.gd")
 
 const FIELD_HALF_WIDTH := 34.0
 const FIELD_HALF_LENGTH := 52.5
@@ -40,6 +41,7 @@ const FORMATION_433 := [
 
 var _player: CharacterBody3D
 var _ball: RigidBody3D
+var _ball_flight_spin := Vector3.ZERO
 var _actors: Array[Dictionary] = []
 var _decision_clock := 0.0
 var _controlled_tackle_cooldown := 0.0
@@ -141,6 +143,7 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 	_player = controlled_player
 	_player.set_physics_process(true)
 	_ball = match_ball
+	_ball_flight_spin = Vector3.ZERO
 	_clear_ball_possession()
 	var home_team_id := str(match_settings.get("home_team_id", "nova_home"))
 	var away_team_id := str(match_settings.get("away_team_id", "nova_away"))
@@ -197,6 +200,7 @@ func set_match_score(home_score: int, away_score: int) -> void:
 		_match_clock_state = MATCH_CLOCK_STATE.set_score(_match_clock_state, home_score, away_score)
 
 func reset_ball_for_restart(position: Vector3 = Vector3(0.0, 0.35, 0.0)) -> void:
+	_ball_flight_spin = Vector3.ZERO
 	_clear_ball_possession()
 	if not is_instance_valid(_ball):
 		return
@@ -268,12 +272,13 @@ func is_match_active() -> bool:
 func has_controlled_possession() -> bool:
 	return _possession_is_controlled and is_instance_valid(_possession_owner)
 
-func release_controlled_ball(direction: Vector3, power: float = 7.0) -> bool:
+func release_controlled_ball(direction: Vector3, power: float = 7.0, spin: Vector3 = Vector3.ZERO) -> bool:
 	if not has_controlled_possession() or not is_instance_valid(_ball):
 		return false
-	if direction.length_squared() < 0.001:
+	if direction.length_squared() < 0.001 or not direction.is_finite() or not spin.is_finite():
 		return false
 	_clear_ball_possession()
+	_ball_flight_spin = spin.limit_length(BALL_FLIGHT_MODEL.MAX_SPIN)
 	_ball.apply_central_impulse(direction.normalized() * clampf(power, 1.0, 14.0))
 	return true
 
@@ -313,6 +318,21 @@ func _physics_process(delta: float) -> void:
 		_decision_clock = AI_DECISION_INTERVAL
 	_update_actors(delta, make_decision)
 	_update_ball_possession()
+	_apply_ball_aerodynamics(delta)
+
+func _apply_ball_aerodynamics(delta: float) -> void:
+	if not is_instance_valid(_ball) or _ball.freeze or _ball.sleeping or is_instance_valid(_possession_owner):
+		return
+	var velocity := _ball.linear_velocity
+	if velocity.length_squared() < 0.01:
+		_ball_flight_spin = BALL_FLIGHT_MODEL.decay_spin(_ball_flight_spin, delta)
+		return
+	var aerodynamic_force: Vector3 = BALL_FLIGHT_MODEL.aerodynamic_force(velocity, _ball_flight_spin)
+	if not aerodynamic_force.is_finite():
+		_ball_flight_spin = Vector3.ZERO
+		return
+	_ball.apply_central_force(aerodynamic_force)
+	_ball_flight_spin = BALL_FLIGHT_MODEL.decay_spin(_ball_flight_spin, delta)
 
 func _update_match_clock(delta: float) -> void:
 	if _match_clock_state.is_empty():
@@ -377,6 +397,7 @@ func _update_ball_possession() -> void:
 		return
 	_possession_owner = nearest_owner
 	_possession_is_controlled = nearest_owner == _player
+	_ball_flight_spin = Vector3.ZERO
 	possession_changed.emit("controlled_player" if _possession_is_controlled else str(nearest_owner.name), _possession_is_controlled)
 	_ball.freeze = true
 	_ball.global_position = nearest_owner.global_position + nearest_owner.global_transform.basis * Vector3(0.0, 0.18, -0.62)
@@ -386,6 +407,7 @@ func _update_ball_possession() -> void:
 func _clear_ball_possession() -> void:
 	_possession_owner = null
 	_possession_is_controlled = false
+	_ball_flight_spin = Vector3.ZERO
 	if is_instance_valid(_ball):
 		_ball.freeze = false
 	possession_changed.emit("", false)
@@ -413,6 +435,7 @@ func attempt_controlled_tackle() -> Dictionary:
 func _transfer_possession(new_owner: Node3D, home_team: bool, player_id: String) -> void:
 	_possession_owner = new_owner
 	_possession_is_controlled = new_owner == _player
+	_ball_flight_spin = Vector3.ZERO
 	if is_instance_valid(_ball):
 		_ball.freeze = true
 		_ball.linear_velocity = Vector3.ZERO
