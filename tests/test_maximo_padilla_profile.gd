@@ -6,8 +6,15 @@ const PLAYER_SCRIPT = preload("res://scripts/players/maximo_padilla.gd")
 
 func _initialize() -> void:
 	call_deferred("_run")
+	call_deferred("_test_watchdog")
+
+func _test_watchdog() -> void:
+	await create_timer(120.0).timeout
+	push_error("MAXIMO PADILLA PROFILE TEST: superó el límite interno de 120 segundos.")
+	quit(1)
 
 func _run() -> void:
+	print("MAXIMO_PROFILE_TEST: starting")
 	var file := FileAccess.open(PROFILE_PATH, FileAccess.READ)
 	assert(file != null, "Debe existir el catálogo de jugadores personalizados")
 	var catalog: Dictionary = JSON.parse_string(file.get_as_text())
@@ -17,6 +24,7 @@ func _run() -> void:
 			found = player
 			break
 	assert(not found.is_empty(), "Máximo Padilla debe estar en el catálogo")
+	print("MAXIMO_PROFILE_TEST: catalog entry loaded")
 	assert(found.get("full_name") == "Máximo Padilla Robert")
 	assert(found.get("display_name") == "Máximo Padilla")
 	assert(found.get("shirt_name") == "PADILLA")
@@ -63,6 +71,7 @@ func _run() -> void:
 	assert(visual.get_node_or_null("shirt_name_padilla") is Label3D, "La camiseta debe mostrar PADILLA como texto 3D")
 	assert(visual.get_node_or_null("shirt_number_30") is Label3D, "La camiseta debe mostrar el dorsal 23 como texto 3D")
 	assert(visual.get_node_or_null("inner_shirt_sleeve_1.0") != null, "Debe existir la manga interior de compresión")
+	print("MAXIMO_PROFILE_TEST: 3D scene validated")
 	instance.queue_free()
 	await process_frame
 	var career_service = preload("res://scripts/legend/legend_career_service.gd").new()
@@ -74,6 +83,7 @@ func _run() -> void:
 	assert(str(career_player.get("birth_date", "")) == "", "No debe inventarse una fecha de nacimiento")
 	assert(str(career_player.get("shirt_name", "")) == "PADILLA", "El nombre de uniforme debe conservarse")
 	assert(str(career_result.get("career", {}).get("club_id", "")) == "FN-ESP-BARCELONA", "Debe conservarse el club elegido")
+	print("MAXIMO_PROFILE_TEST: career validated")
 	career_service.queue_free()
 	print("FUTBOL_NOVA_MAXIMO_PADILLA_PROFILE_TEST: PASS")
 	quit(0)
