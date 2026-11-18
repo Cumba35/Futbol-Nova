@@ -94,3 +94,5 @@ La prueba runtime detectó una referencia global directa a `MomentsService` en `
 ### Validación 11v11 superada — 18 noviembre 2026
 
 La ejecución `44419455179` pasó la preparación Android/Godot, importación, validaciones de clubes e histórico, prueba del hub y prueba de fundamentos 11v11. La prueba del reloj confirmó tiempo continuo/detenido, tiempo añadido mínimo de 60 segundos, descanso, pausa para decisión del usuario y continuación del segundo tiempo. La misma ejecución continúa con la prueba runtime del amistoso, goles y periodos; aún no hay resultado de APK.
+
+Las pruebas de escena cargan ahora `scenes/main.tscn` de forma dinámica después de que el proyecto haya inicializado los autoloads. Esto evita compilar la escena durante el parseo del script de test, antes de registrar los nombres globales de los servicios.
