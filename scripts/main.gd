@@ -192,7 +192,9 @@ func _create_goal(z_position: float, scoring_side: String) -> void:
 	goal_area.body_entered.connect(_on_goal_body_entered.bind(scoring_side))
 	add_child(goal_area)
 
-	for post_x in [-3.75, 3.75]:
+	for post_index in range(2):
+		var post_x := -3.75 if post_index == 0 else 3.75
+		var post_name := scoring_side.capitalize() + ("GoalPostLeft" if post_index == 0 else "GoalPostRight")
 		var post := MeshInstance3D.new()
 		var cylinder := CylinderMesh.new()
 		cylinder.top_radius = 0.09
@@ -202,6 +204,7 @@ func _create_goal(z_position: float, scoring_side: String) -> void:
 		post.position = Vector3(post_x, 1.265, z_position)
 		_apply_white_material(post)
 		add_child(post)
+		_create_goal_cylinder_collision(post_name, 0.09, 2.53, Vector3(post_x, 1.265, z_position), Vector3.ZERO)
 
 	var crossbar := MeshInstance3D.new()
 	var bar_mesh := CylinderMesh.new()
@@ -213,6 +216,60 @@ func _create_goal(z_position: float, scoring_side: String) -> void:
 	crossbar.position = Vector3(0, 2.53, z_position)
 	_apply_white_material(crossbar)
 	add_child(crossbar)
+	_create_goal_cylinder_collision(
+		scoring_side.capitalize() + "GoalCrossbar",
+		0.09,
+		7.5,
+		Vector3(0, 2.53, z_position),
+		Vector3(0.0, 0.0, deg_to_rad(90.0))
+	)
+
+	# Physical net panels keep shots inside the goal and reject entries from behind.
+	var goal_depth := 2.2
+	var half_width := 3.66
+	var goal_height := 2.44
+	var net_center_z := z_position + signf(z_position) * goal_depth * 0.5
+	_create_goal_net_panel(scoring_side, "Back", Vector3(7.32, goal_height, 0.12), Vector3(0.0, goal_height * 0.5, z_position + signf(z_position) * (goal_depth + 0.06)))
+	_create_goal_net_panel(scoring_side, "Left", Vector3(0.12, goal_height, goal_depth), Vector3(-half_width, goal_height * 0.5, net_center_z))
+	_create_goal_net_panel(scoring_side, "Right", Vector3(0.12, goal_height, goal_depth), Vector3(half_width, goal_height * 0.5, net_center_z))
+	_create_goal_net_panel(scoring_side, "Roof", Vector3(7.32, 0.12, goal_depth), Vector3(0.0, goal_height, net_center_z))
+
+func _create_goal_cylinder_collision(node_name: String, radius: float, height: float, at: Vector3, rotation: Vector3) -> void:
+	var body := StaticBody3D.new()
+	body.name = node_name + "Collision"
+	body.position = at
+	body.rotation = rotation
+	var collision := CollisionShape3D.new()
+	var cylinder := CylinderShape3D.new()
+	cylinder.radius = radius
+	cylinder.height = height
+	collision.shape = cylinder
+	body.add_child(collision)
+	add_child(body)
+
+func _create_goal_net_panel(scoring_side: String, panel_name: String, size: Vector3, at: Vector3) -> void:
+	var body := StaticBody3D.new()
+	body.name = scoring_side.capitalize() + "GoalNet" + panel_name + "Collision"
+	body.position = at
+	var collision := CollisionShape3D.new()
+	var shape := BoxShape3D.new()
+	shape.size = size
+	collision.shape = shape
+	body.add_child(collision)
+	add_child(body)
+
+	var visual := MeshInstance3D.new()
+	visual.name = scoring_side.capitalize() + "GoalNet" + panel_name
+	var mesh := BoxMesh.new()
+	mesh.size = size
+	visual.mesh = mesh
+	visual.position = at
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color(0.78, 0.88, 0.96, 0.12)
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	visual.material_override = material
+	add_child(visual)
 
 func _apply_white_material(node: MeshInstance3D) -> void:
 	var material := StandardMaterial3D.new()
