@@ -152,6 +152,7 @@ func _run_acceptance_test() -> void:
 						away_goalkeeper = actor_data.get("node")
 						break
 				var away_goalkeeper_z_before := away_goalkeeper.global_position.z if is_instance_valid(away_goalkeeper) else 0.0
+				game.player.velocity = Vector3(2.0, 0.0, 3.0)
 				game.match_11v11_controller._update_match_clock(240.0)
 				if str(game.match_11v11_controller.get_clock_summary().get("phase", "")) != "half_time":
 					failures.append("El motor en vivo no alcanzó el descanso después del primer tiempo y añadido.")
@@ -159,6 +160,8 @@ func _run_acceptance_test() -> void:
 					failures.append("El motor en vivo no permitió continuar después del descanso.")
 				if not is_equal_approx(game.player.global_position.z, -home_z_before_half_time):
 					failures.append("El futbolista controlado no cambió de lado al comenzar el segundo tiempo.")
+				if not game.player.velocity.is_zero_approx():
+					failures.append("El futbolista conservó la velocidad anterior al cambiar de lado.")
 				if is_instance_valid(away_goalkeeper) and not is_equal_approx(away_goalkeeper.global_position.z, -away_goalkeeper_z_before):
 					failures.append("El portero visitante no cambió de lado al comenzar el segundo tiempo.")
 				if MATCH_11V11.goalkeeper_clear_direction(true, 0.0, true).z <= 0.0 or MATCH_11V11.goalkeeper_clear_direction(false, 0.0, true).z >= 0.0:
