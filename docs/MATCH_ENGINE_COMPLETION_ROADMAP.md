@@ -248,3 +248,8 @@ El cambio de lado también anula la velocidad residual del futbolista controlado
 - Se incorporaron colisiones para postes, larguero, fondo, laterales y techo de las redes.
 - Las pruebas cubren goles de ambos equipos en el segundo tiempo, saque de puerta con extremos invertidos, contactos con postes/larguero, contención por la red y rechazo de entradas desde detrás.
 - Límite: falta ejecutar y completar la CI, exportar APK y validar el comportamiento visual/físico en Android real. No se considera el motor completo por tener estas pruebas.
+
+
+## Diagnóstico CI más reciente — 18 noviembre 2026
+
+Una ejecución llegó a Godot 4.4.1 y detectó dos defectos en la pantalla Online/Hub: una conversión de año de fundación que recibía un valor nulo y una lista de futbolistas creados que no estaba integrada en el panel principal. Se cambió la conversión a `String.to_int()` y se integró la selección local de jugadores creados en un único panel, manteniendo la estructura de navegación esperada. La ejecución que detectó esos fallos corresponde a un commit anterior; la nueva ejecución debe confirmar estas correcciones antes de continuar con el resto de pruebas y la exportación APK.
