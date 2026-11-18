@@ -242,3 +242,10 @@ El cambio de lado también anula la velocidad residual del futbolista controlado
 ### Colisiones físicas de porterías — 18 noviembre 2026
 
 Se añadieron cuerpos estáticos para los dos postes y el larguero de cada portería, más paneles físicos trasero, laterales y superior con una visualización translúcida ligera. Esto evita que el balón atraviese el marco o entre desde detrás para activar el sensor de gol. La prueba `tests/test_goal_frame_physics.gd` verifica las 14 colisiones, el bloqueo en un poste y larguero, la contención trasera y que una entrada desde detrás no concede gol. Esta es contención física básica, no una red deformable ni una simulación completa de la deformación del balón/red.
+
+
+### Atribución de goles y saques de puerta tras cambiar de lado — 18 noviembre 2026
+
+La auditoría del segundo tiempo encontró que el callback de gol aún podía inferir el goleador por el nombre fijo del área física. Como las porterías no se mueven al cambiar de lado, esa etiqueta queda obsoleta. Ahora el controlador expone `ends_swapped`, `main.gd` obtiene la orientación actual y `match_rules.gd` determina qué equipo ataca/defiende cada línea de meta según esa orientación. La ubicación del saque de puerta se calcula desde el lado real por el que salió el balón, no desde el lado inicial del local.
+
+Las pruebas de reglas y runtime comprueban goles de ambos equipos hacia +Z/-Z después del descanso y la ubicación del saque de puerta del equipo que defiende el extremo invertido. La etiqueta fija del Area3D ya no decide el marcador.
