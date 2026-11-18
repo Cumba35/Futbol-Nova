@@ -65,3 +65,16 @@ La investigación se realizó sobre README, páginas de repositorio, documentaci
 | [devinarena/Pixel-Striker](https://github.com/devinarena/Pixel-Striker) | MIT declarada; Godot; juego móvil con Android, tiros libres, penaltis y portero | Referencia para flujos táctiles, modos de práctica y exportación móvil | No sustituye ni aporta un motor 11v11: sus modos son minijuegos de fútbol. Se estudian patrones de interacción y empaquetado, sin incorporar assets ni código en esta fase. |
 
 **Criterio de compatibilidad:** Pixel-Striker y FreeKick se desarrollan con versiones de Godot distintas a la versión 4.4.1 fijada en Fútbol Nova. Antes de considerar cualquier componente, debe portarse de forma explícita y pasar las pruebas headless y Android del proyecto; no se eleva la versión del motor solo para copiar una demo.
+
+
+## Referencia pública adicional: Crazy Cage Football (MIT)
+
+- Repositorio: https://github.com/RobinNunkesser/gd-godot-crazy-cage-football
+- Motor declarado: Godot 4.x; proyecto de fútbol arcade 3D con física, colisiones, máquina de estados, controles táctiles/multicontrolador y pruebas de gameplay.
+- Licencia del repositorio: MIT (archivo LICENSE verificado el 18-11-2026).
+- Posible aprendizaje: separación del estado de partido, controles de mando y táctiles, pruebas de colisión/flujo de partido y empaquetado.
+- Límite: es fútbol de jaula/arcade, no simulación reglamentaria 11 contra 11. No se importó código, modelos, audio ni texturas; se documentan únicamente patrones de arquitectura para evaluar y adaptar de forma independiente.
+
+## Criterio de adopción de motores y código externo
+
+La referencia Godotball (https://github.com/aliyavuzz/Godotball) declara Godot 4.4.1 y Apache-2.0 en su README, y su arquitectura C++/GDExtension puede ser interesante para física avanzada. Sin embargo, en la revisión no se encontró un archivo LICENSE en la raíz del repositorio. Por seguridad jurídica no se copia ni incorpora código o assets hasta verificar la licencia aplicable al código y a la base GameplayFootball de la que deriva. Además, añadir GDExtension introduciría toolchain nativa, NDK/ABI y mantenimiento adicional, por lo que primero se deben agotar las mejoras GDScript compatibles con el APK ARM64 actual.
