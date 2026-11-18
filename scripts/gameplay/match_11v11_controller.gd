@@ -289,6 +289,7 @@ func get_match_summary() -> Dictionary:
 		"away_players": away_count,
 		"ai_players": _actors.size(),
 		"stage": "11v11_prototype",
+		"ends_swapped": _ends_swapped,
 		"home_team_id": _home_team_id,
 		"away_team_id": _away_team_id,
 		"match_phase": str(_match_clock_state.get("phase", "not_started")),
@@ -652,7 +653,7 @@ func _find_forward_pass_target(actor_index: int, home_team: bool) -> Vector3:
 	if home_team and is_instance_valid(_player):
 		var player_position := _player.global_position
 		var player_distance := origin.distance_to(player_position)
-		var player_forward_gain := forward_progress(origin.z, player_position.z, home_team)
+		var player_forward_gain := forward_progress(origin.z, player_position.z, home_team, _ends_swapped)
 		if player_distance >= 3.0 and player_distance <= 19.0 and player_forward_gain >= 1.0 and _is_pass_lane_clear(origin, player_position, home_team):
 			var player_score := player_forward_gain * 1.4 - player_distance * 0.35
 			if player_score > best_score:
