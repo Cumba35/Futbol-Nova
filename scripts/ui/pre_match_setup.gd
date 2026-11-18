@@ -258,7 +258,7 @@ func _refresh_validation() -> void:
 	var home_id := _selected_team_id(_home_teams)
 	var away_id := _selected_team_id(_away_teams)
 	var valid := not home_id.is_empty() and not away_id.is_empty() and home_id != away_id
-		var registry = _get_football_registry()
+	var registry = _get_football_registry()
 	if registry == null:
 		_start_button.disabled = true
 		_summary.text = "El catálogo de clubes no está disponible."
@@ -283,7 +283,7 @@ func _start_match() -> void:
 		return
 	var home_id := _selected_team_id(_home_teams)
 	var away_id := _selected_team_id(_away_teams)
-		var registry = _get_football_registry()
+	var registry = _get_football_registry()
 	if registry == null:
 		_summary.text = "El catálogo de clubes no está disponible."
 		_start_button.disabled = true
