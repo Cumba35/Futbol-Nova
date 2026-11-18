@@ -221,3 +221,10 @@ Se mantiene la implementación original de Fútbol Nova; no se copiaron scripts,
 ### CI más diagnosticable — 18 noviembre 2026
 
 El workflow de APK tenía filtros de rutas duplicados y ejecutaba cada prueba Godot sin límite individual. Se eliminaron los filtros repetidos y se añadió un límite de 180 segundos por script (120 segundos para smoke test), con grupos de log por prueba. Así una prueba colgada deja un fallo identificable en lugar de bloquear indefinidamente el job. La exportación Android sigue condicionada a superar las pruebas principales.
+
+
+### Cambio de lado en el descanso — 18 noviembre 2026
+
+La auditoría del ciclo reglamentario encontró que el reloj podía pasar del primer al segundo tiempo, pero las dos alineaciones y sus direcciones tácticas permanecían en los mismos extremos. Esto hacía que el equipo local siguiera atacando la misma portería durante todo el partido. El controlador ahora intercambia las posiciones longitudinales de los 22 futbolistas en el descanso del tiempo reglamentario y en el descanso de la prórroga, invierte la orientación corporal, reinicia el balón en el centro y actualiza las direcciones de ataque, las zonas defensivas, la selección de pases y los despejes de los porteros. El estado de cambio de lado se incluye en el resumen del partido.
+
+La prueba runtime comprueba que el futbolista controlado y el portero visitante cambian de extremo, que los despejes de ambos porteros siguen orientándose hacia el campo rival, que el segundo tiempo comienza correctamente y que la prórroga vuelve a intercambiar los extremos en su propio descanso. Se mantiene el código original GDScript sin dependencias nativas.
