@@ -51,3 +51,10 @@ La prueba de integración verifica inicio del amistoso, marcador de ambos equipo
 ### Último diagnóstico de CI — 18 noviembre 2026
 
 La ejecución `44415238766` llegó a las pruebas de Godot y falló en `test_game_hub.gd`: el preload de `pre_match_setup.gd` resolvía `FootballData` como identificador global durante el modo SceneTree headless y la pantalla Ayuda se comprobaba antes de retirar nodos anteriores encolados para liberar. Se corrigió la resolución del autoload mediante `/root/FootballData`, se retiraron inmediatamente los nodos antiguos del contenedor y se añadieron comprobaciones por títulos de ayuda y un watchdog interno de 120 segundos. La validación previa de datos sí pasó: 519 nombres de clubes únicos y archivo histórico con 15 competiciones, 410 ediciones y 571 resultados. La siguiente ejecución debe confirmar estas correcciones y las pruebas de goles/porterías antes de exportar una APK.
+
+
+### Diagnóstico adicional de UI y datos — 18 noviembre 2026
+
+La ejecución `44416626883` confirmó que la resolución de `FootballData` y la retirada inmediata de nodos del hub ya permitieron avanzar más. Después encontró dos problemas adicionales: el catálogo internacional contiene `founding_year: null` en varias competiciones, por lo que una conversión directa `int(null)` fallaba; y la prueba esperaba una lista de jugadores dentro de Online aunque el juego base muestra correctamente Online como módulo descargable. Se añadió `_safe_int()` para valores nulos/mixtos y se ajustó la prueba para validar que Online siga siendo opcional. También se reforzó el aislamiento del registro local: solo se cargan jugadores con origen `user_created`, y se rechazan jugadores `nova_catalog` tanto al guardar como al seleccionar para Online.
+
+La siguiente ejecución debe validar estos cambios; hasta entonces no se considera aprobada la suite ni generada una APK instalable.
