@@ -43,6 +43,7 @@ var touch_controls: Control
 var match_11v11_controller: Node3D
 var match_camera: Camera3D
 var pre_match_setup
+var current_training_mode_id := ""
 
 func _ready() -> void:
 	var loading_screen := LOADING_SCREEN.new()
@@ -485,32 +486,64 @@ func _on_skill_circle_gesture_completed() -> void:
 func _on_goal_body_entered(body: Node3D, _scoring_side: String) -> void:
 	if body != ball:
 		return
-	# Goal areas also exist in training and free-practice modes. Only an active
-	# 11v11 match may change the official match score.
-	if match_11v11_controller == null or not match_11v11_controller.is_match_active():
+	var active_match := match_11v11_controller != null and match_11v11_controller.is_match_active()
+	var active_training := not current_training_mode_id.is_empty()
+	if not active_match and not active_training:
 		return
-	# Teams exchange physical goals at halftime and extra-time halftime.
-	# Resolve the scorer from current orientation, not the fixed Area3D name.
-	var match_summary: Dictionary = match_11v11_controller.get_match_summary()
-	var home_attacks_positive_z := bool(match_summary.get("ends_swapped", false))
+	# Training uses the original orientation; active matches use the controller's
+	# live orientation after halftime and extra-time breaks.
+	var home_attacks_positive_z := false
+	if active_match:
+		var match_summary: Dictionary = match_11v11_controller.get_match_summary()
+		home_attacks_positive_z = bool(match_summary.get("ends_swapped", false))
 	var goal_result: Dictionary = MATCH_RULES.classify_ball_exit(
 		ball.global_position, false, FIELD_WIDTH * 0.5, FIELD_LENGTH * 0.5,
 		3.66, 2.44, 0.22, Vector3.ZERO, false, home_attacks_positive_z
 	)
 	if str(goal_result.get("restart", "")) != "goal":
 		return
+	if active_training and not active_match:
+		_record_training_goal()
+		_reset_training_ball()
+		if gesture_hint_label != null:
+			gesture_hint_label.text = "¡Gol! El progreso del reto diario se actualizó."
+		return
 	var scoring_home := bool(goal_result.get("awarded_home", false))
 	if scoring_home:
 		score_home += 1
 	else:
 		score_away += 1
-	if match_11v11_controller != null:
-		match_11v11_controller.set_match_score(score_home, score_away)
+	match_11v11_controller.set_match_score(score_home, score_away)
 	score_label.text = "%s  %d - %d  %s" % [home_team_display_name, score_home, score_away, away_team_display_name]
+	_reset_ball()
+
+
+func _record_training_goal() -> void:
 	var moments_service := get_node_or_null("/root/MomentsService")
 	if moments_service != null and moments_service.has_method("record_event"):
 		moments_service.call("record_event", "goal_scored", 1)
-	_reset_ball()
+
+
+func _reset_training_ball() -> void:
+	var spawn_position := Vector3(0.0, 0.35, 0.0)
+	match current_training_mode_id:
+		"tutorial":
+			spawn_position = Vector3(0.0, 0.35, 5.0)
+		"free_kick":
+			spawn_position = Vector3(0.0, 0.35, 22.0)
+		"penalty":
+			spawn_position = Vector3(0.0, 0.35, 44.0)
+		"free_practice":
+			spawn_position = Vector3(0.0, 0.35, 0.0)
+	if match_11v11_controller != null and match_11v11_controller.has_method("reset_ball_for_restart"):
+		match_11v11_controller.reset_ball_for_restart(spawn_position)
+	else:
+		ball.freeze = false
+		ball.sleeping = false
+		ball.linear_velocity = Vector3.ZERO
+		ball.angular_velocity = Vector3.ZERO
+		ball.global_position = spawn_position
+		ball.reset_physics_interpolation()
 
 func _reset_ball() -> void:
 	if match_11v11_controller != null and match_11v11_controller.has_method("reset_ball_for_restart"):
@@ -537,6 +570,7 @@ func _on_catalog_exited() -> void:
 
 
 func _open_pre_match_setup() -> void:
+	current_training_mode_id = ""
 	if is_instance_valid(pre_match_setup):
 		return
 	pre_match_setup = PRE_MATCH_SETUP.new()
@@ -565,6 +599,7 @@ func _create_game_hub() -> void:
 	add_child(game_hub)
 
 func _on_training_mode_selected(mode_id: String) -> void:
+	current_training_mode_id = mode_id
 	if match_11v11_controller != null:
 		match_11v11_controller.stop_match()
 	if match_half_length_option != null:
@@ -602,6 +637,7 @@ func _on_training_mode_selected(mode_id: String) -> void:
 
 
 func _toggle_game_hub() -> void:
+	current_training_mode_id = ""
 	if match_11v11_controller != null and match_11v11_controller.is_match_active():
 		match_11v11_controller.set_match_paused(true)
 	if game_hub != null:
@@ -611,6 +647,7 @@ func _toggle_game_hub() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") and game_hub != null and not game_hub.root.visible:
+		current_training_mode_id = ""
 		if match_11v11_controller != null and match_11v11_controller.is_match_active():
 			match_11v11_controller.set_match_paused(true)
 		game_hub.open_home()
