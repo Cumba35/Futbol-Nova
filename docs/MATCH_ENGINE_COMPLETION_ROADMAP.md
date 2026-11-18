@@ -253,3 +253,9 @@ El cambio de lado también anula la velocidad residual del futbolista controlado
 ## Diagnóstico CI más reciente — 18 noviembre 2026
 
 Una ejecución llegó a Godot 4.4.1 y detectó dos defectos en la pantalla Online/Hub: una conversión de año de fundación que recibía un valor nulo y una lista de futbolistas creados que no estaba integrada en el panel principal. Se cambió la conversión a `String.to_int()` y se integró la selección local de jugadores creados en un único panel, manteniendo la estructura de navegación esperada. La ejecución que detectó esos fallos corresponde a un commit anterior; la nueva ejecución debe confirmar estas correcciones antes de continuar con el resto de pruebas y la exportación APK.
+
+
+
+## Módulo Realista opcional en pruebas headless — 18 noviembre 2026
+
+La carga del perfil Realista ya no referencia `ContentPackages` como identificador global desde una clase GDScript pre-cargada. Resuelve el servicio por `Engine.get_main_loop()` y `/root/ContentPackages`, y devuelve el perfil base inactivo si el servicio no está disponible o el paquete no está instalado. La prueba 11v11 verifica expresamente ese comportamiento.
