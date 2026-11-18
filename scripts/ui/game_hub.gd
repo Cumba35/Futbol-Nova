@@ -196,6 +196,7 @@ func _make_panel() -> PanelContainer:
 
 func _clear_content() -> void:
 	for child in content_box.get_children():
+		content_box.remove_child(child)
 		child.queue_free()
 
 func _update_header(title_text: String, subtitle_text: String) -> void:
