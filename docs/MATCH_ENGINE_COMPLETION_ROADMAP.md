@@ -271,3 +271,9 @@ La prueba de integración del estado del reloj esperaba 30 segundos de añadido 
 ### Resolución del catálogo en la escena principal y prueba runtime — 18 noviembre 2026
 
 La clase principal y la prueba del amistoso también usaban `FootballData` como identificador global dentro de scripts cargados de forma dinámica. Se cambió a resolver el nodo autoload `/root/FootballData` y leer su registro de forma explícita. El juego muestra el estado de catálogo no disponible si el servicio no está en el árbol; el test runtime valida el registro antes de usarlo.
+
+
+
+### Registro de eventos de gol sin dependencia global de autoload — 18 noviembre 2026
+
+La compilación headless también detectó una referencia global a `MomentsService` dentro de `main.gd`. Se sustituyó por la resolución explícita de `/root/MomentsService` y una llamada protegida, de modo que el gol se contabiliza aunque el servicio opcional de momentos no esté disponible en un contexto de prueba.
