@@ -1,6 +1,7 @@
 extends SceneTree
 
 const MAIN_SCENE := preload("res://scenes/main.tscn")
+const MATCH_CLOCK_STATE := preload("res://scripts/gameplay/match_clock_state_machine.gd")
 
 func _initialize() -> void:
 	call_deferred("_run_acceptance_test")
@@ -110,6 +111,23 @@ func _run_acceptance_test() -> void:
 				if game.match_clock_label == null or not game.match_clock_label.text.contains("PRIMER TIEMPO"):
 					failures.append("El reloj del amistoso no muestra el primer tiempo.")
 
+				# Exercise the live controller through both regulation periods, not only kickoff.
+				game.match_11v11_controller._match_clock_state = MATCH_CLOCK_STATE.create_state({
+					"half_length_minutes": 3,
+					"clock_mode": "continuous"
+				})
+				game.match_11v11_controller._update_match_clock(240.0)
+				if str(game.match_11v11_controller.get_clock_summary().get("phase", "")) != "half_time":
+					failures.append("El motor en vivo no alcanzó el descanso después del primer tiempo y añadido.")
+				if not game.match_11v11_controller.continue_after_period_break():
+					failures.append("El motor en vivo no permitió continuar después del descanso.")
+				game.match_11v11_controller._update_match_clock(240.0)
+				var finished_clock: Dictionary = game.match_11v11_controller.get_clock_summary()
+				if str(finished_clock.get("phase", "")) != "full_time":
+					failures.append("El motor en vivo no finalizó el amistoso después del segundo tiempo y añadido.")
+				if game.match_11v11_controller.is_match_active():
+					failures.append("El controlador mantuvo activo el partido después del pitido final.")
+
 	if game.match_11v11_controller != null:
 		game.match_11v11_controller.stop_match()
 	game.queue_free()
@@ -119,5 +137,5 @@ func _run_acceptance_test() -> void:
 			push_error("FÚTBOL NOVA ACCEPTANCE: " + failure)
 		quit(1)
 		return
-	print("FÚTBOL NOVA ACCEPTANCE: cuatro pantallas, once categorías y amistoso 11v11 superados.")
+	print("FÚTBOL NOVA ACCEPTANCE: cuatro pantallas, once categorías y amistoso 11v11 hasta el pitido final superados.")
 	quit(0)
