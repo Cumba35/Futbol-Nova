@@ -66,3 +66,8 @@ Fútbol Nova utiliza GDScript y no contiene extensiones nativas, archivos C/C++ 
 ## Pantalla Online y jugadores personalizados
 
 La pantalla Online del juego base permite revisar exclusivamente los futbolistas creados por el usuario y guardar cuál queda preparado para el futuro módulo Online. La selección se almacena aparte del catálogo oficial; no convierte el juego base en multijugador ni activa servicios de red. El catálogo oficial no se copia ni se modifica.
+
+
+## Diagnóstico CI más reciente — 18 noviembre 2026
+
+Una ejecución llegó a Godot 4.4.1 y detectó dos defectos en la pantalla Online/Hub: una conversión de año de fundación que recibía un valor nulo y una lista de futbolistas creados que no estaba integrada en el panel principal. Se cambió la conversión a `String.to_int()` y se integró la selección local de jugadores creados en un único panel, manteniendo la estructura de navegación esperada. La ejecución que detectó esos fallos corresponde a un commit anterior; la nueva ejecución debe confirmar estas correcciones antes de continuar con el resto de pruebas y la exportación APK.
