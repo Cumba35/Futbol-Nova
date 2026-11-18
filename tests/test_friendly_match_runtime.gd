@@ -6,9 +6,16 @@ const MATCH_11V11 := preload("res://scripts/gameplay/match_11v11_controller.gd")
 
 func _initialize() -> void:
 	call_deferred("_run_acceptance_test")
+	call_deferred("_test_watchdog")
+
+func _test_watchdog() -> void:
+	await create_timer(120.0).timeout
+	push_error("FÚTBOL NOVA ACCEPTANCE: el test runtime superó 120 segundos.")
+	quit(1)
 
 func _run_acceptance_test() -> void:
 	var failures := PackedStringArray()
+	print("FRIENDLY_TEST: creating main scene")
 	var game = MAIN_SCENE.instantiate()
 	root.add_child(game)
 
@@ -18,6 +25,7 @@ func _run_acceptance_test() -> void:
 		if game.game_hub != null and game.match_11v11_controller != null:
 			break
 
+	print("FRIENDLY_TEST: main scene initialized")
 	if game.game_hub == null:
 		failures.append("La escena principal no creó el menú de juego.")
 	if game.match_11v11_controller == null:
@@ -46,11 +54,13 @@ func _run_acceptance_test() -> void:
 
 		game.game_hub._show_home()
 		await process_frame
+		print("FRIENDLY_TEST: hub navigation complete")
 
 	# Use the same pre-match screen and button path as a real player.
 	if game.match_11v11_controller != null and football_registry != null:
 		game._open_pre_match_setup()
 		await process_frame
+		print("FRIENDLY_TEST: pre-match setup opened")
 		var setup = game.pre_match_setup
 		if setup == null or not is_instance_valid(setup):
 			failures.append("No se abrió la preparación del amistoso.")
@@ -68,6 +78,7 @@ func _run_acceptance_test() -> void:
 			else:
 				setup._start_match()
 				await process_frame
+				print("FRIENDLY_TEST: friendly match started")
 				var summary: Dictionary = game.match_11v11_controller.get_match_summary()
 				if not bool(summary.get("active", false)):
 					failures.append("El motor rechazó el amistoso iniciado desde la pantalla de preparación.")
@@ -214,6 +225,7 @@ func _run_acceptance_test() -> void:
 					if game.player.global_position.z >= 0.0:
 						failures.append("Los equipos no volvieron a cambiar de lado en el descanso de la prórroga.")
 
+	print("FRIENDLY_TEST: assertions completed")
 	if game.match_11v11_controller != null:
 		game.match_11v11_controller.stop_match()
 	game.queue_free()
