@@ -54,3 +54,15 @@ La prueba de integración verifica inicio del amistoso, marcador de ambos equipo
 El proyecto incluye colisiones físicas para postes, larguero y paneles de red (fondo, laterales y techo). La prueba `tests/test_goal_frame_physics.gd` comprueba que el balón rebota en el poste y el larguero, queda contenido por la red y no recibe un gol falso al entrar desde detrás. También se prueba que la atribución del gol y el saque de puerta respeten el cambio de extremos del segundo tiempo y de la prórroga.
 
 Esta cobertura es automatizada en GitHub Actions; no sustituye la prueba visual de una APK instalada en un dispositivo Android real.
+
+
+
+## Correcciones de la última ejecución CI
+
+La primera ejecución completa con Godot detectó errores de análisis estático antes de exportar:
+
+- `pre_match_setup.gd` hacía referencia directa al singleton `FootballData`; se sustituyó por una resolución explícita del nodo `/root/FootballData` y comprobación de su registro.
+- `test_friendly_match_runtime.gd` ahora declara tipos explícitos para valores que se leen de propiedades dinámicas de la escena.
+- `test_game_hub.gd` acumula las comprobaciones fallidas y termina con código 1, evitando que un `assert` detenga la función sin cerrar el proceso hasta el timeout.
+
+Estas correcciones se vuelven a comprobar en la ejecución actual. La prueba no se considera aprobada hasta que Actions marque el paso como exitoso.
