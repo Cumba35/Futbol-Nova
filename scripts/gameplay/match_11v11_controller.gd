@@ -275,7 +275,7 @@ func has_controlled_possession() -> bool:
 func release_controlled_ball(direction: Vector3, power: float = 7.0, spin: Vector3 = Vector3.ZERO) -> bool:
 	if not has_controlled_possession() or not is_instance_valid(_ball):
 		return false
-	if direction.length_squared() < 0.001 or not direction.is_finite() or not spin.is_finite():
+	if direction.length_squared() < 0.001 or not direction.is_finite() or not spin.is_finite() or not is_finite(power):
 		return false
 	_clear_ball_possession()
 	_ball_flight_spin = spin.limit_length(BALL_FLIGHT_MODEL.MAX_SPIN)
