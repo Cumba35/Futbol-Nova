@@ -237,3 +237,14 @@ Se amplió la comparación de alternativas a FreeKick (MIT), OpenSWOS (MIT), Lea
 Resultado: se conserva GDScript/Godot 4.4.1 y el funcionamiento offline; no se incorporan motores C++/GDExtension, servicios, ni código o assets con licencia incierta. La física de vuelo y el gesto táctil propios siguen siendo componentes iniciales pendientes de conexión y pruebas.
 
 El cambio de lado también anula la velocidad residual del futbolista controlado y reinicia la interpolación física de los modelos, evitando que un jugador arrastre el impulso del primer tiempo o aparezca visualmente desplazándose entre extremos.
+
+
+
+## Corrección de orientación de goles y física de porterías — 18 noviembre 2026
+
+- Las porterías físicas conservan sus nodos durante todo el partido, por lo que el nombre fijo del área no puede identificar al equipo goleador tras el descanso.
+- `match_rules.gd` acepta la orientación actual del equipo local; calcula qué equipo defiende cada línea de meta y ubica el saque de puerta en la misma línea por la que salió el balón.
+- `main.gd` resuelve el goleador desde el resumen del controlador (`ends_swapped`) y no desde la etiqueta fija del área.
+- Se incorporaron colisiones para postes, larguero, fondo, laterales y techo de las redes.
+- Las pruebas cubren goles de ambos equipos en el segundo tiempo, saque de puerta con extremos invertidos, contactos con postes/larguero, contención por la red y rechazo de entradas desde detrás.
+- Límite: falta ejecutar y completar la CI, exportar APK y validar el comportamiento visual/físico en Android real. No se considera el motor completo por tener estas pruebas.
