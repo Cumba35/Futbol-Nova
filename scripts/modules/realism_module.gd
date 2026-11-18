@@ -7,16 +7,35 @@ const PACKAGE_ID := "futbol_nova_realism"
 const CONFIG_FILE := "realism_profile.json"
 const INSTALL_ROOT := "user://futbol_nova/packages/"
 
+static func _get_content_package_service() -> Node:
+	var main_loop: MainLoop = Engine.get_main_loop()
+	if not (main_loop is SceneTree):
+		return null
+	var scene_tree := main_loop as SceneTree
+	return scene_tree.root.get_node_or_null("ContentPackages")
+
+
+static func _read_profile_number(profile: Dictionary, key: String, fallback: float) -> float:
+	var value: Variant = profile.get(key, null)
+	if value is int or value is float:
+		return float(value)
+	if value is String:
+		var text_value := str(value).strip_edges()
+		if text_value.is_valid_float():
+			return float(text_value)
+	return fallback
+
+
 static func load_profile() -> Dictionary:
 	var inactive := {"enabled": false, "profile_id": "base_game"}
-	var package_manager := _get_content_packages()
-	if package_manager == null:
+	var package_service := _get_content_package_service()
+	if package_service == null:
 		return inactive
-	if not package_manager.has_method("is_package_installed") or not bool(package_manager.call("is_package_installed", PACKAGE_ID)):
+	if not package_service.has_method("is_package_installed") or not package_service.has_method("get_installed_packages"):
 		return inactive
-	if not package_manager.has_method("get_installed_packages"):
+	if not bool(package_service.call("is_package_installed", PACKAGE_ID)):
 		return inactive
-	var installed_packages: Variant = package_manager.call("get_installed_packages")
+	var installed_packages: Variant = package_service.call("get_installed_packages")
 	if not (installed_packages is Dictionary):
 		return inactive
 	var installed: Dictionary = installed_packages.get(PACKAGE_ID, {})
@@ -32,21 +51,28 @@ static func load_profile() -> Dictionary:
 	var parsed = JSON.parse_string(file.get_as_text())
 	if not (parsed is Dictionary):
 		return inactive
-	if int(parsed.get("schema_version", 0)) != 1 or str(parsed.get("module_id", "")) != PACKAGE_ID:
+	var schema_value: Variant = parsed.get("schema_version", null)
+	if not (schema_value is int or schema_value is float) or int(schema_value) != 1:
 		return inactive
-	var profile: Dictionary = parsed.get("profile", {})
+	if str(parsed.get("module_id", "")) != PACKAGE_ID:
+		return inactive
+	var profile_value: Variant = parsed.get("profile", {})
+	if not (profile_value is Dictionary):
+		return inactive
+	var profile: Dictionary = profile_value
 	if not validate_profile(profile):
 		return inactive
 	var result := profile.duplicate(true)
 	result["enabled"] = true
 	return result
 
+
 static func validate_profile(profile: Dictionary) -> bool:
 	if str(profile.get("profile_id", "")) != "realism_balanced":
 		return false
-	var drain := float(profile.get("movement_fatigue_per_second", -1.0))
-	var recovery := float(profile.get("recovery_per_second", -1.0))
-	var minimum_speed := float(profile.get("minimum_speed_multiplier", -1.0))
+	var drain := _read_profile_number(profile, "movement_fatigue_per_second", -1.0)
+	var recovery := _read_profile_number(profile, "recovery_per_second", -1.0)
+	var minimum_speed := _read_profile_number(profile, "minimum_speed_multiplier", -1.0)
 	if drain < 0.0 or drain > 3.0:
 		return false
 	if recovery < 0.0 or recovery > 3.0:
@@ -55,28 +81,24 @@ static func validate_profile(profile: Dictionary) -> bool:
 		return false
 	return true
 
+
 static func movement_speed_multiplier(stamina: float, profile: Dictionary) -> float:
 	if not bool(profile.get("enabled", false)) or not bool(profile.get("fatigue_enabled", false)):
 		return 1.0
-	var minimum_speed := clampf(float(profile.get("minimum_speed_multiplier", 0.78)), 0.5, 1.0)
+	var minimum_speed := clampf(_read_profile_number(profile, "minimum_speed_multiplier", 0.78), 0.5, 1.0)
 	return lerpf(minimum_speed, 1.0, clampf(stamina / 100.0, 0.0, 1.0))
+
 
 static func update_stamina(stamina: float, is_moving: bool, delta: float, profile: Dictionary) -> float:
 	if not bool(profile.get("enabled", false)) or not bool(profile.get("fatigue_enabled", false)):
 		return clampf(stamina, 0.0, 100.0)
-	var rate := float(profile.get("movement_fatigue_per_second", 0.10)) if is_moving else -float(profile.get("recovery_per_second", 0.16))
-	return clampf(stamina - rate * maxf(0.0, delta), 0.0, 100.0)
+	var drain := _read_profile_number(profile, "movement_fatigue_per_second", 0.10)
+	var recovery := _read_profile_number(profile, "recovery_per_second", 0.16)
+	var rate := drain if is_moving else -recovery
+	var safe_delta := maxf(0.0, delta) if is_finite(delta) else 0.0
+	return clampf(stamina - rate * safe_delta, 0.0, 100.0)
+
 
 static func get_status() -> Dictionary:
 	var profile := load_profile()
 	return {"enabled": bool(profile.get("enabled", false)), "profile_id": str(profile.get("profile_id", "base_game")), "package_id": PACKAGE_ID}
-
-
-static func _get_content_packages() -> Node:
-	# Headless unit tests launched with --script do not instantiate project autoloads.
-	# Resolve the optional package service dynamically and keep the base game safe.
-	var main_loop := Engine.get_main_loop()
-	if main_loop == null or not (main_loop is SceneTree):
-		return null
-	var scene_tree: SceneTree = main_loop
-	return scene_tree.root.get_node_or_null("ContentPackages")
