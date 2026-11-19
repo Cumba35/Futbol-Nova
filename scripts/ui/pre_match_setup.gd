@@ -244,15 +244,19 @@ func _build_interface() -> void:
 	_start_button.pressed.connect(_start_match)
 	actions.add_child(_start_button)
 
+func _get_football_registry() -> Variant:
+	var football_data_service: Node = get_node_or_null("/root/FootballData")
+	return football_data_service.get("registry") if football_data_service != null else null
+
 func _load_eligible_teams() -> void:
 	_home_teams.clear()
 	_away_teams.clear()
 	_team_ids.clear()
-	if FootballData.registry == null:
+	var registry: Variant = _get_football_registry()
+	if registry == null:
 		_summary.text = "El catálogo de clubes no está disponible. No se puede iniciar el amistoso."
 		return
 
-	var registry = FootballData.registry
 	var ids: Array = registry.teams_by_id.keys()
 	ids.sort()
 	for raw_id in ids:
@@ -295,8 +299,10 @@ func _refresh_validation() -> void:
 	var home_id := _selected_team_id(_home_teams)
 	var away_id := _selected_team_id(_away_teams)
 	var valid := not home_id.is_empty() and not away_id.is_empty() and home_id != away_id
-	var home_roster: Array = FootballData.registry.get_team_roster(home_id) if valid else []
-	var away_roster: Array = FootballData.registry.get_team_roster(away_id) if valid else []
+	var registry: Variant = _get_football_registry()
+	valid = valid and registry != null
+	var home_roster: Array = registry.get_team_roster(home_id) if valid else []
+	var away_roster: Array = registry.get_team_roster(away_id) if valid else []
 	valid = valid and home_roster.size() >= 11 and away_roster.size() >= 11
 	valid = valid and not _selected_stadium_id().is_empty()
 	_start_button.disabled = not valid
@@ -321,10 +327,15 @@ func _start_match() -> void:
 		return
 	var home_id := _selected_team_id(_home_teams)
 	var away_id := _selected_team_id(_away_teams)
-	var home_team: Dictionary = FootballData.registry.teams_by_id[home_id]
-	var away_team: Dictionary = FootballData.registry.teams_by_id[away_id]
-	var home_roster: Array = FootballData.registry.get_team_roster(home_id)
-	var away_roster: Array = FootballData.registry.get_team_roster(away_id)
+	var registry: Variant = _get_football_registry()
+	if registry == null or not registry.teams_by_id.has(home_id) or not registry.teams_by_id.has(away_id):
+		_summary.text = "El catálogo de clubes dejó de estar disponible. No se puede iniciar el amistoso."
+		_start_button.disabled = true
+		return
+	var home_team: Dictionary = registry.teams_by_id[home_id]
+	var away_team: Dictionary = registry.teams_by_id[away_id]
+	var home_roster: Array = registry.get_team_roster(home_id)
+	var away_roster: Array = registry.get_team_roster(away_id)
 	var home_player_ids := build_starting_eleven(home_roster)
 	var away_player_ids := build_starting_eleven(away_roster)
 	if home_player_ids.size() != 11 or away_player_ids.size() != 11:
