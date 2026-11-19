@@ -78,3 +78,10 @@ La investigación se realizó sobre README, páginas de repositorio, documentaci
 **Pendiente de demostrar con CI:** que las nuevas pruebas de física y de cambio de lado pasen en Godot 4.4.1; que las regresiones terminen; que se exporte y publique el artefacto APK Android ARM64. No se considera validado por el mero hecho de haber guardado el código.
 
 **Pendiente de integración funcional:** `BallFlightModel` y `SetPieceSwipeController` siguen siendo componentes iniciales sin conexión completa al balón real y al HUD. Se mantiene como siguiente prioridad su conexión con pase, tiro, primer toque y efecto, acompañada de pruebas deterministas.
+
+
+## Revisión de regresión propia — 19 noviembre 2026
+
+Durante la inspección de `scripts/gameplay/match_11v11_controller.gd` se encontró una regresión funcional en la liberación de la posesión: las ramas de futbolistas de campo y porteros llamaban a `_clear_ball_possession()`, pero el impulso estaba dentro de la rama alternativa que nunca se ejecutaba cuando la IA era realmente dueña del balón. La corrección propia centraliza la liberación y el impulso en `apply_ai_kick()` y añade una prueba con `RigidBody3D`.
+
+La búsqueda pública se mantiene como fuente de ideas, no como permiso para copiar. Se revisaron las referencias previas `noddy703/tacticmesh`, `RobinNunkesser/gd-godot-crazy-cage-football` y `abotbro/godot-football-engine`; ninguna justifica reemplazar el motor propio ni importar assets sin una auditoría de licencia por archivo.
