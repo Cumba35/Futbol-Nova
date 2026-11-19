@@ -180,6 +180,9 @@ jobs:
       - name: Regression — test_controller_support.gd
         run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_controller_support.gd
 
+      - name: Regression — test_nova_preferences_service.gd
+        run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_nova_preferences_service.gd
+
       - name: Regression — test_football_database.gd
         run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_football_database.gd
 
