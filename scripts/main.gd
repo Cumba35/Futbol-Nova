@@ -174,16 +174,25 @@ func _create_stadium() -> void:
 	# stadium models, branding or textures are required to play offline.
 	var stadium := Node3D.new()
 	stadium.name = "NovaStadium"
+	stadium.set_meta("stadium_id", current_stadium_id)
 	add_child(stadium)
-	var stand_materials := [
-		_make_stadium_material(Color("#263343")),
-		_make_stadium_material(Color("#34475B")),
-		_make_stadium_material(Color("#1B2838"))
-	]
-	var seat_materials := [
-		_make_stadium_material(Color("#71839A")),
-		_make_stadium_material(Color("#8E9AA8"))
-	]
+	var stand_colors: Array[Color] = [Color("#263343"), Color("#34475B"), Color("#1B2838")]
+	var seat_colors: Array[Color] = [Color("#71839A"), Color("#8E9AA8")]
+	var roof_color := Color("#1B2838")
+	if current_stadium_id == "nova_coastal_arena":
+		stand_colors = [Color("#123C4B"), Color("#176074"), Color("#0C2B3A")]
+		seat_colors = [Color("#6FC4D0"), Color("#D7F0E8")]
+		roof_color = Color("#092C3A")
+	elif current_stadium_id == "nova_central_park":
+		stand_colors = [Color("#244A36"), Color("#386447"), Color("#193A2B")]
+		seat_colors = [Color("#D6C59A"), Color("#A7B78A")]
+		roof_color = Color("#172F25")
+	var stand_materials: Array[Material] = []
+	for color in stand_colors:
+		stand_materials.append(_make_stadium_material(color))
+	var seat_materials: Array[Material] = []
+	for color in seat_colors:
+		seat_materials.append(_make_stadium_material(color))
 	for tier in range(3):
 		var tier_width := 4.2
 		var tier_height := 2.2
@@ -221,6 +230,19 @@ func _create_stadium() -> void:
 			lamp_bar.material_override = _make_stadium_material(Color("#D8E7F2"))
 			stadium.add_child(lamp_bar)
 	_add_stadium_block(stadium, "MainScoreboard", Vector3(18.0, 5.0, 0.8), Vector3(0.0, 11.0, -FIELD_LENGTH * 0.5 - 15.0), stand_materials[2])
+	if current_stadium_id == "nova_coastal_arena":
+		for side in [-1.0, 1.0]:
+			_add_stadium_block(stadium, "CoveredStandRoof_%d" % int(side), Vector3(7.5, 0.55, FIELD_LENGTH + 20.0), Vector3(side * (FIELD_WIDTH * 0.5 + 8.8), 10.8, 0.0), _make_stadium_material(roof_color))
+			_add_stadium_block(stadium, "RoofSupport_%d" % int(side), Vector3(0.28, 4.0, FIELD_LENGTH + 15.0), Vector3(side * (FIELD_WIDTH * 0.5 + 5.5), 8.6, 0.0), _make_stadium_material(roof_color))
+	elif current_stadium_id == "nova_central_park":
+		_add_stadium_block(stadium, "CentralParkWestCanopy", Vector3(5.0, 0.45, FIELD_LENGTH + 12.0), Vector3(-FIELD_WIDTH * 0.5 - 8.0, 9.2, 0.0), _make_stadium_material(roof_color))
+
+func _rebuild_stadium_for_match() -> void:
+	var existing := get_node_or_null("NovaStadium")
+	if existing != null:
+		remove_child(existing)
+		existing.queue_free()
+	_create_stadium()
 
 func _make_stadium_material(color: Color) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
@@ -813,6 +835,7 @@ func _start_11v11_match(match_overrides: Dictionary = {}) -> void:
 	home_team_display_name = str(match_overrides.get("home_team_display_name", match_overrides.get("home_team_name", "Equipo local")))
 	away_team_display_name = str(match_overrides.get("away_team_display_name", match_overrides.get("away_team_name", "Equipo visitante")))
 	current_stadium_id = str(match_overrides.get("stadium_id", "nova_stadium_main"))
+	_rebuild_stadium_for_match()
 	_switch_controlled_player_for_selected_club()
 	if player == null or not is_instance_valid(player):
 		gesture_hint_label.text = "No se pudo preparar el futbolista controlado."
