@@ -195,12 +195,14 @@ func _run_acceptance_test() -> void:
 					var pass_velocity_after_touch: float = game.ball.linear_velocity.length()
 					if pass_velocity_after_touch < 1.0:
 						failures.append("PASE no impulsó el balón (distancia %.2f, just_pressed inicial %s, tras tick %s, velocidad %.2f, congelado %s)." % [pass_distance_before, str(pass_just_pressed_immediately), str(pass_just_pressed_after_tick), pass_velocity_after_touch, str(game.ball.freeze)])
+					if game.ball.freeze or game.match_11v11_controller.has_controlled_possession():
+						failures.append("El motor recuperó inmediatamente la posesión después del pase táctil.")
 					game.match_11v11_controller.call("_clear_ball_possession")
 					game.ball.freeze = false
 					game.ball.sleeping = false
 					game.ball.linear_velocity = Vector3.ZERO
 					game.ball.angular_velocity = Vector3.ZERO
-					for _frame in range(12):
+					for _frame in range(16):
 						await physics_frame
 					game.ball.global_position = game.player.global_position + player_forward * 0.75 + Vector3.UP * 0.25
 					game.match_11v11_controller.call("_update_ball_possession")
@@ -218,6 +220,8 @@ func _run_acceptance_test() -> void:
 					var shoot_velocity_after_touch: float = game.ball.linear_velocity.length()
 					if shoot_velocity_after_touch < 1.0:
 						failures.append("TIRO no impulsó el balón (distancia %.2f, just_pressed inicial %s, tras tick %s, velocidad %.2f, congelado %s)." % [shoot_distance_before, str(shoot_just_pressed_immediately), str(shoot_just_pressed_after_tick), shoot_velocity_after_touch, str(game.ball.freeze)])
+					if game.ball.freeze or game.match_11v11_controller.has_controlled_possession():
+						failures.append("El motor recuperó inmediatamente la posesión después del tiro táctil.")
 					touch_layer.visible = DisplayServer.is_touchscreen_available()
 				# Exercise the actual pause UI and verify that the independent
 				# RigidBody3D ball is frozen and restored without losing momentum.
