@@ -129,6 +129,20 @@ jobs:
       - name: Import project resources
         run: godot --headless --editor --path . --import --quit
 
+      - name: Export arm64 debug APK after core match tests
+        run: |
+          mkdir -p build
+          godot --headless --path . --export-debug "Android" build/FutbolNova-debug.apk
+          test -s build/FutbolNova-debug.apk
+
+      - name: Upload test APK before extended regressions
+        uses: actions/upload-artifact@v4
+        with:
+          name: futbol-nova-android-debug
+          path: build/FutbolNova-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Validate original club display names
         run: python tools/validate_club_identity_names.py
 
@@ -152,20 +166,6 @@ jobs:
 
       - name: Core test — live friendly match, goals and periods
         run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_friendly_match_runtime.gd
-
-      - name: Export arm64 debug APK after core match tests
-        run: |
-          mkdir -p build
-          godot --headless --path . --export-debug "Android" build/FutbolNova-debug.apk
-          test -s build/FutbolNova-debug.apk
-
-      - name: Upload test APK before extended regressions
-        uses: actions/upload-artifact@v4
-        with:
-          name: futbol-nova-android-debug
-          path: build/FutbolNova-debug.apk
-          if-no-files-found: error
-          retention-days: 14
 
       - name: Core test — physical goal frames and net containment
         run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_goal_frame_physics.gd
