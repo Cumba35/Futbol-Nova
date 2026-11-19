@@ -136,7 +136,7 @@ func _run_acceptance_test() -> void:
 				var sample_kit_colors: Dictionary = game.match_11v11_controller.get("_team_colors")
 				if not sample_kit_colors.get("home", Color.BLACK).is_equal_approx(Color("#E7E2D5")):
 					failures.append("El representante local de Real Madrid no aplicó su equipación Nova original.")
-				if not sample_kit_colors.get("away", Color.BLACK).is_equal_approx(Color("#23556B")):
+				if not sample_kit_colors.get("away", Color.BLACK).is_equal_approx(Color("#A04A57")):
 					failures.append("El representante visitante de Barcelona no aplicó su equipación Nova original.")
 				if game.current_stadium_id != "nova_stadium_main":
 					failures.append("El partido no conservó el estadio base seleccionado.")
