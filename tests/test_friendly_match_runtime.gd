@@ -149,8 +149,29 @@ func _run_acceptance_test() -> void:
 				failures.append("La pantalla no muestra los once titulares del equipo local.")
 			if setup._away_lineup_preview == null or setup._away_lineup_preview.text.split("\n").size() != 12:
 				failures.append("La pantalla no muestra los once titulares del equipo visitante.")
-			if setup._stadium_option == null or setup._stadium_option.item_count < 1:
-				failures.append("La pantalla previa no ofrece un estadio base jugable.")
+			if setup._stadium_option == null or setup._stadium_option.item_count < 3:
+				failures.append("La pantalla previa no ofrece los tres estadios base jugables.")
+			var expected_stadium_ids := ["nova_stadium_main", "nova_coastal_arena", "nova_central_park"]
+			var coastal_stadium_index := -1
+			for expected_stadium_id in expected_stadium_ids:
+				var found_stadium := false
+				for stadium_index in range(setup._stadium_option.item_count):
+					if str(setup._stadium_option.get_item_metadata(stadium_index)) == expected_stadium_id:
+						found_stadium = true
+						if expected_stadium_id == "nova_coastal_arena":
+							coastal_stadium_index = stadium_index
+						break
+				if not found_stadium:
+					failures.append("Falta un estadio base jugable: " + expected_stadium_id)
+			for expected_stadium_id in expected_stadium_ids:
+				game.current_stadium_id = expected_stadium_id
+				game._rebuild_stadium_for_match()
+				var rebuilt_stadium = game.get_node_or_null("NovaStadium")
+				if rebuilt_stadium == null or str(rebuilt_stadium.get_meta("stadium_id", "")) != expected_stadium_id or rebuilt_stadium.get_child_count() < 50:
+					failures.append("No se pudo construir el estadio seleccionado: " + expected_stadium_id)
+			if coastal_stadium_index >= 0:
+				setup._stadium_option.select(coastal_stadium_index)
+				setup._refresh_validation()
 			var expected_home_name: String = setup._team_match_display_name(selected_home_id, football_registry.teams_by_id.get(selected_home_id, {}))
 			var expected_away_name: String = setup._team_match_display_name(selected_away_id, football_registry.teams_by_id.get(selected_away_id, {}))
 			if selected_home_id.is_empty() or selected_away_id.is_empty() or selected_home_id == selected_away_id:
@@ -202,8 +223,11 @@ func _run_acceptance_test() -> void:
 					failures.append("El representante local de Real Madrid no aplicó su equipación Nova original.")
 				if not sample_kit_colors.get("away", Color.BLACK).is_equal_approx(Color("#A04A57")):
 					failures.append("El representante visitante de Barcelona no aplicó su equipación Nova original.")
-				if game.current_stadium_id != "nova_stadium_main":
-					failures.append("El partido no conservó el estadio base seleccionado.")
+				if game.current_stadium_id != "nova_coastal_arena":
+					failures.append("El partido no conservó Arena Costa Azul como estadio seleccionado.")
+				var active_stadium = game.get_node_or_null("NovaStadium")
+				if active_stadium == null or str(active_stadium.get_meta("stadium_id", "")) != "nova_coastal_arena":
+					failures.append("El amistoso no reconstruyó la geometría del estadio elegido.")
 				if not bool(summary.get("active", false)):
 					failures.append("El motor rechazó el amistoso iniciado desde la pantalla de preparación.")
 				if int(summary.get("home_players", 0)) != 11:
