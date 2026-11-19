@@ -94,6 +94,7 @@ final class CanonicalDataRepository {
             JSONObject root=read(c,file);
             JSONArray rosters=root.optJSONArray("rosters");
             if(rosters==null)return;
+            int playableBefore=playableTeams.size();
             for(int i=0;i<rosters.length();i++) {
                 JSONObject r=rosters.getJSONObject(i);
                 JSONArray players=r.optJSONArray("players");
@@ -102,8 +103,9 @@ final class CanonicalDataRepository {
                 if(t.isPlayable()) playableTeams.add(t);
                 else warnings.add("Plantilla no habilitada: "+t.name+" (requiere 22 jugadores únicos).");
             }
-            if("Primera división".equals(division)) firstDivisionTeams=rosters.length();
-            else secondDivisionTeams=rosters.length();
+            int verifiedCount=playableTeams.size()-playableBefore;
+            if("Primera división".equals(division)) firstDivisionTeams=verifiedCount;
+            else secondDivisionTeams=verifiedCount;
         } catch(Exception e) { warnings.add("No se pudo cargar "+file+": "+e.getMessage()); }
     }
     JSONObject read(Context c,String name) throws Exception {
