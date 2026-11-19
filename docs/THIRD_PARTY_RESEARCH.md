@@ -55,3 +55,28 @@ No se copiaron código ni assets de los repositorios enumerados.
 | [richardschembri/GodotBasic3DFootball](https://github.com/richardschembri/GodotBasic3DFootball) | No se encontró archivo LICENSE en la revisión; demo GDScript 3D de dos jugadores. | Referencia de prototipo 3D y controles básicos. | No copiar código ni assets; además, el proyecto declara recursos de terceros que requieren licencias separadas. |
 
 La revisión amplía el panorama, pero no cambia la decisión técnica: el juego base conserva GDScript/Godot 4.4.1, offline-first y sin dependencias nativas o servicios externos obligatorios.
+
+
+## Revisión ampliada de referencias públicas — 19 de noviembre de 2026
+
+Se revisaron referencias adicionales para UI de partido, plantillas, estadios y simulación. La consulta no autoriza copiar automáticamente código, nombres, plantillas, imágenes ni recursos; cada archivo y dependencia debe conservar su licencia y procedencia.
+
+| Repositorio | Licencia / stack verificados | Ideas aprovechables | Decisión para Fútbol Nova |
+|---|---|---|---|
+| [awest813/League-Soccer](https://github.com/awest813/League-Soccer) | Apache-2.0 en LICENSE; C++17/CMake, orientado a Linux/macOS/Windows. Declara motor 3D 22 jugadores, IA táctica, física, árbitro y HUD. | Lista de eventos de partido, separación del motor y presentación, métricas de posesión/tiros, roles de IA y arquitectura de pruebas. | No portar su motor C++ al APK Godot ni mezclar dependencias desktop. Convertir solo necesidades en pruebas y módulos GDScript independientes. Si se reutilizara código en el futuro, incluir LICENSE, NOTICE y atribuciones Apache-2.0 y auditar la ascendencia GameplayFootball/Google Research Football por separado. |
+| [antxiko/OpenComputerFutbolSimulator](https://github.com/antxiko/OpenComputerFutbolSimulator) | MIT para código fuente según LICENSE; Godot 4.6.2/GDScript. Su propio LICENSE separa explícitamente los datos de clubes/jugadores de la licencia del código. | Datos JSON por equipo, validación de plantillas, generador idempotente, semilla reproducible, atributos data-driven y pantallas de plantilla/calendario. | Referencia de arquitectura de datos y pruebas. No importar sus JSON de clubes/jugadores ni asumir que están cubiertos por MIT; Godot 4.6.2 no coincide con 4.4.1. |
+| [AKM-8byte/FreeKick](https://github.com/AKM-8byte/FreeKick) | MIT en LICENSE; Godot 4.7.2 según README, entrenamiento de tiros libres 3D. | Diseño de cámara de entrenamiento, contacto con balón, objetivos visuales y replays. | Referencia conceptual de un modo de práctica futuro; no copiar assets, modelos o código ni cambiar el motor del juego base para adoptarlo. |
+| [namelesssyf/soccer-box-game](https://github.com/namelesssyf/soccer-box-game) | README declara Godot 4.7.1, GDScript y servidor Node/PostgreSQL; no se encontró LICENSE en la raíz consultada. | Lobby, tutorial, premios, telemetría, pruebas de colisiones y flujos de partido. | Solo referencia UX. No reutilizar código/assets sin licencia verificable; su diseño arcade 4v4 y arquitectura online no corresponden al 11v11 offline. |
+| [Tobilion/footysim](https://github.com/Tobilion/footysim) | Motor espacial 11v11 tick-driven; Python. Licencia no confirmada en esta revisión. | Casos de simulación reproducible, eventos de pase/intercepción/entrada y métricas derivadas de geometría. | Solo lista de ideas de pruebas; no añadir Python al APK ni copiar código/datos. |
+| [PDXDJN/GodotGamesList](https://github.com/PDXDJN/GodotGamesList) | Catálogo comunitario de repositorios; no es motor de juego. | Descubrir demos Godot de fútbol y revisar licencias antes de evaluar. | Usarlo como índice de descubrimiento, no como fuente de código ni de derechos. |
+
+### Acciones derivadas para el proyecto
+
+1. Mantener la pantalla de preparación como fuente única de selección de local, visitante, titulares, duración y estadio; validar que las IDs de jugadores pertenecen al club seleccionado y que no se repiten.
+2. Mantener las plantillas separadas de las escenas: JSON/registro local con IDs estables, posición, atributos y procedencia. No tratar perfiles ficticios como plantillas oficiales reales.
+3. Extender pruebas de UI para navegación de las cuatro pantallas principales, categorías de Configuración, filtros de clubes, cambios de estadio, escalado compacto Android y estados deshabilitados con explicación.
+4. Derivar las estadísticas del HUD de eventos reales del controlador 11v11; no generar posesión, tiros o precisión por valores decorativos.
+5. Medir coste de CPU y memoria de 22 jugadores y del estadio procedural en Android ARM64 antes de aumentar polígonos, luces o efectos.
+6. Mantener la exportación reproducible en GitHub Actions con Godot 4.4.1 y no declarar APK terminada hasta que importación, todas las pruebas y exportación ARM64 concluyan correctamente.
+
+**Fuentes consultadas:** README y LICENSE de los repositorios enlazados arriba. No se copiaron archivos de terceros en esta revisión.
