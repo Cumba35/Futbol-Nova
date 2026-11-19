@@ -55,3 +55,11 @@ No se copiaron código ni assets de los repositorios enumerados.
 | [richardschembri/GodotBasic3DFootball](https://github.com/richardschembri/GodotBasic3DFootball) | No se encontró archivo LICENSE en la revisión; demo GDScript 3D de dos jugadores. | Referencia de prototipo 3D y controles básicos. | No copiar código ni assets; además, el proyecto declara recursos de terceros que requieren licencias separadas. |
 
 La revisión amplía el panorama, pero no cambia la decisión técnica: el juego base conserva GDScript/Godot 4.4.1, offline-first y sin dependencias nativas o servicios externos obligatorios.
+
+
+## Revisión adicional — 18-11-2026
+
+- `AKM-8byte/FreeKick`: MIT confirmada; el proyecto usa Godot 4.7.2. Solo referencia conceptual de física y pruebas de tiros libres; no se copia código ni assets por diferencia de versión y alcance.
+- `richardschembri/GodotBasic3DFootball`: GDScript 3D, sin licencia identificada por la API de GitHub; no reutilizar código ni assets.
+- `bowman290/godot-football`: GDScript, sin licencia identificada; no reutilizar código ni assets.
+- No se incorporan dependencias externas. La versión Godot 4.4.1 y la ejecución offline/Android siguen siendo obligatorias.
