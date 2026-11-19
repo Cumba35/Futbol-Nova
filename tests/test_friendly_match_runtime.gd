@@ -138,6 +138,23 @@ func _run_acceptance_test() -> void:
 				elif game.match_11v11_controller._player != game.player:
 					failures.append("El motor conserva una referencia antigua en vez del futbolista controlado actual.")
 
+				# Verify both sides' live AI react to the ball, not merely spawn 21
+				# decorative actors at their formation positions.
+				if game.match_11v11_controller._actors.size() >= 21:
+					var home_ai: Node3D = game.match_11v11_controller._actors[0].get("node")
+					var away_ai: Node3D = game.match_11v11_controller._actors[10].get("node")
+					var home_ai_before: Vector3 = home_ai.global_position
+					var away_ai_before: Vector3 = away_ai.global_position
+					game.match_11v11_controller.call("_clear_ball_possession")
+					game.ball.global_position = Vector3(22.0, 0.35, -35.0)
+					game.match_11v11_controller.call("_update_actors", 0.2, true)
+					if home_ai.global_position.distance_to(home_ai_before) < 0.05:
+						failures.append("La IA local no reaccionó a la posición del balón durante el amistoso.")
+					if away_ai.global_position.distance_to(away_ai_before) < 0.05:
+						failures.append("La IA visitante no reaccionó a la posición del balón durante el amistoso.")
+				else:
+					failures.append("El amistoso no creó suficientes futbolistas IA para comprobar su movimiento.")
+
 				# End-to-end Android touch test: virtual joystick moves the actual
 				# controlled footballer, and the on-screen pass/shoot buttons kick
 				# the live RigidBody3D ball through the player's real input path.
