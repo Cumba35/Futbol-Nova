@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 /** Reads the repository's canonical offline JSON data. It never promotes draft data to playable content. */
 final class CanonicalDataRepository {
@@ -43,6 +45,8 @@ final class CanonicalDataRepository {
 
     final List<Team> playableTeams = new ArrayList<>();
     final List<Module> modules = new ArrayList<>();
+    final List<JSONObject> customPlayers = new ArrayList<>();
+    final Map<String,JSONObject> customPlayersById = new HashMap<>();
     final List<String> warnings = new ArrayList<>();
     int baseClubCount, generatedClubCount, customPlayerCount, baseLeagueCount;
     int firstDivisionTeams, secondDivisionTeams;
@@ -53,6 +57,7 @@ final class CanonicalDataRepository {
             JSONObject custom=read(context,"custom_players.json");
             JSONArray customPlayers=custom.optJSONArray("players");
             customPlayerCount=customPlayers==null?0:customPlayers.length();
+            if(customPlayers!=null) for(int i=0;i<customPlayers.length();i++){JSONObject p=customPlayers.getJSONObject(i);this.customPlayers.add(p);this.customPlayersById.put(p.optString("id",""),p);}
             dataVersion=custom.optString("schema_version","unknown");
             JSONObject base=read(context,"base_league_clubs_2026.json");
             baseClubCount=base.optInt("club_count",base.optJSONArray("clubs")==null?0:base.optJSONArray("clubs").length());
@@ -109,11 +114,16 @@ final class CanonicalDataRepository {
             float acc=attribute(values,0,70),spd=attribute(values,1,70),drib=attribute(values,18,70);
             float aware=attribute(values,22,70),tack=attribute(values,23,70),slide=attribute(values,24,70);
             int overall=p.optInt("estimated_overall",70);
-            MainActivity.nativeSetPlayerProfile(slotStart+i,(float)p.optDouble("height_cm",175),overall,
-                (acc+spd)*.5f,drib,(aware+tack+slide)/3.0f);
+            float height=(float)p.optDouble("height_cm",175);
+            JSONObject custom=customPlayersById.get(p.optString("id",""));
+            if(custom!=null){
+                JSONObject ca=custom.optJSONObject("attributes");
+                if(ca!=null){acc=(float)ca.optDouble("acc",acc);spd=(float)ca.optDouble("spd",spd);drib=(float)ca.optDouble("drib",drib);aware=(float)ca.optDouble("aware",aware);tack=(float)ca.optDouble("tack",tack);slide=(float)ca.optDouble("slide",slide);}
+                overall=custom.optInt("overall",overall);height=(float)custom.optDouble("height_cm",height);
+            }
+            MainActivity.nativeSetPlayerProfile(slotStart+i,height,overall,(acc+spd)*.5f,drib,(aware+tack+slide)/3.0f);
         }
     }
-    private JSONArray readKeysForTeam(Team ignored) { return null; }
     private static float attribute(JSONArray a,int index,float fallback) {
         return a!=null&&index<a.length()?(float)a.optDouble(index,fallback):fallback;
     }
