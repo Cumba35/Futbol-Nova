@@ -176,3 +176,10 @@ La selección de clubes incluye campos de búsqueda independientes para local y 
 ## Aplicación de perfiles al partido amistoso
 
 Los IDs de los once titulares de cada club se transmiten al motor 11v11 y se resuelven contra `FootballData.registry.players_by_id`. Cada futbolista de IA conserva su nombre, posición, valoración, pie preferido y diccionario de atributos; su velocidad de movimiento deriva de `spd` y, para porteros, de `gkspd`. La toma de decisiones usa los atributos de pase largo/corto, despeje de portero y entradas para ajustar fuerza y alcance. El futbolista controlado recibe el perfil de su puesto en el once y sus atributos ajustan velocidad, aceleración, pase, tiro y alcance de entrada. Si el registro no está disponible, los partidos de pruebas de bajo nivel pueden seguir usando la alineación genérica, pero el amistoso de la interfaz exige plantillas válidas.
+
+
+## Estadio seleccionado y validación estricta de titulares — 19-11-2026
+
+El catálogo base incorpora tres recintos originales jugables: Estadio Nova, Arena Costa Azul y Parque Central Nova. Cada opción lleva un ID estable; al iniciar el amistoso se reconstruye el recinto procedural correspondiente. Arena Costa Azul usa gradas cubiertas y paleta turquesa; Parque Central Nova usa paleta verde y una marquesina compacta. Los tres conservan el terreno y los elementos de juego, sin depender de modelos externos.
+
+El motor ahora exige que, cuando la interfaz entrega plantillas, ambos equipos aporten exactamente once IDs únicos. Cada ID debe existir en `players_by_id`, coincidir con el `id` del perfil, pertenecer al `club_id` correcto y tener nombre y atributos válidos. Se rechazan titulares duplicados, de otro club o con perfil incompleto. La prueba de aceptación cubre además las cuatro pantallas principales, las once categorías de ajustes, los tres estadios y la reconstrucción del estadio elegido.
