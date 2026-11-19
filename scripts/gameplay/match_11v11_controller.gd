@@ -186,11 +186,11 @@ func _resolve_team_colors(home_team_id: String, away_team_id: String) -> void:
 	if home_team_id == "FN-ESP-REAL-MADRID":
 		_team_colors.home = Color("#E7E2D5")
 	elif home_team_id == "FN-ESP-BARCELONA":
-		_team_colors.home = Color("#23556B")
+		_team_colors.home = Color("#A04A57")
 	if away_team_id == "FN-ESP-REAL-MADRID":
 		_team_colors.away = Color("#E7E2D5")
 	elif away_team_id == "FN-ESP-BARCELONA":
-		_team_colors.away = Color("#23556B")
+		_team_colors.away = Color("#A04A57")
 
 func stop_match() -> void:
 	_active = false
