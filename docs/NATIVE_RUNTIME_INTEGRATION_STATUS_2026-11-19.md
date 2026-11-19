@@ -111,3 +111,13 @@ Limitaciones que siguen pendientes:
 - La compilación del commit de corrección de namespace se lanzó como ejecución `44640197543`; debe comprobarse su conclusión. Como el despeje se guardó en un commit posterior, también debe existir y completarse una ejecución CI para el HEAD más reciente antes de dar por buena la APK.
 - No se ha hecho prueba visual/física del juego en un teléfono Android. La estirada sigue siendo una animación procedural sencilla; no es una animación esquelética ni una parada de captura/agarre.
 
+
+
+### Resolución de colisiones cuerpo a cuerpo — 2026-11-19
+
+- Commit de esta ampliación: `39c4ddcb1c7858ef46689881a09abfe6dfd3e469`.
+- Archivo modificado: `native-android/app/src/main/cpp/native_engine.cpp`.
+- Se añadió una pasada de separación simétrica entre los 22 actores para evitar que dos futbolistas ocupen el mismo espacio; se aplica también entre rivales y compañeros.
+- Tras resolver contactos, las posiciones se limitan a los márgenes del campo y las coordenadas del futbolista controlado se sincronizan con su actor para evitar desajustes entre movimiento y simulación.
+- La lógica previa de porteros, anticipación, estirada y contacto con el balón permanece en el mismo archivo. Esta ampliación no demuestra por sí sola una parada correcta ni una física completa.
+- Estado de validación: cambio guardado y releído desde GitHub; todavía falta comprobar CI para este HEAD y probar en Android contactos entre jugadores, choques del balón a distintas alturas/velocidades, paradas de ambos porteros, postes, larguero y goles válidos. El bloque P0 continúa abierto hasta contar con esas evidencias.
