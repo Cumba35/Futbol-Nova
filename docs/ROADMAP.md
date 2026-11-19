@@ -118,6 +118,7 @@
 - [ ] Pruebas de navegación, persistencia y recuperación tras cierre inesperado.
 
 ## Fase 4 — Partido jugable
+- [x] Corregir dependencias de autoload en pruebas headless y tipado explícito de active_match; prueba de regresión añadida (confirmación CI pendiente).
 - [x] Corregir la liberación de posesión de la IA: pases y despejes de campo/portero aplican impulso al balón mediante una operación común; prueba RigidBody3D añadida (confirmación CI pendiente).
 - [ ] Dos equipos y 22 jugadores.
 - [ ] IA de compañeros, rivales y porteros.
