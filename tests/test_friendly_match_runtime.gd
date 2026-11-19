@@ -181,6 +181,9 @@ func _run_acceptance_test() -> void:
 					game.ball.angular_velocity = Vector3.ZERO
 					game.ball.global_position = game.player.global_position + player_forward * 1.25 + Vector3.UP * 0.35
 					touch_layer.call("_begin_touch", 102, action_layout["pass_ball"]["center"])
+					if not Input.is_action_pressed("pass_ball"):
+						failures.append("El control táctil PASE no activó la acción de entrada.")
+					await physics_frame
 					await physics_frame
 					touch_layer.call("_end_touch", 102)
 					if game.ball.linear_velocity.length() < 1.0:
@@ -192,6 +195,9 @@ func _run_acceptance_test() -> void:
 					game.ball.angular_velocity = Vector3.ZERO
 					game.ball.global_position = game.player.global_position + player_forward * 1.25 + Vector3.UP * 0.35
 					touch_layer.call("_begin_touch", 103, action_layout["shoot_ball"]["center"])
+					if not Input.is_action_pressed("shoot_ball"):
+						failures.append("El control táctil TIRO no activó la acción de entrada.")
+					await physics_frame
 					await physics_frame
 					touch_layer.call("_end_touch", 103)
 					if game.ball.linear_velocity.length() < 1.0:
