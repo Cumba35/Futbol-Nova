@@ -1,6 +1,6 @@
 # Fútbol Nova — selector de equipos y preparación del partido
 
-**Estado:** primera versión funcional del selector de clubes y preparación de amistosos integrada el 17-11-2026; validación Godot/Android pendiente. Las vistas 3D, equipaciones, estadio y balón siguen pendientes.
+**Estado:** selector de clubes y preparación de amistosos integrados; selección de muestra Real Madrid de referencia a la izquierda y Barcelona de referencia a la derecha añadida el 18-11-2026. La validación Godot/Android sigue pendiente. Las vistas 3D, equipaciones, estadio y balón siguen pendientes.
 **Referencia:** captura aportada por el usuario de una pantalla de amistoso con dos futbolistas 3D, escudos, valoración OVR, estadio, accesos de equipación, balón, ajustes y botón de inicio.
 
 ## Estado de implementación — 17 noviembre 2026
@@ -23,6 +23,14 @@ Pendiente de implementación y validación:
 - Pruebas de interfaz en Godot, diferentes resoluciones y dispositivos Android.
 
 La selección de equipos y el once inicial no deben confundirse con una integración completa de perfiles, atributos, animaciones o apariencias: los actores del partido siguen usando la representación procedural del motor actual.
+
+## Selección predeterminada del amistoso de muestra — 18 noviembre 2026
+
+- Equipo local (izquierda): `FN-ESP-REAL-MADRID`, nombre original del juego **Albor Madrid**, referencia deportiva interna: Real Madrid.
+- Equipo visitante (derecha): `FN-ESP-BARCELONA`, nombre original del juego **Litoral Barcelona**, referencia deportiva interna: FC Barcelona.
+- La selección usa IDs estables, no búsquedas por texto visible; si falta uno de los clubes, se conserva una pareja alternativa válida y distinta.
+- Los nombres, escudos, uniformes, modelos y demás elementos visuales deben seguir siendo originales de Fútbol Nova; las referencias no autorizan copiar marcas ni assets.
+- Se añadió una prueba unitaria de la selección predeterminada y de su fallback en `tests/test_shared_foundation.gd`. La prueba debe ejecutarse en Godot 4.4.1 antes de marcarla como validada.
 
 ## 1. Objetivo
 
