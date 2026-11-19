@@ -90,3 +90,15 @@ Corregir cualquier nuevo bloqueo real de CI y conseguir el APK Android. Después
 - El workflow 332 había llegado a la exportación y falló por `gradle_build/use_gradle_build=false` con `min_sdk`/`target_sdk` personalizados. La corrección se guardó en ambos repositorios activando Gradle.
 - No hay todavía artefacto `futbol-nova-android-debug` confirmado en el run 333. El artefacto de fuente Godot sí fue publicado; no confundirlo con el APK.
 
+
+### Corrección de plantilla Android para Godot 4.4.1 — 19-11-2026
+
+- La ejecución 333 (`44548526728`) superó el test de controles táctiles, la base 11v11, el amistoso en vivo con goles/períodos y el smoke test de escena Android.
+- La exportación falló con el mensaje `Android build template not installed in the project` después de activar Gradle. El paso anterior que habilitaba Gradle no instalaba `android/build`.
+- Se comprobó la documentación oficial de Godot 4.4: el flujo Gradle requiere instalar una plantilla Android dentro del proyecto; los export templates incluyen `android_debug.apk`, `android_release.apk` y `android_source.zip`. La opción CLI `--install-android-build-template` aparece en documentación posterior, no en la referencia 4.4, por lo que no se usa en Godot 4.4.1.
+- Para el objetivo actual (APK debug sideload ARM64, sin SDK Android personalizado ni plugins Gradle), se eligió la exportación estándar precompilada: `gradle_build/use_gradle_build=false` y se eliminaron los overrides `min_sdk`/`target_sdk`. Se mantiene exclusivamente `architectures/arm64-v8a=true`.
+- Cambio guardado en `Cumba35/Futbol-Nova` (commit `b0972e9187e2aa1f4b782a1d8119a065a4af081d`) y sincronizado en `Cumba35/Nova-Workspace` (commit `df77c1bf8ab2565ed321c68d803aeb426157f1a7`).
+- Nueva ejecución 334: https://github.com/Cumba35/Futbol-Nova/actions/runs/44549563484. Al registrar esta nota está en curso; debe validar de nuevo el amistoso y confirmar exportación/subida del APK.
+- Referencias oficiales: [Godot 4.4 Android export](https://docs.godotengine.org/en/4.4/tutorials/export/exporting_for_android.html), [Godot 4.4 Android template contents](https://docs.godotengine.org/en/4.4/contributing/development/compiling/compiling_for_android.html) y [Godot 4.4 Android export options](https://docs.godotengine.org/en/4.4/classes/class_editorexportplatformandroid.html).
+- Estado: no hay APK confirmado todavía. El proyecto sigue sin validación en un dispositivo Android real.
+
