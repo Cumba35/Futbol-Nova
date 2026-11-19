@@ -443,6 +443,12 @@ func _start_match() -> void:
 	var away_roster: Array = _get_combined_team_roster(away_id)
 	var home_player_ids := build_starting_eleven(home_roster)
 	var away_player_ids := build_starting_eleven(away_roster)
+	var players_by_id: Dictionary = {}
+	for raw_player in home_roster + away_roster:
+		if raw_player is Dictionary:
+			var player_id := str(raw_player.get("id", "")).strip_edges()
+			if not player_id.is_empty():
+				players_by_id[player_id] = raw_player.duplicate(true)
 	if home_player_ids.size() != 11 or away_player_ids.size() != 11:
 		_summary.text = "La plantilla contiene un identificador de jugador inválido."
 		_start_button.disabled = true
@@ -455,6 +461,7 @@ func _start_match() -> void:
 		"away_team_name": str(away_team.get("name", away_id)),
 		"home_player_ids": home_player_ids,
 		"away_player_ids": away_player_ids,
+		"players_by_id": players_by_id,
 		"stadium_id": _selected_stadium_id(),
 		"half_length_minutes": _half_length.get_selected_id(),
 		"clock_mode": "stopped" if _clock_mode.get_selected_id() == 1 else "continuous",
