@@ -111,3 +111,6 @@ Las opciones deben conservar el idioma español y guardar las preferencias en el
 - Los textos, botones y encabezados principales del Game Hub usan la escala guardada; al navegar y abrir otra pantalla el tamaño actualizado se aplica sin reiniciar el juego.
 - La prueba `tests/test_nova_preferences_service.gd` comprueba persistencia de la escala en una segunda instancia.
 - No se ofrecen aún opciones de contraste, lector de pantalla ni reasignación completa de controles; permanecen pendientes hasta implementar y probar su efecto.
+
+- En la revisión del 19-11-2026 se corrigió la aplicación en vivo: al mover el control se actualizan inmediatamente los tamaños de texto registrados en el árbol de la interfaz, incluidos encabezados, navegación, botones y etiquetas ya visibles. Se añadió una regresión que comprueba el encabezado antes y después del cambio.
+- La prueba del servicio también comprueba los límites del 80 % y 130 %, además de la persistencia entre instancias.
