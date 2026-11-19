@@ -41,7 +41,7 @@ static func build_starting_eleven(roster: Array) -> Array[String]:
 	var selected: Array[String] = []
 	var used_ids := {}
 	var ordered_roster := roster.duplicate(true)
-	ordered_roster.sort_custom(func(a, b): return int(a.get("overall", 0)) > int(b.get("overall", 0)) if a is Dictionary and b is Dictionary else a is Dictionary)
+	ordered_roster.sort_custom(func(a, b): return int(a.get("overall", 0)) > int(b.get("overall", 0)))
 	for preferred_positions in STARTING_POSITION_PRIORITY:
 		var selected_id := ""
 		for raw_player in ordered_roster:
