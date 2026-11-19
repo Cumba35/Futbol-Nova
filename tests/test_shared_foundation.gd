@@ -18,6 +18,7 @@ func _initialize() -> void:
 	_test_scheduler(failures)
 	_test_standings(failures)
 	_test_match_reproducibility(failures)
+	_test_default_friendly_teams(failures)
 	_test_profile_validation(failures)
 	_test_cuba_catalog_import(failures)
 	_test_data_service(failures)
@@ -69,6 +70,18 @@ func _test_match_reproducibility(failures: PackedStringArray) -> void:
 		failures.append("Simulator: la misma semilla no reproduce el marcador")
 	if not Contract.validate_state(Contract.create_match("m1", "a", "b", 1)):
 		failures.append("Contract: estado inicial no válido")
+
+func _test_default_friendly_teams(failures: PackedStringArray) -> void:
+	var ids: Array[String] = ["FN-ESP-ATHLETIC-CLUB", "FN-ESP-BARCELONA", "FN-ESP-REAL-MADRID"]
+	var selected := PreMatchSetup.get_default_team_indices(ids)
+	if int(selected.get("home", -1)) != 2:
+		failures.append("PreMatch: Real Madrid debe aparecer como equipo local por defecto")
+	if int(selected.get("away", -1)) != 1:
+		failures.append("PreMatch: Barcelona debe aparecer como visitante por defecto")
+	var fallback_ids: Array[String] = ["club_a", "club_b"]
+	var fallback := PreMatchSetup.get_default_team_indices(fallback_ids)
+	if int(fallback.get("home", -1)) != 0 or int(fallback.get("away", -1)) != 1:
+		failures.append("PreMatch: debe conservar una selección alternativa válida si faltan los clubes de muestra")
 
 func _test_profile_validation(failures: PackedStringArray) -> void:
 	var player := {"id": "p1", "display_name": "Jugador de prueba", "nationality_id": "CUB", "primary_position": "DC", "preferred_foot": "right", "attributes": {"pace": {"acceleration": 70, "sprint_speed": 72}}}
