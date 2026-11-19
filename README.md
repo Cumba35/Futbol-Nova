@@ -27,3 +27,10 @@ La importación copia el contenido de Cumba35/Web-Publica-Nova/futbol-nova/ desd
 ## Investigación técnica
 
 Las alternativas públicas, sus licencias, compatibilidad Android y decisiones de reutilización se registran en [la auditoría de repositorios públicos](docs/PUBLIC_GITHUB_RESEARCH_2026-11-18.md).
+
+
+## Estado de validación — 18-11-2026
+
+- Se corrigió la referencia global `ManagerCareer` que impedía compilar la prueba headless del perfil de Máximo Padilla; detalle en [CI_44450991327_FIX.md](docs/CI_44450991327_FIX.md).
+- La corrección está sincronizada con `Cumba35/Nova-Workspace`; la nueva ejecución CI `44453253855` debe terminar antes de declarar aprobada la corrección o la APK.
+- Godot 4.4.1, funcionamiento offline y Android ARM64 se mantienen como requisitos.
