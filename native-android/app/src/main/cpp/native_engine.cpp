@@ -213,6 +213,12 @@ void update(float dt){
   players[(size_t)i].x=std::clamp(players[(size_t)i].x,-33.0f,33.0f);
   players[(size_t)i].z=std::clamp(players[(size_t)i].z,-51.0f,51.0f);
  }
+ // Body contacts must not push either goalkeeper out of the goal mouth.
+ // Keep each keeper inside the six-yard defensive corridor after separation.
+ players[0].x=std::clamp(players[0].x,-3.15f,3.15f);
+ players[0].z=std::clamp(players[0].z,-51.0f,-48.8f);
+ players[11].x=std::clamp(players[11].x,-3.15f,3.15f);
+ players[11].z=std::clamp(players[11].z,48.8f,51.0f);
  // Keep the controlled-player coordinates synchronized after contact resolution.
  playerX=players[9].x;playerZ=players[9].z;
  float dx=std::sin(playerYaw),dz=-std::cos(playerYaw);
