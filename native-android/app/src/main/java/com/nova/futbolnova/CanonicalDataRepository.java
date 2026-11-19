@@ -49,33 +49,43 @@ final class CanonicalDataRepository {
     final Map<String,JSONObject> customPlayersById = new HashMap<>();
     final List<String> warnings = new ArrayList<>();
     int baseClubCount, generatedClubCount, customPlayerCount, baseLeagueCount;
-    int firstDivisionTeams, secondDivisionTeams;
+    int firstDivisionTeams, secondDivisionTeams, skillCount, techniqueCount, officialBallCount;
+    JSONObject runtimeManifest;
     String dataVersion="";
 
     CanonicalDataRepository(Context context) {
         try {
-            JSONObject custom=read(context,"custom_players.json");
+            runtimeManifest=read(context,"native_runtime_manifest.json");
+            JSONObject sources=runtimeManifest.optJSONObject("canonical_sources");
+            if(sources==null)throw new IllegalStateException("native_runtime_manifest.json no define canonical_sources");
+            JSONObject custom=read(context,sources.optString("custom_players","custom_players.json"));
             JSONArray customPlayers=custom.optJSONArray("players");
             customPlayerCount=customPlayers==null?0:customPlayers.length();
             if(customPlayers!=null) for(int i=0;i<customPlayers.length();i++){JSONObject p=customPlayers.getJSONObject(i);this.customPlayers.add(p);this.customPlayersById.put(p.optString("id",""),p);}
             dataVersion=custom.optString("schema_version","unknown");
-            JSONObject base=read(context,"base_league_clubs_2026.json");
+            JSONObject base=read(context,sources.optString("base_clubs","base_league_clubs_2026.json"));
             baseClubCount=base.optInt("club_count",base.optJSONArray("clubs")==null?0:base.optJSONArray("clubs").length());
-            JSONObject global=read(context,"global_clubs.generated.json");
+            JSONObject global=read(context,sources.optString("season_clubs","global_clubs.generated.json"));
             generatedClubCount=global.optJSONArray("clubs")==null?0:global.optJSONArray("clubs").length();
-            JSONObject leagues=read(context,"league_content_manifest.json");
+            JSONObject leagues=read(context,sources.optString("league_content","league_content_manifest.json"));
             baseLeagueCount=leagues.optJSONArray("base_leagues")==null?0:leagues.optJSONArray("base_leagues").length();
-            loadModules(context);
-            loadRosterFile(context,"players/cuba_first_division.json","Primera división");
-            loadRosterFile(context,"players/cuba_second_division.json","Segunda división");
+            loadModules(context,sources.optString("modules","optional_modules_catalog.json"));
+            loadRosterFile(context,sources.optString("cuba_first_division","players/cuba_first_division.json"),"Primera división");
+            loadRosterFile(context,sources.optString("cuba_second_division","players/cuba_second_division.json"),"Segunda división");
+            JSONObject skills=read(context,sources.optString("skills","skills/skill_catalog.json"));
+            JSONArray skillArray=skills.optJSONArray("skills");skillCount=skillArray==null?0:skillArray.length();
+            JSONObject techniques=read(context,sources.optString("techniques","skills/common_gesture_techniques.json"));
+            JSONArray techniqueArray=techniques.optJSONArray("techniques");techniqueCount=techniqueArray==null?0:techniqueArray.length();
+            JSONObject balls=read(context,sources.optString("balls","league_official_balls.json"));
+            JSONArray ballArray=balls.optJSONArray("available_balls");officialBallCount=ballArray==null?0:ballArray.length();
             if(playableTeams.isEmpty()) warnings.add("No se encontraron plantillas completas y únicas para un amistoso.");
         } catch (Exception e) {
             warnings.add("Error leyendo datos canónicos: "+e.getMessage());
         }
     }
 
-    private void loadModules(Context c) throws Exception {
-        JSONObject manifest=read(c,"optional_modules_catalog.json");
+    private void loadModules(Context c,String file) throws Exception {
+        JSONObject manifest=read(c,file);
         JSONArray a=manifest.optJSONArray("modules");
         if(a!=null) for(int i=0;i<a.length();i++) modules.add(new Module(a.getJSONObject(i)));
     }
