@@ -116,6 +116,9 @@ func _test_cuba_catalog_import(failures: PackedStringArray) -> void:
 		failures.append("Cuba importer: se esperaban 3 competiciones y se cargaron " + str(result.get("competition_count", 0)))
 
 func _test_data_service(failures: PackedStringArray) -> void:
+	var football_database: Node = root.get_node_or_null("FootballDatabase")
+	if football_database == null:
+		failures.append("DataService: el autoload FootballDatabase no está disponible para verificar la persistencia")
 	var service = DataService.new()
 	root.add_child(service)
 	var summary: Dictionary = service.get_catalog_summary()
@@ -214,7 +217,7 @@ func _test_data_service(failures: PackedStringArray) -> void:
 		var simulated_result: Dictionary = service.simulate_fixture(persistent_stage, str(fixture.fixture_id), 20261114)
 		if simulated_result.is_empty():
 			failures.append("DataService: no simuló ni persistió el resultado del fixture")
-		elif not FootballDatabase.has_match_result(str(simulated_result.get("match_id", ""))):
+		elif not football_database.has_match_result(str(simulated_result.get("match_id", ""))):
 			failures.append("DataService: el resultado finalizado no llegó a FootballDatabase")
 		elif service.simulate_fixture(persistent_stage, str(fixture.fixture_id), 20261114).size() > 0:
 			failures.append("DataService: permitió simular dos veces el mismo fixture")
@@ -236,7 +239,7 @@ func _test_data_service(failures: PackedStringArray) -> void:
 		else:
 			var next_fixture: Dictionary = service.get_fixtures(persistent_stage)[0]
 			var next_result: Dictionary = service.simulate_fixture(persistent_stage, str(next_fixture.fixture_id), 20261116)
-			var saved_season: Dictionary = FootballDatabase.get_competition_state(persistent_stage)
+			var saved_season: Dictionary = football_database.get_competition_state(persistent_stage)
 			if next_result.is_empty() or str(saved_season.get("season_id", "")) != "season_2":
 				failures.append("DataService: no persistió el resultado bajo el ID de la nueva temporada.")
 		var round_stage := "simulation_round_test_" + str(Time.get_ticks_usec())
