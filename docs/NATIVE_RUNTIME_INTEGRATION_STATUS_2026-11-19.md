@@ -157,3 +157,15 @@ Validación:
 - La compilación ARM64 y la verificación de `lib/arm64-v8a/libfutbolnova.so` deben finalizar en CI antes de dar por compilado este cambio.
 - Aún no hay prueba física de la interfaz multitáctil, cambio de futbolista, pase dirigido ni decisiones IA en un teléfono. Estas mejoras son implementación inicial y no cierran P0.
 - No se ha autorizado generar una APK de entrega ni subir una nueva APK a Dropbox.
+
+## Ciclo del partido amistoso — dos tiempos y cambio de lado (2026-11-19)
+
+Se añadió al motor nativo un estado de partido mínimo con cuatro fases: primer tiempo, descanso, segundo tiempo y final. La duración se selecciona desde Inicio (3, 5, 6, 8, 10, 15 o 20 minutos por tiempo). Al llegar al descanso el motor se pausa y la interfaz permite iniciar el segundo tiempo; al finalizar el segundo tiempo se muestra el marcador y se ofrece revancha o volver al menú.
+
+Al comenzar el segundo tiempo se invierten las posiciones en profundidad, los equipos cambian el sentido de ataque, los porteros pasan a defender el extremo contrario y la lógica de gol/pase/IA utiliza la nueva orientación. Las transiciones de descanso se ejecutan en el hilo de OpenGL y se reanuda el refresco del marcador.
+
+Validación pendiente:
+- Compilar este commit con el workflow nativo ARM64.
+- Verificar el flujo completo con duraciones cortas, pausa manual, descanso, cambio de lado, goles en ambos sentidos, final y revancha.
+- Probar en Android real que el diálogo de descanso no se duplica y que el reloj se detiene correctamente.
+- El árbitro, faltas, fueras de juego, saques de banda/esquina/puerta y estadísticas finales siguen pendientes.
