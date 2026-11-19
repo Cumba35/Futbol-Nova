@@ -46,6 +46,7 @@ var _ball_pause_state: Dictionary = {}
 var _actors: Array[Dictionary] = []
 var _decision_clock := 0.0
 var _controlled_tackle_cooldown := 0.0
+var _ball_possession_lockout := 0.0
 var _possession_owner: Node3D
 var _possession_is_controlled := false
 var _active := false
@@ -141,6 +142,7 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 	_ends_swapped = false
 	_realism_profile = REALISM_MODULE.load_profile()
 	_controlled_tackle_cooldown = 0.0
+	_ball_possession_lockout = 0.0
 	_player = controlled_player
 	_player.set_physics_process(true)
 	_ball = match_ball
@@ -185,6 +187,7 @@ func stop_match() -> void:
 			node.queue_free()
 	_actors.clear()
 	_match_clock_state.clear()
+	_ball_possession_lockout = 0.0
 	_clear_ball_possession()
 	if is_instance_valid(_player):
 		_player.set_physics_process(true)
@@ -316,11 +319,15 @@ func is_match_active() -> bool:
 func has_controlled_possession() -> bool:
 	return _possession_is_controlled and is_instance_valid(_possession_owner)
 
+func notify_ball_kicked(lockout_seconds: float = 0.18) -> void:
+	_ball_possession_lockout = maxf(_ball_possession_lockout, clampf(lockout_seconds, 0.0, 0.5))
+
 func release_controlled_ball(direction: Vector3, power: float = 7.0, spin: Vector3 = Vector3.ZERO) -> bool:
 	if not has_controlled_possession() or not is_instance_valid(_ball):
 		return false
 	if direction.length_squared() < 0.001 or not direction.is_finite() or not spin.is_finite() or not is_finite(power):
 		return false
+	notify_ball_kicked()
 	_clear_ball_possession()
 	_ball_flight_spin = spin.limit_length(BALL_FLIGHT_MODEL.MAX_SPIN)
 	_ball.apply_central_impulse(direction.normalized() * clampf(power, 1.0, 14.0))
@@ -357,6 +364,7 @@ func _physics_process(delta: float) -> void:
 		return
 	_decision_clock -= delta
 	_controlled_tackle_cooldown = maxf(0.0, _controlled_tackle_cooldown - delta)
+	_ball_possession_lockout = maxf(0.0, _ball_possession_lockout - delta)
 	var make_decision := _decision_clock <= 0.0
 	if make_decision:
 		_decision_clock = AI_DECISION_INTERVAL
@@ -410,7 +418,7 @@ func _update_match_clock(delta: float) -> void:
 	)
 
 func _update_ball_possession() -> void:
-	if not is_instance_valid(_ball):
+	if not is_instance_valid(_ball) or _ball_possession_lockout > 0.0:
 		return
 	if is_instance_valid(_possession_owner):
 		var foot_offset := _possession_owner.global_transform.basis * Vector3(0.0, 0.18, -0.62)
@@ -677,6 +685,7 @@ func _try_ai_ball_action(actor_index: int, actor_data: Dictionary) -> void:
 			return
 		# Atajada/despeje básico: el portero desvía hacia una zona lateral y segura.
 		var clear_direction := goalkeeper_clear_direction(home_team, _ball.global_position.x, _ends_swapped)
+		notify_ball_kicked()
 		_clear_ball_possession()
 		apply_ai_kick(_ball, clear_direction, 10.5)
 		actor_data.kick_cooldown = 1.8
@@ -695,6 +704,7 @@ func _try_ai_ball_action(actor_index: int, actor_data: Dictionary) -> void:
 		# Sin línea de pase clara: progresión/ despeje hacia campo rival.
 		impulse_direction = Vector3(-_ball.global_position.x * 0.035, 0.10, attack_sign).normalized()
 		force = 8.8 if attacking_third else 4.6
+	notify_ball_kicked()
 	_clear_ball_possession()
 	apply_ai_kick(_ball, impulse_direction, force)
 	actor_data.kick_cooldown = 1.25
