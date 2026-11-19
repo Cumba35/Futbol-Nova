@@ -96,6 +96,23 @@ func get_team_roster(team_id: String) -> Array:
 	for player_id in teams_by_id[team_id].player_ids:
 		if players_by_id.has(str(player_id)):
 			roster.append(players_by_id[str(player_id)].duplicate(true))
+	# User-created players are persisted separately from the official catalog,
+	# but every consumer of the club roster should see their current membership.
+	var scene_tree := Engine.get_main_loop() as SceneTree
+	if scene_tree != null and scene_tree.root != null:
+		var custom_roster_service: Node = scene_tree.root.get_node_or_null("CustomPlayerRoster")
+		if custom_roster_service != null and custom_roster_service.has_method("get_players_for_team"):
+			for custom_player in custom_roster_service.call("get_players_for_team", team_id):
+				if not custom_player is Dictionary:
+					continue
+				var custom_player_id := str(custom_player.get("id", ""))
+				var already_present := false
+				for existing_player in roster:
+					if str(existing_player.get("id", "")) == custom_player_id:
+						already_present = true
+						break
+				if not custom_player_id.is_empty() and not already_present:
+					roster.append(custom_player.duplicate(true))
 	return roster
 
 func export_catalog_snapshot() -> Dictionary:
