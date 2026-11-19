@@ -137,6 +137,49 @@ func _run_acceptance_test() -> void:
 					failures.append("El jugador controlado dejó de existir al iniciar el amistoso.")
 				elif game.match_11v11_controller._player != game.player:
 					failures.append("El motor conserva una referencia antigua en vez del futbolista controlado actual.")
+
+				# End-to-end Android touch test: virtual joystick moves the actual
+				# controlled footballer, and the on-screen pass/shoot buttons kick
+				# the live RigidBody3D ball through the player's real input path.
+				if game.touch_controls == null:
+					failures.append("El amistoso no creó la capa de controles táctiles.")
+				else:
+					var touch_layer: Control = game.touch_controls
+					touch_layer.size = root.get_viewport().get_visible_rect().size
+					touch_layer.visible = true
+					var joystick_center: Vector2 = touch_layer.call("_joystick_center")
+					var player_x_before_touch := float(game.player.global_position.x)
+					touch_layer.call("_begin_touch", 101, joystick_center + Vector2(60.0, 0.0))
+					for _frame in range(24):
+						await physics_frame
+					touch_layer.call("_end_touch", 101)
+					if absf(float(game.player.global_position.x) - player_x_before_touch) < 0.15:
+						failures.append("El joystick táctil no desplazó al futbolista controlado durante el amistoso.")
+					var action_layout: Dictionary = touch_layer.call("_button_layout")
+					var player_forward := -game.player.global_transform.basis.z
+					game.match_11v11_controller.call("_clear_ball_possession")
+					game.ball.freeze = false
+					game.ball.sleeping = false
+					game.ball.linear_velocity = Vector3.ZERO
+					game.ball.angular_velocity = Vector3.ZERO
+					game.ball.global_position = game.player.global_position + player_forward * 1.25 + Vector3.UP * 0.35
+					touch_layer.call("_begin_touch", 102, action_layout["pass_ball"]["center"])
+					await physics_frame
+					touch_layer.call("_end_touch", 102)
+					if game.ball.linear_velocity.length() < 1.0:
+						failures.append("El botón táctil PASE no impulsó el balón durante el amistoso.")
+					game.match_11v11_controller.call("_clear_ball_possession")
+					game.ball.freeze = false
+					game.ball.sleeping = false
+					game.ball.linear_velocity = Vector3.ZERO
+					game.ball.angular_velocity = Vector3.ZERO
+					game.ball.global_position = game.player.global_position + player_forward * 1.25 + Vector3.UP * 0.35
+					touch_layer.call("_begin_touch", 103, action_layout["shoot_ball"]["center"])
+					await physics_frame
+					touch_layer.call("_end_touch", 103)
+					if game.ball.linear_velocity.length() < 1.0:
+						failures.append("El botón táctil TIRO no impulsó el balón durante el amistoso.")
+					touch_layer.visible = DisplayServer.is_touchscreen_available()
 				# Exercise the actual pause UI and verify that the independent
 				# RigidBody3D ball is frozen and restored without losing momentum.
 				var ball_position_before_pause: Vector3 = game.ball.global_position
