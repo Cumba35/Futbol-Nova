@@ -197,6 +197,21 @@ func _run_tests() -> void:
 	await process_frame
 	_expect(hub.current_subpage == "Módulos", "Modules settings subpage must open")
 	_expect(hub.content_box.get_child_count() == 3, "Modules subpage must expose catalog action and back navigation")
+	hub._open_settings_category("Audio")
+	await process_frame
+	var master_slider := hub.content_box.find_child("MasterVolumeSlider", true, false) as HSlider
+	var master_mute := hub.content_box.find_child("MasterMuteToggle", true, false) as CheckBox
+	_expect(master_slider != null and master_mute != null, "Audio settings must expose working master volume and mute controls")
+	var saved_volume := NovaPreferences.master_volume
+	var saved_mute := NovaPreferences.master_muted
+	if master_slider != null:
+		master_slider.value_changed.emit(43.0)
+		_expect(is_equal_approx(NovaPreferences.master_volume, 0.43), "Audio slider must apply the master volume immediately")
+	if master_mute != null:
+		master_mute.toggled.emit(not saved_mute)
+		_expect(NovaPreferences.master_muted == not saved_mute, "Audio mute control must apply immediately")
+	NovaPreferences.set_master_volume(saved_volume)
+	NovaPreferences.set_master_muted(saved_mute)
 	var pause_resume_requested := [false]
 	hub.pause_resume_requested.connect(func(): pause_resume_requested[0] = true)
 	hub.open_pause_menu()
