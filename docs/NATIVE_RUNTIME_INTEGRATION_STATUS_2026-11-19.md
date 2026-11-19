@@ -38,3 +38,31 @@ Fecha: 2026-11-19. Rama: `work/native-3d-engine`.
 ## Pruebas y publicación
 
 La compilación de CI debe completar `:app:assembleDebug`, verificar el APK y comprobar que contiene `lib/arm64-v8a/libfutbolnova.so`. La compilación correcta no sustituye la instalación y prueba del partido en un dispositivo Android real. El workflow ahora también se dispara cuando cambia el directorio canónico `data/`. No publicar el APK como versión terminada mientras falten los criterios de aceptación.
+
+## Auditoría de código nativo — continuidad 2026-11-19
+
+Revisión estática de `native_engine.cpp` y `MainActivity.java` sobre el HEAD de `work/native-3d-engine` (`77ffe0097b80bd4283e59e131cc4d2c9aae9e345`). Esta revisión no equivale a compilación ni prueba en dispositivo.
+
+### Bloqueadores confirmados en el código actual
+
+- La simulación crea 22 posiciones de jugadores de campo; no existe todavía un actor/estado de portero separado ni lógica de atajada.
+- El control humano está fijado al índice 9 (`players[9]`). No existe cambio de jugador controlado ni selección dinámica por proximidad.
+- Los otros 21 jugadores se mueven hacia posiciones de formación desplazadas por la ubicación del balón. No hay decisiones diferenciadas de delantero, defensa o portero, ni marcaje individual.
+- La colisión balón-jugador solo aplica un impulso sencillo cuando la velocidad horizontal del balón ya es baja; no resuelve de forma completa contactos a alta velocidad, cuerpo contra cuerpo, postes ni travesaño.
+- Pase y tiro se disparan en la dirección de orientación del jugador controlado; el pase no selecciona compañero objetivo ni calcula una línea de pase.
+- El botón de presión solo modifica velocidad de movimiento de los jugadores del equipo local; no implementa una acción completa de entrada/robo ni una defensa controlada.
+- El reloj nativo acumula segundos reales. No hay aún duración configurable de dos tiempos, descanso ni estado de final de partido conectado al bucle de simulación.
+- La detección de gol y el reinicio son básicos. No están implementados los estados completos de saque inicial, saque de banda, córner, saque de puerta, fuera de juego, falta o penalti.
+- El HUD actual muestra marcador y tiempo acumulado; no muestra eventos arbitrales, jugador activo, energía ni estadísticas finales.
+
+### Orden técnico inmediato
+
+1. Separar el estado de partido del renderizado: fases de juego, posesión, reinicios y reloj configurable.
+2. Añadir dos porteros como actores dedicados con posicionamiento, anticipación, desplazamiento lateral, bloqueo y despeje.
+3. Corregir colisiones continuas de balón con jugadores, porteros, postes, larguero y límites del campo.
+4. Implementar selección/cambio de jugador y acciones con objetivos: pase a compañero, tiro orientado y robo.
+5. Sustituir el movimiento uniforme por roles y decisiones tácticas mínimas para ambos equipos.
+6. Incorporar saques, pausa, descanso, segundo tiempo, final y revancha.
+7. Añadir pruebas automatizadas de física/reglas y ejecutar CI; después instalar y probar el APK en Android real.
+
+No marcar ninguno de estos puntos como resuelto sin cambio de código y evidencia de prueba.
