@@ -33,10 +33,20 @@ func _initialize() -> void:
 	var legacy_identity := {"identity": {"identity_type": "original_fictional_club"}}
 	if not MasterImporter._team_identity_is_release_ready(legacy_identity):
 		failures.append("La política de revisión alteró los clubes heredados sin gate explícito")
-	var db = Database.new()
-	root.add_child(db)
-	if not db.is_open:
-		failures.append("Database: no abrió o creó el archivo local")
+	var db: Variant = root.get_node_or_null("FootballDatabase")
+	if db == null:
+		db = Database.new()
+		root.add_child(db)
+	var original_database_path := str(db.database_path)
+	var original_temp_path := str(db.temp_path)
+	var original_backup_path := str(db.backup_path)
+	# Keep database regression isolated from the real player save and the FootballDatabase autoload.
+	db.database_path = "user://football_database_test.json"
+	db.temp_path = "user://football_database_test.json.tmp"
+	db.backup_path = "user://football_database_test.json.bak"
+	db.is_open = false
+	if not db.open_database():
+		failures.append("Database: no abrió o creó el archivo local: " + str(db.last_error))
 	var original_database: Dictionary = db.database.duplicate(true)
 	db.database = {"schema_version": "0.9.0"}
 	if not db._migrate_database() or not db._validate_database():
@@ -135,6 +145,15 @@ func _initialize() -> void:
 				failures.append("Master catalog: confederación no verificada para " + str(association.get("name", "")))
 		if int(counts.get("countries", 0)) != 211:
 			failures.append("Master catalog: se esperaban 211 países y territorios")
+		var usa_country_id := ""
+		for country in imported.catalog.countries:
+			if str(country.get("country_code", "")) == "USA":
+				usa_country_id = str(country.get("id", ""))
+		if usa_country_id != "FIFA-MA-203":
+			failures.append("Master catalog: la asociación USA debe resolver al país FIFA-MA-203")
+		for membership in imported.catalog.club_memberships:
+			if str(membership.get("country_code", "")) == "USA" and str(membership.get("country_id", "")) != usa_country_id:
+				failures.append("Master catalog: una membresía USA no está vinculada al ID FIFA correcto")
 		if imported.catalog.countries.is_empty() or db.get_country(str(imported.catalog.countries[0].id)).is_empty():
 			failures.append("Master catalog: no recupera países por ID")
 		if int(counts.get("associations", 0)) != 211:
@@ -184,18 +203,28 @@ func _initialize() -> void:
 			failures.append("Database: no recupera los paquetes de plantillas de referencia")
 		if int(counts.get("clubs", 0)) != 891:
 			failures.append("Master catalog: se esperaban 891 clubes de referencia, hay " + str(counts.get("clubs", 0)))
-	var reopened_database = Database.new()
-	root.add_child(reopened_database)
-	if not reopened_database.is_open:
-		failures.append("Database: no pudo reabrir el archivo persistido")
+	db.is_open = false
+	if not db.open_database():
+		failures.append("Database: no pudo reabrir el archivo persistido: " + str(db.last_error))
 	else:
-		var reopened_summary: Dictionary = reopened_database.get_summary()
+		var reopened_summary: Dictionary = db.get_summary()
 		if int(reopened_summary.get("players", 0)) != 15950 or int(reopened_summary.get("associations", 0)) != 211 or int(reopened_summary.get("master_clubs", 0)) != 891:
 			failures.append("Database: los recuentos de 15.950 jugadores y 891 clubes no sobrevivieron al cierre y reapertura")
-		if not reopened_database.has_match_result("match_test_001"):
+		if not db.has_match_result("match_test_001"):
 			failures.append("Database: el resultado finalizado no sobrevivió a la reapertura")
-		if reopened_database.get_career_record("career_test").is_empty():
+		if db.get_career_record("career_test").is_empty():
 			failures.append("Database: el registro de carrera no sobrevivió a la reapertura")
+
+	# Remove only the temporary test files, then restore the original autoload paths.
+	db.is_open = false
+	for test_path in ["user://football_database_test.json", "user://football_database_test.json.tmp", "user://football_database_test.json.bak"]:
+		if FileAccess.file_exists(test_path):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(test_path))
+	db.database_path = original_database_path
+	db.temp_path = original_temp_path
+	db.backup_path = original_backup_path
+	if not db.open_database():
+		failures.append("Database: no se pudo restaurar la base de datos original tras la prueba: " + str(db.last_error))
 
 	if failures.is_empty():
 		print("FUTBOL_NOVA_DATABASE_TESTS: PASS")
