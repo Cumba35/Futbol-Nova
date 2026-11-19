@@ -223,7 +223,9 @@ func _run_tests() -> void:
 	if ui_scale_slider != null and preferences != null:
 		ui_scale_slider.value_changed.emit(125.0)
 		_expect(is_equal_approx(float(preferences.get("ui_scale")), 1.25), "Accessibility slider must persist the text scale")
+		_expect(hub.page_title.get_theme_font_size("font_size") == 40, "Accessibility slider must resize visible headings immediately")
 		preferences.call("set_ui_scale", saved_ui_scale)
+		_expect(hub.page_title.get_theme_font_size("font_size") == int(round(32.0 * saved_ui_scale)), "Restoring text scale must restore visible heading size")
 	var pause_resume_requested := [false]
 	hub.pause_resume_requested.connect(func(): pause_resume_requested[0] = true)
 	hub.open_pause_menu()
