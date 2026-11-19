@@ -13,6 +13,7 @@
 - [ ] Completar las opciones funcionales de todas las categorías de Configuración.
 - [ ] Separar físicamente scripts, escenas, datos y recursos de cada módulo del paquete base.
 - [ ] Construir paquetes descargables firmados/verificables, con versión, dependencias y plataformas.
+- [x] Configurar el amistoso de muestra con Albor Madrid (referencia Real Madrid) a la izquierda y Litoral Barcelona (referencia FC Barcelona) a la derecha; fallback seguro si faltan IDs.
 - [ ] Probar que la APK base funciona sin módulos instalados y permite jugar amistosos.
 - [ ] Probar instalación, activación, actualización y desinstalación de módulos en Android y PC.
 
