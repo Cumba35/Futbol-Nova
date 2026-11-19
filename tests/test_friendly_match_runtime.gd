@@ -147,6 +147,16 @@ func _run_acceptance_test() -> void:
 				var controlled_profile: Dictionary = game.player.get_meta("nova_player_profile", {})
 				if controlled_profile.is_empty() or controlled_profile.get("attributes", {}).is_empty():
 					failures.append("El futbolista controlado no conservó su perfil de la plantilla local.")
+				var controlled_attributes: Dictionary = controlled_profile.get("attributes", {})
+				var expected_move_speed := lerpf(6.4, 8.2, clampf(float(controlled_attributes.get("spd", 70.0)) / 99.0, 0.0, 1.0))
+				var expected_pass_force := lerpf(4.8, 7.0, clampf(float(controlled_attributes.get("short", 70.0)) / 99.0, 0.0, 1.0))
+				var expected_shot_force := lerpf(9.5, 13.0, clampf(float(controlled_attributes.get("shot", 70.0)) / 99.0, 0.0, 1.0))
+				if not is_equal_approx(float(game.player.get("move_speed")), expected_move_speed):
+					failures.append("La velocidad del jugador controlado no coincide con sus atributos.")
+				if not is_equal_approx(float(game.player.get("pass_force")), expected_pass_force):
+					failures.append("La fuerza de pase no se calculó desde la plantilla del jugador.")
+				if not is_equal_approx(float(game.player.get("shot_force")), expected_shot_force):
+					failures.append("La fuerza de tiro no se calculó desde la plantilla del jugador.")
 				var sample_kit_colors: Dictionary = game.match_11v11_controller.get("_team_colors")
 				if not sample_kit_colors.get("home", Color.BLACK).is_equal_approx(Color("#E7E2D5")):
 					failures.append("El representante local de Real Madrid no aplicó su equipación Nova original.")
