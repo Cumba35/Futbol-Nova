@@ -83,9 +83,20 @@ func _run_tests() -> void:
 	if home_keeper_clear.y <= 0.0 or away_keeper_clear.y <= 0.0:
 		failures.append("Match11v11: el despeje del portero no eleva el balón")
 	var impulse_ball := RigidBody3D.new()
+	impulse_ball.mass = 0.43
+	impulse_ball.position = Vector3(0.0, 2.0, 0.0)
+	var impulse_collision := CollisionShape3D.new()
+	var impulse_shape := SphereShape3D.new()
+	impulse_shape.radius = 0.22
+	impulse_collision.shape = impulse_shape
+	impulse_ball.add_child(impulse_collision)
 	root.add_child(impulse_ball)
 	await physics_frame
-	if not Match11v11.apply_ai_kick(impulse_ball, Vector3(0.0, 0.2, -1.0), 8.0):
+	var kick_accepted := Match11v11.apply_ai_kick(impulse_ball, Vector3(0.0, 0.2, -1.0), 8.0)
+	# RigidBody3D consumes central impulses on the next physics tick; inspect
+	# the resulting velocity only after that tick has completed.
+	await physics_frame
+	if not kick_accepted:
 		failures.append("Match11v11: rechazó un impulso válido de la IA")
 	elif impulse_ball.linear_velocity.length() <= 0.1:
 		failures.append("Match11v11: liberar la posesión no aplicó velocidad al balón")
