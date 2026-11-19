@@ -44,3 +44,14 @@ La ejecución 44453253855 detectó una segunda referencia global a FootballDatab
 ## Corrección CI — 19-11-2026
 
 Se corrigió el aislamiento headless de la prueba de Máximo Padilla: la física se desactiva antes de añadir el nodo al árbol. Los detalles y la sincronización están en [CI_44507868982_DIAGNOSIS.md](docs/CI_44507868982_DIAGNOSIS.md). La nueva ejecución debe pasar las regresiones y generar el APK antes de declarar la versión validada.
+
+
+## Prioridad de desarrollo — amistoso 11v11 (19-11-2026)
+
+- El objetivo inmediato es obtener un APK arm64 instalable y validar un partido amistoso completo en Android; no se priorizan otros modos hasta completar esta prueba.
+- La ejecución GitHub Actions 330 superó las pruebas de base 11v11, amistoso en vivo con goles y períodos, física del balón, escena Android, jugadores personalizados y la regresión de base compartida. En la última consulta continuaba en `test_tas_competition_engine.gd`; todavía no había llegado a exportar el APK.
+- Se corrigió la prueba aislada de `FootballDatabase` y se añadieron verificaciones multitáctiles para el joystick y los botones de acción. La prueba de amistoso también mantiene aislada la posesión humana de los 21 actores IA mientras valida el pase y el tiro.
+- El workflow fue reorganizado en el commit `dec8c02bea1e17599649222da5c73b3541d38d39`: exporta y publica el APK después de las pruebas principales del partido y de la escena Android, antes de las regresiones extendidas.
+- La revisión de referencias públicas y licencias está en [FRIENDLY_MODE_REFERENCE_AUDIT.md](docs/FRIENDLY_MODE_REFERENCE_AUDIT.md). No se han añadido dependencias externas al motor.
+- Los cambios de pruebas, documentación y estado también se sincronizaron en la ruta canónica `Cumba35/Nova-Workspace/proyectos/juegos/futbol-nova/`. Las ejecuciones 490–492 de ese repositorio terminaron sin runner asignado (`runner_id=0`), sin ejecutar pruebas; no son fallos funcionales confirmados.
+- La nueva ejecución 332 está en cola detrás de la ejecución 330. No declarar el APK terminado hasta que exista el artefacto `futbol-nova-android-debug` y se pueda instalar y jugar en un dispositivo Android.
