@@ -70,3 +70,11 @@ El primer CI de porteros falló por cierre ausente del namespace C++ antes de JN
 ## Ajuste de porteros tras colisiones — 2026-11-19
 
 Se corrigió el efecto secundario de la separación de jugadores que podía desplazar a los porteros fuera del área que protegen. Después de resolver contactos, las coordenadas X/Z de los porteros 0 y 11 se limitan a sus respectivos corredores. Commit `14a8797f8321d2d79c6c8d4b701c69498ce45b45`; archivo releído y verificado. La CI exitosa anterior es del commit `39c4ddcb1c7858ef46689881a09abfe6dfd3e469`, así que este ajuste todavía necesita su propia compilación.
+
+## Reglas permanentes de entrega y validación — 2026-11-19
+
+- No generar ni volver a compilar una APK para entrega salvo orden explícita del usuario. Las compilaciones CI de verificación de código no autorizan por sí solas a crear una nueva APK de entrega.
+- Cuando el usuario ordene generar una APK, guardarla también en Dropbox dentro de `/Aplicaciones/Fútbol Nova/`, junto a la versión del proyecto y sin sobrescribir una APK existente sin confirmar la versión/destino. Verificar el archivo y su ubicación en Dropbox después de subirlo.
+- Prioridad de pruebas: modo Amistosos local 11v11. Validar el flujo de pantallas desde Inicio → preparación del partido → selección de clubes/equipaciones/alineación → partido → pausa → reanudación/descanso → final; verificar que cada control visible haga la acción indicada, que Atrás/continuar no pierdan estado y que no se abran modos no instalados.
+- Validar la presentación de las pantallas contra las referencias archivadas y las especificaciones vigentes: `assets/references/`, `docs/MAIN_MENU_FOUR_SCREENS.md`, `docs/VISUAL_DESIGN_SYSTEM.md` y `docs/UI_SCREEN_IMPLEMENTATION_REGISTER.md`. La referencia FIFA 23 guía jerarquía y flujo, no autoriza copiar marcas o recursos.
+- Las pruebas automatizadas/estáticas no sustituyen la prueba manual en un teléfono Android. Registrar por separado compilación, pruebas automatizadas, revisión visual y prueba real de partido.
