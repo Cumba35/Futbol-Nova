@@ -5,6 +5,7 @@
 #include <vector>
 #include <array>
 #include <algorithm>
+#include <time.h>
 
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR,"FutbolNova",__VA_ARGS__)
 namespace {
@@ -93,7 +94,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeFr
 }
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeTouch(JNIEnv*,jclass,jfloat x,jfloat y,jint action,jint w,jint h){
  float nx=x/(float)std::max(1,w),ny=y/(float)std::max(1,h);
- if(action==0||action==1){if(nx<.38f&&ny>.55f){stickX=std::clamp((nx-.17f)*6.0f,-1.0f,1.0f);stickY=std::clamp((ny-.79f)*6.0f,-1.0f,1.0f);}else if(nx>.78f&&ny>.64f){shoot=true;}else if(nx>.65f&&ny>.48f){pass=true;}else if(nx>.78f&&ny<.65f){skill=true;}}
- if(action==2){stickX=0;stickY=0;}
+ if(action==0||action==2){if(nx<.38f&&ny>.55f){stickX=std::clamp((nx-.17f)*6.0f,-1.0f,1.0f);stickY=std::clamp((ny-.79f)*6.0f,-1.0f,1.0f);}else if(action==0&&nx>.78f&&ny>.64f){shoot=true;}else if(action==0&&nx>.65f&&ny>.48f){pass=true;}else if(action==0&&nx>.78f&&ny<.65f){skill=true;}}
+ if(action==1||action==3){stickX=0;stickY=0;}
 }
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativePause(JNIEnv*,jclass,jboolean value){paused=value;}
