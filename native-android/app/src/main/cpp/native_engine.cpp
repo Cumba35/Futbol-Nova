@@ -191,6 +191,30 @@ void update(float dt){
  }
  updateKeeper(0,dt);
  updateKeeper(1,dt);
+ // Resolve body-to-body contacts so teammates and opponents cannot occupy
+ // the same point. Apply symmetric separation and keep every actor in bounds.
+ for(int i=0;i<22;i++){
+  for(int j=i+1;j<22;j++){
+   float ox=players[(size_t)j].x-players[(size_t)i].x;
+   float oz=players[(size_t)j].z-players[(size_t)i].z;
+   float d2=ox*ox+oz*oz;
+   constexpr float minGap=.78f;
+   if(d2>=minGap*minGap)continue;
+   float d=std::sqrt(std::max(d2,.0001f));
+   float nx,nz;
+   if(d<.01f){nx=((i+j)%2==0)?1.0f:0.0f;nz=((i+j)%2==0)?0.0f:1.0f;}
+   else{nx=ox/d;nz=oz/d;}
+   float push=(minGap-d)*.5f;
+   players[(size_t)i].x-=nx*push;players[(size_t)i].z-=nz*push;
+   players[(size_t)j].x+=nx*push;players[(size_t)j].z+=nz*push;
+  }
+ }
+ for(int i=0;i<22;i++){
+  players[(size_t)i].x=std::clamp(players[(size_t)i].x,-33.0f,33.0f);
+  players[(size_t)i].z=std::clamp(players[(size_t)i].z,-51.0f,51.0f);
+ }
+ // Keep the controlled-player coordinates synchronized after contact resolution.
+ playerX=players[9].x;playerZ=players[9].z;
  float dx=std::sin(playerYaw),dz=-std::cos(playerYaw);
  float ballDistance=std::sqrt((ballX-playerX)*(ballX-playerX)+(ballZ-playerZ)*(ballZ-playerZ));
  bool controlledPossession=ballDistance<1.45f&&ballY<1.1f;
