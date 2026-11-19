@@ -137,6 +137,7 @@
 
 ## Preparación de partido y selector visual
 - [x] Documentar pantalla de selección local/visitante, OVR, estadio, equipaciones, balón y restricciones de configuración oficial/no oficial.
+- [x] Añadir selector offline de tres estadios procedurales y aplicar el ID elegido al amistoso; pruebas de catálogo/geometría y de integración añadidas.
 - [ ] Implementar selector visual conectado a catálogos de equipos, estadios, balones y equipaciones.
 - [ ] Aplicar precedencia de reglamento y bloqueos de ajustes en partidos oficiales.
 - [ ] Probar cambios de apariencia aislados por encuentro y persistencia de configuración.
