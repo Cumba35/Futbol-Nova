@@ -24,6 +24,24 @@ Se priorizan soluciones GDScript/Godot compatibles con Android ARM64, modo local
 | [ODS-RL/football-env](https://github.com/ODS-RL/football-env) | Licencia no confirmada durante esta revisión | Python; entorno 2D para agentes, repetición de logs y presets tácticos | Solo referencia conceptual para reproducibilidad y experimentación de IA; no integrar Python en el juego Android. |
 | [openfootmanager/openfootmanager](https://github.com/openfootmanager/openfootmanager) | GPLv3 indicada por el proyecto | Simulación de gestión con comentarios/eventos de partido y gestión de plantillas | No es motor de partido 3D. La licencia GPLv3 y el stack web no encajan con el runtime actual; estudiar únicamente conceptos generales. |
 
+## Investigación complementaria — 19 noviembre 2026
+
+Se amplió la búsqueda a simulación táctica, fútbol 3D y física de cuerpos rígidos:
+
+| Proyecto | Evidencia revisada | Ideas útiles | Decisión |
+|---|---|---|---|
+| [noddy703/tacticmesh](https://github.com/noddy703/tacticmesh) | README y arquitectura descrita; motor web/JavaScript, MIT para el código fuente y permisos separados para packs/assets | Motor de paso fijo, modo de simulación acelerada, formaciones y tácticas configurables, valoración individual, estadísticas y packs de equipos JSON/ZIP | Referencia para separar simulación de presentación, reproducibilidad y formatos de datos. No portar su motor web al juego Godot 3D ni reutilizar packs/imágenes sin verificar permisos individuales. |
+| [RobinNunkesser/gd-godot-crazy-cage-football](https://github.com/RobinNunkesser/gd-godot-crazy-cage-football) | Inspección de `scripts/ball.gd`, `scripts/player.gd`, `project.godot` y pruebas; Godot 4.x, cuerpos rígidos 3D. La licencia no quedó confirmada en los archivos revisados | CCD para reducir tunneling, límites de velocidad, materiales físicos, monitorización de contactos y pruebas separadas de física de balón/jugador | Solo ideas técnicas de alto nivel. No copiar código ni assets hasta confirmar licencia. La física de Fútbol Nova debe mantener su modelo y calibración propios. |
+| [abotbro/godot-football-engine](https://github.com/abotbro/godot-football-engine) | README de un motor de fútbol Godot; licencia y madurez no verificadas | Referencia para comparar separación de mecánicas, física y simulación | No integrar ni copiar; falta auditoría de licencia, contenido y compatibilidad real. |
+
+### Conclusiones de la revisión
+
+- El paso fijo y la semilla determinista son especialmente útiles para reproducir bugs del partido; se deben aplicar al núcleo de simulación y no forzar a toda la presentación 3D a funcionar como simulación por turnos.
+- La selección de formaciones/tácticas y el registro de estadísticas deben mantenerse como datos independientes de la escena visual.
+- Las ideas de CCD y límites de velocidad merecen pruebas específicas con los tamaños, velocidades, postes y dimensiones de las porterías de Fútbol Nova; no se deben copiar valores de un juego arcade de jaula.
+- Ningún repositorio externo justifica reemplazar el motor Godot actual ni añadir servicios de red al juego base offline.
+- La búsqueda de hoy no autoriza copiar código o recursos de los proyectos cuya licencia no se verificó en el commit/archivo correspondiente.
+
 ## Decisiones técnicas aplicadas
 
 1. Mantener GDScript y el motor Godot 4.4.1 fijado en el pipeline Android.
@@ -36,7 +54,7 @@ Se priorizan soluciones GDScript/Godot compatibles con Android ARM64, modo local
 
 ## Próximas mejoras priorizadas
 
-- **P0 — calidad y seguridad:** completar pruebas headless de `BallFlightModel`, `SetPieceSwipeController`, reloj y puntuación; impedir goles fuera de partido activo; garantizar que el workflow no cancele builds principales por commits de documentación.
+- **P0 — validación pendiente:** completar CI de los cambios de porterías y atribución de goles; añadir pruebas headless de `BallFlightModel` y `SetPieceSwipeController`; comprobar exportación y artefacto APK en Android. La protección contra goles fuera de un partido activo y la conservación de ejecuciones CI ya están implementadas, pendientes de certificación por la suite.
 - **P1 — control del balón:** conectar pase, tiro, primer toque, posesión y gesto táctil al mismo modelo de balón, con límites de velocidad/altura y pruebas deterministas.
 - **P1 — porteros y reinicios:** conectar el predictor de intercepción, perfiles de reacción, barrera y reinicios reglamentarios; no marcar estas funciones como disponibles antes de probarlas.
 - **P2 — IA colectiva:** introducir presión por zonas, coberturas y roles de manera escalonada, midiendo coste de CPU con 22 futbolistas.
@@ -48,33 +66,15 @@ Se priorizan soluciones GDScript/Godot compatibles con Android ARM64, modo local
 La investigación se realizó sobre README, páginas de repositorio, documentación y licencias visibles públicamente. No se descargó ni incorporó código de terceros en esta revisión. Los proyectos de referencia no demuestran que Fútbol Nova tenga esas capacidades. La cobertura real se determina por el código propio, pruebas ejecutadas en GitHub Actions y validación final de la APK en Android.
 
 
-## Alternativas Godot adicionales
+## Estado de mejoras aplicadas — 18 noviembre 2026
 
-| Repositorio | Licencia / tecnología | Utilidad potencial | Decisión |
-|---|---|---|---|
-| [nicolasbize/soccer-course](https://github.com/nicolasbize/soccer-course) | MIT; Godot 4.4; fútbol 2D local | Organización de escenas, eventos y entrada en una versión coincidente del motor | Solo referencia de arquitectura 2D; no importar escenas, arte ni lógica al juego 3D 11v11. |
-| [Habeeb-Rahman-CA/soccer5v5-game-godot](https://github.com/Habeeb-Rahman-CA/soccer5v5-game-godot) | MIT; Godot 4.6; 5v5 | Estructura de partidos pequeños, señales y controles de dos jugadores | No copiar recursos ni elevar el motor: alcance 5v5 y versión 4.6 no corresponden al amistoso 11v11 en Godot 4.4.1. |
-| [ryan-haskell/godot-soccer-demo](https://github.com/ryan-haskell/godot-soccer-demo) | No se encontró archivo LICENSE en la raíz examinada | Experimento de física básica del balón | Lectura conceptual únicamente; sin licencia identificada no se reutiliza código ni assets. |
-| [matheuscumpian/godot-soccer](https://github.com/matheuscumpian/godot-soccer) | Proyecto de curso GameDev.tv; licencia de reutilización no confirmada | Referencia visual de prototipo Godot | No incorporar código ni recursos sin comprobar los derechos y atribuciones de cada recurso. |
+**Implementado en el código propio:**
+- Colisiones físicas de postes y largueros, más paneles de red trasero, laterales y superior en ambas porterías.
+- Atribución de goles y saques de puerta basada en la orientación actual de los equipos después del descanso, sin depender del nombre fijo del sensor.
+- Protección del marcador para impedir que un área de gol altere el resultado cuando el amistoso no está activo.
+- Acceso dinámico al autoload de datos en la preparación del amistoso para que las pruebas headless no dependan de una referencia global estática.
+- CI Android con setup-android v4, pruebas individuales con timeout y ejecución no cancelable por commits posteriores de la misma rama.
 
+**Pendiente de demostrar con CI:** que las nuevas pruebas de física y de cambio de lado pasen en Godot 4.4.1; que las regresiones terminen; que se exporte y publique el artefacto APK Android ARM64. No se considera validado por el mero hecho de haber guardado el código.
 
-## Revisión adicional de proyectos móviles
-
-| Repositorio | Licencia / tecnología | Utilidad potencial | Decisión |
-|---|---|---|---|
-| [devinarena/Pixel-Striker](https://github.com/devinarena/Pixel-Striker) | MIT declarada; Godot; juego móvil con Android, tiros libres, penaltis y portero | Referencia para flujos táctiles, modos de práctica y exportación móvil | No sustituye ni aporta un motor 11v11: sus modos son minijuegos de fútbol. Se estudian patrones de interacción y empaquetado, sin incorporar assets ni código en esta fase. |
-
-**Criterio de compatibilidad:** Pixel-Striker y FreeKick se desarrollan con versiones de Godot distintas a la versión 4.4.1 fijada en Fútbol Nova. Antes de considerar cualquier componente, debe portarse de forma explícita y pasar las pruebas headless y Android del proyecto; no se eleva la versión del motor solo para copiar una demo.
-
-
-## Referencia pública adicional: Crazy Cage Football (MIT)
-
-- Repositorio: https://github.com/RobinNunkesser/gd-godot-crazy-cage-football
-- Motor declarado: Godot 4.x; proyecto de fútbol arcade 3D con física, colisiones, máquina de estados, controles táctiles/multicontrolador y pruebas de gameplay.
-- Licencia del repositorio: MIT (archivo LICENSE verificado el 18-11-2026).
-- Posible aprendizaje: separación del estado de partido, controles de mando y táctiles, pruebas de colisión/flujo de partido y empaquetado.
-- Límite: es fútbol de jaula/arcade, no simulación reglamentaria 11 contra 11. No se importó código, modelos, audio ni texturas; se documentan únicamente patrones de arquitectura para evaluar y adaptar de forma independiente.
-
-## Criterio de adopción de motores y código externo
-
-La referencia Godotball (https://github.com/aliyavuzz/Godotball) declara Godot 4.4.1 y Apache-2.0 en su README, y su arquitectura C++/GDExtension puede ser interesante para física avanzada. Sin embargo, en la revisión no se encontró un archivo LICENSE en la raíz del repositorio. Por seguridad jurídica no se copia ni incorpora código o assets hasta verificar la licencia aplicable al código y a la base GameplayFootball de la que deriva. Además, añadir GDExtension introduciría toolchain nativa, NDK/ABI y mantenimiento adicional, por lo que primero se deben agotar las mejoras GDScript compatibles con el APK ARM64 actual.
+**Pendiente de integración funcional:** `BallFlightModel` y `SetPieceSwipeController` siguen siendo componentes iniciales sin conexión completa al balón real y al HUD. Se mantiene como siguiente prioridad su conexión con pase, tiro, primer toque y efecto, acompañada de pruebas deterministas.
