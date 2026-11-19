@@ -63,3 +63,14 @@ La revisión amplía el panorama, pero no cambia la decisión técnica: el juego
 - `richardschembri/GodotBasic3DFootball`: GDScript 3D, sin licencia identificada por la API de GitHub; no reutilizar código ni assets.
 - `bowman290/godot-football`: GDScript, sin licencia identificada; no reutilizar código ni assets.
 - No se incorporan dependencias externas. La versión Godot 4.4.1 y la ejecución offline/Android siguen siendo obligatorias.
+
+## Investigación adicional de proyectos públicos — 19-11-2026
+
+| Repositorio | Licencia revisada | Motor / enfoque | Decisión para Fútbol Nova |
+|---|---|---|---|
+| RobinNunkesser/gd-godot-crazy-cage-football | MIT (LICENSE leído) | Godot 4.7, física 3D, overlay táctil, test headless | Referencia útil para organización de overlay táctil, estados de partido y pruebas. No portar directamente por diferencia con Godot 4.4.1 y diseño arcade de jaula; no se copiaron assets. |
+| pdimitrop/Armistice | MIT (LICENSE leído) | Godot 4.7, fútbol 3D | Referencia conceptual de arquitectura y escenas 3D; no importar por versión 4.7, Forward+ y dependencia de assets externos grandes. |
+| namelesssyf/soccer-box-game | No declarada en metadatos revisados | Godot 4.7.1, física 3D arcade y tests | No copiar ni reutilizar código/assets sin licencia explícita. |
+| erengaygusuz/fotbiler-football | No confirmada en esta revisión | Simulación 22 jugadores, IA táctica, árbitro, carrera; código C++ propio | Referencia de funcionalidades y casos de prueba, no compatible como dependencia Godot/GDScript. |
+
+No se añadió código externo en esta revisión. Se mantiene Godot 4.4.1, Android ARM64, renderer y recursos compatibles con móviles, y juego offline. Cualquier incorporación futura requiere revisar el archivo LICENSE de cada componente y registrar atribución.
