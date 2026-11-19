@@ -148,7 +148,7 @@
       "display_name": "Anier Cumbá",
       "date_of_birth": "2001-04-14",
       "birth_country": "CUB",
-      "preferred_national_team": "BRA",
+      "preferred_national_team": "CUB",
       "favorite_club": "Real Madrid",
       "confirmed_attributes": {
         "acc": 90,
@@ -468,7 +468,11 @@
             }
           ]
         }
-      ]
+      ],
+      "national_team_code": "CUB",
+      "national_team_association_id": "FIFA-MA-052",
+      "national_team_name": "Cuba",
+      "national_team_assignment_source": "owner_confirmed"
     },
     {
       "id": "NOVA-PLAYER-0036",
@@ -647,7 +651,11 @@
         "pressing": "presion_inteligente_por_angulo_no_persecucion_constante",
         "duel_profile": "fisico_agresivo_con_timing_y_riesgo_de_falta_si_llega_tarde"
       },
-      "attribute_profile_note": "Atributos base reajustados para un MCD recuperador inspirado en el Casemiro del Real Madrid. Son valores de diseño de Fútbol Nova, no estadísticas oficiales ni una copia exacta del jugador."
+      "attribute_profile_note": "Atributos base reajustados para un MCD recuperador inspirado en el Casemiro del Real Madrid. Son valores de diseño de Fútbol Nova, no estadísticas oficiales ni una copia exacta del jugador.",
+      "national_team_code": "CUB",
+      "national_team_association_id": "FIFA-MA-052",
+      "national_team_name": "Cuba",
+      "national_team_assignment_source": "owner_confirmed"
     }
   ],
   "equipment_rules": {
