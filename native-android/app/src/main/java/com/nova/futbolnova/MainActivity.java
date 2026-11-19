@@ -9,6 +9,11 @@ import android.graphics.Paint;
 import android.graphics.Color;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 public final class MainActivity extends Activity {
     static { System.loadLibrary("futbolnova"); }
@@ -16,6 +21,7 @@ public final class MainActivity extends Activity {
 
     private static native void nativeTouch(float x, float y, int action, int width, int height);
     private static native void nativePause(boolean paused);
+    private static native void nativeSetPlayerProfile(int slot, float heightCm, int overall, float pace, float dribbling, float defending);
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -40,11 +46,37 @@ public final class MainActivity extends Activity {
             setPreserveEGLContextOnPause(true);
             setRenderer(new Renderer() {
                 @Override public void onSurfaceCreated(javax.microedition.khronos.opengles.GL10 gl,
-                        javax.microedition.khronos.egl.EGLConfig config) { nativeInit(); }
+                        javax.microedition.khronos.egl.EGLConfig config) { nativeInit(); loadCanonicalPlayerProfiles(); }
                 @Override public void onSurfaceChanged(javax.microedition.khronos.opengles.GL10 gl, int w, int h) { nativeResize(w, h); }
                 @Override public void onDrawFrame(javax.microedition.khronos.opengles.GL10 gl) { nativeFrame(); }
             });
             setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+        }
+    }
+
+    private void loadCanonicalPlayerProfiles() {
+        try (InputStream in = getAssets().open("custom_players.json");
+             ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[8192]; int n;
+            while ((n = in.read(buffer)) > 0) out.write(buffer, 0, n);
+            JSONObject root = new JSONObject(out.toString(StandardCharsets.UTF_8.name()));
+            JSONArray players = root.getJSONArray("players");
+            for (int i = 0; i < players.length(); i++) {
+                JSONObject p = players.getJSONObject(i);
+                String id = p.optString("id", "");
+                JSONObject a = p.optJSONObject("attributes");
+                if (a == null) continue;
+                if ("NOVA-PLAYER-0035".equals(id))
+                    nativeSetPlayerProfile(10, (float)p.optDouble("height_cm", 171), p.optInt("overall", 92),
+                        (float)((a.optDouble("acc",90)+a.optDouble("spd",90))/2.0),
+                        (float)a.optDouble("drib",91), (float)a.optDouble("aware",84));
+                else if ("NOVA-PLAYER-0036".equals(id))
+                    nativeSetPlayerProfile(15, (float)p.optDouble("height_cm", 180), p.optInt("overall", 94),
+                        (float)((a.optDouble("acc",76)+a.optDouble("spd",76))/2.0),
+                        (float)a.optDouble("drib",74), (float)a.optDouble("aware",97));
+            }
+        } catch (Exception ex) {
+            android.util.Log.e("FutbolNova", "No se pudieron cargar perfiles canónicos; se usarán perfiles base.", ex);
         }
     }
 
