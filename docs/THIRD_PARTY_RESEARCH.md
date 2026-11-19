@@ -100,3 +100,13 @@ No se importó código externo en esta revisión. Se priorizan Godot 4.4.1, GDSc
 | [pdimitrop/Armistice](https://github.com/pdimitrop/Armistice) | MIT declarada; Godot 4.7, fútbol 3D de tesis; README advierte que el repo contiene código fuente y no todos los assets ejecutables. | Solo ideas de estructura de escenas 3D; no portar por versión/renderer y recursos externos. |
 
 No se ha copiado código, escenas ni recursos de estos proyectos. Se mantiene el criterio de compatibilidad con Godot 4.4.1, GDScript, Android ARM64 y juego offline. Las licencias declaradas en README deben confirmarse en los archivos LICENSE antes de cualquier reutilización concreta.
+
+
+## Revisión de proyectos móviles Godot — 19-11-2026 (tercera pasada)
+
+| Repositorio | Licencia / tecnología revisada | Utilidad y límites | Decisión |
+|---|---|---|---|
+| [etherealxx/cornucobia](https://github.com/etherealxx/cornucobia) | LICENSE Apache-2.0 leído; Godot 4.3; Android; el README distingue código/escenas/recursos propios de addons, shaders y arte externo. | Referencia de exportación móvil, organización de recursos y créditos/licencias. Su juego es 2D de plataformas, no aporta simulación futbolística. | Estudiar prácticas de empaquetado y control de licencias; no importar arte, addons, shaders ni código. |
+| [Cohen-Mini/SoccerCareerSimulator](https://github.com/Cohen-Mini/SoccerCareerSimulator) | Godot 4.7/GDScript, managers de calendario/guardado/mundo; no se encontró LICENSE. | Ideas de separación de gestores para futura carrera y progresión. Versión distinta y derechos no confirmados. | No copiar ni integrar; solo referencia conceptual hasta que exista licencia verificable. |
+
+No se importó código ni assets. En Cornucobia, aunque el código principal declara Apache-2.0, los recursos gráficos y addons tienen licencias separadas; no se asume que todo el repositorio tenga una única licencia. Se mantiene la prioridad Android ARM64, Godot 4.4.1, GDScript y modo offline.
