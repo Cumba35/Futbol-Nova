@@ -115,9 +115,6 @@ final class CanonicalDataRepository {
     }
     void applyTeam(int slotStart, Team team) {
         if(team==null||!team.isPlayable())return;
-        JSONArray keys=null;
-        try { keys=readKeysForTeam(team); } catch(Exception ignored) {}
-        String[] attributeKeys={"acc","spd","attp","fin","shot","long","vol","pen","vis","cross","fk","short","longp","curve","agi","bal","react","ctrl","drib","comp","int","head","aware","tack","slide","jump","sta","str","agr","dive","hand","kick","ref","gkspd","gkpos"};
         for(int i=0;i<22;i++) {
             JSONObject p=team.players.optJSONObject(i); if(p==null)continue;
             JSONArray values=p.optJSONArray("attributes");
