@@ -177,7 +177,7 @@ func _nav_button(caption: String) -> Button:
 	var button := Button.new()
 	button.text = caption
 	button.custom_minimum_size = Vector2(112, 40)
-	button.add_theme_font_size_override("font_size", 13)
+	button.add_theme_font_size_override("font_size", int(round(13.0 * _get_ui_scale())))
 	button.add_theme_color_override("font_color", WHITE)
 	var normal := StyleBoxFlat.new()
 	normal.bg_color = PANEL_ALT
@@ -1654,6 +1654,8 @@ func _open_settings_category(category: String) -> void:
 			_show_controller_content()
 		"Audio":
 			_show_audio_settings()
+		"Accesibilidad":
+			_show_accessibility_settings()
 		"Información":
 			_add_info_card("FÚTBOL NOVA", "Juego de fútbol masculino. Versión de desarrollo. Algunas funciones aún están en construcción.")
 		"Datos":
@@ -1669,6 +1671,40 @@ func _open_settings_category(category: String) -> void:
 	back.pressed.connect(_show_settings)
 	content_box.add_child(back)
 	status_label.text = "Submenú: " + category
+
+func _show_accessibility_settings() -> void:
+	_add_info_card("TAMAÑO DE TEXTO", "Ajusta el tamaño del texto de los menús para mejorar la lectura. El valor se guarda en este dispositivo y se aplica al abrir cada pantalla.")
+	var preferences: Node = get_node_or_null("/root/NovaPreferences")
+	var current_scale := float(preferences.get("ui_scale")) if preferences != null else 1.0
+	var scale_label := _label("Tamaño del texto: %d%%" % int(round(current_scale * 100.0)), 15, WHITE)
+	scale_label.name = "UiScaleValue"
+	content_box.add_child(scale_label)
+	var scale_slider := HSlider.new()
+	scale_slider.name = "UiScaleSlider"
+	scale_slider.min_value = 80.0
+	scale_slider.max_value = 130.0
+	scale_slider.step = 5.0
+	scale_slider.value = current_scale * 100.0
+	scale_slider.custom_minimum_size.y = 36
+	scale_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scale_slider.editable = preferences != null
+	scale_slider.value_changed.connect(_on_ui_scale_changed.bind(scale_label, preferences))
+	content_box.add_child(scale_slider)
+	if preferences == null:
+		_add_info_card("PREFERENCIAS NO DISPONIBLES", "No se pudo cargar el servicio local de configuración.")
+
+func _on_ui_scale_changed(value: float, value_label: Label, preferences: Node) -> void:
+	if preferences == null:
+		return
+	var saved: bool = bool(preferences.call("set_ui_scale", value / 100.0))
+	value_label.text = "Tamaño del texto: %d%%" % int(round(value))
+	status_label.text = "Tamaño guardado." if saved else "No se pudo guardar el tamaño del texto."
+
+func _get_ui_scale() -> float:
+	var preferences: Node = get_node_or_null("/root/NovaPreferences")
+	if preferences == null:
+		return 1.0
+	return clampf(float(preferences.get("ui_scale")), 0.8, 1.3)
 
 func _show_audio_settings() -> void:
 	_add_info_card("VOLUMEN GENERAL", "Ajusta el volumen de todos los sonidos del juego. El cambio se aplica inmediatamente y se guarda en este dispositivo.")
@@ -1739,7 +1775,7 @@ func _safe_int(value: Variant, fallback: int = 0) -> int:
 func _label(value: String, font_size: int, color: Color) -> Label:
 	var label := Label.new()
 	label.text = value
-	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_font_size_override("font_size", int(round(float(font_size) * _get_ui_scale())))
 	label.add_theme_color_override("font_color", color)
 	return label
 
