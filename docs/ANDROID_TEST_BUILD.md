@@ -101,3 +101,12 @@ Las pruebas de escena cargan ahora `scenes/main.tscn` de forma dinámica despué
 ### Dependencia de Momentos en la escena principal — 18 noviembre 2026
 
 La ejecución `44419455179` pasó fundamentos 11v11, pero el test runtime detectó una referencia estática a `MomentsService` al compilar `scripts/main.gd`. La escena principal ya resuelve el autoload desde `/root/MomentsService` en el árbol activo, evitando la dependencia del identificador global en headless. El error secundario de acceso a `game_hub` provenía de que el script principal no llegó a compilar. La nueva ejecución debe confirmar la carga de la escena y el amistoso runtime.
+
+
+### Diagnóstico y corrección del test runtime — 18 noviembre 2026
+
+La ejecución `44419455179` pasó importación, validación de clubes, validación histórica, prueba del hub y fundamento 11v11, pero falló en `test_friendly_match_runtime.gd`: `scripts/main.gd` todavía contenía una referencia estática a `MomentsService`. El error de compilación provocó después un acceso inválido a `game_hub`; ese segundo error era consecuencia del primero.
+
+Se portó al repositorio maestro la corrección que resuelve el servicio mediante `get_node_or_null("/root/MomentsService")`, junto con la lógica separada de goles de entrenamiento y amistosos. La prueba runtime se recuperó con carga de escena posterior a la inicialización de autoloads, watchdog, comprobación de progreso de Momentos y verificación del amistoso de muestra Albor Madrid vs Litoral Barcelona. Se declaró explícitamente el script de Momentos usado por la prueba para evitar identificadores no declarados.
+
+El workflow maestro ahora se ejecuta automáticamente al cambiar archivos del proyecto en `main` o ramas `work/**`, en pull requests hacia `main` y manualmente. Se añadieron pruebas independientes de vuelo del balón y de colisiones/contención de porterías. **La nueva ejecución todavía no tiene un resultado CI confirmado; no se afirma que la suite haya pasado ni que exista una APK nueva.**
