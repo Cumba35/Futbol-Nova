@@ -255,6 +255,7 @@ void update(float dt){
  if(ballZ>55.0f){ballZ=55.0f;ballVZ=-std::abs(ballVZ)*.45f;}
  if(ballZ<-55.0f){ballZ=-55.0f;ballVZ=std::abs(ballVZ)*.45f;}
 }
+}
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeInit(JNIEnv*,jobject){homeScore=awayScore=0;matchSeconds=0;matchTime=0;makeProgram();initField();setupTeams();glEnable(GL_DEPTH_TEST);glClearColor(.015f,.045f,.075f,1);}
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeResize(JNIEnv*,jobject,jint w,jint h){screenW=std::max(1,(int)w);screenH=std::max(1,(int)h);glViewport(0,0,screenW,screenH);}
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeFrame(JNIEnv*,jobject){
