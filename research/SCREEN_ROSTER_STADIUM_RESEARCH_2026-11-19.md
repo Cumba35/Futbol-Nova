@@ -137,3 +137,14 @@ Los archivos se releyeron desde GitHub y se verificaron sus SHA. Los nuevos work
 - El run #193 falló en la aceptación de Máximo: el test inició y cargó el registro del catálogo, pero no avanzó hasta el marcador final PASS; el watchdog interno de 120 segundos terminó el proceso. Los logs también mostraron acciones InputMap inexistentes, que ya fueron corregidas en el proyecto base.
 - Para evitar una espera indefinida en el test aislado, se sustituyeron las dos esperas directas de `process_frame` por temporizadores cortos del SceneTree y se redujo el watchdog a 45 segundos. La escena y sus comprobaciones visuales permanecen intactas.
 - Commit de la prueba: `75bc105132ff84e783a2b6125d24b17e53fed826`. Pendiente confirmar en CI que la prueba completa llegue a `FUTBOL_NOVA_MAXIMO_PADILLA_PROFILE_TEST: PASS` y luego ejecute regresiones/exportación APK.
+
+
+## Diagnóstico y corrección del test de Máximo — 19-11-2026
+
+El run #208 (44445773924) llegó a la prueba de Máximo y falló por una aserción concreta: el test buscaba `inner_shirt_sleeve_1.0`, pero el nombre del nodo dependía de la conversión implícita de un float a texto. La prueba no terminaba tras la aserción y agotaba después su watchdog de 45 s. También se detectaron avisos de InputMap al activar el controlador durante una prueba que solo debía validar el modelo visual.
+
+Correcciones guardadas en la rama de trabajo:
+- `scripts/players/maximo_padilla.gd`: los nombres de las mangas ahora son estables y legibles (`inner_shirt_sleeve_left` / `inner_shirt_sleeve_right`), sin depender del formato de un float.
+- `tests/test_maximo_padilla_profile.gd`: el arnés headless registra acciones de entrada ausentes solo para evitar ruido de física en el proceso aislado; la prueba dedicada `test_input_actions.gd` sigue siendo la que valida la configuración real del proyecto. Se detiene la física del jugador después de añadirlo al árbol y se usa `process_frame` para sincronizar la prueba. La aserción del dorsal se alinea con el 30 configurado.
+- Commits: `5aaa96227894fb258fd2a31560cafcb89ac7c6c7` (aislamiento del test), `81b687d66b2fe618674c0c95c2de420b0ddb6ff8` (nombres de manga), `f15f95d42d0a9a4637607cce671a714740c1c884` (aserción estable).
+- Nuevo run #212 (ID `44446263741`) para el SHA `f15f95d42d0a9a4637607cce671a714740c1c884`; pendiente de resultado. No se declara resuelto hasta que la prueba pase y el workflow termine.
