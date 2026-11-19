@@ -87,3 +87,16 @@ No se añadió código externo en esta revisión. Se mantiene Godot 4.4.1, Andro
 | `openfootmanager/openfootmanager` ([GitHub](https://github.com/openfootmanager/openfootmanager)) | Manager con simulación por eventos, SQLite y arquitectura Rust/Tauri/React; GPL-3.0. | Referencia de diseño para gestión y persistencia, no dependencia directa: tecnología distinta y copyleft GPL incompatible con una integración no revisada. |
 
 No se importó código externo en esta revisión. Se priorizan Godot 4.4.1, GDScript, Android ARM64, ejecución offline y licencias compatibles.
+
+
+## Revisión pública adicional — 19-11-2026 (segunda pasada)
+
+| Repositorio | Hallazgo | Decisión |
+|---|---|---|
+| [lel1guy/FootPong](https://github.com/lel1guy/FootPong) | MIT declarada; Godot 4.6/GDScript, prototipo 2D tipo Pong con marcador, reinicio de balón y pausa; documenta exportación Android. | Referencia pequeña para estados de marcador/pausa y empaquetado Android. No portar el juego 2D ni sustituir el motor 3D 11v11; versión distinta. |
+| [devinarena/Pixel-Striker](https://github.com/devinarena/Pixel-Striker) | MIT declarada; juego móvil Godot con tiros libres, portero y penaltis. | Referencia de UX móvil y preferencias. No importar assets ni escenas sin revisar sus atribuciones individuales; no cubre amistosos 11v11. |
+| [AhkunTa/soccer-online](https://github.com/AhkunTa/soccer-online) | Godot 4.6, GDScript, 6v6 local y base multijugador/torneos; licencia no confirmada en esta revisión. | No reutilizar código ni recursos hasta confirmar licencia; la arquitectura online no es necesaria para el modo offline base. |
+| [namelesssyf/soccer-box-game](https://github.com/namelesssyf/soccer-box-game) | Godot 4.7.1, físicas 3D y modo local/online; licencia no confirmada. | No incorporar. Referencia conceptual de pruebas físicas y autoridad de partido; incompatible por versión y enfoque arcade. |
+| [pdimitrop/Armistice](https://github.com/pdimitrop/Armistice) | MIT declarada; Godot 4.7, fútbol 3D de tesis; README advierte que el repo contiene código fuente y no todos los assets ejecutables. | Solo ideas de estructura de escenas 3D; no portar por versión/renderer y recursos externos. |
+
+No se ha copiado código, escenas ni recursos de estos proyectos. Se mantiene el criterio de compatibilidad con Godot 4.4.1, GDScript, Android ARM64 y juego offline. Las licencias declaradas en README deben confirmarse en los archivos LICENSE antes de cualquier reutilización concreta.
