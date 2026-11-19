@@ -545,8 +545,9 @@ func save_career() -> bool:
 		if FileAccess.file_exists(backup_path):
 			DirAccess.rename_absolute(backup_path, ProjectSettings.globalize_path(SAVE_PATH))
 		return false
-	if get_tree() != null and get_tree().root.has_node("FootballDatabase"):
-		return FootballDatabase.save_career_record("legend_active", career)
+	var football_database := get_node_or_null("/root/FootballDatabase")
+	if football_database != null:
+		return bool(football_database.save_career_record("legend_active", career))
 	return true
 
 func load_career() -> bool:
@@ -555,8 +556,9 @@ func load_career() -> bool:
 		var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
 		if file != null:
 			parsed = JSON.parse_string(file.get_as_text())
-	if not parsed is Dictionary and get_tree() != null and get_tree().root.has_node("FootballDatabase"):
-		var backup_record: Dictionary = FootballDatabase.get_career_record("legend_active")
+	var football_database := get_node_or_null("/root/FootballDatabase")
+	if not parsed is Dictionary and football_database != null:
+		var backup_record: Dictionary = football_database.get_career_record("legend_active")
 		if not backup_record.is_empty():
 			parsed = backup_record
 	if not parsed is Dictionary:
