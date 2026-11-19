@@ -144,7 +144,7 @@ void updateKeeper(int team,float dt){
   state.diveX=(ballX+ballVX*interceptTime)>=players[(size_t)slot].x?1.0f:-1.0f;
  }
 }
-void collideGoalFrame(float oldX,float oldY,float oldZ){
+void collideGoalFrame(){
  for(float sign:{-1.0f,1.0f}){
   float goalZ=sign*53.0f;
   for(float postX:{-3.66f,3.66f}){
@@ -205,7 +205,7 @@ void update(float dt){
   ballX=playerX+dx*.72f;ballZ=playerZ+dz*.72f;ballY=.24f;
   ballVX=stickX*5.0f;ballVZ=-stickY*5.0f;
  }
- float oldX=ballX,oldY=ballY,oldZ=ballZ;
+ float oldX=ballX,oldZ=ballZ;
  if(!controlledPossession||pressure){
   ballX+=ballVX*dt;ballY+=ballVY*dt;ballZ+=ballVZ*dt;
   ballVY-=9.81f*dt;
@@ -234,12 +234,19 @@ void update(float dt){
     ballX=cx+nx*(radius+.02f);ballZ=cz+nz*(radius+.02f);
     float vn=ballVX*nx+ballVZ*nz;
     if(vn<0){float restitution=keeper?.78f:.48f;ballVX-=(1.0f+restitution)*vn*nx;ballVZ-=(1.0f+restitution)*vn*nz;}
-    if(keeper){ballVY=std::max(ballVY,.9f);keepers[(size_t)(i/11)].diveTimer=std::max(keepers[(size_t)(i/11)].diveTimer,.16f);}
+    if(keeper){
+     // A keeper parry must send the ball away from the defended goal, not merely reflect it.
+     float clearanceDirection=i==0?1.0f:-1.0f;
+     ballVZ=clearanceDirection*std::max(5.5f,std::abs(ballVZ)*.72f);
+     ballVX+=std::clamp((ballX-px)*2.0f,-4.5f,4.5f);
+     ballVY=std::max(ballVY,1.8f);
+     keepers[(size_t)(i/11)].diveTimer=std::max(keepers[(size_t)(i/11)].diveTimer,.20f);
+    }
     break;
    }
   }
  }
- collideGoalFrame(oldX,oldY,oldZ);
+ collideGoalFrame();
  bool homeGoal=(oldZ<53.0f&&ballZ>=53.0f&&std::abs(ballX)<3.44f&&ballY<2.22f);
  bool awayGoal=(oldZ>-53.0f&&ballZ<=-53.0f&&std::abs(ballX)<3.44f&&ballY<2.22f);
  if(homeGoal){
