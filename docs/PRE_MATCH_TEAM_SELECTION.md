@@ -179,3 +179,13 @@ La aceptación de controles táctiles encontró un fallo real del motor: despué
 - La protección se aplica al pase/tiro del jugador, al despeje del portero y a los pases/despejes de la IA; se reinicia al iniciar o detener un partido.
 - La prueba de amistoso adquiere posesión real con el jugador controlado, pulsa PASE/TIRO táctiles y verifica que el balón gana velocidad, permanece libre y no vuelve a congelarse inmediatamente.
 - La prueba también verifica que la IA local y visitante se reposiciona según el balón y que el joystick virtual desplaza al jugador.
+
+
+## Corrección de posesión tras pase/tiro — 19 noviembre 2026
+
+La aceptación de controles táctiles encontró un fallo real del motor: después de liberar la pelota, el controlador podía volver a asignar posesión durante el mismo ciclo de física, antes de que el impulso se integrara. Esto podía congelar el balón justo después de un pase o tiro.
+
+- El controlador 11v11 ahora aplica una protección breve de posesión tras un golpe (0,18 s), evitando que el balón vuelva a quedar fijado antes de comenzar su trayectoria.
+- Se aplica a los golpes del jugador, despejes del portero y pases/despejes de la IA; se reinicia al iniciar o detener un partido.
+- La prueba de amistoso adquiere posesión real con el jugador controlado, pulsa PASE/TIRO táctiles y verifica velocidad, balón libre y ausencia de congelación inmediata.
+- La prueba también verifica el reposicionamiento de IA local/visitante y el movimiento del jugador con joystick virtual.
