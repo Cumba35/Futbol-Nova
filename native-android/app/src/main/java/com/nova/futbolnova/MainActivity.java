@@ -28,6 +28,7 @@ public final class MainActivity extends Activity {
     private CanonicalDataRepository.Team homeTeam, awayTeam;
     private String currentScreen="INICIO";
     private boolean matchRunning=false;
+    private int matchMinutes=3;
     private final Handler matchUiHandler=new Handler();
     private TextView scoreboard;
     private Runnable scoreRefresh;
@@ -38,6 +39,9 @@ public final class MainActivity extends Activity {
     private static native int nativeGetHomeScore();
     private static native int nativeGetAwayScore();
     private static native float nativeGetMatchSeconds();
+    private static native void nativeSetMatchDurationMinutes(int minutes);
+    private static native void nativeStartSecondHalf();
+    private static native int nativeGetMatchPhase();
     static native void nativeSetPlayerProfile(int slot,float heightCm,int overall,float pace,float dribbling,float defending);
 
     @Override public void onCreate(Bundle state) {
@@ -94,6 +98,7 @@ public final class MainActivity extends Activity {
         TextView teams=text((homeTeam==null?"Sin plantilla":homeTeam.name)+"   VS   "+(awayTeam==null?"Sin plantilla":awayTeam.name),18,Color.WHITE,true);teams.setPadding(0,dp(14),0,dp(10));match.addView(teams);
         match.addView(button("ELEGIR EQUIPO LOCAL",()->chooseTeam(true)));
         match.addView(button("ELEGIR EQUIPO VISITANTE",()->chooseTeam(false)));
+        match.addView(button("DURACIÓN: "+matchMinutes+" MIN POR TIEMPO",()->chooseMatchDuration()));
         Button play=button("JUGAR AMISTOSO 3D",()->startMatch());play.setEnabled(homeTeam!=null&&awayTeam!=null&&homeTeam.isPlayable()&&awayTeam.isPlayable());
         match.addView(play);
         match.addView(text(data.playableTeams.size()+" plantillas completas verificadas para el motor nativo · 22 jugadores por equipo.",12,0xFFB6C7CB,false));
@@ -112,6 +117,12 @@ public final class MainActivity extends Activity {
         }
         LinearLayout help=card();help.addView(text("IDENTIDAD NOVA",17,0xFFB8E85A,true));
         help.addView(text("Interfaz original inspirada en la claridad de FIFA 23 y la presentación y simulación moderna de FC 26. Sin recursos copiados ni motores externos.",13,0xFFE4ECEE,false));
+    }
+    private void chooseMatchDuration(){
+        String[] choices={"3","5","6","8","10","15","20"};
+        new AlertDialog.Builder(this).setTitle("Minutos por tiempo").setItems(choices,(d,which)->{
+            matchMinutes=Integer.parseInt(choices[which]);showScreen("INICIO");
+        }).setNegativeButton("Cancelar",null).show();
     }
     private void chooseTeam(boolean home){
         if(data.playableTeams.isEmpty()){toast("No hay plantillas verificadas disponibles.");return;}
@@ -152,18 +163,41 @@ public final class MainActivity extends Activity {
     }
     private void startMatch(){
         if(homeTeam==null||awayTeam==null||homeTeam.id.equals(awayTeam.id)){toast("Selecciona dos equipos diferentes con 22 jugadores únicos.");return;}
-        matchRunning=true;nativePause(false);
+        matchRunning=true;nativeSetMatchDurationMinutes(matchMinutes);nativePause(false);
         root.removeAllViews();
         FrameLayout gameRoot=new FrameLayout(this);game=new GameSurface();
         gameRoot.addView(game);
         scoreboard=text("",14,Color.WHITE,true);
         scoreboard.setGravity(Gravity.CENTER);scoreboard.setBackgroundColor(0x9907131C);FrameLayout.LayoutParams top=new FrameLayout.LayoutParams(-1,dp(42),Gravity.TOP);gameRoot.addView(scoreboard,top);
-        scoreRefresh=new Runnable(){@Override public void run(){if(!matchRunning||scoreboard==null)return;int seconds=(int)nativeGetMatchSeconds();scoreboard.setText(homeTeam.name+"   "+nativeGetHomeScore()+" - "+nativeGetAwayScore()+"   "+awayTeam.name+"     "+String.format(Locale.getDefault(),"%02d:%02d",seconds/60,seconds%60));matchUiHandler.postDelayed(this,500);}};
+        scoreRefresh=new Runnable(){@Override public void run(){
+            if(!matchRunning||scoreboard==null)return;
+            int phase=nativeGetMatchPhase();
+            if(phase==1){matchUiHandler.removeCallbacks(this);showHalfTimeDialog();return;}
+            if(phase==3){matchUiHandler.removeCallbacks(this);showFullTimeDialog();return;}
+            int seconds=(int)nativeGetMatchSeconds();
+            if(phase==2)seconds+=matchMinutes*60;
+            scoreboard.setText(homeTeam.name+"   "+nativeGetHomeScore()+" - "+nativeGetAwayScore()+"   "+awayTeam.name+"     "+String.format(Locale.getDefault(),"%02d:%02d",seconds/60,seconds%60));
+            matchUiHandler.postDelayed(this,500);
+        }};
         matchUiHandler.post(scoreRefresh);
         gameRoot.addView(new TouchHud());
         Button pause=button("PAUSA",()->{nativePause(true);new AlertDialog.Builder(this).setTitle("Partido pausado").setItems(new String[]{"Reanudar","Salir del partido"},(d,w)->{if(w==0)nativePause(false);else returnToMenu();}).setOnCancelListener(d->nativePause(false)).show();});
         FrameLayout.LayoutParams pp=new FrameLayout.LayoutParams(dp(112),dp(48),Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL);gameRoot.addView(pause,pp);
         root.addView(gameRoot);
+    }
+    private void showHalfTimeDialog(){
+        new AlertDialog.Builder(this).setTitle("DESCANSO")
+            .setMessage("Finalizó el primer tiempo. El marcador es "+nativeGetHomeScore()+" - "+nativeGetAwayScore()+".")
+            .setCancelable(false)
+            .setPositiveButton("INICIAR SEGUNDO TIEMPO",(d,w)->nativeStartSecondHalf())
+            .setNegativeButton("SALIR DEL PARTIDO",(d,w)->returnToMenu()).show();
+    }
+    private void showFullTimeDialog(){
+        new AlertDialog.Builder(this).setTitle("FINAL DEL PARTIDO")
+            .setMessage(homeTeam.name+"  "+nativeGetHomeScore()+" - "+nativeGetAwayScore()+"  "+awayTeam.name)
+            .setCancelable(false)
+            .setPositiveButton("REVANCHA",(d,w)->startMatch())
+            .setNegativeButton("VOLVER AL MENÚ",(d,w)->returnToMenu()).show();
     }
     private void returnToMenu(){matchRunning=false;if(scoreRefresh!=null)matchUiHandler.removeCallbacks(scoreRefresh);scoreboard=null;nativePause(true);buildShell();showScreen("INICIO");}
     @Override public void onBackPressed(){if(matchRunning)returnToMenu();else super.onBackPressed();}
@@ -179,6 +213,8 @@ public final class MainActivity extends Activity {
                 @Override public void onDrawFrame(javax.microedition.khronos.opengles.GL10 gl){nativeFrame();}
             });setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);}
     }
+    @Override protected void onPause(){if(game!=null)game.onPause();super.onPause();}
+    @Override protected void onResume(){super.onResume();if(game!=null)game.onResume();}
     private static native void nativeInit();
     private static native void nativeResize(int width,int height);
     private static native void nativeFrame();
