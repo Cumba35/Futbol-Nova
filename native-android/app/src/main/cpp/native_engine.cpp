@@ -16,7 +16,7 @@ GLuint program=0; GLint mvpLoc=-1,colorLoc=-1;
 int screenW=1,screenH=1; bool paused=false;
 float stickX=0,stickY=0; bool shoot=false,pass=false,skill=false,pressure=false;
 float ballX=0,ballZ=6.35f,ballY=.22f,ballVX=0,ballVY=0,ballVZ=0;
-float playerX=0,playerZ=7.0f,playerYaw=0,matchTime=0;
+float playerX=0,playerZ=7.0f,playerYaw=0,matchTime=0,matchSeconds=0; int homeScore=0,awayScore=0;
 Mesh fieldMesh{},lineMesh{},sphereMesh{},standMesh{},goalMesh{};
 std::array<V3,22> players{};
 std::array<float,22> playerHeight{};
@@ -122,15 +122,17 @@ void update(float dt){
  ballVX*=std::pow(.985f,dt*60);ballVZ*=std::pow(.985f,dt*60);
  if(ballY<.22f){ballY=.22f;ballVY=std::abs(ballVY)*.38f;if(std::abs(ballVY)<.7f)ballVY=0;}
  for(int i=0;i<22;i++){float dx=ballX-players[i].x,dz=ballZ-players[i].z;float d2=dx*dx+dz*dz;if(d2<.42f&&ballY<1.05f&&std::abs(ballVX)+std::abs(ballVZ)<3.0f){float inv=1.0f/std::max(.01f,std::sqrt(d2));ballVX=dx*inv*2.0f;ballVZ=dz*inv*2.0f;}}
+ if(ballZ < -52.5f && std::abs(ballX)<3.66f && ballY<2.44f){homeScore++;ballX=0;ballZ=0;ballY=.22f;ballVX=ballVY=ballVZ=0;}
+ else if(ballZ > 52.5f && std::abs(ballX)<3.66f && ballY<2.44f){awayScore++;ballX=0;ballZ=0;ballY=.22f;ballVX=ballVY=ballVZ=0;}
  if(std::abs(ballX)>34){ballX=std::copysign(34.0f,ballX);ballVX*=-.55f;}
  if(std::abs(ballZ)>52){ballZ=std::copysign(52.0f,ballZ);ballVZ*=-.55f;}
 }
 }
-extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeInit(JNIEnv*,jobject){makeProgram();initField();setupTeams();glEnable(GL_DEPTH_TEST);glClearColor(.015f,.045f,.075f,1);}
+extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeInit(JNIEnv*,jobject){homeScore=awayScore=0;matchSeconds=0;matchTime=0;makeProgram();initField();setupTeams();glEnable(GL_DEPTH_TEST);glClearColor(.015f,.045f,.075f,1);}
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeResize(JNIEnv*,jobject,jint w,jint h){screenW=std::max(1,(int)w);screenH=std::max(1,(int)h);glViewport(0,0,screenW,screenH);}
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeFrame(JNIEnv*,jobject){
  static double last=0; timespec ts{};clock_gettime(CLOCK_MONOTONIC,&ts);double now=ts.tv_sec+ts.tv_nsec*1e-9;float dt=last==0?0.016f:(float)std::clamp(now-last,0.001,0.04);last=now;
- if(!paused)update(dt);glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);glUseProgram(program);
+ if(!paused){update(dt);matchSeconds+=dt;}glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);glUseProgram(program);
  float aspect=(float)screenW/(float)screenH;auto proj=perspective(.92f,aspect,.1f,180.0f);
  V3 eye{playerX+0.0f,30.0f,playerZ+58.0f},center{ballX*.35f+playerX*.65f,0,ballZ*.35f+playerZ*.65f};auto vp=mul(proj,lookAt(eye,center,{0,1,0}));
  draw(standMesh,vp,model(0,0,0,1,1,1),.055f,.085f,.12f);
@@ -171,3 +173,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeSe
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativePause(JNIEnv*,jclass,jboolean value){paused=value;}
+
+extern "C" JNIEXPORT jint JNICALL Java_com_nova_futbolnova_MainActivity_nativeGetHomeScore(JNIEnv*,jclass){return homeScore;}
+extern "C" JNIEXPORT jint JNICALL Java_com_nova_futbolnova_MainActivity_nativeGetAwayScore(JNIEnv*,jclass){return awayScore;}
+extern "C" JNIEXPORT jfloat JNICALL Java_com_nova_futbolnova_MainActivity_nativeGetMatchSeconds(JNIEnv*,jclass){return matchSeconds;}
