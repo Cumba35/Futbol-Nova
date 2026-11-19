@@ -24,6 +24,8 @@ std::array<float,22> playerPace{};
 std::array<float,22> playerDribbling{};
 std::array<float,22> playerDefending{};
 std::array<int,22> playerOverall{};
+struct KeeperState { float diveTimer=0.0f; float diveX=0.0f; };
+std::array<KeeperState,2> keepers{};
 
 const char* VS="#version 300 es\nlayout(location=0) in vec3 aPos; uniform mat4 uMVP; void main(){gl_Position=uMVP*vec4(aPos,1.0);}";
 const char* FS="#version 300 es\nprecision mediump float; uniform vec4 uColor; out vec4 frag; void main(){frag=uColor;}";
@@ -75,9 +77,13 @@ void setupTeams(){
  const V3 formation[11]={{0,0,-45},{22,0,-30},{8,0,-32},{-8,0,-32},{-22,0,-30},{0,0,-10},{15,0,-8},{-15,0,-8},{22,0,18},{0,0,24},{-22,0,18}};
  for(int i=0;i<22;i++){playerHeight[i]=175.0f;playerPace[i]=72.0f;playerDribbling[i]=70.0f;playerDefending[i]=70.0f;playerOverall[i]=70;}
  for(int i=0;i<11;i++){players[i]=formation[i];players[11+i]={formation[i].x,0,-formation[i].z};}
+ players[0]={0,0,-49.5f}; players[11]={0,0,49.5f}; keepers={};
 }
 void drawPlayer(const std::array<float,16>&vp,V3 p,bool home,float yaw,int slot){
- float r=home?.10f:.86f,g=home?.68f:.16f,b=home?.20f:.19f;
+ bool goalkeeper=(slot%11)==0;
+ float r=goalkeeper?.92f:(home?.10f:.86f),g=goalkeeper?.72f:(home?.68f:.16f),b=goalkeeper?.12f:(home?.20f:.19f);
+ float dive=(goalkeeper?keepers[(size_t)(slot/11)].diveTimer:0.0f);
+ if(goalkeeper){p.x+=keepers[(size_t)(slot/11)].diveX*(dive>0?.48f:0.0f);p.y+=dive>0?std::sin((.48f-dive)/.48f*3.14159f)*.30f:0.0f;}
  float h=std::clamp(playerHeight[slot]/175.0f,.92f,1.08f);
  float athletic=std::clamp(.96f+playerOverall[slot]/1750.0f,.98f,1.06f);
  float stride=std::sin(matchTime*7.2f+slot*1.31f)*.13f;
@@ -88,6 +94,10 @@ void drawPlayer(const std::array<float,16>&vp,V3 p,bool home,float yaw,int slot)
  draw(sphereMesh,vp,model(p.x,p.y+.66f*h,p.z,.24f*athletic,.19f*h,.19f,yaw),.055f,.065f,.075f);
  draw(sphereMesh,vp,model(p.x,p.y+1.57f*h,p.z,.17f*h,.18f*h,.17f*h),.88f,.72f,.58f);
  draw(sphereMesh,vp,model(p.x,p.y+1.70f*h,p.z,.17f*h,.055f*h,.17f*h),.10f,.075f,.055f);
+ if(goalkeeper){
+  draw(sphereMesh,vp,model(p.x-.39f,p.y+.91f*h,p.z,.105f,.095f,.11f,yaw),.94f,.94f,.90f);
+  draw(sphereMesh,vp,model(p.x+.39f,p.y+.91f*h,p.z,.105f,.095f,.11f,yaw),.94f,.94f,.90f);
+ }
  // Sleeves follow the shirt color; forearms remain skin-toned.
  draw(sphereMesh,vp,model(p.x-.29f*athletic,p.y+1.17f*h,p.z+armSwing,.105f,.18f*h,.105f,yaw),r,g,b);
  draw(sphereMesh,vp,model(p.x+.29f*athletic,p.y+1.17f*h,p.z-armSwing,.105f,.18f*h,.105f,yaw),r,g,b);
@@ -101,6 +111,64 @@ void drawPlayer(const std::array<float,16>&vp,V3 p,bool home,float yaw,int slot)
  draw(sphereMesh,vp,model(p.x-.12f,p.y+.065f*h,p.z+stride*1.6f-.045f,.09f,.065f*h,.15f,yaw),.055f,.06f,.065f);
  draw(sphereMesh,vp,model(p.x+.12f,p.y+.065f*h,p.z-stride*1.6f-.045f,.09f,.065f*h,.15f,yaw),.055f,.06f,.065f);
 }
+void updateKeeper(int team,float dt){
+ int slot=team==0?0:11;
+ float direction=team==0?-1.0f:1.0f;
+ float goalZ=direction*52.5f;
+ float homeLine=direction*49.5f;
+ KeeperState &state=keepers[(size_t)team];
+ state.diveTimer=std::max(0.0f,state.diveTimer-dt);
+ float targetX=std::clamp(ballX*.20f,-2.7f,2.7f);
+ bool ballComing=(ballVZ*direction)>0.8f && (ballZ*direction)>34.0f;
+ float interceptTime=-1.0f;
+ if(ballComing){
+  interceptTime=(goalZ-ballZ)/ballVZ;
+  if(interceptTime>=0.0f&&interceptTime<1.25f)
+   targetX=std::clamp(ballX+ballVX*interceptTime,-3.0f,3.0f);
+  else interceptTime=-1.0f;
+ }
+ float speed=state.diveTimer>0?7.2f:5.0f;
+ float dx=targetX-players[(size_t)slot].x;
+ players[(size_t)slot].x+=std::clamp(dx,-speed*dt,speed*dt);
+ float targetZ=homeLine;
+ if((ballZ*direction)>38.0f && (ballZ*direction)<51.0f)
+  targetZ=homeLine-direction*.65f;
+ float dz=targetZ-players[(size_t)slot].z;
+ players[(size_t)slot].z+=std::clamp(dz,-3.2f*dt,3.2f*dt);
+ players[(size_t)slot].x=std::clamp(players[(size_t)slot].x,-3.15f,3.15f);
+ players[(size_t)slot].z=std::clamp(players[(size_t)slot].z,team==0?-51.0f:48.8f,team==0?-48.8f:51.0f);
+ if(state.diveTimer<=0.0f && ballComing && interceptTime>=0.0f &&
+    interceptTime<.62f && ballY<2.15f &&
+    std::abs((ballX+ballVX*interceptTime)-players[(size_t)slot].x)<1.65f){
+  state.diveTimer=.48f;
+  state.diveX=(ballX+ballVX*interceptTime)>=players[(size_t)slot].x?1.0f:-1.0f;
+ }
+}
+void collideGoalFrame(float oldX,float oldY,float oldZ){
+ for(float sign:{-1.0f,1.0f}){
+  float goalZ=sign*53.0f;
+  for(float postX:{-3.66f,3.66f}){
+   float cy=std::clamp(ballY,.10f,2.44f);
+   float dx=ballX-postX,dy=ballY-cy,dz=ballZ-goalZ;
+   float d2=dx*dx+dy*dy+dz*dz;
+   if(d2<.32f*.32f){
+    float d=std::sqrt(std::max(d2,.0001f)),nx=dx/d,ny=dy/d,nz=dz/d;
+    ballX=postX+nx*.32f;ballY=cy+ny*.32f;ballZ=goalZ+nz*.32f;
+    float vn=ballVX*nx+ballVY*ny+ballVZ*nz;
+    if(vn<0){ballVX-=1.65f*vn*nx;ballVY-=1.65f*vn*ny;ballVZ-=1.65f*vn*nz;}
+   }
+  }
+  float cx=std::clamp(ballX,-3.66f,3.66f);
+  float dx=ballX-cx,dy=ballY-2.44f,dz=ballZ-goalZ;
+  float d2=dx*dx+dy*dy+dz*dz;
+  if(d2<.32f*.32f){
+   float d=std::sqrt(std::max(d2,.0001f)),nx=dx/d,ny=dy/d,nz=dz/d;
+   ballX=cx+nx*.32f;ballY=2.44f+ny*.32f;ballZ=goalZ+nz*.32f;
+   float vn=ballVX*nx+ballVY*ny+ballVZ*nz;
+   if(vn<0){ballVX-=1.65f*vn*nx;ballVY-=1.65f*vn*ny;ballVZ-=1.65f*vn*nz;}
+  }
+ }
+}
 void update(float dt){
  matchTime+=dt;
  float controlledPace=std::clamp(playerPace[9]/75.0f,.75f,1.30f);
@@ -109,30 +177,83 @@ void update(float dt){
  if(std::abs(stickX)+std::abs(stickY)>.08f)playerYaw=std::atan2(stickX,stickY);
  players[9]={playerX,0,playerZ};
  const V3 formation[11]={{0,0,-45},{22,0,-30},{8,0,-32},{-8,0,-32},{-22,0,-30},{0,0,-10},{15,0,-8},{-15,0,-8},{22,0,18},{0,0,24},{-22,0,18}};
- for(int i=0;i<22;i++){if(i==9)continue;int local=i%11;float dir=i<11?1.0f:-1.0f;V3 base=formation[local];float support=std::clamp(ballZ/70.0f,-.22f,.22f);float tx=base.x+std::clamp(ballX*.18f,-7.0f,7.0f);float tz=(i<11?base.z:-base.z)+support*12.0f;
- float dx=tx-players[i].x,dz=tz-players[i].z;float d=std::sqrt(dx*dx+dz*dz);float speed=(2.0f+playerPace[i]*.025f)*(pressure&&i<11?1.65f:1.0f);
- if(d>.08f){float step=std::min(d,speed*dt);players[i].x+=dx/d*step;players[i].z+=dz/d*step;}
+ for(int i=0;i<22;i++){
+  if(i==0||i==9||i==11)continue;
+  int local=i%11;
+  V3 base=formation[local];
+  float support=std::clamp(ballZ/70.0f,-.22f,.22f);
+  float tx=base.x+std::clamp(ballX*.18f,-7.0f,7.0f);
+  float tz=(i<11?base.z:-base.z)+support*12.0f;
+  float dx=tx-players[(size_t)i].x,dz=tz-players[(size_t)i].z;
+  float d=std::sqrt(dx*dx+dz*dz);
+  float speed=(2.0f+playerPace[(size_t)i]*.025f)*(pressure&&i<11?1.65f:1.0f);
+  if(d>.08f){float step=std::min(d,speed*dt);players[(size_t)i].x+=dx/d*step;players[(size_t)i].z+=dz/d*step;}
  }
+ updateKeeper(0,dt);
+ updateKeeper(1,dt);
  float dx=std::sin(playerYaw),dz=-std::cos(playerYaw);
  float ballDistance=std::sqrt((ballX-playerX)*(ballX-playerX)+(ballZ-playerZ)*(ballZ-playerZ));
  bool controlledPossession=ballDistance<1.45f&&ballY<1.1f;
  if((pass||shoot)&&controlledPossession){
-  float power=shoot?25.0f:15.0f;ballVX=dx*power;ballVZ=dz*power;ballVY=shoot?7.0f:2.0f;
+  float power=shoot?25.0f:15.0f;
+  ballVX=dx*power;ballVZ=dz*power;ballVY=shoot?7.0f:2.0f;
   ballX=playerX+dx*.72f;ballZ=playerZ+dz*.72f;ballY=.35f;
  }
  if(skill&&controlledPossession){ballX=playerX+dx*.95f;ballZ=playerZ+dz*.95f;ballY=.24f;ballVX=dx*2.4f;ballVZ=dz*2.4f;ballVY=.15f;}
  shoot=false;pass=false;skill=false;
- if(controlledPossession&&!pressure&&ballDistance<1.1f){ballX=playerX+dx*.72f;ballZ=playerZ+dz*.72f;ballY=.24f;ballVX=stickX*5.0f;ballVZ=-stickY*5.0f;}
- else {ballX+=ballVX*dt;ballY+=ballVY*dt;ballZ+=ballVZ*dt;}
- ballVY-=9.81f*dt;
+ if(controlledPossession&&!pressure&&ballDistance<1.1f){
+  ballX=playerX+dx*.72f;ballZ=playerZ+dz*.72f;ballY=.24f;
+  ballVX=stickX*5.0f;ballVZ=-stickY*5.0f;
+ }
+ float oldX=ballX,oldY=ballY,oldZ=ballZ;
+ if(!controlledPossession||pressure){
+  ballX+=ballVX*dt;ballY+=ballVY*dt;ballZ+=ballVZ*dt;
+  ballVY-=9.81f*dt;
+ }
  ballVX*=std::pow(.985f,dt*60);ballVZ*=std::pow(.985f,dt*60);
  if(ballY<.22f){ballY=.22f;ballVY=std::abs(ballVY)*.38f;if(std::abs(ballVY)<.7f)ballVY=0;}
- for(int i=0;i<22;i++){float dx=ballX-players[i].x,dz=ballZ-players[i].z;float d2=dx*dx+dz*dz;if(d2<.42f&&ballY<1.05f&&std::abs(ballVX)+std::abs(ballVZ)<3.0f){float inv=1.0f/std::max(.01f,std::sqrt(d2));ballVX=dx*inv*2.0f;ballVZ=dz*inv*2.0f;}}
- if(ballZ > 52.5f && std::abs(ballX)<3.66f && ballY<2.44f){homeScore++;playerX=0;playerZ=0;players[9]={0,0,0};ballX=0;ballZ=.72f;ballY=.22f;ballVX=ballVY=ballVZ=0;}
- else if(ballZ < -52.5f && std::abs(ballX)<3.66f && ballY<2.44f){awayScore++;playerX=0;playerZ=0;players[9]={0,0,0};ballX=0;ballZ=.72f;ballY=.22f;ballVX=ballVY=ballVZ=0;}
+ // Continuous horizontal collision check prevents fast shots tunnelling through players.
+ float segX=ballX-oldX,segZ=ballZ-oldZ,segLen2=segX*segX+segZ*segZ;
+ float ballSpeed=std::sqrt(ballVX*ballVX+ballVZ*ballVZ);
+ if(ballSpeed>1.0f || !controlledPossession){
+  for(int i=0;i<22;i++){
+   if(i==9&&controlledPossession)continue;
+   float px=players[(size_t)i].x,pz=players[(size_t)i].z;
+   float t=segLen2>.0001f?std::clamp(((px-oldX)*segX+(pz-oldZ)*segZ)/segLen2,0.0f,1.0f):1.0f;
+   float cx=oldX+segX*t,cz=oldZ+segZ*t;
+   float ox=cx-px,oz=cz-pz;
+   bool keeper=(i==0||i==11);
+   float radius=keeper?(.94f+(keepers[(size_t)(i/11)].diveTimer>0?.22f:0.0f)):.57f;
+   float verticalLimit=keeper?2.05f:1.72f;
+   float d2=ox*ox+oz*oz;
+   if(d2<radius*radius && ballY<verticalLimit && ballY>.12f){
+    float d=std::sqrt(std::max(d2,.0001f));
+    float nx, nz;
+    if(d<.01f){float vl=std::max(.01f,ballSpeed);nx=-ballVX/vl;nz=-ballVZ/vl;}
+    else{nx=ox/d;nz=oz/d;}
+    ballX=cx+nx*(radius+.02f);ballZ=cz+nz*(radius+.02f);
+    float vn=ballVX*nx+ballVZ*nz;
+    if(vn<0){float restitution=keeper?.78f:.48f;ballVX-=(1.0f+restitution)*vn*nx;ballVZ-=(1.0f+restitution)*vn*nz;}
+    if(keeper){ballVY=std::max(ballVY,.9f);keepers[(size_t)(i/11)].diveTimer=std::max(keepers[(size_t)(i/11)].diveTimer,.16f);}
+    break;
+   }
+  }
+ }
+ collideGoalFrame(oldX,oldY,oldZ);
+ bool homeGoal=(oldZ<53.0f&&ballZ>=53.0f&&std::abs(ballX)<3.44f&&ballY<2.22f);
+ bool awayGoal=(oldZ>-53.0f&&ballZ<=-53.0f&&std::abs(ballX)<3.44f&&ballY<2.22f);
+ if(homeGoal){
+  homeScore++;playerX=0;playerZ=0;players[9]={0,0,0};players[0]={0,0,-49.5f};players[11]={0,0,49.5f};
+  ballX=0;ballZ=.72f;ballY=.22f;ballVX=ballVY=ballVZ=0;keepers={};
+ }else if(awayGoal){
+  awayScore++;playerX=0;playerZ=0;players[9]={0,0,0};players[0]={0,0,-49.5f};players[11]={0,0,49.5f};
+  ballX=0;ballZ=.72f;ballY=.22f;ballVX=ballVY=ballVZ=0;keepers={};
+ }
  if(std::abs(ballX)>34){ballX=std::copysign(34.0f,ballX);ballVX*=-.55f;}
- if(std::abs(ballZ)>52){ballZ=std::copysign(52.0f,ballZ);ballVZ*=-.55f;}
-}
+ if(ballZ>52.0f && ballZ<53.0f){ballZ=52.0f;ballVZ=-std::abs(ballVZ)*.55f;}
+ if(ballZ<-52.0f && ballZ>-53.0f){ballZ=-52.0f;ballVZ=std::abs(ballVZ)*.55f;}
+ if(ballZ>55.0f){ballZ=55.0f;ballVZ=-std::abs(ballVZ)*.45f;}
+ if(ballZ<-55.0f){ballZ=-55.0f;ballVZ=std::abs(ballVZ)*.45f;}
 }
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeInit(JNIEnv*,jobject){homeScore=awayScore=0;matchSeconds=0;matchTime=0;makeProgram();initField();setupTeams();glEnable(GL_DEPTH_TEST);glClearColor(.015f,.045f,.075f,1);}
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeResize(JNIEnv*,jobject,jint w,jint h){screenW=std::max(1,(int)w);screenH=std::max(1,(int)h);glViewport(0,0,screenW,screenH);}
