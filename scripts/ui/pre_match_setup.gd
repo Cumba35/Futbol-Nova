@@ -343,13 +343,8 @@ func _get_combined_team_roster(team_id: String) -> Array:
 	var registry: Variant = _get_football_registry()
 	if registry == null or not registry.teams_by_id.has(team_id):
 		return []
-	var roster: Array = registry.get_team_roster(team_id)
-	var service := _get_custom_roster_service()
-	if service != null:
-		for player in service.call("get_players_for_team", team_id):
-			if player is Dictionary and not str(player.get("id", "")).is_empty():
-				roster.append(player)
-	return roster
+	# The shared registry already merges official and assigned custom players.
+	return registry.get_team_roster(team_id)
 
 func _get_football_registry() -> Variant:
 	var football_data_service: Node = get_node_or_null("/root/FootballData")
