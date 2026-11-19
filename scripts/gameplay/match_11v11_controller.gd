@@ -172,6 +172,7 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 	_away_team_id = away_team_id
 	_resolve_team_colors(home_team_id, away_team_id)
 	_player.global_position = home_lineup[9].position
+	_player.set_meta("nova_player_profile", home_lineup[9].get("profile", {}).duplicate(true))
 	_player.rotation.y = 0.0
 	for index in range(home_lineup.size()):
 		if index == 9:
