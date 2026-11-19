@@ -97,6 +97,27 @@ jobs:
           echo "GODOT_ANDROID_KEYSTORE_DEBUG_USER=androiddebugkey" >> "$GITHUB_ENV"
           echo "GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD=android" >> "$GITHUB_ENV"
 
+      - name: Configure Godot Android export SDK paths
+        shell: bash
+        run: |
+          test -x "$JAVA_HOME/bin/java"
+          test -x "$ANDROID_HOME/platform-tools/adb"
+          test -f "$RUNNER_TEMP/futbol-nova-debug.keystore"
+          mkdir -p "$HOME/.config/godot"
+          cat > "$HOME/.config/godot/editor_settings-4.4.tres" <<EOF
+          [gd_resource type="EditorSettings" format=3]
+
+          [resource]
+          export/android/java_sdk_path = "$JAVA_HOME"
+          export/android/android_sdk_path = "$ANDROID_HOME"
+          export/android/debug_keystore = "$RUNNER_TEMP/futbol-nova-debug.keystore"
+          export/android/debug_keystore_user = "androiddebugkey"
+          export/android/debug_keystore_pass = "android"
+          EOF
+          echo "Godot Android SDK: $ANDROID_HOME"
+          echo "Godot Java SDK: $JAVA_HOME"
+          echo "Godot editor settings configured for 4.4.1"
+
       - name: Verify raw source datasets stay outside Godot resource imports
         shell: bash
         run: |
