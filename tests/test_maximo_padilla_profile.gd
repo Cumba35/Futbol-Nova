@@ -70,15 +70,17 @@ func _run() -> void:
 	var collision := instance.get_node_or_null("CollisionShape3D") as CollisionShape3D
 	assert(collision != null and collision.shape is CapsuleShape3D, "El jugador necesita una cápsula de colisión")
 	assert(is_equal_approx((collision.shape as CapsuleShape3D).height, 1.8), "La colisión debe corresponder a 180 cm")
-	root.add_child(instance)
-	# _ready() builds the procedural mesh. Stop controller physics immediately
-	# after entering the tree; this test validates the visual, not live movement.
+	# Disable inherited gameplay physics BEFORE entering the SceneTree.
+	# add_child() runs _ready() synchronously; disabling afterwards can allow
+	# one or more physics callbacks to query missing actions in isolated --script
+	# runs before the test reaches the next line.
 	instance.set_physics_process(false)
+	root.add_child(instance)
 	await process_frame
 	var visual := instance.get_node_or_null("MaximoPadillaVisual3D") as Node3D
 	assert(visual != null, "El controlador debe construir el modelo visual 3D")
 	assert(visual.get_node_or_null("shirt_name_padilla") is Label3D, "La camiseta debe mostrar PADILLA como texto 3D")
-	assert(visual.get_node_or_null("shirt_number_30") is Label3D, "La camiseta debe mostrar el dorsal 23 como texto 3D")
+	assert(visual.get_node_or_null("shirt_number_30") is Label3D, "La camiseta debe mostrar el dorsal 30 como texto 3D")
 	assert(visual.get_node_or_null("inner_shirt_sleeve_right") != null, "Debe existir la manga interior de compresión")
 	print("MAXIMO_PROFILE_TEST: 3D scene validated")
 	instance.queue_free()
