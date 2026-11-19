@@ -106,14 +106,14 @@ func _initialize() -> void:
 		failures.append("Database: no recupera resultados de partidos")
 	if db.commit_match_and_competition_state("stage_test", "season_test", result, fixtures, standings):
 		failures.append("Database: permitió duplicar el mismo resultado")
-	var restored := db.get_competition_state("stage_test")
+	var restored: Dictionary = db.get_competition_state("stage_test")
 	if restored.is_empty() or restored.get("fixtures", []).size() != 1:
 		failures.append("Database: no recupera el estado de competición")
 	if not db.save_season_state("season_test", {"round": 3, "complete": false}) or db.get_season_state("season_test").is_empty():
 		failures.append("Database: no guarda y consulta temporadas")
 	if not db.save_career_record("career_test", {"mode": "legend", "player_id": "p_test"}) or db.get_career_record("career_test").is_empty():
 		failures.append("Database: no guarda y consulta carreras")
-	var summary := db.get_summary()
+	var summary: Dictionary = db.get_summary()
 	if int(summary.get("match_results", 0)) < 1 or int(summary.get("audit_events", 0)) < 4:
 		failures.append("Database: resumen o bitácora incompletos")
 	var source_registry = Registry.new()
