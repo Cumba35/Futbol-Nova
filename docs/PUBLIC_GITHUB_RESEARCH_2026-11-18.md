@@ -85,3 +85,16 @@ La investigación se realizó sobre README, páginas de repositorio, documentaci
 Durante la inspección de `scripts/gameplay/match_11v11_controller.gd` se encontró una regresión funcional en la liberación de la posesión: las ramas de futbolistas de campo y porteros llamaban a `_clear_ball_possession()`, pero el impulso estaba dentro de la rama alternativa que nunca se ejecutaba cuando la IA era realmente dueña del balón. La corrección propia centraliza la liberación y el impulso en `apply_ai_kick()` y añade una prueba con `RigidBody3D`.
 
 La búsqueda pública se mantiene como fuente de ideas, no como permiso para copiar. Se revisaron las referencias previas `noddy703/tacticmesh`, `RobinNunkesser/gd-godot-crazy-cage-football` y `abotbro/godot-football-engine`; ninguna justifica reemplazar el motor propio ni importar assets sin una auditoría de licencia por archivo.
+
+
+## Búsqueda adicional de alternativas públicas — 19 noviembre 2026
+
+Se amplió la búsqueda en GitHub con repositorios Godot/GDScript de fútbol. Se revisaron README y, cuando estaba disponible, el archivo LICENSE; no se incorporó código ni contenido gráfico externo.
+
+| Proyecto | Evidencia consultada | Valor para Fútbol Nova | Decisión |
+|---|---|---|---|
+| [ginseng-pixel/soccer-game](https://github.com/ginseng-pixel/soccer-game) | README breve y licencia MIT verificada | Confirma un proyecto de fútbol en Godot, pero la documentación consultada no describe arquitectura, mecánicas o pruebas que permitan extraer una mejora concreta | Mantener como candidato para una auditoría futura del código; no copiar sin revisar cada archivo y sus dependencias |
+| [mamipour/shootball](https://github.com/mamipour/shootball) | README y licencia CC BY-NC 4.0 verificados; Godot 4.6, juego de fichas/discos 2D, IA de tiros y servidor Nakama/TypeScript para online | Ideas de alto nivel para evaluación de trayectorias y repetición determinista, pero el modelo físico y el modo de juego no corresponden al fútbol 3D 11v11. Requiere servicio externo para online y la licencia prohíbe uso comercial | No integrar ni copiar al juego base; no añadir backend ni dependencias de red |
+| [richardschembri/GodotBasic3DFootball](https://github.com/richardschembri/GodotBasic3DFootball) | README y project.godot; prototipo 3D de estudio, controles teclado para dos jugadores; no se encontró archivo LICENSE en la ruta revisada | Referencia visual muy básica, sin evidencia de una arquitectura de partido completa ni de compatibilidad móvil actual | No copiar código ni assets por licencia no confirmada y por falta de ventajas técnicas verificadas |
+
+La búsqueda refuerza que Fútbol Nova debe conservar su simulación Godot 4.4.1 propia, local y offline. Se priorizan mejoras pequeñas con pruebas reproducibles frente a importar motores completos, código de licencia incompatible o servicios de terceros.
