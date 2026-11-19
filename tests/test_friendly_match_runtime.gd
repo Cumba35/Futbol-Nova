@@ -42,6 +42,9 @@ func _run_acceptance_test() -> void:
 		failures.append("La escena principal no creó el menú de juego.")
 	if game.match_11v11_controller == null:
 		failures.append("La escena principal no creó el motor de partido 11 contra 11.")
+	var stadium = game.get_node_or_null("NovaStadium")
+	if stadium == null or stadium.get_child_count() < 20:
+		failures.append("El estadio base procedural no se creó completo.")
 	var football_data_service: Node = root.get_node_or_null("FootballData")
 	var football_registry: Variant = football_data_service.get("registry") if football_data_service != null else null
 	if football_registry == null:
@@ -103,8 +106,18 @@ func _run_acceptance_test() -> void:
 				failures.append("El botón Iniciar amistoso está bloqueado pese a existir dos clubes válidos.")
 			var selected_home_id: String = str(setup._selected_team_id(setup._home_teams))
 			var selected_away_id: String = str(setup._selected_team_id(setup._away_teams))
-			var expected_home_name := str(football_registry.teams_by_id.get(selected_home_id, {}).get("name", selected_home_id))
-			var expected_away_name := str(football_registry.teams_by_id.get(selected_away_id, {}).get("name", selected_away_id))
+			if selected_home_id != "FN-ESP-REAL-MADRID":
+				failures.append("El amistoso no seleccionó Real Madrid como equipo local a la izquierda.")
+			if selected_away_id != "FN-ESP-BARCELONA":
+				failures.append("El amistoso no seleccionó Barcelona como visitante a la derecha.")
+			if setup._home_lineup_preview == null or setup._home_lineup_preview.text.split("\\n").size() != 12:
+				failures.append("La pantalla no muestra los once titulares del equipo local.")
+			if setup._away_lineup_preview == null or setup._away_lineup_preview.text.split("\\n").size() != 12:
+				failures.append("La pantalla no muestra los once titulares del equipo visitante.")
+			if setup._stadium_option == null or setup._stadium_option.item_count < 1:
+				failures.append("La pantalla previa no ofrece un estadio base jugable.")
+			var expected_home_name := setup._team_match_display_name(selected_home_id, football_registry.teams_by_id.get(selected_home_id, {}))
+			var expected_away_name := setup._team_match_display_name(selected_away_id, football_registry.teams_by_id.get(selected_away_id, {}))
 			if selected_home_id.is_empty() or selected_away_id.is_empty() or selected_home_id == selected_away_id:
 				failures.append("La selección inicial no contiene dos clubes distintos.")
 			else:
@@ -112,6 +125,8 @@ func _run_acceptance_test() -> void:
 				await process_frame
 				print("FRIENDLY_TEST: friendly match started")
 				var summary: Dictionary = game.match_11v11_controller.get_match_summary()
+				if game.current_stadium_id != "nova_stadium_main":
+					failures.append("El partido no conservó el estadio base seleccionado.")
 				if not bool(summary.get("active", false)):
 					failures.append("El motor rechazó el amistoso iniciado desde la pantalla de preparación.")
 				if int(summary.get("home_players", 0)) != 11:
