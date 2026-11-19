@@ -123,7 +123,7 @@ func _build_interface() -> void:
 	column.add_child(heading)
 
 	var description := Label.new()
-	description.text = "Selecciona dos clubes con plantillas verificadas. La selección solo afecta a este encuentro."
+	description.text = "Selecciona dos clubes con plantillas Nova completas. Los perfiles son ficticios y la selección solo afecta a este encuentro."
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	description.add_theme_color_override("font_color", MUTED)
@@ -421,7 +421,7 @@ func _refresh_validation() -> void:
 	if home_id == away_id and not home_id.is_empty():
 		_summary.text = "El equipo local y el visitante deben ser diferentes."
 	elif valid:
-		_summary.text = "Plantillas verificadas: %d jugadores locales y %d visitantes. Alineaciones iniciales: 11 por equipo." % [home_roster.size(), away_roster.size()]
+		_summary.text = "Plantillas Nova completas: %d perfiles locales y %d visitantes. Once inicial: 11 por equipo." % [home_roster.size(), away_roster.size()]
 	else:
 		_summary.text = "No se pudo validar una de las plantillas. El partido permanece bloqueado."
 
