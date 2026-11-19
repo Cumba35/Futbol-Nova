@@ -87,3 +87,7 @@ Las opciones deben conservar el idioma español y guardar las preferencias en el
 - La prueba tests/test_nova_preferences_service.gd verifica escritura, lectura en una segunda instancia y restauración del estado de audio.
 - El workflow Android incluye esta prueba.
 - Límite explícito: el proyecto aún no define buses separados para música, efectos y comentarios. La pantalla informa esa limitación y no presenta controles independientes ficticios.
+
+
+- La regresión principal de Game Hub también comprueba ahora que el control deslizante modifica el volumen Master y que el interruptor aplica el silencio, restaurando al final el estado previo del test.
+- La nueva prueba aislada de NovaPreferences verifica persistencia en una segunda instancia.
