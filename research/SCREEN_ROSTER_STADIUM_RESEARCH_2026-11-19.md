@@ -101,4 +101,4 @@ El mismo run falló en tests/test_maximo_padilla_profile.gd: el script de carrer
 
 Corrección aplicada en scripts/legend/legend_career_service.gd, commit 1efc90260a8d24e19d0d8b0dd335181a1ece4518: ambas rutas resuelven /root/FootballDatabase con get_node_or_null y usan call() solo si el autoload existe. Se releyó el archivo desde GitHub y se verificó que ya no quedan referencias globales directas a FootballDatabase en el script.
 
-Nuevo run #193 (44444407781) disparado por el cambio de código, SHA 1efc90260a8d24e19d0d8b0dd335181a1ece4518; estado al documentar: en ejecución, todavía en configuración del entorno Godot. Las pruebas de Máximo, diez ligas, regresiones y exportación APK siguen pendientes de resultado de este nuevo run. No declarar aún APK ni CI global aprobados.
+Nuevo run #193 (44444407781) disparado por el cambio de código, SHA 1efc90260a8d24e19d0d8b0dd335181a1ece4518; estado al documentar: en ejecución; configuración de Godot y firma temporal completadas, importación de recursos en curso. Las pruebas de Máximo, diez ligas, regresiones y exportación APK siguen pendientes de resultado de este nuevo run. No declarar aún APK ni CI global aprobados.
