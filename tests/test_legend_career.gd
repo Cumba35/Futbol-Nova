@@ -8,6 +8,8 @@ func _initialize() -> void:
 
 func _run_tests() -> void:
 	var service := LegendService.new()
+	service.persistence_path = "user://legend_career_test.json"
+	service.sync_to_database = false
 	root.add_child(service)
 	var invalid := service.start_career({"full_name": "Jugador Inválido", "age": 13, "primary_position": "MCO", "specialization": "velocista"})
 	assert(not bool(invalid.get("ok", false)), "No se debe permitir crear un jugador menor de 14 años")
@@ -203,5 +205,15 @@ func _run_tests() -> void:
 	assert(not bool(wrong_team_match.get("ok", false)), "No debe registrar estadísticas para un club distinto al del futbolista")
 
 
+	var restored_service := LegendService.new()
+	restored_service.persistence_path = service.persistence_path
+	restored_service.sync_to_database = false
+	root.add_child(restored_service)
+	assert(restored_service.load_career(), "La carrera de prueba debe poder recuperarse desde su archivo aislado")
+	assert(str(restored_service.get_career_state().player.get("source_player_id", "")) == "FN-PLAYER-CATALOG-TEST", "La persistencia debe conservar la identidad del jugador del catálogo")
+	for suffix in ["", ".tmp", ".bak"]:
+		var test_path := ProjectSettings.globalize_path(service.persistence_path + suffix)
+		if FileAccess.file_exists(service.persistence_path + suffix):
+			DirAccess.remove_absolute(test_path)
 	print("FUTBOL_NOVA_LEGEND_CAREER_TESTS: PASS")
 	quit(0)
