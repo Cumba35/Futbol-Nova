@@ -203,8 +203,8 @@ func _create_stadium() -> void:
 			_add_stadium_block(stadium, "EndStand_%d_%d" % [tier, int(side)], Vector3(FIELD_WIDTH + 18.0, tier_height, tier_width), Vector3(0.0, y, side * (FIELD_LENGTH * 0.5 + offset)), stand_materials[tier])
 			for row in range(3):
 				var row_y := y - tier_height * 0.5 + 0.45 + row * 0.55
-				var face_x := side * (FIELD_WIDTH * 0.5 + offset - tier_width * 0.5 - 0.06)
-				var face_z := side * (FIELD_LENGTH * 0.5 + offset - tier_width * 0.5 - 0.06)
+				var face_x: float = side * (FIELD_WIDTH * 0.5 + offset - tier_width * 0.5 - 0.06)
+				var face_z: float = side * (FIELD_LENGTH * 0.5 + offset - tier_width * 0.5 - 0.06)
 				var seat_material: Material = seat_materials[(tier + row) % seat_materials.size()]
 				_add_stadium_block(stadium, "LongStandSeats_%d_%d_%d" % [tier, int(side), row], Vector3(0.16, 0.18, FIELD_LENGTH + 17.0), Vector3(face_x, row_y, 0.0), seat_material)
 				_add_stadium_block(stadium, "EndStandSeats_%d_%d_%d" % [tier, int(side), row], Vector3(FIELD_WIDTH + 17.0, 0.18, 0.16), Vector3(0.0, row_y, face_z), seat_material)
@@ -580,7 +580,7 @@ func _on_skill_circle_gesture_completed() -> void:
 func _on_goal_body_entered(body: Node3D, _scoring_side: String) -> void:
 	if body != ball:
 		return
-	var active_match := match_11v11_controller != null and match_11v11_controller.is_match_active()
+	var active_match: bool = match_11v11_controller != null and match_11v11_controller.is_match_active()
 	var active_training := not current_training_mode_id.is_empty()
 	if not active_match and not active_training:
 		return
