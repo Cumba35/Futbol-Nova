@@ -130,3 +130,10 @@ Limitaciones que siguen pendientes:
 - Investigación de código público: `TheAmgadX/Soccer-AI` usa C++17 y máquinas de estado para jugadores, portero y tácticas; es 2D y depende de SDL2, por lo que sirve como referencia conceptual de IA, no como integración directa al render nativo OpenGL ES. `Ademola-Game-dev/League-Soccer` documenta motor 3D, 22 jugadores, IA y OpenGL, con licencia Apache-2.0; es una referencia para estudiar arquitectura y reglas, pero su plataforma/dependencias no se integran directamente al runtime Android actual. `FlavioMili/Player12` aporta ideas de simulación compartida para movimiento, balón, fatiga, presión y portería, pero su C++23/SDL3 no coincide con el C++17/Android de NOVA. No se copió código de terceros en esta fase.
 - La compilación exitosa confirma build y verificación del artefacto ARM64, no funcionamiento visual ni estabilidad en un teléfono. Sigue pendiente instalar y jugar el amistoso en Android.
 - Siguiente prioridad técnica: validar y corregir límites de movimiento de porteros después de la resolución de contactos; después, mejorar IA de campo para que presione, cubra líneas de pase y apoye al poseedor, en lugar de limitarse a posiciones de formación. Mantener pruebas de tiros altos/rasos, paradas, postes/travesaño, goles y control táctil.
+
+
+### Protección del área de portería tras contactos — 2026-11-19
+
+- Commit `14a8797f8321d2d79c6c8d4b701c69498ce45b45`: después de resolver las colisiones entre los 22 futbolistas, se vuelven a limitar las coordenadas de los porteros 0 y 11 al ancho y profundidad de sus respectivas áreas de portería. Así, el empuje de un compañero o rival no los deja fuera del corredor que deben defender.
+- Relectura de `native_engine.cpp` desde GitHub confirmó las cuatro restricciones de coordenadas; blob SHA `79f8d4fb4e186115b68b4a5fd3ac8760009c14a1`.
+- La ejecución CI `44640261718` valida el commit anterior de colisiones generales, no este ajuste. El cambio nuevo requiere su propia compilación antes de considerarse validado. Si no aparece ejecución automática, revisar el evento/path trigger del workflow y lanzar una compilación manual cuando esté disponible.
