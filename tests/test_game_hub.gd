@@ -215,6 +215,15 @@ func _run_tests() -> void:
 	if preferences != null:
 		preferences.call("set_master_volume", saved_volume)
 		preferences.call("set_master_muted", saved_mute)
+	hub._open_settings_category("Accesibilidad")
+	await process_frame
+	var ui_scale_slider := hub.content_box.find_child("UiScaleSlider", true, false) as HSlider
+	var saved_ui_scale := float(preferences.get("ui_scale")) if preferences != null else 1.0
+	_expect(ui_scale_slider != null, "Accessibility settings must expose a text-size slider")
+	if ui_scale_slider != null and preferences != null:
+		ui_scale_slider.value_changed.emit(125.0)
+		_expect(is_equal_approx(float(preferences.get("ui_scale")), 1.25), "Accessibility slider must persist the text scale")
+		preferences.call("set_ui_scale", saved_ui_scale)
 	var pause_resume_requested := [false]
 	hub.pause_resume_requested.connect(func(): pause_resume_requested[0] = true)
 	hub.open_pause_menu()
