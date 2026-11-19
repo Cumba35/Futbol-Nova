@@ -11,6 +11,11 @@ const TEMP_PATH := "user://football_database.json.tmp"
 const BACKUP_PATH := "user://football_database.json.bak"
 const MAX_AUDIT_EVENTS := 2000
 
+# Injectable paths let automated tests use an isolated database without touching player saves.
+var database_path: String = DATABASE_PATH
+var temp_path: String = TEMP_PATH
+var backup_path: String = BACKUP_PATH
+
 var database: Dictionary = {}
 var is_open := false
 var last_error := ""
@@ -35,8 +40,8 @@ func _empty_database() -> Dictionary:
 func open_database() -> bool:
 	is_open = false
 	last_error = ""
-	if not FileAccess.file_exists(DATABASE_PATH):
-		var backup_only := _read_database_file(BACKUP_PATH)
+	if not FileAccess.file_exists(database_path):
+		var backup_only := _read_database_file(backup_path)
 		if not backup_only.is_empty():
 			database = backup_only
 			if not _migrate_database() or not _validate_database() or not _commit_database():
@@ -48,15 +53,15 @@ func open_database() -> bool:
 		is_open = true
 		database_opened.emit(get_summary())
 		return true
-	var loaded := _read_database_file(DATABASE_PATH)
+	var loaded := _read_database_file(database_path)
 	if loaded.is_empty():
-		var backup := _read_database_file(BACKUP_PATH)
+		var backup := _read_database_file(backup_path)
 		if backup.is_empty():
 			return _fail("La base de datos y su copia de seguridad no se pueden leer.")
 		database = backup
 		if not _migrate_database() or not _validate_database():
 			return _fail("La copia de seguridad no superó la migración o validación.")
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(DATABASE_PATH))
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(database_path))
 		if not _commit_database():
 			return _fail("Se recuperó la copia, pero no se pudo restaurar el archivo principal.")
 		is_open = true
@@ -66,13 +71,13 @@ func open_database() -> bool:
 	if not _migrate_database():
 		return false
 	if not _validate_database():
-		var backup := _read_database_file(BACKUP_PATH)
+		var backup := _read_database_file(backup_path)
 		if backup.is_empty():
 			return _fail("La base de datos tiene referencias o estructura inválidas.")
 		database = backup
 		if not _migrate_database() or not _validate_database():
 			return _fail("La base principal y la copia de seguridad no superaron la validación.")
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(DATABASE_PATH))
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(database_path))
 		if not _commit_database():
 			return _fail("No se pudo restaurar la base de datos desde la copia de seguridad.")
 	is_open = true
@@ -581,7 +586,7 @@ func _append_audit(event_type: String, payload: Dictionary) -> void:
 func _commit_database() -> bool:
 	database["schema_version"] = SCHEMA_VERSION
 	database["updated_at"] = Time.get_datetime_string_from_system(true)
-	var file := FileAccess.open(TEMP_PATH, FileAccess.WRITE)
+	var file := FileAccess.open(temp_path, FileAccess.WRITE)
 	if file == null:
 		return _fail("No se pudo abrir el archivo temporal de la base de datos.")
 	file.store_string(JSON.stringify(database, "\t"))
@@ -590,10 +595,10 @@ func _commit_database() -> bool:
 	file.close()
 	if write_error != OK:
 		return _fail("Error al escribir la base de datos.")
-	var main_absolute := ProjectSettings.globalize_path(DATABASE_PATH)
-	var temp_absolute := ProjectSettings.globalize_path(TEMP_PATH)
-	var backup_absolute := ProjectSettings.globalize_path(BACKUP_PATH)
-	if FileAccess.file_exists(DATABASE_PATH):
+	var main_absolute := ProjectSettings.globalize_path(database_path)
+	var temp_absolute := ProjectSettings.globalize_path(temp_path)
+	var backup_absolute := ProjectSettings.globalize_path(backup_path)
+	if FileAccess.file_exists(database_path):
 		if FileAccess.file_exists(BACKUP_PATH):
 			DirAccess.remove_absolute(backup_absolute)
 		var backup_error := DirAccess.rename_absolute(main_absolute, backup_absolute)
