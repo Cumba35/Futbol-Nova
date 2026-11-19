@@ -133,6 +133,11 @@ func _run_acceptance_test() -> void:
 				await process_frame
 				print("FRIENDLY_TEST: friendly match started")
 				var summary: Dictionary = game.match_11v11_controller.get_match_summary()
+				var sample_kit_colors: Dictionary = game.match_11v11_controller.get("_team_colors")
+				if not sample_kit_colors.get("home", Color.BLACK).is_equal_approx(Color("#E7E2D5")):
+					failures.append("El representante local de Real Madrid no aplicó su equipación Nova original.")
+				if not sample_kit_colors.get("away", Color.BLACK).is_equal_approx(Color("#23556B")):
+					failures.append("El representante visitante de Barcelona no aplicó su equipación Nova original.")
 				if game.current_stadium_id != "nova_stadium_main":
 					failures.append("El partido no conservó el estadio base seleccionado.")
 				if not bool(summary.get("active", false)):
