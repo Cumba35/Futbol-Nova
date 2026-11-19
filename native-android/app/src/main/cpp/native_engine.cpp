@@ -19,6 +19,11 @@ float ballX=0,ballZ=0,ballY=.22f,ballVX=0,ballVY=0,ballVZ=0;
 float playerX=0,playerZ=7.0f,playerYaw=0,matchTime=0;
 Mesh fieldMesh{},lineMesh{},sphereMesh{};
 std::array<V3,22> players{};
+std::array<float,22> playerHeight{};
+std::array<float,22> playerPace{};
+std::array<float,22> playerDribbling{};
+std::array<float,22> playerDefending{};
+std::array<int,22> playerOverall{};
 
 const char* VS="#version 300 es\nlayout(location=0) in vec3 aPos; uniform mat4 uMVP; void main(){gl_Position=uMVP*vec4(aPos,1.0);}";
 const char* FS="#version 300 es\nprecision mediump float; uniform vec4 uColor; out vec4 frag; void main(){frag=uColor;}";
@@ -56,19 +61,23 @@ void initField(){
  line(l,34,-20,18,-20);line(l,18,-20,18,20);line(l,18,20,34,20);
  lineMesh=mesh(l,GL_LINES);sphereMesh=makeSphere();
 }
-void setupTeams(){for(int i=0;i<11;i++){int row=i/4,col=i%4;players[i]={-20.0f+col*12.0f,0,-40.0f+row*10.0f};}
+void setupTeams(){for(int i=0;i<22;i++){playerHeight[i]=175.0f;playerPace[i]=72.0f;playerDribbling[i]=70.0f;playerDefending[i]=70.0f;playerOverall[i]=70;}
+ for(int i=0;i<11;i++){int row=i/4,col=i%4;players[i]={-20.0f+col*12.0f,0,-40.0f+row*10.0f};}
  for(int i=0;i<11;i++){int row=i/4,col=i%4;players[11+i]={-20.0f+col*12.0f,0,40.0f-row*10.0f};}}
-void drawPlayer(const std::array<float,16>&vp,V3 p,bool home,float yaw){
+void drawPlayer(const std::array<float,16>&vp,V3 p,bool home,float yaw,int slot){
  float r=home?.12f:.88f,g=home?.72f:.14f,b=home?.22f:.18f;
- draw(sphereMesh,vp,model(p.x,p.y+.82f,p.z,.34f,.62f,.25f,yaw),r,g,b);
- draw(sphereMesh,vp,model(p.x,p.y+1.52f,p.z,.19f,.19f,.19f),.88f,.72f,.56f);
- draw(sphereMesh,vp,model(p.x-.13f,p.y+.24f,p.z,.11f,.30f,.12f,yaw),.08f,.08f,.10f);
- draw(sphereMesh,vp,model(p.x+.13f,p.y+.24f,p.z,.11f,.30f,.12f,yaw),.08f,.08f,.10f);
+ float h=std::clamp(playerHeight[slot]/175.0f,.92f,1.08f);
+ float athletic=std::clamp(.96f+playerOverall[slot]/1750.0f,.98f,1.06f);
+ draw(sphereMesh,vp,model(p.x,p.y+.82f*h,p.z,.34f*athletic,.62f*h,.25f,yaw),r,g,b);
+ draw(sphereMesh,vp,model(p.x,p.y+1.52f*h,p.z,.19f*h,.19f*h,.19f*h),.88f,.72f,.56f);
+ draw(sphereMesh,vp,model(p.x-.13f*athletic,p.y+.24f*h,p.z,.11f,.30f*h,.12f,yaw),.08f,.08f,.10f);
+ draw(sphereMesh,vp,model(p.x+.13f*athletic,p.y+.24f*h,p.z,.11f,.30f*h,.12f,yaw),.08f,.08f,.10f);
 }
 void update(float dt){
  matchTime+=dt;
- playerX=std::clamp(playerX+stickX*dt*8.0f,-32.0f,32.0f);
- playerZ=std::clamp(playerZ-stickY*dt*8.0f,-50.0f,50.0f);
+ float controlledPace=std::clamp(playerPace[10]/75.0f,.75f,1.30f);
+ playerX=std::clamp(playerX+stickX*dt*8.0f*controlledPace,-32.0f,32.0f);
+ playerZ=std::clamp(playerZ-stickY*dt*8.0f*controlledPace,-50.0f,50.0f);
  if(std::abs(stickX)+std::abs(stickY)>.08f)playerYaw=std::atan2(stickX,-stickY);
  players[10]={playerX,0,playerZ};
  for(int i=0;i<22;i++){if(i==10)continue;float phase=matchTime*.65f+i*1.7f;float targetZ=(i<11?-1:1)*(18.0f+std::sin(phase)*5.0f);players[i].x+=std::sin(phase*.7f+i)*dt*.65f;players[i].z+=(targetZ-players[i].z)*dt*.12f;}
@@ -89,7 +98,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeFr
  V3 eye{playerX+0.0f,18.0f,playerZ+24.0f},center{playerX,0,playerZ-5.0f};auto vp=mul(proj,lookAt(eye,center,{0,1,0}));
  draw(fieldMesh,vp,identity(),.035f,.34f,.13f);
  draw(lineMesh,vp,identity(),.88f,.94f,.85f);
- for(int i=0;i<22;i++)drawPlayer(vp,players[i],i<11,i==10?playerYaw:0);
+ for(int i=0;i<22;i++)drawPlayer(vp,players[i],i<11,i==10?playerYaw:0,i);
  draw(sphereMesh,vp,model(ballX,ballY,ballZ,.22f,.22f,.22f),.96f,.96f,.92f);
 }
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeTouch(JNIEnv*,jclass,jfloat x,jfloat y,jint action,jint w,jint h){
@@ -97,4 +106,15 @@ extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeTo
  if(action==0||action==2){if(nx<.38f&&ny>.55f){stickX=std::clamp((nx-.17f)*6.0f,-1.0f,1.0f);stickY=std::clamp((ny-.79f)*6.0f,-1.0f,1.0f);}else if(action==0&&nx>.78f&&ny>.64f){shoot=true;}else if(action==0&&nx>.65f&&ny>.48f){pass=true;}else if(action==0&&nx>.78f&&ny<.65f){skill=true;}}
  if(action==1||action==3){stickX=0;stickY=0;}
 }
+
+extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeSetPlayerProfile(
+    JNIEnv*,jclass,jint slot,jfloat heightCm,jint overall,jfloat pace,jfloat dribbling,jfloat defending){
+ if(slot<0||slot>=22)return;
+ playerHeight[(size_t)slot]=std::clamp((float)heightCm,150.0f,205.0f);
+ playerOverall[(size_t)slot]=std::clamp((int)overall,1,99);
+ playerPace[(size_t)slot]=std::clamp((float)pace,1.0f,99.0f);
+ playerDribbling[(size_t)slot]=std::clamp((float)dribbling,1.0f,99.0f);
+ playerDefending[(size_t)slot]=std::clamp((float)defending,1.0f,99.0f);
+}
+
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativePause(JNIEnv*,jclass,jboolean value){paused=value;}
