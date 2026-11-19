@@ -92,3 +92,10 @@ Se revisaron referencias adicionales para UI de partido, plantillas, estadios y 
 La revisión de [openfootmanager/openfootmanager](https://github.com/openfootmanager/openfootmanager) también confirma GPL-3.0 en LICENSE.md; su simulación de gestión puede inspirar pruebas de temporada, pero no se incorpora código debido al stack Rust/Tauri/React y a las obligaciones copyleft. Esta referencia ya se había registrado anteriormente y se vuelve a comprobar su licencia.
 
 **Conclusión:** no se incorporó código ni assets externos en esta ronda. Se mantiene Godot 4.4.1, GDScript, Android ARM64 y funcionamiento offline; las referencias solo generan ideas para pruebas y arquitectura.
+
+## Candidatos adicionales revisados — 19 de noviembre de 2026
+
+- [Cohen-Mini/SoccerCareerSimulator](https://github.com/Cohen-Mini/SoccerCareerSimulator): proyecto Godot 4/GDScript de carrera de jugador en fase muy temprana; README enumera sistemas planeados de jugadores, clubes, progresión y contratos. No se encontró archivo LICENSE en la raíz consultada. Se descarta reutilizar código/datos; solo confirma que Godot y JSON son adecuados para prototipos de carrera.
+- [abotbro/godot-football-engine](https://github.com/abotbro/godot-football-engine) y [abotbro/football-game-engine](https://github.com/abotbro/football-game-engine): README mínimo con descripción genérica de motor de fútbol Godot, sin código/documentación suficiente ni LICENSE verificable en la raíz. No se consideran una fuente técnica fiable y no se reutiliza nada.
+
+**Filtro aplicado:** solo se incorporan dependencias o código cuando hay licencia clara, utilidad demostrable, compatibilidad con Godot 4.4.1/Android y ausencia de servicios externos obligatorios. Los repositorios sin licencia comprobable permanecen como referencias no reutilizables.
