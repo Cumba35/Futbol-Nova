@@ -34,16 +34,18 @@ func _initialize() -> void:
 	if not MasterImporter._team_identity_is_release_ready(legacy_identity):
 		failures.append("La política de revisión alteró los clubes heredados sin gate explícito")
 	var db: Variant = root.get_node_or_null("FootballDatabase")
-	if db == null:
+	var is_test_database_instance := db == null
+	if is_test_database_instance:
 		db = Database.new()
-		root.add_child(db)
 	var original_database_path := str(db.database_path)
 	var original_temp_path := str(db.temp_path)
 	var original_backup_path := str(db.backup_path)
-	# Keep database regression isolated from the real player save and the FootballDatabase autoload.
+	# Configure isolated paths before adding a new Node so _ready() cannot touch the real player save.
 	db.database_path = "user://football_database_test.json"
 	db.temp_path = "user://football_database_test.json.tmp"
 	db.backup_path = "user://football_database_test.json.bak"
+	if is_test_database_instance:
+		root.add_child(db)
 	db.is_open = false
 	if not db.open_database():
 		failures.append("Database: no abrió o creó el archivo local: " + str(db.last_error))
