@@ -148,3 +148,10 @@ Correcciones guardadas en la rama de trabajo:
 - `tests/test_maximo_padilla_profile.gd`: el arnés headless registra acciones de entrada ausentes solo para evitar ruido de física en el proceso aislado; la prueba dedicada `test_input_actions.gd` sigue siendo la que valida la configuración real del proyecto. Se detiene la física del jugador después de añadirlo al árbol y se usa `process_frame` para sincronizar la prueba. La aserción del dorsal se alinea con el 30 configurado.
 - Commits: `5aaa96227894fb258fd2a31560cafcb89ac7c6c7` (aislamiento del test), `81b687d66b2fe618674c0c95c2de420b0ddb6ff8` (nombres de manga), `f15f95d42d0a9a4637607cce671a714740c1c884` (aserción estable).
 - Nuevo run #212 (ID `44446263741`) para el SHA `f15f95d42d0a9a4637607cce671a714740c1c884`; pendiente de resultado. No se declara resuelto hasta que la prueba pase y el workflow termine.
+
+
+## Candidatos adicionales descartados — 19-11-2026
+
+- [Cohen-Mini/SoccerCareerSimulator](https://github.com/Cohen-Mini/SoccerCareerSimulator): Godot 4/GDScript y JSON, etapa temprana; README describe sistemas de carrera planeados, pero no se encontró LICENSE en la raíz. No se copia código ni datos.
+- [abotbro/godot-football-engine](https://github.com/abotbro/godot-football-engine) y [abotbro/football-game-engine](https://github.com/abotbro/football-game-engine): README mínimo, sin documentación técnica sustantiva ni LICENSE verificable en la raíz. Descartados como base de integración.
+- Resultado: no se añaden dependencias ni código externo. La arquitectura y ejecución siguen siendo Godot 4.4.1/GDScript/Android offline.
