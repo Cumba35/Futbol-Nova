@@ -134,3 +134,35 @@ Las elecciones cosméticas de un amistoso no deben alterar los datos permanentes
 12. El botón de inicio no permite lanzar un partido con datos inválidos o selecciones incompatibles.
 
 **Límite actual:** esta especificación no afirma que la pantalla ni sus selectores estén implementados. Deben integrarse con el catálogo de datos, el contrato común de partido y el motor de reglas, y probarse en Godot/Android antes de considerarlos terminados.
+
+
+## Implementación de presentación y amistoso base — 19 noviembre 2026
+
+Se amplió la pantalla de preparación con:
+- **Real Madrid / Albor Madrid** preseleccionado a la izquierda como local, ID estable `FN-ESP-REAL-MADRID`.
+- **FC Barcelona / Litoral Barcelona** preseleccionado a la derecha como visitante, ID estable `FN-ESP-BARCELONA`.
+- Paneles de identidad tipográficos originales (no son escudos oficiales ni copias de sus marcas).
+- Vista previa del once inicial de cada equipo con posición y nombre de cada jugador de la plantilla Nova.
+- Selector de estadio cargado desde `data/stadiums/base_stadiums.json`; el único recinto incluido en la base es Estadio Nova.
+- El ID del estadio se transmite a la configuración del encuentro.
+- El HUD del partido muestra las identidades de referencia y conserva el ID interno para seleccionar el personaje controlable correcto.
+
+El nombre visible combina la referencia de club solicitada con el nombre ficticio propio del juego. Esto conserva la política de identidad original: Albor Madrid representa a Real Madrid y Litoral Barcelona representa a FC Barcelona. No se han importado escudos, equipaciones, patrocinadores ni modelos oficiales.
+
+**Importante sobre las plantillas:** las bases de las diez ligas contienen 725 clubes y 15.950 perfiles ficticios (22 por club), no plantillas profesionales reales verificadas. La pantalla muestra los once titulares de esos perfiles Nova. No debe anunciarse como la plantilla real 2026/27 del Real Madrid o del Barcelona. Para nombres de futbolistas profesionales se requiere una fuente estacional verificable y condiciones de reutilización compatibles.
+
+## Estadio base procedural
+
+Se añadió `NovaStadium` a la escena principal con gradas originales de tres niveles, cuatro torres de iluminación y marcador visual. El campo, porterías y redes físicas siguen siendo los elementos de juego. El recinto usa geometría procedural ligera, sin modelos externos, y está incluido en la instalación base offline.
+
+## Pruebas de aceptación añadidas
+
+`tests/test_friendly_match_runtime.gd` ahora comprueba:
+- Creación del nodo de estadio y de sus componentes visuales.
+- Selección inicial exacta de los IDs Real Madrid local y Barcelona visitante.
+- Vista previa de once titulares para ambos equipos.
+- Existencia de al menos un estadio base seleccionable.
+- Inicio del amistoso con 11 futbolistas por equipo y conservación del estadio elegido.
+- Conservación de los nombres visibles en el HUD.
+
+La prueba está integrada en el workflow manual de GitHub Actions, pero aún no se ha ejecutado en esta revisión. La validación visual en Android sigue pendiente.
