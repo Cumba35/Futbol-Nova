@@ -1,6 +1,6 @@
 # Fútbol Nova — selector de equipos y preparación del partido
 
-**Estado:** selector de clubes y preparación de amistosos integrados; selección de muestra Real Madrid de referencia a la izquierda y Barcelona de referencia a la derecha añadida el 18-11-2026. La validación Godot/Android sigue pendiente. Las vistas 3D, equipaciones, estadio y balón siguen pendientes.
+**Estado:** selector de clubes, equipos de muestra y selector funcional de tres estadios procedurales integrados el 18-11-2026. La validación Godot/Android sigue pendiente. Los modelos de futbolistas, OVR, escudos, equipaciones, vista previa de estadio/balón y catálogo de balones siguen pendientes.
 **Referencia:** captura aportada por el usuario de una pantalla de amistoso con dos futbolistas 3D, escudos, valoración OVR, estadio, accesos de equipación, balón, ajustes y botón de inicio.
 
 ## Estado de implementación — 17 noviembre 2026
@@ -17,7 +17,7 @@ Implementado en la rama de trabajo:
 Pendiente de implementación y validación:
 - Modelos 3D representativos y valoración OVR de los equipos.
 - Escudos/banderas y vistas previas de equipaciones.
-- Selector de balón y estadio con recursos reales instalados.
+- Selector de balón y vistas previas 3D de equipaciones y estadios; el selector de estadio ya dispone de tres entornos procedurales originales, pero todavía no hay vistas previas dentro de la pantalla.
 - Detección de conflictos de equipación y reglas visuales de porteros.
 - Persistencia de preferencias de amistosos.
 - Pruebas de interfaz en Godot, diferentes resoluciones y dispositivos Android.
@@ -31,6 +31,16 @@ La selección de equipos y el once inicial no deben confundirse con una integrac
 - La selección usa IDs estables, no búsquedas por texto visible; si falta uno de los clubes, se conserva una pareja alternativa válida y distinta.
 - Los nombres, escudos, uniformes, modelos y demás elementos visuales deben seguir siendo originales de Fútbol Nova; las referencias no autorizan copiar marcas ni assets.
 - Se añadió una prueba unitaria de la selección predeterminada y de su fallback en `tests/test_shared_foundation.gd`. La prueba debe ejecutarse en Godot 4.4.1 antes de marcarla como validada.
+
+## Selector de estadios — 18 noviembre 2026
+
+El selector de amistosos carga el catálogo offline de `scripts/stadiums/stadium_builder.gd` y transmite el ID del estadio al inicio del encuentro. El motor construye el entorno 3D correspondiente sin red:
+
+- `nova_central` — Estadio Nova Central, capacidad registrada: 42.000.
+- `bahia_arena` — Arena Bahía, capacidad registrada: 28.500.
+- `aurora_park` — Parque Aurora, capacidad registrada: 19.000.
+
+Los tres usan geometría procedural original, gradas, cubiertas, postes de iluminación visual y marcador. Cambiar de estadio no altera clubes ni datos de competición. La prueba `tests/test_stadium_builder.gd` comprueba catálogo, IDs, capacidad y construcción; `tests/test_friendly_match_runtime.gd` comprueba que el estadio elegido llegue al partido. La vista previa del selector, colisiones de gradas, iluminación dinámica y diseños arquitectónicos más diferenciados quedan pendientes.
 
 ## 1. Objetivo
 
@@ -141,4 +151,4 @@ Las elecciones cosméticas de un amistoso no deben alterar los datos permanentes
 11. Las opciones no soportadas o recursos ausentes aparecen deshabilitados con explicación.
 12. El botón de inicio no permite lanzar un partido con datos inválidos o selecciones incompatibles.
 
-**Límite actual:** esta especificación no afirma que la pantalla ni sus selectores estén implementados. Deben integrarse con el catálogo de datos, el contrato común de partido y el motor de reglas, y probarse en Godot/Android antes de considerarlos terminados.
+**Límite actual:** el selector de equipos, el once inicial, las opciones básicas del amistoso y el selector de tres estadios procedurales ya están conectados al inicio del partido. Las vistas 3D de jugadores/estadios dentro de la preparación, OVR, escudos, equipaciones, balón, preferencias persistentes y la validación visual completa siguen pendientes. No se consideran terminados hasta superar CI Godot 4.4.1 y pruebas Android.
