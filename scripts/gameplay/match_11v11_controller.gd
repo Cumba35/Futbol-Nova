@@ -199,17 +199,18 @@ func set_match_score(home_score: int, away_score: int) -> void:
 	if not _match_clock_state.is_empty():
 		_match_clock_state = MATCH_CLOCK_STATE.set_score(_match_clock_state, home_score, away_score)
 
-func reset_ball_for_restart(position: Vector3 = Vector3(0.0, 0.35, 0.0)) -> void:
+func reset_ball_for_restart(position: Vector3 = Vector3(0.0, 0.35, 0.0)) -> bool:
 	_ball_flight_spin = Vector3.ZERO
 	_clear_ball_possession()
 	if not is_instance_valid(_ball):
-		return
+		return false
 	_ball.freeze = false
 	_ball.sleeping = false
 	_ball.linear_velocity = Vector3.ZERO
 	_ball.angular_velocity = Vector3.ZERO
 	_ball.global_position = position
 	_ball.reset_physics_interpolation()
+	return true
 
 func set_clock_interruption(reason: String, active: bool) -> void:
 	if not _match_clock_state.is_empty():
