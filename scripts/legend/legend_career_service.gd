@@ -6,6 +6,10 @@ signal career_updated(state: Dictionary)
 signal player_retired(state: Dictionary)
 
 const SAVE_PATH := "user://legend_career.json"
+
+# Injectable persistence settings keep automated tests isolated from player data.
+var persistence_path := SAVE_PATH
+var sync_to_database := true
 const SCHEMA_VERSION := "1.0.0"
 const MIN_AGE := 14
 const MAX_AGE := 45
@@ -525,7 +529,7 @@ func get_career_state() -> Dictionary:
 func save_career() -> bool:
 	if career.is_empty():
 		return false
-	var file := FileAccess.open(SAVE_PATH + ".tmp", FileAccess.WRITE)
+	var file := FileAccess.open(persistence_path + ".tmp", FileAccess.WRITE)
 	if file == null:
 		return false
 	file.store_string(JSON.stringify(career, "\t"))
@@ -534,29 +538,29 @@ func save_career() -> bool:
 		file.close()
 		return false
 	file.close()
-	if FileAccess.file_exists(SAVE_PATH):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH + ".bak"))
-		var backup_error := DirAccess.rename_absolute(ProjectSettings.globalize_path(SAVE_PATH), ProjectSettings.globalize_path(SAVE_PATH + ".bak"))
+	if FileAccess.file_exists(persistence_path):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(persistence_path + ".bak"))
+		var backup_error := DirAccess.rename_absolute(ProjectSettings.globalize_path(persistence_path), ProjectSettings.globalize_path(persistence_path + ".bak"))
 		if backup_error != OK:
 			return false
-	var rename_error := DirAccess.rename_absolute(ProjectSettings.globalize_path(SAVE_PATH + ".tmp"), ProjectSettings.globalize_path(SAVE_PATH))
+	var rename_error := DirAccess.rename_absolute(ProjectSettings.globalize_path(persistence_path + ".tmp"), ProjectSettings.globalize_path(persistence_path))
 	if rename_error != OK:
-		var backup_path := ProjectSettings.globalize_path(SAVE_PATH + ".bak")
+		var backup_path := ProjectSettings.globalize_path(persistence_path + ".bak")
 		if FileAccess.file_exists(backup_path):
-			DirAccess.rename_absolute(backup_path, ProjectSettings.globalize_path(SAVE_PATH))
+			DirAccess.rename_absolute(backup_path, ProjectSettings.globalize_path(persistence_path))
 		return false
-	var football_database := get_node_or_null("/root/FootballDatabase")
+	var football_database := get_node_or_null("/root/FootballDatabase") if sync_to_database else null
 	if football_database != null:
 		return bool(football_database.save_career_record("legend_active", career))
 	return true
 
 func load_career() -> bool:
 	var parsed: Variant = null
-	if FileAccess.file_exists(SAVE_PATH):
-		var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
+	if FileAccess.file_exists(persistence_path):
+		var file := FileAccess.open(persistence_path, FileAccess.READ)
 		if file != null:
 			parsed = JSON.parse_string(file.get_as_text())
-	var football_database := get_node_or_null("/root/FootballDatabase")
+	var football_database := get_node_or_null("/root/FootballDatabase") if sync_to_database else null
 	if not parsed is Dictionary and football_database != null:
 		var backup_record: Dictionary = football_database.get_career_record("legend_active")
 		if not backup_record.is_empty():
