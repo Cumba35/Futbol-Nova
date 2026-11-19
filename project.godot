@@ -22,6 +22,7 @@ ManagerCareer="*res://scripts/manager/manager_career_service.gd"
 LegendCareer="*res://scripts/legend/legend_career_service.gd"
 CustomPlayerRoster="*res://scripts/data/custom_player_roster_service.gd"
 NovaOwnerAccess="*res://scripts/data/nova_owner_access_service.gd"
+NovaPreferences="*res://scripts/data/nova_preferences_service.gd"
 MomentsService="*res://scripts/moments/daily_moments_service.gd"
 
 [rendering]
