@@ -599,14 +599,14 @@ func _commit_database() -> bool:
 	var temp_absolute := ProjectSettings.globalize_path(temp_path)
 	var backup_absolute := ProjectSettings.globalize_path(backup_path)
 	if FileAccess.file_exists(database_path):
-		if FileAccess.file_exists(BACKUP_PATH):
+		if FileAccess.file_exists(backup_path):
 			DirAccess.remove_absolute(backup_absolute)
 		var backup_error := DirAccess.rename_absolute(main_absolute, backup_absolute)
 		if backup_error != OK:
 			return _fail("No se pudo crear la copia de seguridad de la base de datos.")
 	var commit_error := DirAccess.rename_absolute(temp_absolute, main_absolute)
 	if commit_error != OK:
-		if FileAccess.file_exists(BACKUP_PATH):
+		if FileAccess.file_exists(backup_path):
 			DirAccess.rename_absolute(backup_absolute, main_absolute)
 		return _fail("No se pudo confirmar la escritura atómica de la base de datos.")
 	last_error = ""
