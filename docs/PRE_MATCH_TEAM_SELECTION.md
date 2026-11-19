@@ -166,3 +166,6 @@ Se añadió `NovaStadium` a la escena principal con gradas originales de tres ni
 - Conservación de los nombres visibles en el HUD.
 
 La prueba está integrada en el workflow manual de GitHub Actions, pero aún no se ha ejecutado en esta revisión. La validación visual en Android sigue pendiente.
+
+
+La escena de partido aplica paletas de equipación Nova originales según los IDs de los clubes de muestra: marfil cálido y azul noche para Albor Madrid, y granate apagado con pantalón azul oscuro para Litoral Barcelona. Son colores sólidos propios del juego; no se reproducen patrones, escudos, fabricantes ni patrocinadores oficiales. El controlador vuelve a sus colores genéricos cuando se eligen otros clubes.
