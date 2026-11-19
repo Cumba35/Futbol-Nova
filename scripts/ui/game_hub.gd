@@ -89,7 +89,7 @@ func _build_shell() -> void:
 	layout.add_child(top)
 	var brand := Label.new()
 	brand.text = "NOVA  /  FÚTBOL"
-	brand.add_theme_font_size_override("font_size", 22)
+	brand.add_theme_font_size_override("font_size", int(round(22.0 * _get_ui_scale())))
 	brand.add_theme_color_override("font_color", LIME)
 	top.add_child(brand)
 	var spacer := Control.new()
@@ -111,11 +111,11 @@ func _build_shell() -> void:
 	layout.add_child(separator)
 
 	page_title = Label.new()
-	page_title.add_theme_font_size_override("font_size", 32)
+	page_title.add_theme_font_size_override("font_size", int(round(32.0 * _get_ui_scale())))
 	page_title.add_theme_color_override("font_color", WHITE)
 	layout.add_child(page_title)
 	page_subtitle = Label.new()
-	page_subtitle.add_theme_font_size_override("font_size", 14)
+	page_subtitle.add_theme_font_size_override("font_size", int(round(14.0 * _get_ui_scale())))
 	page_subtitle.add_theme_color_override("font_color", MUTED)
 	layout.add_child(page_subtitle)
 
@@ -152,7 +152,7 @@ func _build_shell() -> void:
 	page_indicator.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	page_indicator.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	page_indicator.add_theme_color_override("font_color", LIME)
-	page_indicator.add_theme_font_size_override("font_size", 13)
+	page_indicator.add_theme_font_size_override("font_size", int(round(13.0 * _get_ui_scale())))
 	footer.add_child(page_indicator)
 
 	var footer_spacer_right := Control.new()
