@@ -19,7 +19,10 @@ func _initialize() -> void:
 	assert(stats.career.pass_accuracy == null)
 	assert(stats.career.goals_per_appearance == null)
 	assert(stats.career.assists_per_appearance == null)
-	assert(stats.season_history.is_empty())
+	assert(stats.has("season_history") and stats.season_history.is_empty())
+	var malformed_history := STATISTICS.normalize_player({"statistics": {"season_history": "dato_invalido"}})
+	assert(malformed_history.statistics.has("season_history"))
+	assert(malformed_history.statistics.season_history.is_empty())
 
 	var calculated := STATISTICS.normalize_totals({
 		"appearances": 5,
