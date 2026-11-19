@@ -111,3 +111,9 @@ Corregir cualquier nuevo bloqueo real de CI y conseguir el APK Android. Después
 - La prioridad funcional y de calidad es el modo Amistosos local 11v11. Revisar todo el recorrido de pantallas y controles que conducen al partido y permiten pausarlo, reanudarlo y finalizarlo; comprobar el comportamiento real de los botones y la conservación del estado.
 - Comparar pantallas con las imágenes de referencia archivadas en `assets/references/` y las especificaciones de menú/diseño/UI. Adaptar composición y jerarquía a Android, conservando identidad propia y sin copiar recursos protegidos.
 - Estado de referencia visual: cuatro imágenes confirmadas en el repositorio (pausa, selector de equipación, inicio de Modo Leyenda y configuración). Para Amistosos, revisar además las referencias de HUD, partido, preparación y controles descritas en `docs/GAME_DESIGN.md` y el catálogo de datos/pantallas. Si la imagen original concreta no está archivada o no se puede recuperar, dejarlo como pendiente, no inventar que se comparó.
+
+### Referencias adicionales de IA 11v11 (2026-11-19)
+
+- `TheAmgadX/Soccer-AI` — https://github.com/TheAmgadX/Soccer-AI. C++17 con máquinas de estado separadas para futbolistas, portero y táctica; usa SDL2 y es 2D. La raíz pública consultada no muestra un archivo LICENSE, así que no se copia ni incorpora código. Puede orientar la separación de estados y responsabilidades de IA.
+- `firstpixel/SoccerGame` — https://github.com/firstpixel/SoccerGame. Simulación 11v11 en navegador con IA de pase/regate/tiro, roles, atributos, formaciones y física simple del balón. Su stack HTML/Canvas no es integrable en el runtime C++17/OpenGL ES; la raíz consultada tampoco mostró LICENSE, así que solo queda como lectura conceptual.
+- Decisión: conservar el motor Android nativo y utilizar estas referencias únicamente para contrastar algoritmos. No se importaron dependencias ni recursos de terceros.
