@@ -205,11 +205,20 @@ func set_match_paused(value: bool) -> void:
 			_ball_pause_state = {
 				"freeze": _ball.freeze,
 				"sleeping": _ball.sleeping,
+				"transform": _ball.global_transform,
 				"linear_velocity": _ball.linear_velocity,
 				"angular_velocity": _ball.angular_velocity
 			}
+			# Clear momentum before freezing: the physics server may already have
+			# a pending integration step when the pause request is received.
+			# Preserve the transform and reset interpolation to prevent a visual
+			# one-frame drift while the rigid body transitions to frozen state.
+			_ball.linear_velocity = Vector3.ZERO
+			_ball.angular_velocity = Vector3.ZERO
 			_ball.freeze = true
 			_ball.sleeping = true
+			_ball.global_transform = _ball_pause_state["transform"]
+			_ball.reset_physics_interpolation()
 		else:
 			_restore_ball_after_pause()
 	match_paused.emit(_paused)
@@ -219,6 +228,10 @@ func _restore_ball_after_pause() -> void:
 	if _ball_pause_state.is_empty():
 		return
 	if is_instance_valid(_ball):
+		# Restore the exact pre-pause transform before releasing the rigid body.
+		if _ball_pause_state.has("transform"):
+			_ball.global_transform = _ball_pause_state["transform"]
+			_ball.reset_physics_interpolation()
 		_ball.freeze = bool(_ball_pause_state.get("freeze", false))
 		_ball.linear_velocity = _ball_pause_state.get("linear_velocity", Vector3.ZERO)
 		_ball.angular_velocity = _ball_pause_state.get("angular_velocity", Vector3.ZERO)
