@@ -44,3 +44,10 @@ Importante: el manifiesto de selecciones indica que hay 0 paquetes de seleccione
 
 ## Nota de precisión
 Este registro resume las decisiones y el estado conocido al 2026-11-19. No representa una nueva compilación, una prueba física en el teléfono ni una declaración de que las funciones pendientes ya estén implementadas.
+
+
+## Avance de continuidad — porteros y colisiones (2026-11-19)
+
+Se inició el primer bloque P0 del amistoso 3D. En `native-android/app/src/main/cpp/native_engine.cpp` se incorporó una primera implementación de porteros en los puestos 0 y 11, con seguimiento/anticipación del balón, estirada lateral y bloqueo. También se añadieron colisiones continuas balón-jugador, colisiones con postes/travesaño y comprobación del cruce de la línea de gol. Código guardado en commit `fe26b055510452c46a15491a051041c06e509bbf` de `work/native-3d-engine`.
+
+Estado honesto: cambio guardado y releído en GitHub; todavía no hay evidencia de compilación CI posterior ni de prueba física en Android. No considerar porteros/colisiones terminados hasta revisar CI y probar tiros, paradas, rebotes y goles en el dispositivo. Detalle técnico en `docs/NATIVE_RUNTIME_INTEGRATION_STATUS_2026-11-19.md`.
