@@ -27,3 +27,14 @@ MomentsService="*res://scripts/moments/daily_moments_service.gd"
 [rendering]
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+
+[input]
+
+move_left={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":65)]}
+move_right={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":68)]}
+move_forward={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":87)]}
+move_back={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":83)]}
+pass_ball={"deadzone":0.5,"events":[Object(InputEventKey,"physical_keycode":70)]}
+shoot_ball={"deadzone":0.5,"events":[Object(InputEventKey,"physical_keycode":32)]}
+skill_action={"deadzone":0.5,"events":[Object(InputEventKey,"physical_keycode":69)]}
+pressure_action={"deadzone":0.5,"events":[Object(InputEventKey,"physical_keycode":81)]}
