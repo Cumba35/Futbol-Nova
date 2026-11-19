@@ -34,6 +34,7 @@ public final class MainActivity extends Activity {
 
     private static native void nativeTouch(float x,float y,int action,int width,int height);
     private static native void nativePause(boolean paused);
+    private static native void nativeSwitchPlayer();
     private static native int nativeGetHomeScore();
     private static native int nativeGetAwayScore();
     private static native float nativeGetMatchSeconds();
@@ -189,10 +190,15 @@ public final class MainActivity extends Activity {
             float w=getWidth(),h=getHeight(),s=Math.min(w,h);
             p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(3);p.setColor(0xB8C9F45A);
             c.drawCircle(w*.17f,h*.79f,s*.105f,p);p.setStyle(Paint.Style.FILL);p.setColor(0xB8C9F45A);c.drawCircle(w*.17f,h*.79f,s*.035f,p);
+            drawButton(c,w*.17f,h*.17f,s*.045f,"CAMBIAR");
             drawButton(c,w*.90f,h*.77f,s*.07f,"TIRO");drawButton(c,w*.69f,h*.60f,s*.055f,"PASE");
             drawButton(c,w*.90f,h*.58f,s*.055f,"REGATE");drawButton(c,w*.90f,h*.92f,s*.055f,"PRESIÓN");
         }
         private void drawButton(Canvas c,float x,float y,float r,String label){p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(3);p.setColor(0xD8C9F45A);c.drawCircle(x,y,r,p);p.setStyle(Paint.Style.FILL);p.setColor(Color.WHITE);p.setTextAlign(Paint.Align.CENTER);p.setTextSize(Math.max(12,r*.34f));c.drawText(label,x,y+p.getTextSize()*.35f,p);}
-        @Override public boolean onTouchEvent(MotionEvent e){int index=e.getActionIndex();nativeTouch(e.getX(index),e.getY(index),e.getActionMasked(),getWidth(),getHeight());return true;}
+        @Override public boolean onTouchEvent(MotionEvent e){
+            int index=e.getActionIndex();
+            if(e.getActionMasked()==MotionEvent.ACTION_DOWN&&e.getX(index)<getWidth()*.30f&&e.getY(index)<getHeight()*.27f){nativeSwitchPlayer();return true;}
+            nativeTouch(e.getX(index),e.getY(index),e.getActionMasked(),getWidth(),getHeight());return true;
+        }
     }
 }
