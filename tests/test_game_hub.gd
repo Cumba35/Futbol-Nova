@@ -39,6 +39,16 @@ func _run_tests() -> void:
 	await process_frame
 	_expect(pre_match._home_teams.item_count >= 2 and pre_match._away_teams.item_count >= 2, "Friendly preparation must list at least two clubs with valid rosters")
 	_expect(not pre_match._start_button.disabled, "Friendly preparation must enable start when two valid clubs are selected")
+	pre_match._home_filter.text = "Real Madrid"
+	pre_match._on_home_filter_changed("Real Madrid")
+	_expect(pre_match._home_teams.item_count == 1 and pre_match._selected_team_id(pre_match._home_teams) == "FN-ESP-REAL-MADRID", "Friendly home selector must search the Madrid representative")
+	pre_match._home_filter.text = ""
+	pre_match._on_home_filter_changed("")
+	pre_match._away_filter.text = "FC Barcelona"
+	pre_match._on_away_filter_changed("FC Barcelona")
+	_expect(pre_match._away_teams.item_count == 1 and pre_match._selected_team_id(pre_match._away_teams) == "FN-ESP-BARCELONA", "Friendly away selector must search the Barcelona representative")
+	pre_match._away_filter.text = ""
+	pre_match._on_away_filter_changed("")
 	pre_match._away_teams.select(pre_match._home_teams.selected)
 	pre_match._refresh_validation()
 	_expect(pre_match._start_button.disabled, "Friendly preparation must block selecting the same club twice")
