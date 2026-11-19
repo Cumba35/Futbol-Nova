@@ -73,9 +73,9 @@ final class CanonicalDataRepository {
             loadRosterFile(context,sources.optString("cuba_first_division","players/cuba_first_division.json"),"Primera división");
             loadRosterFile(context,sources.optString("cuba_second_division","players/cuba_second_division.json"),"Segunda división");
             JSONObject skills=read(context,sources.optString("skills","skills/skill_catalog.json"));
-            JSONArray skillArray=skills.optJSONArray("skills");skillCount=skillArray==null?0:skillArray.length();
+            JSONArray skillLevels=skills.optJSONArray("levels");if(skillLevels!=null)for(int i=0;i<skillLevels.length();i++){JSONArray levelSkills=skillLevels.optJSONObject(i)==null?null:skillLevels.optJSONObject(i).optJSONArray("skills");if(levelSkills!=null)skillCount+=levelSkills.length();}
             JSONObject techniques=read(context,sources.optString("techniques","skills/common_gesture_techniques.json"));
-            JSONArray techniqueArray=techniques.optJSONArray("techniques");techniqueCount=techniqueArray==null?0:techniqueArray.length();
+            JSONArray techniqueArray=techniques.optJSONArray("techniques");JSONArray builtIn=techniques.optJSONArray("built_in_gesture_techniques");techniqueCount=(techniqueArray==null?0:techniqueArray.length())+(builtIn==null?0:builtIn.length());
             JSONObject balls=read(context,sources.optString("balls","league_official_balls.json"));
             JSONArray ballArray=balls.optJSONArray("available_balls");officialBallCount=ballArray==null?0:ballArray.length();
             if(playableTeams.isEmpty()) warnings.add("No se encontraron plantillas completas y únicas para un amistoso.");
