@@ -163,6 +163,7 @@ public final class MainActivity extends Activity {
     }
     private void startMatch(){
         if(homeTeam==null||awayTeam==null||homeTeam.id.equals(awayTeam.id)){toast("Selecciona dos equipos diferentes con 22 jugadores únicos.");return;}
+        if(game!=null)game.onPause();
         matchRunning=true;nativeSetMatchDurationMinutes(matchMinutes);nativePause(false);
         root.removeAllViews();
         FrameLayout gameRoot=new FrameLayout(this);game=new GameSurface();
@@ -189,7 +190,12 @@ public final class MainActivity extends Activity {
         new AlertDialog.Builder(this).setTitle("DESCANSO")
             .setMessage("Finalizó el primer tiempo. El marcador es "+nativeGetHomeScore()+" - "+nativeGetAwayScore()+".")
             .setCancelable(false)
-            .setPositiveButton("INICIAR SEGUNDO TIEMPO",(d,w)->nativeStartSecondHalf())
+            .setPositiveButton("INICIAR SEGUNDO TIEMPO",(d,w)->{
+                if(game!=null)game.queueEvent(()->{
+                    nativeStartSecondHalf();
+                    runOnUiThread(()->{if(matchRunning&&scoreRefresh!=null)matchUiHandler.post(scoreRefresh);});
+                });
+            })
             .setNegativeButton("SALIR DEL PARTIDO",(d,w)->returnToMenu()).show();
     }
     private void showFullTimeDialog(){
@@ -199,7 +205,13 @@ public final class MainActivity extends Activity {
             .setPositiveButton("REVANCHA",(d,w)->startMatch())
             .setNegativeButton("VOLVER AL MENÚ",(d,w)->returnToMenu()).show();
     }
-    private void returnToMenu(){matchRunning=false;if(scoreRefresh!=null)matchUiHandler.removeCallbacks(scoreRefresh);scoreboard=null;nativePause(true);buildShell();showScreen("INICIO");}
+    private void returnToMenu(){
+        matchRunning=false;
+        if(scoreRefresh!=null)matchUiHandler.removeCallbacks(scoreRefresh);
+        scoreboard=null;nativePause(true);
+        if(game!=null){game.onPause();game=null;}
+        buildShell();showScreen("INICIO");
+    }
     @Override public void onBackPressed(){if(matchRunning)returnToMenu();else super.onBackPressed();}
     private void toast(String s){Toast.makeText(this,s,Toast.LENGTH_SHORT).show();}
 
