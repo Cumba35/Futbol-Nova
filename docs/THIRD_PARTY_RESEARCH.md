@@ -110,3 +110,10 @@ No se ha copiado código, escenas ni recursos de estos proyectos. Se mantiene el
 | [Cohen-Mini/SoccerCareerSimulator](https://github.com/Cohen-Mini/SoccerCareerSimulator) | Godot 4.7/GDScript, managers de calendario/guardado/mundo; no se encontró LICENSE. | Ideas de separación de gestores para futura carrera y progresión. Versión distinta y derechos no confirmados. | No copiar ni integrar; solo referencia conceptual hasta que exista licencia verificable. |
 
 No se importó código ni assets. En Cornucobia, aunque el código principal declara Apache-2.0, los recursos gráficos y addons tienen licencias separadas; no se asume que todo el repositorio tenga una única licencia. Se mantiene la prioridad Android ARM64, Godot 4.4.1, GDScript y modo offline.
+
+## Revisión adicional — compatibilidad GDScript y referencias Android (19-11-2026)
+
+- Documentación oficial de Godot: [GDScript basics](https://docs.godotengine.org/en/latest/tutorials/scripting/gdscript/gdscript_basics.html) y [migración a Godot 4](https://docs.godotengine.org/en/latest/tutorials/migrating/upgrading_to_godot_4.html). La auditoría del test detectó que `StringName` y `String` son tipos distintos; los nombres de nodo se convierten explícitamente con `String(node.name)` antes de aplicar operaciones de texto.
+- [lel1guy/FootPong](https://github.com/lel1guy/FootPong): MIT declarada, Godot 4.6/GDScript, Android export, menú de pausa y reinicio de balón. Se conserva como referencia de flujo móvil y pruebas de estados; no se traslada el prototipo 2D a la simulación 3D 11v11.
+- [aliyavuzz/Godotball](https://github.com/aliyavuzz/Godotball): referencia para física, árbitro y 22 jugadores en Godot 4.4.1, pero depende de GDExtension/C++/SCons. Se mantiene fuera del APK para no introducir complejidad de compilación ARM64 sin necesidad demostrada.
+- No se copió código ni assets externos. Se priorizan GDScript, Godot 4.4.1, renderer GL Compatibility, Android ARM64 y funcionamiento offline.
