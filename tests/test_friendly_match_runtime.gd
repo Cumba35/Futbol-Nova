@@ -127,6 +127,14 @@ func _run_acceptance_test() -> void:
 							break
 					setup.call("_assign_custom_player_to_selected_team", true)
 					var assigned_roster: Array = setup.call("_get_combined_team_roster", "FN-ESP-REAL-MADRID")
+					var registry_roster: Array = football_registry.get_team_roster("FN-ESP-REAL-MADRID")
+					var registry_has_custom_player := false
+					for registry_player in registry_roster:
+						if str(registry_player.get("id", "")) == friendly_custom_player_id:
+							registry_has_custom_player = true
+							break
+					if not registry_has_custom_player:
+						failures.append("El registro global de clubes no expuso al futbolista personalizado asignado.")
 					var custom_player_in_roster := false
 					for roster_player in assigned_roster:
 						if str(roster_player.get("id", "")) == friendly_custom_player_id:
