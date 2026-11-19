@@ -115,3 +115,8 @@ El workflow maestro ahora se ejecuta automáticamente al cambiar archivos del pr
 ### Estadios procedurales — 18 noviembre 2026
 
 El juego base incorpora tres estadios originales offline. La preparación transmite el ID elegido y la escena principal construye la geometría del estadio al iniciar el amistoso. El workflow incluye `test_stadium_builder.gd` y la prueba runtime comprueba que el estadio seleccionado se aplique. La vista previa dentro de la pantalla de preparación, la iluminación dinámica y la validación física de las gradas siguen pendientes.
+
+
+### Corrección de liberación del balón por la IA — 19 noviembre 2026
+
+La revisión del controlador 11v11 encontró que los futbolistas de IA y los porteros liberaban la posesión, pero no aplicaban el impulso previsto al balón. Se centralizó la operación en `apply_ai_kick()`: valida cuerpo, dirección y fuerza, descongela/despierta el balón y aplica el impulso. La prueba de fundamentos crea un `RigidBody3D` real y comprueba que el balón adquiere velocidad, además de rechazar una dirección nula. Esta corrección queda pendiente de confirmación por la siguiente ejecución de GitHub Actions; no certifica por sí sola el partido completo ni la APK.
