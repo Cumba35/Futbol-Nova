@@ -102,3 +102,12 @@ Corregir cualquier nuevo bloqueo real de CI y conseguir el APK Android. Después
 - Referencias oficiales: [Godot 4.4 Android export](https://docs.godotengine.org/en/4.4/tutorials/export/exporting_for_android.html), [Godot 4.4 Android template contents](https://docs.godotengine.org/en/4.4/contributing/development/compiling/compiling_for_android.html) y [Godot 4.4 Android export options](https://docs.godotengine.org/en/4.4/classes/class_editorexportplatformandroid.html).
 - Estado: no hay APK confirmado todavía. El proyecto sigue sin validación en un dispositivo Android real.
 
+
+
+## Requisitos adicionales del propietario — entrega y pantallas
+
+- No generar APK hasta recibir una orden explícita. Las compilaciones automáticas se usarán solo para validar cambios de código cuando estén configuradas para ello; no se entregará ni guardará una APK nueva por iniciativa propia.
+- Al recibir la orden de generar APK, guardarla en Dropbox en `/Aplicaciones/Fútbol Nova/` y verificar desde Dropbox que el archivo quedó en la ruta, con tamaño y fecha correctos. No sobrescribir una versión previa sin autorización clara.
+- La prioridad funcional y de calidad es el modo Amistosos local 11v11. Revisar todo el recorrido de pantallas y controles que conducen al partido y permiten pausarlo, reanudarlo y finalizarlo; comprobar el comportamiento real de los botones y la conservación del estado.
+- Comparar pantallas con las imágenes de referencia archivadas en `assets/references/` y las especificaciones de menú/diseño/UI. Adaptar composición y jerarquía a Android, conservando identidad propia y sin copiar recursos protegidos.
+- Estado de referencia visual: cuatro imágenes confirmadas en el repositorio (pausa, selector de equipación, inicio de Modo Leyenda y configuración). Para Amistosos, revisar además las referencias de HUD, partido, preparación y controles descritas en `docs/GAME_DESIGN.md` y el catálogo de datos/pantallas. Si la imagen original concreta no está archivada o no se puede recuperar, dejarlo como pendiente, no inventar que se comparó.
