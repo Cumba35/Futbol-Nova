@@ -110,6 +110,14 @@ func _run_acceptance_test() -> void:
 				failures.append("El amistoso no seleccionó Real Madrid como equipo local a la izquierda.")
 			if selected_away_id != "FN-ESP-BARCELONA":
 				failures.append("El amistoso no seleccionó Barcelona como visitante a la derecha.")
+			if setup._home_badge == null or not setup._home_badge.text.contains("REAL MADRID"):
+				failures.append("La tarjeta local no identifica al representante de Real Madrid.")
+			if setup._away_badge == null or not setup._away_badge.text.contains("FC BARCELONA"):
+				failures.append("La tarjeta visitante no identifica al representante de Barcelona.")
+			if football_registry.get_team_roster(selected_home_id).size() != 22:
+				failures.append("La plantilla base de Real Madrid no contiene 22 perfiles Nova.")
+			if football_registry.get_team_roster(selected_away_id).size() != 22:
+				failures.append("La plantilla base de Barcelona no contiene 22 perfiles Nova.")
 			if setup._home_lineup_preview == null or setup._home_lineup_preview.text.split("\n").size() != 12:
 				failures.append("La pantalla no muestra los once titulares del equipo local.")
 			if setup._away_lineup_preview == null or setup._away_lineup_preview.text.split("\n").size() != 12:
