@@ -82,6 +82,16 @@ func _run_tests() -> void:
 		failures.append("Match11v11: el portero visitante despeja hacia su propia portería en -Z")
 	if home_keeper_clear.y <= 0.0 or away_keeper_clear.y <= 0.0:
 		failures.append("Match11v11: el despeje del portero no eleva el balón")
+	var impulse_ball := RigidBody3D.new()
+	root.add_child(impulse_ball)
+	await physics_frame
+	if not Match11v11.apply_ai_kick(impulse_ball, Vector3(0.0, 0.2, -1.0), 8.0):
+		failures.append("Match11v11: rechazó un impulso válido de la IA")
+	elif impulse_ball.linear_velocity.length() <= 0.1:
+		failures.append("Match11v11: liberar la posesión no aplicó velocidad al balón")
+	if Match11v11.apply_ai_kick(impulse_ball, Vector3.ZERO, 8.0):
+		failures.append("Match11v11: aceptó un impulso con dirección nula")
+	impulse_ball.queue_free()
 	if not Match11v11.validate_lineups(home, away):
 		failures.append("Match11v11: rechazó dos alineaciones válidas")
 	var ids := {}
