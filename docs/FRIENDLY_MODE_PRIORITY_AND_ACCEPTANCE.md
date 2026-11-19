@@ -28,6 +28,7 @@ El modo Amistosos es el único modo de juego prioritario hasta que pueda probars
 - Resolver goles, tiros fuera, saques de banda, esquina y saque de puerta.
 - Evitar que el balón atraviese jugadores, postes o travesaño.
 - Asegurar que el partido se puede pausar, reanudar, abandonar y reiniciar sin bloquear el renderizado.
+- Integrar perfiles personalizados en sus clubes y selecciones por ID, para que estén disponibles al elegir plantillas y disputar amistosos.
 
 ### P1 — Partido de prueba completo
 - Dos tiempos configurables con descanso y final.
@@ -49,6 +50,8 @@ El modo Amistosos es el único modo de juego prioritario hasta que pueda probars
 ## Criterios de aceptación para declarar Amistosos listo para pruebas
 - Arranca sin conexión en Android ARM64 y no depende de Godot, Unity ni servicios remotos.
 - Permite seleccionar dos plantillas distintas, ambas con 22 IDs únicos.
+- Las plantillas muestran los perfiles personalizados correspondientes a su club/selección, sin duplicados ni asignaciones arbitrarias.
+- El mismo ID y perfil personalizado se conserva desde la pantalla de plantilla hasta el actor del partido 3D.
 - Renderiza 22 jugadores y dos porteros en el campo.
 - Joystick y botones responden correctamente en orientación horizontal y distintos tamaños.
 - El jugador controlado puede correr, girar, pasar, tirar y regatear con balón cercano.
@@ -61,3 +64,6 @@ El modo Amistosos es el único modo de juego prioritario hasta que pueda probars
 
 ## Límites de alcance
 No se considera terminado por mostrar una escena 3D o por compilar. La meta es jugar y completar el amistoso de principio a fin. Las pantallas y modos restantes quedan congelados hasta superar los criterios anteriores. Las referencias FIFA 23 y FC 26 orientan estructura y sensación; arte, código, nombres y recursos de Fútbol Nova serán originales.
+
+## Requisito añadido — jugadores personalizados (2026-11-19)
+La integración de pertenencia y visualización se especifica en `docs/CUSTOM_PLAYERS_TEAM_AND_NATIONAL_SELECTION.md`. La tarea incluye clubes y selecciones, resolución por IDs estables, deduplicación y conservación de rasgos personales al cambiar la equipación. Está pendiente de implementación y prueba; no se considera satisfecha por la aplicación parcial de atributos existente.
