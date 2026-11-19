@@ -31,7 +31,9 @@ Seguir el orden P0/P1/P2 de `docs/FRIENDLY_MODE_PRIORITY_AND_ACCEPTANCE.md`, pri
 8. Dos tiempos, descanso, resultado final y revancha.
 
 ## Requisito añadido en esta continuidad
-El usuario pidió que los jugadores personalizados aparezcan en sus respectivos equipos y selecciones. El contrato está documentado en `docs/CUSTOM_PLAYERS_TEAM_AND_NATIONAL_SELECTION.md`. La implementación todavía está pendiente: el código actual indexa perfiles por ID y aplica atributos si el ID ya está en la plantilla, pero no resuelve todas las pertenencias de club/selección ni transmite la identidad y apariencia al motor 3D. No declarar la función lista hasta probarla desde el selector de plantillas hasta el partido.
+El usuario confirmó las selecciones nacionales: Anier Cumbá y Máximo Padilla juegan con Cuba; Raymond juega con Brasil. En `data/custom_players.json` ya se actualizaron los perfiles existentes de Anier (`NOVA-PLAYER-0035`) y Máximo (`NOVA-PLAYER-0036`) con Cuba (`CUB`, `FIFA-MA-052`); Anier tenía un valor anterior contradictorio (`BRA`) que fue corregido. Se añadió a la pantalla Inicio una etiqueta de selección nacional para los perfiles personalizados. Raymond no aparece en el catálogo `data/custom_players.json` de esta rama y no se encontró un perfil con ese nombre en la búsqueda realizada; su asignación a Brasil (`BRA`, `FIFA-MA-028`) queda documentada, pero pendiente de enlazar a su ID estable, sin inventar un perfil.
+
+Importante: el manifiesto de selecciones indica que hay 0 paquetes de selecciones publicados y que las plantillas nacionales aún no están construidas. Por eso, estos cambios guardan las asignaciones del canon y las muestran en la ficha de Inicio, pero todavía NO hacen que Cuba o Brasil aparezcan como equipos jugables ni que los jugadores estén dentro de una plantilla nacional 22v22 en Amistosos. La integración completa sigue pendiente; no declarar la función lista hasta probarla desde selector hasta partido 3D.
 
 ## Referencias del proyecto
 - Prioridad y criterios de aceptación: `docs/FRIENDLY_MODE_PRIORITY_AND_ACCEPTANCE.md`
