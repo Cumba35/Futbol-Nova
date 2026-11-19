@@ -130,6 +130,16 @@ func _initialize() -> void:
 		failures.append("Master catalog: " + str(imported.get("errors", [])))
 	else:
 		var counts: Dictionary = imported.get("counts", {})
+		var unranked_existing_base_count := 0
+		for league in imported.catalog.league_directory:
+			if int(league.get("source_rank", 0)) == 0:
+				if not bool(league.get("counts_as_existing_base", false)):
+					failures.append("Master catalog: una liga sin ranking no está marcada como base existente")
+				if str(league.get("country", "")) != "Cuba":
+					failures.append("Master catalog: la única liga sin ranking debe preservar la base cubana existente")
+				unranked_existing_base_count += 1
+		if unranked_existing_base_count != 1:
+			failures.append("Master catalog: debe conservar exactamente una entrada base existente sin ranking global")
 		if not db.save_catalog_snapshot(source_registry.export_catalog_snapshot()):
 			failures.append("Master catalog: no se pudo guardar el snapshot jugable de origen")
 		if not db.save_master_catalog(imported.catalog):
