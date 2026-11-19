@@ -108,6 +108,8 @@ func _run_acceptance_test() -> void:
 		moments_service.set("_state", clean_moments_state)
 		game._on_training_mode_selected("free_practice")
 		game.ball.global_position = Vector3(0.0, 0.35, 53.0)
+		game.ball.linear_velocity = Vector3(3.0, 0.0, 2.0)
+		game.ball.angular_velocity = Vector3(0.0, 2.0, 0.0)
 		game._on_goal_body_entered(game.ball, "away")
 		var daily_after_training: Dictionary = moments_service.call("get_daily_challenge")
 		training_moments_progress = int(daily_after_training.get("progress", 0))
@@ -117,6 +119,8 @@ func _run_acceptance_test() -> void:
 			failures.append("El juego no conservó el modo de entrenamiento activo para registrar el gol.")
 		if game.ball.global_position.distance_to(Vector3(0.0, 0.35, 0.0)) > 0.01:
 			failures.append("El balón no regresó al punto de inicio de práctica libre después del gol.")
+		if game.ball.linear_velocity.length() > 0.001 or game.ball.angular_velocity.length() > 0.001:
+			failures.append("El reinicio de entrenamiento no limpió la velocidad lineal y angular del balón.")
 
 	# Use the same pre-match screen and button path as a real player.
 	if game.match_11v11_controller != null and football_registry != null:
