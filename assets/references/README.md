@@ -36,3 +36,17 @@ La navegación horizontal funciona en ambos sentidos, es circular y conserva el 
 3. Comparar visualmente con la fuente recibida.
 4. Registrar dimensiones, tamaño y hash cuando sea posible.
 5. Mantener separado el original de las versiones optimizadas.
+
+
+## Relación con pantallas y estado de implementación — 19-11-2026
+
+Las cuatro referencias visuales archivadas se usan exclusivamente para orientar composición, jerarquía, navegación y adaptación móvil:
+
+- `pause-menu-reference.jpg` → pausa del partido; primera implementación en `scripts/ui/game_hub.gd`, con resumen y seis acciones. La alineación gráfica, tácticas y repetición siguen pendientes.
+- `kit-selection-reference.jpg` → guía para un futuro selector de equipaciones; el flujo visual completo y la persistencia del selector siguen pendientes.
+- `legend-mode-home-reference.jpg` → guía del inicio del módulo Modo Leyenda; mantener el modo detrás del catálogo hasta que el paquete esté instalado/publicado.
+- `main-menu-settings-reference.jpg` → guía de la jerarquía visual de Configuración; las categorías y sus opciones deben terminarse y validarse individualmente.
+
+Las mismas imágenes están archivadas en `Cumba35/Nova-Workspace/proyectos/juegos/futbol-nova/assets/references/` y en `Cumba35/Futbol-Nova/assets/references/`. No se copian logos, escudos, tipografías, equipaciones ni otros recursos protegidos de las capturas.
+
+Los originales de mayor resolución y las capturas Manager, ajustes de partido y ajustes de mando siguen pendientes de transferencia. Mantener sus estados como pendientes hasta que sus blobs binarios estén presentes y verificados en ambos repositorios.
