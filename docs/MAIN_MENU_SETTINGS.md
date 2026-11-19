@@ -77,3 +77,13 @@ La navegación muestra las once categorías, pero no todas tienen controles func
 La pantalla debe considerarse **parcialmente implementada**, no terminada. Las siguientes mejoras prioritarias son un servicio local persistente de preferencias, controles de audio/volumen reales, perfiles gráficos Android, accesibilidad (escala/contraste), opciones de juego que se apliquen al amistoso y herramientas de datos con confirmación. Música solo se habilitará cuando haya pistas autorizadas disponibles; no se mostrará un selector vacío ni se fingirá reproducción.
 
 Las opciones deben conservar el idioma español y guardar las preferencias en el dispositivo. Cada control deberá tener una prueba que verifique tanto su efecto como su persistencia tras reiniciar.
+
+
+## Actualización — controles de audio persistentes (2026-11-19)
+
+- Se añadió el servicio global NovaPreferences (scripts/data/nova_preferences_service.gd) como autoload.
+- El volumen principal se puede ajustar desde Configuración → Audio (0–100 %) y el silencio global se activa/desactiva desde la misma pantalla.
+- Los cambios se aplican inmediatamente mediante el bus Master de Godot y se guardan en user://futbol_nova_settings.cfg; se recuperan al iniciar el juego.
+- La prueba tests/test_nova_preferences_service.gd verifica escritura, lectura en una segunda instancia y restauración del estado de audio.
+- El workflow Android incluye esta prueba.
+- Límite explícito: el proyecto aún no define buses separados para música, efectos y comentarios. La pantalla informa esa limitación y no presenta controles independientes ficticios.
