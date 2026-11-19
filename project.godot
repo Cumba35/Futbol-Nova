@@ -27,3 +27,14 @@ MomentsService="*res://scripts/moments/daily_moments_service.gd"
 [rendering]
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+
+[input]
+
+move_left={"deadzone":0.2,"events":[]}
+move_right={"deadzone":0.2,"events":[]}
+move_forward={"deadzone":0.2,"events":[]}
+move_back={"deadzone":0.2,"events":[]}
+pass_ball={"deadzone":0.5,"events":[]}
+shoot_ball={"deadzone":0.5,"events":[]}
+skill_action={"deadzone":0.5,"events":[]}
+pressure_action={"deadzone":0.5,"events":[]}
