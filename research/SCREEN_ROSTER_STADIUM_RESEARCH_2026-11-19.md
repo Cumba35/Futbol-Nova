@@ -91,3 +91,14 @@ La ejecución `44442727494` confirmó que `text_alignment` no es una propiedad v
 La aceptación detectó que, después de `stop_match()`, el controlador 11v11 ya no conserva referencia al balón; por eso el reinicio de práctica no debía delegarse a ese controlador. `_reset_training_ball()` ahora reinicia directamente posición, velocidades lineal/angular y estado de sueño/congelación del balón de la escena. `_reset_ball()` solo delega al controlador mientras el amistoso esté activo. La prueba ahora inyecta velocidades y comprueba que ambas se limpian.
 
 El commit con la corrección del reinicio es `f6148b068c4598e1b1e648146ed3e56022685e9d`; la prueba de velocidad se añadió en `a86b6d2bff91dd1db305a7a6a0adcf93526662ce`. La ejecución nueva de CI de este último commit está pendiente; no se declara todavía el test runtime ni la APK como aprobados.
+
+
+## Resultado CI y corrección siguiente — 19-11-2026
+
+Run #190 / job 135291158173 ejecutó correctamente las pruebas del hub y las cuatro pantallas principales, física del balón, fundación 11v11, amistoso real con goles y períodos, y geometría física de porterías/redes. La prueba de aceptación del amistoso verificó la apertura de las cuatro páginas principales, las once categorías de Configuración, el selector con Real Madrid local a la izquierda y Barcelona visitante a la derecha, las plantillas 22 por club, once titulares visibles por equipo, los tres estadios, inicio del 11v11 y el avance de reloj/períodos hasta el final.
+
+El mismo run falló en tests/test_maximo_padilla_profile.gd: el script de carrera tenía referencias directas al autoload FootballDatabase en las funciones de guardado/carga. En un test aislado Godot no resuelve nombres globales de autoload que no están en el proyecto de prueba; el error secundario de new() se produjo porque el script dependiente no compiló.
+
+Corrección aplicada en scripts/legend/legend_career_service.gd, commit 1efc90260a8d24e19d0d8b0dd335181a1ece4518: ambas rutas resuelven /root/FootballDatabase con get_node_or_null y usan call() solo si el autoload existe. Se releyó el archivo desde GitHub y se verificó que ya no quedan referencias globales directas a FootballDatabase en el script.
+
+Nuevo run #193 (44444407781) disparado por el cambio de código, SHA 1efc90260a8d24e19d0d8b0dd335181a1ece4518; estado al documentar: en ejecución, todavía en configuración del entorno Godot. Las pruebas de Máximo, diez ligas, regresiones y exportación APK siguen pendientes de resultado de este nuevo run. No declarar aún APK ni CI global aprobados.
