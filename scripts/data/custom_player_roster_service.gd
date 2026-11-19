@@ -3,10 +3,12 @@ class_name NovaCustomPlayerRosterService
 
 const ROSTER_PATH := "user://custom_player_roster.json"
 const SELECTION_PATH := "user://online_custom_player_selection.json"
-const SCHEMA_VERSION := "1.0.0"
+const SCHEMA_VERSION := "1.1.0"
+const PREVIOUS_SCHEMA_VERSION := "1.0.0"
 const PLAYER_STATISTICS = preload("res://scripts/data/player_statistics_service.gd")
 
 var _players: Array = []
+var _team_assignments: Dictionary = {}
 var _selected_online_player_id := ""
 var _loaded := false
 
@@ -42,6 +44,68 @@ func add_created_player(player: Dictionary) -> Dictionary:
 func get_created_players() -> Array:
 	_load_roster()
 	return _players.duplicate(true)
+
+func assign_created_player_to_team(player_id: String, team_id: String) -> Dictionary:
+	_load_roster()
+	player_id = player_id.strip_edges()
+	team_id = team_id.strip_edges()
+	if player_id.is_empty() or team_id.is_empty():
+		return {"ok": false, "error": "Selecciona un jugador y un club válido."}
+	var player_exists := false
+	for player in _players:
+		if str(player.get("id", "")) == player_id:
+			player_exists = true
+			break
+	if not player_exists:
+		return {"ok": false, "error": "Solo puedes incorporar jugadores que hayas creado."}
+	var football_data: Node = get_node_or_null("/root/FootballData")
+	if football_data != null:
+		var registry: Variant = football_data.get("registry")
+		if registry == null or not registry.teams_by_id.has(team_id):
+			return {"ok": false, "error": "El club seleccionado no existe en el catálogo."}
+	var previous_assignments := _team_assignments.duplicate(true)
+	for assigned_team_id in _team_assignments.keys():
+		var ids: Array = _team_assignments[assigned_team_id]
+		ids.erase(player_id)
+		if ids.is_empty():
+			_team_assignments.erase(assigned_team_id)
+	_team_assignments[team_id] = _team_assignments.get(team_id, []).duplicate()
+	if not _team_assignments[team_id].has(player_id):
+		_team_assignments[team_id].append(player_id)
+	if not _save_roster():
+		_team_assignments = previous_assignments
+		return {"ok": false, "error": "No se pudo guardar la incorporación a la plantilla."}
+	return {"ok": true, "player_id": player_id, "team_id": team_id}
+
+func remove_created_player_from_team(player_id: String, team_id: String) -> Dictionary:
+	_load_roster()
+	if not _team_assignments.has(team_id):
+		return {"ok": false, "error": "Ese jugador no está asignado a este club."}
+	var previous_assignments := _team_assignments.duplicate(true)
+	var ids: Array = _team_assignments[team_id]
+	ids.erase(player_id)
+	if ids.is_empty():
+		_team_assignments.erase(team_id)
+	if not _save_roster():
+		_team_assignments = previous_assignments
+		return {"ok": false, "error": "No se pudo guardar el cambio de plantilla."}
+	return {"ok": true, "player_id": player_id, "team_id": team_id}
+
+func get_players_for_team(team_id: String) -> Array:
+	_load_roster()
+	var result: Array = []
+	var assigned_ids: Array = _team_assignments.get(team_id, [])
+	for player in _players:
+		if str(player.get("id", "")) in assigned_ids:
+			result.append(player.duplicate(true))
+	return result
+
+func get_assigned_team_id(player_id: String) -> String:
+	_load_roster()
+	for team_id in _team_assignments:
+		if player_id in _team_assignments[team_id]:
+			return str(team_id)
+	return ""
 
 func get_online_selected_player_id() -> String:
 	_load_selection()
@@ -85,13 +149,29 @@ func _load_roster() -> void:
 	if file == null:
 		return
 	var parsed = JSON.parse_string(file.get_as_text())
-	if parsed is Dictionary and str(parsed.get("schema_version", "")) == SCHEMA_VERSION and parsed.get("players", []) is Array:
+	if parsed is Dictionary and str(parsed.get("schema_version", "")) in [SCHEMA_VERSION, PREVIOUS_SCHEMA_VERSION] and parsed.get("players", []) is Array:
 		_players = []
 		for player in parsed.get("players", []):
 			if player is Dictionary and str(player.get("origin", "user_created")) == "user_created":
 				var normalized_player: Dictionary = PLAYER_STATISTICS.normalize_player(player)
 				normalized_player["origin"] = "user_created"
 				_players.append(normalized_player)
+		var assignments = parsed.get("team_assignments", {})
+		_team_assignments = assignments.duplicate(true) if assignments is Dictionary else {}
+		for team_id in _team_assignments.keys():
+			if not _team_assignments[team_id] is Array:
+				_team_assignments.erase(team_id)
+				continue
+			var valid_ids: Array = []
+			for player_id in _team_assignments[team_id]:
+				for player in _players:
+					if str(player.get("id", "")) == str(player_id):
+						valid_ids.append(str(player_id))
+						break
+			_team_assignments[team_id] = valid_ids
+		for team_id in _team_assignments.keys().duplicate():
+			if _team_assignments[team_id].is_empty():
+				_team_assignments.erase(team_id)
 
 func _load_selection() -> void:
 	if not _selected_online_player_id.is_empty() or not FileAccess.file_exists(SELECTION_PATH):
@@ -106,7 +186,7 @@ func _load_selection() -> void:
 		_selected_online_player_id = ""
 
 func _save_roster() -> bool:
-	return _write_json_atomically(ROSTER_PATH, {"schema_version": SCHEMA_VERSION, "players": _players})
+	return _write_json_atomically(ROSTER_PATH, {"schema_version": SCHEMA_VERSION, "players": _players, "team_assignments": _team_assignments})
 
 func _save_selection() -> bool:
 	return _write_json_atomically(SELECTION_PATH, {"schema_version": SCHEMA_VERSION, "player_id": _selected_online_player_id})
