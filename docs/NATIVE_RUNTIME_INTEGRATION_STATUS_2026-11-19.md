@@ -78,3 +78,25 @@ Contrato y criterios detallados: `docs/CUSTOM_PLAYERS_TEAM_AND_NATIONAL_SELECTIO
 9. Añadir pruebas automatizadas de pertenencia, perfiles, física/reglas y ejecutar CI; después instalar y probar el APK en Android real.
 
 No marcar ninguno de estos puntos como resuelto sin cambio de código y evidencia de prueba.
+
+
+## Implementación inicial de porteros y colisiones — 2026-11-19
+
+Commit de código: `fe26b055510452c46a15491a051041c06e509bbf`.
+Archivo: `native-android/app/src/main/cpp/native_engine.cpp`.
+
+Cambios incorporados en la primera pasada:
+- Los puestos 0 y 11 de las dos plantillas se reservan como porteros dentro de los 22 actores del partido; se ubican inicialmente delante de sus porterías y usan una equipación diferenciada.
+- Cada portero sigue la posición horizontal del balón y anticipa su punto de intercepción cuando detecta un disparo que se aproxima a su área.
+- Se añadió una estirada lateral breve cuando la trayectoria proyectada amenaza la portería.
+- El balón comprueba el segmento recorrido durante el frame para evitar atravesar jugadores en disparos rápidos.
+- Los porteros tienen un volumen de bloqueo mayor que los futbolistas de campo y pueden desviar el balón.
+- Se añadieron colisiones con los dos postes y el travesaño de ambas porterías.
+- El gol se confirma al cruzar el plano de la línea de meta dentro de la anchura y altura válidas; después se reinician posiciones, balón y estados de estirada.
+
+Limitaciones que siguen pendientes:
+- Esta implementación no incluye todavía animaciones esqueléticas, agarre real del balón, despejes dirigidos, selección de tipo de parada ni lógica avanzada de rebotes.
+- El modelo visual de los porteros sigue siendo el blockout procedural existente, con equipación diferenciada y una inclinación lateral sencilla.
+- No se ha confirmado aún una compilación posterior a este cambio ni una prueba física en Android. No declarar el bloqueador P0 resuelto hasta que CI compile y se pruebe el APK en el teléfono.
+- Deben probarse tiros rasos, tiros altos, disparos desde ambos lados, rebotes en postes/travesaño, paradas y goles legítimos para detectar falsos positivos.
+
