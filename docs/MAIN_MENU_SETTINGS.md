@@ -99,3 +99,6 @@ Las opciones deben conservar el idioma español y guardar las preferencias en el
 - La ejecución 44514765389 detectó que tests/test_game_hub.gd intentaba resolver NovaPreferences como identificador global durante la compilación de un script de prueba independiente.
 - Se cambió la prueba para localizar el autoload por root.get_node_or_null("NovaPreferences") y llamar sus métodos de forma dinámica; se mantiene la verificación del slider, el silencio y la restauración del estado.
 - La corrección quedó sincronizada en distribución y Workspace. La ejecución 44515137005 debe validar este arreglo y continuar con el resto de regresiones y exportación APK.
+
+
+- La pantalla de audio también se endureció: obtiene NovaPreferences mediante /root/NovaPreferences y pasa la referencia a los callbacks. Si el servicio no existe, los controles quedan deshabilitados y se informa del problema en vez de provocar un error de identificador global.
