@@ -59,7 +59,7 @@ var _team_colors := {
 	"away": Color("#E7E9EF")
 }
 
-static func build_lineup(team_id: String, home_team: bool, player_ids: Array = []) -> Array[Dictionary]:
+static func build_lineup(team_id: String, home_team: bool, player_ids: Array = [], player_profiles: Dictionary = {}) -> Array[Dictionary]:
 	if team_id.is_empty() or (not player_ids.is_empty() and player_ids.size() != 11):
 		return []
 	var lineup: Array[Dictionary] = []
@@ -69,8 +69,11 @@ static func build_lineup(team_id: String, home_team: bool, player_ids: Array = [
 		var player_id := str(player_ids[index]) if not player_ids.is_empty() else "%s_%02d" % [team_id, index + 1]
 		if player_id.is_empty():
 			return []
+		var profile_value: Variant = player_profiles.get(player_id, {})
+		var player_profile: Dictionary = profile_value if profile_value is Dictionary else {}
 		lineup.append({
 			"player_id": player_id,
+			"profile": player_profile.duplicate(true),
 			"team_id": team_id,
 			"role": str(slot.role),
 			"position": Vector3(float(slot.x), 0.0, z_value),
@@ -153,8 +156,16 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 		return {"ok": false, "error": "El equipo local y el visitante deben ser diferentes."}
 	if (not home_player_ids.is_empty() and home_player_ids.size() != 11) or (not away_player_ids.is_empty() and away_player_ids.size() != 11):
 		return {"ok": false, "error": "Cada equipo debe aportar exactamente once identificadores de titulares."}
-	var home_lineup := build_lineup(home_team_id, true, home_player_ids)
-	var away_lineup := build_lineup(away_team_id, false, away_player_ids)
+	var player_profiles: Dictionary = {}
+	var football_data_service := get_node_or_null("/root/FootballData")
+	if football_data_service != null:
+		var registry_value: Variant = football_data_service.get("registry")
+		if registry_value != null:
+			var profile_catalog: Variant = registry_value.get("players_by_id")
+			if profile_catalog is Dictionary:
+				player_profiles = profile_catalog
+	var home_lineup := build_lineup(home_team_id, true, home_player_ids, player_profiles)
+	var away_lineup := build_lineup(away_team_id, false, away_player_ids, player_profiles)
 	if not validate_lineups(home_lineup, away_lineup):
 		return {"ok": false, "error": "Las alineaciones 11 contra 11 no superaron la validación."}
 	_home_team_id = home_team_id
@@ -489,6 +500,13 @@ func _create_ai_actor(player_data: Dictionary) -> void:
 	actor.position = player_data.position
 	actor.add_to_group("match_players")
 	var is_home := bool(player_data.home_team)
+	var profile: Dictionary = player_data.get("profile", {})
+	var attributes: Dictionary = profile.get("attributes", {})
+	var speed_rating := float(attributes.get("spd", 70.0))
+	var goalkeeper_speed_rating := float(attributes.get("gkspd", speed_rating))
+	var movement_speed := clampf(3.8 + speed_rating / 99.0 * 1.5, 3.8, 5.3)
+	if str(player_data.role) == "GK":
+		movement_speed = clampf(3.7 + goalkeeper_speed_rating / 99.0 * 0.9, 3.8, 4.6)
 	var kit_color: Color = _team_colors.home if is_home else _team_colors.away
 	var body := MeshInstance3D.new()
 	var body_mesh := CapsuleMesh.new()
@@ -520,9 +538,14 @@ func _create_ai_actor(player_data: Dictionary) -> void:
 		"team_id": str(player_data.team_id),
 		"home_team": is_home,
 		"role": str(player_data.role),
+		"display_name": str(profile.get("display_name", profile.get("name", player_data.player_id))),
+		"primary_position": str(profile.get("primary_position", player_data.role)),
+		"overall": int(profile.get("estimated_overall", 0)),
+		"attributes": attributes.duplicate(true),
+		"preferred_foot": str(profile.get("preferred_foot", "right")),
 		"home_position": player_data.position,
 		"target": player_data.position,
-		"speed": 5.0 if str(player_data.role) != "GK" else 4.2,
+		"speed": movement_speed,
 		"stamina": 100.0,
 		"kick_cooldown": 0.0,
 		"tackle_cooldown": 0.0
