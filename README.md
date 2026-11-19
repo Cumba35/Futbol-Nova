@@ -32,3 +32,4 @@ Las alternativas públicas, sus licencias, compatibilidad Android y decisiones d
 ## Investigación complementaria — 18-11-2026
 
 - [Anexo de repositorios públicos Godot, controles Android y prioridades de validación](docs/GITHUB_RESEARCH_ADDENDUM_2026-11-18.md).
+- [Investigación de pantallas, plantillas y estadios (19-11-2026)](research/SCREEN_ROSTER_STADIUM_RESEARCH_2026-11-19.md).
