@@ -3,6 +3,7 @@ extends SceneTree
 const MAIN_SCENE_PATH := "res://scenes/main.tscn"
 const MATCH_CLOCK_STATE := preload("res://scripts/gameplay/match_clock_state_machine.gd")
 const MATCH_11V11 := preload("res://scripts/gameplay/match_11v11_controller.gd")
+const MOMENTS_SERVICE_SCRIPT := preload("res://scripts/moments/daily_moments_service.gd")
 
 func _initialize() -> void:
 	call_deferred("_run_acceptance_test")
