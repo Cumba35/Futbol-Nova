@@ -17,7 +17,7 @@ GLuint program=0; GLint mvpLoc=-1,colorLoc=-1;
 int screenW=1,screenH=1; bool paused=false;
 float stickX=0,stickY=0; bool shoot=false,pass=false,skill=false,pressure=false; int joystickPointer=-1,pressurePointer=-1;
 float ballX=0,ballZ=.72f,ballY=.22f,ballVX=0,ballVY=0,ballVZ=0;
-float playerX=0,playerZ=0.0f,playerYaw=3.1415926f,matchTime=0,matchSeconds=0; int homeScore=0,awayScore=0; int controlledPlayer=9;
+float playerX=0,playerZ=0.0f,playerYaw=3.1415926f,matchTime=0,matchSeconds=0; int homeScore=0,awayScore=0; int controlledPlayer=9; float halfDurationSeconds=180.0f; int matchPhase=0; bool homeDefendsNegative=true;
 Mesh fieldMesh{},lineMesh{},sphereMesh{},standMesh{},goalMesh{};
 std::array<V3,22> players{};
 std::array<float,22> playerHeight{};
@@ -114,7 +114,7 @@ void drawPlayer(const std::array<float,16>&vp,V3 p,bool home,float yaw,int slot)
 }
 void updateKeeper(int team,float dt){
  int slot=team==0?0:11;
- float direction=team==0?-1.0f:1.0f;
+ float direction=team==0?(homeDefendsNegative?-1.0f:1.0f):(homeDefendsNegative?1.0f:-1.0f);
  float goalZ=direction*52.5f;
  float homeLine=direction*49.5f;
  KeeperState &state=keepers[(size_t)team];
@@ -187,7 +187,8 @@ void update(float dt){
   V3 base=formation[local];
   float support=std::clamp(ballZ/70.0f,-.22f,.22f);
   float tx=base.x+std::clamp(ballX*.18f,-7.0f,7.0f);
-  float tz=(i<11?base.z:-base.z)+support*12.0f;
+  float attackDirection=homeDefendsNegative?1.0f:-1.0f;
+  float tz=(i<11?base.z:-base.z)*attackDirection+support*12.0f*attackDirection;
   if(i==nearestHome||i==nearestAway){tx=ballX;tz=ballZ+(i<11?-1.1f:1.1f);}
   float dx=tx-players[(size_t)i].x,dz=tz-players[(size_t)i].z;
   float d=std::sqrt(dx*dx+dz*dz);
@@ -221,9 +222,9 @@ void update(float dt){
  // Body contacts must not push either goalkeeper out of the goal mouth.
  // Keep each keeper inside the six-yard defensive corridor after separation.
  players[0].x=std::clamp(players[0].x,-3.15f,3.15f);
- players[0].z=std::clamp(players[0].z,-51.0f,-48.8f);
  players[11].x=std::clamp(players[11].x,-3.15f,3.15f);
- players[11].z=std::clamp(players[11].z,48.8f,51.0f);
+ if(homeDefendsNegative){players[0].z=std::clamp(players[0].z,-51.0f,-48.8f);players[11].z=std::clamp(players[11].z,48.8f,51.0f);}
+ else{players[0].z=std::clamp(players[0].z,48.8f,51.0f);players[11].z=std::clamp(players[11].z,-51.0f,-48.8f);}
  // Keep the controlled-player coordinates synchronized after contact resolution.
  playerX=players[(size_t)controlledPlayer].x;playerZ=players[(size_t)controlledPlayer].z;
  float dx=std::sin(playerYaw),dz=-std::cos(playerYaw);
@@ -293,7 +294,7 @@ void update(float dt){
     if(vn<0){float restitution=keeper?.78f:.48f;ballVX-=(1.0f+restitution)*vn*nx;ballVZ-=(1.0f+restitution)*vn*nz;}
     if(keeper){
      // A keeper parry must send the ball away from the defended goal, not merely reflect it.
-     float clearanceDirection=i==0?1.0f:-1.0f;
+     float clearanceDirection=i==0?(homeDefendsNegative?1.0f:-1.0f):(homeDefendsNegative?-1.0f:1.0f);
      ballVZ=clearanceDirection*std::max(5.5f,std::abs(ballVZ)*.72f);
      ballVX+=std::clamp((ballX-px)*2.0f,-4.5f,4.5f);
      ballVY=std::max(ballVY,1.8f);
@@ -304,8 +305,10 @@ void update(float dt){
   }
  }
  collideGoalFrame();
- bool homeGoal=(oldZ<53.0f&&ballZ>=53.0f&&std::abs(ballX)<3.44f&&ballY<2.22f);
- bool awayGoal=(oldZ>-53.0f&&ballZ<=-53.0f&&std::abs(ballX)<3.44f&&ballY<2.22f);
+ bool crossedPositive=oldZ<53.0f&&ballZ>=53.0f&&std::abs(ballX)<3.44f&&ballY<2.22f;
+ bool crossedNegative=oldZ>-53.0f&&ballZ<=-53.0f&&std::abs(ballX)<3.44f&&ballY<2.22f;
+ bool homeGoal=homeDefendsNegative?crossedPositive:crossedNegative;
+ bool awayGoal=homeDefendsNegative?crossedNegative:crossedPositive;
  if(homeGoal){
   homeScore++;playerX=0;playerZ=0;players[(size_t)controlledPlayer]={0,0,0};players[0]={0,0,-49.5f};players[11]={0,0,49.5f};
   ballX=0;ballZ=.72f;ballY=.22f;ballVX=ballVY=ballVZ=0;keepers={};
@@ -320,11 +323,16 @@ void update(float dt){
  if(ballZ<-55.0f){ballZ=-55.0f;ballVZ=std::abs(ballVZ)*.45f;}
 }
 }
-extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeInit(JNIEnv*,jobject){homeScore=awayScore=0;matchSeconds=0;matchTime=0;controlledPlayer=9;stickX=stickY=0;shoot=pass=skill=pressure=false;joystickPointer=pressurePointer=-1;paused=false;makeProgram();initField();setupTeams();glEnable(GL_DEPTH_TEST);glClearColor(.015f,.045f,.075f,1);}
+extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeInit(JNIEnv*,jobject){homeScore=awayScore=0;matchSeconds=0;matchTime=0;matchPhase=0;homeDefendsNegative=true;controlledPlayer=9;stickX=stickY=0;shoot=pass=skill=pressure=false;joystickPointer=pressurePointer=-1;paused=false;makeProgram();initField();setupTeams();glEnable(GL_DEPTH_TEST);glClearColor(.015f,.045f,.075f,1);}
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeResize(JNIEnv*,jobject,jint w,jint h){screenW=std::max(1,(int)w);screenH=std::max(1,(int)h);glViewport(0,0,screenW,screenH);}
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeFrame(JNIEnv*,jobject){
  static double last=0; timespec ts{};clock_gettime(CLOCK_MONOTONIC,&ts);double now=ts.tv_sec+ts.tv_nsec*1e-9;float dt=last==0?0.016f:(float)std::clamp(now-last,0.001,0.04);last=now;
- if(!paused){update(dt);matchSeconds+=dt;}glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);glUseProgram(program);
+ if(!paused){
+  update(dt);matchSeconds+=dt;
+  if(matchPhase==0&&matchSeconds>=halfDurationSeconds){matchSeconds=halfDurationSeconds;matchPhase=1;paused=true;}
+  else if(matchPhase==2&&matchSeconds>=halfDurationSeconds){matchSeconds=halfDurationSeconds;matchPhase=3;paused=true;}
+ }
+ glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);glUseProgram(program);
  float aspect=(float)screenW/(float)screenH;auto proj=perspective(.92f,aspect,.1f,180.0f);
  V3 eye{playerX-std::sin(playerYaw)*18.0f,10.5f,playerZ+std::cos(playerYaw)*18.0f},center{ballX*.40f+playerX*.60f,1.0f,ballZ*.40f+playerZ*.60f};auto vp=mul(proj,lookAt(eye,center,{0,1,0}));
  draw(standMesh,vp,model(0,0,0,1,1,1),.055f,.085f,.12f);
@@ -377,6 +385,17 @@ extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeSw
  playerX=players[(size_t)controlledPlayer].x;playerZ=players[(size_t)controlledPlayer].z;
  playerYaw=std::atan2(ballX-playerX,-(ballZ-playerZ));
 }
+extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeSetMatchDurationMinutes(JNIEnv*,jclass,jint minutes){halfDurationSeconds=(float)std::clamp((int)minutes,3,20)*60.0f;}
+extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeStartSecondHalf(JNIEnv*,jclass){
+ if(matchPhase!=1)return;
+ homeDefendsNegative=false;
+ for(auto &player:players)player.z=-player.z;
+ playerX=players[(size_t)controlledPlayer].x;playerZ=players[(size_t)controlledPlayer].z;
+ playerYaw=3.1415926f-playerYaw;
+ ballX=0;ballY=.22f;ballZ=0;ballVX=ballVY=ballVZ=0;keepers={};
+ matchSeconds=0;matchPhase=2;paused=false;
+}
+extern "C" JNIEXPORT jint JNICALL Java_com_nova_futbolnova_MainActivity_nativeGetMatchPhase(JNIEnv*,jclass){return matchPhase;}
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativePause(JNIEnv*,jclass,jboolean value){paused=value;}
 
 extern "C" JNIEXPORT jint JNICALL Java_com_nova_futbolnova_MainActivity_nativeGetHomeScore(JNIEnv*,jclass){return homeScore;}
