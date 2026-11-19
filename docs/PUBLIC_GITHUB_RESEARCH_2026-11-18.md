@@ -120,3 +120,26 @@ Se revisó [AKM-8byte/FreeKick](https://github.com/AKM-8byte/FreeKick), un proye
 **Ideas técnicas que merece la pena adaptar de forma independiente:** perfiles de física con rangos validados; percepción del portero basada en muestras pasadas y semilla reproducible; pruebas de decisiones del guardameta con tiros pareados; comparación de colisiones de red mediante barrido de referencia; límites de memoria y densidad visual configurables.
 
 **Decisión:** no se importó código ni assets. El proyecto usa Godot 4.7.2, mientras Fútbol Nova está fijado en Godot 4.4.1; su implementación de red de tela y sus escenas pertenecen a un entrenamiento de tiro libre, no al partido 11v11. La licencia MIT permite reutilización con atribución, pero cualquier eventual portado debe hacerse archivo por archivo, conservando avisos de copyright y pruebas de compatibilidad. Por ahora se documentan patrones y no se introduce una dependencia externa.
+
+
+## Investigación adicional y decisión de física — 19-11-2026
+
+### [awest813/League-Soccer](https://github.com/awest813/League-Soccer)
+
+- Se inspeccionaron `src/onthepitch/ballphysics.cpp`, `ballphysics.hpp` y `tests/onthepitch/ball_physics_test.cpp`.
+- El repositorio incluye una licencia Apache-2.0 verificable en `LICENSE`.
+- Sus pruebas separan gravedad/arrastre, rebote y contacto con césped, fricción, viento y humedad del terreno. Es una buena referencia para diseñar pruebas deterministas de física y para futuras condiciones ambientales.
+- No se copió ni portó el código C++: Fútbol Nova mantiene su modelo GDScript original `scripts/ball_flight_model.gd`, orientado a Godot 4.4.1 y Android ARM64. Cualquier adaptación debe ser independiente, probada y acompañada de atribución/licencia si se incorpora código Apache.
+
+### [aliyavuzz/Godotball](https://github.com/aliyavuzz/Godotball)
+
+- El README declara Godot 4.4.1, GDExtension C++17, física de balón y estructura de IA para 22 jugadores.
+- No se encontró un archivo LICENSE verificable en la ruta esperada durante esta revisión; no se reutiliza código ni assets. La compatibilidad de versión no sustituye la autorización de licencia.
+
+### [namelesssyf/soccer-box-game](https://github.com/namelesssyf/soccer-box-game)
+
+- Se mantiene como referencia conceptual para cuerpos rígidos, porteros IA, telemetría y pruebas. El README indica Godot 4.7.1 y no se confirmó una licencia de reutilización para esta revisión. No se copia código ni assets.
+
+### Mejora propia aplicada
+
+Se corrigió la pausa de partido en `scripts/gameplay/match_11v11_controller.gd`: el balón RigidBody3D se congela conservando su estado cinemático y se restaura al reanudar. Se amplió `tests/test_friendly_match_runtime.gd` para probar el flujo de UI, el estado del balón y su recuperación. Esta corrección es original de Fútbol Nova y no deriva de copiar los fragmentos C++ estudiados.
