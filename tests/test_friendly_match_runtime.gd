@@ -173,7 +173,7 @@ func _run_acceptance_test() -> void:
 					if absf(float(game.player.global_position.x) - player_x_before_touch) < 0.15:
 						failures.append("El joystick táctil no desplazó al futbolista controlado durante el amistoso.")
 					var action_layout: Dictionary = touch_layer.call("_button_layout")
-					var player_forward := -game.player.global_transform.basis.z
+					var player_forward: Vector3 = -game.player.global_transform.basis.z
 					game.match_11v11_controller.call("_clear_ball_possession")
 					game.ball.freeze = false
 					game.ball.sleeping = false
