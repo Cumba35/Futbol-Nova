@@ -1652,6 +1652,8 @@ func _open_settings_category(category: String) -> void:
 	match category:
 		"Controles":
 			_show_controller_content()
+		"Audio":
+			_show_audio_settings()
 		"Información":
 			_add_info_card("FÚTBOL NOVA", "Juego de fútbol masculino. Versión de desarrollo. Algunas funciones aún están en construcción.")
 		"Datos":
@@ -1667,6 +1669,37 @@ func _open_settings_category(category: String) -> void:
 	back.pressed.connect(_show_settings)
 	content_box.add_child(back)
 	status_label.text = "Submenú: " + category
+
+func _show_audio_settings() -> void:
+	_add_info_card("VOLUMEN GENERAL", "Ajusta el volumen de todos los sonidos del juego. El cambio se aplica inmediatamente y se guarda en este dispositivo.")
+	var volume_label := _label("Volumen principal: %d%%" % int(round(NovaPreferences.master_volume * 100.0)), 15, WHITE)
+	volume_label.name = "MasterVolumeValue"
+	content_box.add_child(volume_label)
+	var volume_slider := HSlider.new()
+	volume_slider.name = "MasterVolumeSlider"
+	volume_slider.min_value = 0.0
+	volume_slider.max_value = 100.0
+	volume_slider.step = 1.0
+	volume_slider.value = NovaPreferences.master_volume * 100.0
+	volume_slider.custom_minimum_size.y = 36
+	volume_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	volume_slider.value_changed.connect(_on_master_volume_changed.bind(volume_label))
+	content_box.add_child(volume_slider)
+	var mute := CheckBox.new()
+	mute.name = "MasterMuteToggle"
+	mute.text = "Silenciar todo el juego"
+	mute.button_pressed = NovaPreferences.master_muted
+	mute.add_theme_color_override("font_color", WHITE)
+	mute.toggled.connect(_on_master_mute_toggled)
+	content_box.add_child(mute)
+	_add_info_card("MÚSICA Y EFECTOS", "La mezcla actual solo expone el bus principal. Los controles independientes de música, efectos y comentarios se habilitarán cuando esos canales estén configurados; no se muestran interruptores que todavía no tengan efecto.")
+
+func _on_master_volume_changed(value: float, value_label: Label) -> void:
+	NovaPreferences.set_master_volume(value / 100.0)
+	value_label.text = "Volumen principal: %d%%" % int(round(value))
+
+func _on_master_mute_toggled(muted: bool) -> void:
+	NovaPreferences.set_master_muted(muted)
 
 func _add_info_card(title_text: String, body_text: String) -> void:
 	var panel := _make_panel()
