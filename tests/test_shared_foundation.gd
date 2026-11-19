@@ -19,6 +19,7 @@ func _initialize() -> void:
 	_test_standings(failures)
 	_test_match_reproducibility(failures)
 	_test_default_friendly_teams(failures)
+	_test_autoload_safe_pre_match_source(failures)
 	_test_profile_validation(failures)
 	_test_cuba_catalog_import(failures)
 	_test_data_service(failures)
@@ -31,6 +32,19 @@ func _initialize() -> void:
 		for failure in failures:
 			push_error(failure)
 		quit(1)
+
+func _test_autoload_safe_pre_match_source(failures: PackedStringArray) -> void:
+	var setup_source := FileAccess.get_file_as_string("res://scripts/ui/pre_match_setup.gd")
+	if setup_source.is_empty():
+		failures.append("PreMatch: no se pudo leer el script de preparación del amistoso")
+	elif setup_source.contains("FootballData."):
+		failures.append("PreMatch: no debe depender del identificador global FootballData al compilarse aislado")
+	elif not setup_source.contains('get_node_or_null("/root/FootballData")'):
+		failures.append("PreMatch: debe resolver FootballData dinámicamente desde el árbol")
+
+	var main_source := FileAccess.get_file_as_string("res://scripts/main.gd")
+	if main_source.contains("var active_match :="):
+		failures.append("Main: active_match debe tener tipo bool explícito para Godot 4.4.1")
 
 func _test_scheduler(failures: PackedStringArray) -> void:
 	var fixtures := Scheduler.create_fixtures(["a", "b", "c", "d"], "league_1", "season_1", true)
