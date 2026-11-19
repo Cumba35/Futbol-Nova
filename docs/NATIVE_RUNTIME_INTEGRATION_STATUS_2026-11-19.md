@@ -17,22 +17,24 @@ Fecha: 2026-11-19. Rama: `work/native-3d-engine`.
 - Java 17 para la aplicación Android e interfaz adaptativa.
 - C++17 y OpenGL ES 3.0 para renderizado y simulación inicial.
 - Formación 4-3-3 procedural para 22 futbolistas.
-- Cámara de perspectiva más baja y seguimiento del centro de acción.
+- Cámara de tercera persona, más baja, que sigue la posición y orientación del futbolista controlado.
 - Campo, líneas, estructuras de grada simplificadas y marcos de portería.
 - Blockout corporal mejorado con torso, cabeza, brazos, muslos, piernas y movimiento procedural.
 - Atributos de altura, GRL, ritmo, regate y defensa procedentes de los datos de la plantilla.
-- Controles táctiles diferenciados para movimiento, pase, tiro, técnica y presión defensiva.
+- Controles táctiles con zonas corregidas para movimiento, pase, tiro, regate y presión; se corrigió el desajuste entre coordenadas dibujadas y zonas táctiles en pantallas panorámicas.
+- Movimiento de balón condicionado a la proximidad del jugador, toque de regate y presión defensiva aplicada al equipo controlado.
+- Reloj de partido, marcador actualizado y detección básica de gol entre los postes.
 - IA inicial que desplaza las líneas y acompaña la acción; todavía no equivale a una IA táctica completa.
 
 ## Límites que se mantienen deliberadamente
 
 - El archivo `data/base_league_clubs_2026.json` registra 451 clubes de referencia; `global_clubs.generated.json` contiene un lote generado de 68. No se deben sumar ni anunciar como clubes jugables. El catálogo de nombres de clubes no equivale a plantillas validadas.
 - Las demás ligas/temporadas y las selecciones nacionales siguen sujetas a sus estados de verificación, procedencia y validación del motor. Estar empaquetadas como JSON no las convierte en contenido jugable.
-- Los modelos de jugadores siguen siendo un blockout procedural, no modelos humanos de alta fidelidad ni equivalentes visuales a FIFA/FC.
+- Los modelos de jugadores siguen siendo un blockout procedural de primitivas, no modelos humanos de alta fidelidad ni equivalentes visuales a FIFA/FC.
 - Los menús de carrera, entrenador, ligas, copas, TAS y entrenamiento están representados en el catálogo, pero sus sistemas de juego aún deben construirse y probarse.
-- El amistoso todavía necesita reloj y marcador conectados a reglas, goles/saques, árbitro, sustituciones, faltas, fueras de juego, porteros funcionales, animaciones esqueléticas, repetición y pruebas completas en teléfono.
+- El reloj y marcador básicos ya están conectados al motor, y existe detección inicial de goles; todavía faltan saques de centro y reinicio correcto de posiciones, árbitro, sustituciones, faltas, fueras de juego, porteros funcionales, animaciones esqueléticas, repetición y pruebas completas en teléfono.
 - Los estadios listados en la especificación de producto aún deben convertirse en escenarios 3D reales; las gradas y porterías actuales son primitivas de prueba.
 
 ## Pruebas y publicación
 
-La compilación de CI debe completar `:app:assembleDebug`, verificar el APK y comprobar que contiene `lib/arm64-v8a/libfutbolnova.so`. La compilación correcta no sustituye la instalación y prueba del partido en un dispositivo Android real. No publicar el APK como versión terminada mientras falten los criterios de aceptación.
+La compilación de CI debe completar `:app:assembleDebug`, verificar el APK y comprobar que contiene `lib/arm64-v8a/libfutbolnova.so`. La compilación correcta no sustituye la instalación y prueba del partido en un dispositivo Android real. El workflow ahora también se dispara cuando cambia el directorio canónico `data/`. No publicar el APK como versión terminada mientras falten los criterios de aceptación.
