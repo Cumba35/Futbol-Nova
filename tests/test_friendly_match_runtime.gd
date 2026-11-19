@@ -180,28 +180,36 @@ func _run_acceptance_test() -> void:
 					game.ball.linear_velocity = Vector3.ZERO
 					game.ball.angular_velocity = Vector3.ZERO
 					game.ball.global_position = game.player.global_position + player_forward * 1.25 + Vector3.UP * 0.35
+					var pass_distance_before: float = game.player.global_position.distance_to(game.ball.global_position)
 					touch_layer.call("_begin_touch", 102, action_layout["pass_ball"]["center"])
+					var pass_just_pressed_immediately: bool = Input.is_action_just_pressed("pass_ball")
 					if not Input.is_action_pressed("pass_ball"):
 						failures.append("El control táctil PASE no activó la acción de entrada.")
 					await physics_frame
+					var pass_just_pressed_after_tick: bool = Input.is_action_just_pressed("pass_ball")
 					await physics_frame
 					touch_layer.call("_end_touch", 102)
-					if game.ball.linear_velocity.length() < 1.0:
-						failures.append("El botón táctil PASE no impulsó el balón durante el amistoso.")
+					var pass_velocity_after_touch: float = game.ball.linear_velocity.length()
+					if pass_velocity_after_touch < 1.0:
+						failures.append("PASE no impulsó el balón (distancia %.2f, just_pressed inicial %s, tras tick %s, velocidad %.2f, congelado %s)." % [pass_distance_before, str(pass_just_pressed_immediately), str(pass_just_pressed_after_tick), pass_velocity_after_touch, str(game.ball.freeze)])
 					game.match_11v11_controller.call("_clear_ball_possession")
 					game.ball.freeze = false
 					game.ball.sleeping = false
 					game.ball.linear_velocity = Vector3.ZERO
 					game.ball.angular_velocity = Vector3.ZERO
 					game.ball.global_position = game.player.global_position + player_forward * 1.25 + Vector3.UP * 0.35
+					var shoot_distance_before: float = game.player.global_position.distance_to(game.ball.global_position)
 					touch_layer.call("_begin_touch", 103, action_layout["shoot_ball"]["center"])
+					var shoot_just_pressed_immediately: bool = Input.is_action_just_pressed("shoot_ball")
 					if not Input.is_action_pressed("shoot_ball"):
 						failures.append("El control táctil TIRO no activó la acción de entrada.")
 					await physics_frame
+					var shoot_just_pressed_after_tick: bool = Input.is_action_just_pressed("shoot_ball")
 					await physics_frame
 					touch_layer.call("_end_touch", 103)
-					if game.ball.linear_velocity.length() < 1.0:
-						failures.append("El botón táctil TIRO no impulsó el balón durante el amistoso.")
+					var shoot_velocity_after_touch: float = game.ball.linear_velocity.length()
+					if shoot_velocity_after_touch < 1.0:
+						failures.append("TIRO no impulsó el balón (distancia %.2f, just_pressed inicial %s, tras tick %s, velocidad %.2f, congelado %s)." % [shoot_distance_before, str(shoot_just_pressed_immediately), str(shoot_just_pressed_after_tick), shoot_velocity_after_touch, str(game.ball.freeze)])
 					touch_layer.visible = DisplayServer.is_touchscreen_available()
 				# Exercise the actual pause UI and verify that the independent
 				# RigidBody3D ball is frozen and restored without losing momentum.
