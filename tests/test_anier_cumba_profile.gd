@@ -27,7 +27,9 @@ func _test_watchdog() -> void:
 
 func _has_two_named_parts(parent: Node, prefix: String, excluded_fragment: String = "") -> bool:
 	var matches := 0
-	for child in parent.find_children("*", "Node", true, false):
+	for child in parent.get_children():
+		if not (child is MeshInstance3D) or child.mesh == null:
+			continue
 		var child_name := String(child.name)
 		if child_name.begins_with(prefix) and (excluded_fragment.is_empty() or not child_name.contains(excluded_fragment)):
 			matches += 1
@@ -116,17 +118,17 @@ func _run() -> void:
 	if not _check(anier.find_child("AnierVisual3D", true, false) != null): return
 	if not _check(anier.find_child("torso", true, false) != null): return
 	if not _check(anier.find_child("shirt_untucked_hem", true, false) != null): return
-	if not _check(_has_two_named_parts(anier, "long_sock_"), "Both long socks must be generated"): return
-	if not _check(_has_two_named_parts(anier, "boot_"), "Both boots must be generated"): return
-	if not _check(_has_two_named_parts(anier, "boot_sole_"), "Both boot soles must be generated"): return
-	if not _check(_has_two_named_parts(anier, "boot_gold_design_"), "Both gold boot details must be generated"): return
-	if not _check(_has_two_named_parts(anier, "boot_black_design_"), "Both black boot details must be generated"): return
-	if not _check(_has_two_named_parts(anier, "shin_guard_"), "Both shin guards must be generated"): return
-	if not _check(_has_two_named_parts(anier, "glove_", "_detail_"), "Both gloves must be generated"): return
-	if not _check(_has_two_named_parts(anier, "inner_shirt_sleeve_"), "Both inner-shirt sleeves must be generated"): return
+	if not _check(_has_two_named_parts(anier.visual_root, "long_sock_"), "Both long socks must be generated"): return
+	if not _check(_has_two_named_parts(anier.visual_root, "boot_"), "Both boots must be generated"): return
+	if not _check(_has_two_named_parts(anier.visual_root, "boot_sole_"), "Both boot soles must be generated"): return
+	if not _check(_has_two_named_parts(anier.visual_root, "boot_gold_design_"), "Both gold boot details must be generated"): return
+	if not _check(_has_two_named_parts(anier.visual_root, "boot_black_design_"), "Both black boot details must be generated"): return
+	if not _check(_has_two_named_parts(anier.visual_root, "shin_guard_"), "Both shin guards must be generated"): return
+	if not _check(_has_two_named_parts(anier.visual_root, "glove_", "_detail_"), "Both gloves must be generated"): return
+	if not _check(_has_two_named_parts(anier.visual_root, "inner_shirt_sleeve_"), "Both inner-shirt sleeves must be generated"): return
 	if not _check(anier.find_child("inner_shirt_neckline", true, false) != null): return
-	if not _check(_has_two_named_parts(anier, "glove_red_detail_"), "Both red glove details must be generated"): return
-	if not _check(_has_two_named_parts(anier, "glove_gold_detail_"), "Both gold glove details must be generated"): return
+	if not _check(_has_two_named_parts(anier.visual_root, "glove_red_detail_"), "Both red glove details must be generated"): return
+	if not _check(_has_two_named_parts(anier.visual_root, "glove_gold_detail_"), "Both gold glove details must be generated"): return
 	if not _check(anier.find_child("captain_armband", true, false) != null): return
 	if not _check(anier.find_child("CollisionShape3D", true, false) != null): return
 	if not _check(is_equal_approx(float(anier.get("player_height_m")), 1.71)): return
