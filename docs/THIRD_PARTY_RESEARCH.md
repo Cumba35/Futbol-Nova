@@ -80,3 +80,15 @@ Se revisaron referencias adicionales para UI de partido, plantillas, estadios y 
 6. Mantener la exportación reproducible en GitHub Actions con Godot 4.4.1 y no declarar APK terminada hasta que importación, todas las pruebas y exportación ARM64 concluyan correctamente.
 
 **Fuentes consultadas:** README y LICENSE de los repositorios enlazados arriba. No se copiaron archivos de terceros en esta revisión.
+
+
+## Revisión adicional de repositorios públicos — 19 de noviembre de 2026
+
+| Repositorio | Licencia / tecnología comprobadas | Valor como referencia | Decisión |
+|---|---|---|---|
+| [TechAoba/soccer-game](https://github.com/TechAoba/soccer-game) | MIT confirmada en LICENSE; Godot/GDScript; demo 2D en desarrollo. | Organización de escenas, recursos, shaders y utilidades en un proyecto Godot pequeño. | Referencia de estructura solamente. No aporta un motor 3D 11v11; si se reutiliza código en el futuro, conservar el aviso MIT y auditar individualmente los assets. |
+| [modelence/open-soccer](https://github.com/modelence/open-soccer) | React/TypeScript/Canvas, Modelence y opción Expo; no se encontró LICENSE en la raíz consultada. | Separación del motor por dominios, cámara broadcast, HUD, práctica y estructura de datos para 11v11. | Solo estudiar conceptos de arquitectura. No copiar código, recursos ni datos sin licencia verificable; no adoptar Modelence, CDN, backend ni dependencias web en Fútbol Nova. |
+
+La revisión de [openfootmanager/openfootmanager](https://github.com/openfootmanager/openfootmanager) también confirma GPL-3.0 en LICENSE.md; su simulación de gestión puede inspirar pruebas de temporada, pero no se incorpora código debido al stack Rust/Tauri/React y a las obligaciones copyleft. Esta referencia ya se había registrado anteriormente y se vuelve a comprobar su licencia.
+
+**Conclusión:** no se incorporó código ni assets externos en esta ronda. Se mantiene Godot 4.4.1, GDScript, Android ARM64 y funcionamiento offline; las referencias solo generan ideas para pruebas y arquitectura.
