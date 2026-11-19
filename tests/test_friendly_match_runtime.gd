@@ -100,6 +100,10 @@ func _run_acceptance_test() -> void:
 		else:
 			if setup._home_teams.item_count < 2 or setup._away_teams.item_count < 2:
 				failures.append("La preparación no muestra al menos dos clubes elegibles.")
+			if setup._stadiums.item_count != 3:
+				failures.append("La preparación debe mostrar los tres estadios locales disponibles.")
+			if setup._selected_stadium_id() != "nova_central":
+				failures.append("El estadio Nova Central debe ser la selección inicial.")
 			if setup._start_button.disabled:
 				failures.append("El botón Iniciar amistoso está bloqueado pese a existir dos clubes válidos.")
 			var selected_home_id: String = str(setup._selected_team_id(setup._home_teams))
@@ -108,6 +112,8 @@ func _run_acceptance_test() -> void:
 				failures.append("El amistoso de muestra debe seleccionar Albor Madrid (referencia Real Madrid) a la izquierda.")
 			if selected_away_id != "FN-ESP-BARCELONA":
 				failures.append("El amistoso de muestra debe seleccionar Litoral Barcelona (referencia FC Barcelona) a la derecha.")
+			if setup._stadiums.item_count > 1:
+				setup._stadiums.select(1)
 			var expected_home_name := str(football_registry.teams_by_id.get(selected_home_id, {}).get("name", selected_home_id))
 			var expected_away_name := str(football_registry.teams_by_id.get(selected_away_id, {}).get("name", selected_away_id))
 			if selected_home_id.is_empty() or selected_away_id.is_empty() or selected_home_id == selected_away_id:
@@ -117,6 +123,8 @@ func _run_acceptance_test() -> void:
 				await process_frame
 				print("FRIENDLY_TEST: friendly match started")
 				var summary: Dictionary = game.match_11v11_controller.get_match_summary()
+				if str(game.current_stadium_id) != "bahia_arena":
+					failures.append("El motor no aplicó el estadio seleccionado en la preparación.")
 				if not bool(summary.get("active", false)):
 					failures.append("El motor rechazó el amistoso iniciado desde la pantalla de preparación.")
 				if int(summary.get("home_players", 0)) != 11:
