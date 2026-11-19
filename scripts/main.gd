@@ -499,7 +499,7 @@ func _on_skill_circle_gesture_completed() -> void:
 func _on_goal_body_entered(body: Node3D, _scoring_side: String) -> void:
 	if body != ball:
 		return
-	var active_match := match_11v11_controller != null and match_11v11_controller.is_match_active()
+	var active_match: bool = match_11v11_controller != null and match_11v11_controller.is_match_active()
 	var active_training := not current_training_mode_id.is_empty()
 	if not active_match and not active_training:
 		return
