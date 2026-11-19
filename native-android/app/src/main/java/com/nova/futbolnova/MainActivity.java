@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.MotionEvent;
 import android.widget.*;
@@ -16,6 +17,7 @@ import android.view.Gravity;
 import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public final class MainActivity extends Activity {
     static { System.loadLibrary("futbolnova"); }
@@ -26,9 +28,15 @@ public final class MainActivity extends Activity {
     private CanonicalDataRepository.Team homeTeam, awayTeam;
     private String currentScreen="INICIO";
     private boolean matchRunning=false;
+    private final Handler matchUiHandler=new Handler();
+    private TextView scoreboard;
+    private Runnable scoreRefresh;
 
     private static native void nativeTouch(float x,float y,int action,int width,int height);
     private static native void nativePause(boolean paused);
+    private static native int nativeGetHomeScore();
+    private static native int nativeGetAwayScore();
+    private static native float nativeGetMatchSeconds();
     static native void nativeSetPlayerProfile(int slot,float heightCm,int overall,float pace,float dribbling,float defending);
 
     @Override public void onCreate(Bundle state) {
@@ -143,14 +151,16 @@ public final class MainActivity extends Activity {
         root.removeAllViews();
         FrameLayout gameRoot=new FrameLayout(this);game=new GameSurface();
         gameRoot.addView(game);
-        TextView score=text(homeTeam.name+"   0  -  0   "+awayTeam.name,15,Color.WHITE,true);
-        score.setGravity(Gravity.CENTER);score.setBackgroundColor(0x9907131C);FrameLayout.LayoutParams top=new FrameLayout.LayoutParams(-1,dp(42),Gravity.TOP);gameRoot.addView(score,top);
+        scoreboard=text("",14,Color.WHITE,true);
+        scoreboard.setGravity(Gravity.CENTER);scoreboard.setBackgroundColor(0x9907131C);FrameLayout.LayoutParams top=new FrameLayout.LayoutParams(-1,dp(42),Gravity.TOP);gameRoot.addView(scoreboard,top);
+        scoreRefresh=new Runnable(){@Override public void run(){if(!matchRunning||scoreboard==null)return;int seconds=(int)nativeGetMatchSeconds();scoreboard.setText(homeTeam.name+"   "+nativeGetHomeScore()+" - "+nativeGetAwayScore()+"   "+awayTeam.name+"     "+String.format(Locale.getDefault(),"%02d:%02d",seconds/60,seconds%60));matchUiHandler.postDelayed(this,500);}};
+        matchUiHandler.post(scoreRefresh);
         gameRoot.addView(new TouchHud());
         Button pause=button("PAUSA",()->{nativePause(true);new AlertDialog.Builder(this).setTitle("Partido pausado").setItems(new String[]{"Reanudar","Salir del partido"},(d,w)->{if(w==0)nativePause(false);else returnToMenu();}).setOnCancelListener(d->nativePause(false)).show();});
         FrameLayout.LayoutParams pp=new FrameLayout.LayoutParams(dp(112),dp(48),Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL);gameRoot.addView(pause,pp);
         root.addView(gameRoot);
     }
-    private void returnToMenu(){matchRunning=false;nativePause(true);buildShell();showScreen("INICIO");}
+    private void returnToMenu(){matchRunning=false;if(scoreRefresh!=null)matchUiHandler.removeCallbacks(scoreRefresh);scoreboard=null;nativePause(true);buildShell();showScreen("INICIO");}
     @Override public void onBackPressed(){if(matchRunning)returnToMenu();else super.onBackPressed();}
     private void toast(String s){Toast.makeText(this,s,Toast.LENGTH_SHORT).show();}
 
