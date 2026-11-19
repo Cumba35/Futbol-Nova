@@ -113,10 +113,41 @@ final class CanonicalDataRepository {
             return new JSONObject(out.toString(StandardCharsets.UTF_8.name()));
         }
     }
+    private List<JSONObject> startingElevenAndBench(JSONArray roster) {
+        List<JSONObject> ordered=new ArrayList<>();
+        Set<String> used=new HashSet<>();
+        takePosition(roster,ordered,used,"POR");
+        takePosition(roster,ordered,used,"LD");
+        takePosition(roster,ordered,used,"DFC");
+        takePosition(roster,ordered,used,"DFC");
+        takePosition(roster,ordered,used,"LI");
+        takePosition(roster,ordered,used,"MCD");
+        takePosition(roster,ordered,used,"MC","MCO");
+        takePosition(roster,ordered,used,"MCO","MC");
+        takePosition(roster,ordered,used,"ED","MD");
+        takePosition(roster,ordered,used,"DC");
+        takePosition(roster,ordered,used,"EI","MI");
+        for(int i=0;i<roster.length();i++){
+            JSONObject p=roster.optJSONObject(i);if(p==null)continue;
+            String id=p.optString("id","");
+            if(!id.isEmpty()&&used.add(id))ordered.add(p);
+        }
+        return ordered;
+    }
+    private void takePosition(JSONArray roster,List<JSONObject> out,Set<String> used,String... positions){
+        for(int i=0;i<roster.length();i++){
+            JSONObject p=roster.optJSONObject(i);if(p==null)continue;
+            String id=p.optString("id","");if(id.isEmpty()||used.contains(id))continue;
+            String position=p.optString("position","");
+            boolean match=false;for(String candidate:positions)if(candidate.equals(position)){match=true;break;}
+            if(match){used.add(id);out.add(p);return;}
+        }
+    }
     void applyTeam(int slotStart, Team team) {
         if(team==null||!team.isPlayable())return;
-        for(int i=0;i<22;i++) {
-            JSONObject p=team.players.optJSONObject(i); if(p==null)continue;
+        List<JSONObject> ordered=startingElevenAndBench(team.players);
+        for(int i=0;i<Math.min(22,ordered.size());i++) {
+            JSONObject p=ordered.get(i);
             JSONArray values=p.optJSONArray("attributes");
             float acc=attribute(values,0,70),spd=attribute(values,1,70),drib=attribute(values,18,70);
             float aware=attribute(values,22,70),tack=attribute(values,23,70),slide=attribute(values,24,70);
