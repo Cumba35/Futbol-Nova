@@ -11,6 +11,9 @@ on:
       - "native-android/**"
       - ".github/workflows/futbol-nova-native-android.yml"
   workflow_dispatch:
+concurrency:
+  group: futbol-nova-native-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
