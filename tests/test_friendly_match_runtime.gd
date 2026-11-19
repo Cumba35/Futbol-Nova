@@ -127,7 +127,12 @@ func _run_acceptance_test() -> void:
 							break
 					setup.call("_assign_custom_player_to_selected_team", true)
 					var assigned_roster: Array = setup.call("_get_combined_team_roster", "FN-ESP-REAL-MADRID")
-					if not assigned_roster.any(func(item): return str(item.get("id", "")) == friendly_custom_player_id):
+					var custom_player_in_roster := false
+					for roster_player in assigned_roster:
+						if str(roster_player.get("id", "")) == friendly_custom_player_id:
+							custom_player_in_roster = true
+							break
+					if not custom_player_in_roster:
 						failures.append("El futbolista personalizado no apareció en la plantilla del club local.")
 					var custom_starting_eleven: Array[String] = setup.build_starting_eleven(assigned_roster)
 					if not custom_starting_eleven.has(friendly_custom_player_id):
@@ -489,10 +494,12 @@ func _run_acceptance_test() -> void:
 		game.match_11v11_controller.stop_match()
 	var custom_roster_cleanup: Node = root.get_node_or_null("CustomPlayerRoster")
 	if custom_roster_cleanup != null:
-		for index in range(custom_roster_cleanup.get("_players").size() - 1, -1, -1):
-			if str(custom_roster_cleanup.get("_players")[index].get("id", "")) == "NOVA-FRIENDLY-CUSTOM-ROSTER-TEST":
-				custom_roster_cleanup.get("_players").remove_at(index)
-		custom_roster_cleanup.get("_team_assignments").erase("FN-ESP-REAL-MADRID")
+		var cleanup_players: Array = custom_roster_cleanup.get("_players")
+		var cleanup_assignments: Dictionary = custom_roster_cleanup.get("_team_assignments")
+		for index in range(cleanup_players.size() - 1, -1, -1):
+			if str(cleanup_players[index].get("id", "")) == "NOVA-FRIENDLY-CUSTOM-ROSTER-TEST":
+				cleanup_players.remove_at(index)
+		cleanup_assignments.erase("FN-ESP-REAL-MADRID")
 		custom_roster_cleanup.call("_save_roster")
 	if moments_service != null and not original_moments_state.is_empty():
 		moments_service.set("_state", original_moments_state)
