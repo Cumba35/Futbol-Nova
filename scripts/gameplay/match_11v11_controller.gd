@@ -158,6 +158,12 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 		return {"ok": false, "error": "Cada equipo debe aportar exactamente once identificadores de titulares."}
 	var home_lineup := build_lineup(home_team_id, true, home_player_ids)
 	var away_lineup := build_lineup(away_team_id, false, away_player_ids)
+	var player_records: Dictionary = match_settings.get("players_by_id", {})
+	for lineup in [home_lineup, away_lineup]:
+		for player_data in lineup:
+			var player_id := str(player_data.get("player_id", ""))
+			var record = player_records.get(player_id, {})
+			player_data["player_data"] = record.duplicate(true) if record is Dictionary else {}
 	if not validate_lineups(home_lineup, away_lineup):
 		return {"ok": false, "error": "Las alineaciones 11 contra 11 no superaron la validación."}
 	_home_team_id = home_team_id
@@ -523,6 +529,10 @@ func _create_ai_actor(player_data: Dictionary) -> void:
 	actor.position = player_data.position
 	actor.add_to_group("match_players")
 	var is_home := bool(player_data.home_team)
+	var player_record: Dictionary = player_data.get("player_data", {})
+	var attributes: Dictionary = player_record.get("attributes", {})
+	var pace := clampf(float(attributes.get("spd", 60)), 0.0, 100.0)
+	var actor_speed := 4.2 if str(player_data.role) == "GK" else clampf(4.0 + pace * 0.015, 4.0, 5.8)
 	var kit_color: Color = _team_colors.home if is_home else _team_colors.away
 	var body := MeshInstance3D.new()
 	var body_mesh := CapsuleMesh.new()
@@ -556,7 +566,10 @@ func _create_ai_actor(player_data: Dictionary) -> void:
 		"role": str(player_data.role),
 		"home_position": player_data.position,
 		"target": player_data.position,
-		"speed": 5.0 if str(player_data.role) != "GK" else 4.2,
+		"speed": actor_speed,
+		"display_name": str(player_record.get("display_name", player_record.get("full_name", player_data.player_id))),
+		"overall": int(player_record.get("overall", 0)),
+		"player_data": player_record.duplicate(true),
 		"stamina": 100.0,
 		"kick_cooldown": 0.0,
 		"tackle_cooldown": 0.0
