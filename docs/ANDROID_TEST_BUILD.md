@@ -127,3 +127,12 @@ La revisión del controlador 11v11 encontró que los futbolistas de IA y los por
 La ejecución `44448995746` terminó con fallo en `Core test — live friendly match, goals and periods`. El log identificó dos causas primarias: `scripts/main.gd:502` no podía inferir el tipo de `active_match` en Godot 4.4.1; y `scripts/ui/pre_match_setup.gd` referenciaba el autoload `FootballData` como identificador global en un script pre-cargado por pruebas headless. El acceso inválido posterior a `game_hub` y el timeout eran consecuencias de que la escena principal no llegó a compilar.
 
 Se corrigió `active_match` con tipo explícito `bool`. La pantalla de preparación ahora resuelve el servicio mediante `get_node_or_null("/root/FootballData")`, valida que el registro siga disponible antes de consultar plantillas y vuelve a comprobar que ambos equipos existan al iniciar. Se añadió una prueba de regresión en `test_shared_foundation.gd` para impedir referencias estáticas al autoload y exigir la resolución dinámica. Los cambios están guardados en el repositorio maestro y sincronizados en `Cumba35/Futbol-Nova`; ambos repositorios se releyeron y los seis archivos modificados quedaron idénticos. La incidencia solo se considerará resuelta cuando la siguiente ejecución CI confirme la compilación y las pruebas.
+
+
+### Corrección de importación de datos fuente CSV — 19 noviembre 2026
+
+La ejecución `44449744055` falló antes de ejecutar las pruebas: Godot 4.4.1 intentó importar los archivos de `data/imports/` como tablas de traducción. Esos CSV son datos tabulares de procedencia para herramientas Python, no recursos de localización: sus encabezados (`source_club_id`, `country_code`, etc.) no son códigos de idioma y `verified_player_squads.csv` contiene por ahora solo la cabecera. El importador produjo repetidamente `Condition "bucket_table_size == 0" is true` y el proceso terminó con aborto de memoria (código 134).
+
+La corrección es añadir `data/imports/.gdignore` para excluir únicamente esa carpeta del escaneo/importación de recursos de Godot. Los archivos permanecen en GitHub y siguen disponibles para `tools/build_global_database.py` y las validaciones Python, que acceden al sistema de archivos directamente. El workflow ahora comprueba que el marcador y los tres CSV existan antes de importar el proyecto.
+
+**Validación pendiente:** la siguiente ejecución debe superar `Import project resources` y continuar con las pruebas Godot. No se considera corregido hasta que el workflow completo termine correctamente; todavía no hay APK nueva confirmada.
