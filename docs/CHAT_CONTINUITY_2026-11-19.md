@@ -65,3 +65,8 @@ El primer CI de porteros falló por cierre ausente del namespace C++ antes de JN
 - Referencias revisadas: `TheAmgadX/Soccer-AI` (C++17, FSM de jugadores/portero/tácticas, 2D/SDL2), `Ademola-Game-dev/League-Soccer` (motor 3D, 22 jugadores, OpenGL, Apache-2.0) y `FlavioMili/Player12` (simulación compartida de partido, C++23/SDL3). Se registraron como referencias; no se incorporó código externo todavía por diferencias de plataforma, dependencias y arquitectura.
 - Próximo trabajo: proteger el área de los porteros tras la separación de colisiones y mejorar la IA de los jugadores de campo. No cerrar P0 sin pruebas de partido en Android.
 - Documento técnico ampliado en `docs/NATIVE_RUNTIME_INTEGRATION_STATUS_2026-11-19.md`.
+
+
+## Ajuste de porteros tras colisiones — 2026-11-19
+
+Se corrigió el efecto secundario de la separación de jugadores que podía desplazar a los porteros fuera del área que protegen. Después de resolver contactos, las coordenadas X/Z de los porteros 0 y 11 se limitan a sus respectivos corredores. Commit `14a8797f8321d2d79c6c8d4b701c69498ce45b45`; archivo releído y verificado. La CI exitosa anterior es del commit `39c4ddcb1c7858ef46689881a09abfe6dfd3e469`, así que este ajuste todavía necesita su propia compilación.
