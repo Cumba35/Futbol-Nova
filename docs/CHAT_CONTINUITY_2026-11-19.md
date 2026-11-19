@@ -56,3 +56,12 @@ Estado honesto: cambio guardado y releído en GitHub; todavía no hay evidencia 
 ## Continuidad — corrección CI y despejes de portero (2026-11-19)
 
 El primer CI de porteros falló por cierre ausente del namespace C++ antes de JNI. Se corrigió en `d6fabd32aabeed4278bd94ac936750cf833a5f6d`. Luego se añadió despeje dirigido del portero (hacia el campo, con componente lateral y elevación) y se eliminaron parámetros no usados de la colisión del marco en `8463db93b7a74b5443408b48c750eb6a8c059c29`. El archivo `native_engine.cpp` fue releído y verificado en GitHub. CI `44640197543` corresponde al commit de corrección de namespace; falta comprobar CI para el HEAD más reciente con despejes y probar en Android. No declarar la función terminada todavía.
+
+
+## Continuidad — CI ARM64 y referencias públicas (2026-11-19)
+
+- CI `44640197543`, `44640242076` y `44640261718` terminó correctamente. La última compiló el cambio de colisiones de los 22 jugadores y verificó el APK y la biblioteca nativa ARM64.
+- Artefacto disponible en la ejecución `44640261718`: `futbol-nova-native-android-arm64`, ID `14586755428`, 3,428,804 bytes, SHA-256 `34a30da7329e983cffb22c935594405c3b0c30f74e4168238965d0a04b4dbcec`. No se ha probado en el teléfono.
+- Referencias revisadas: `TheAmgadX/Soccer-AI` (C++17, FSM de jugadores/portero/tácticas, 2D/SDL2), `Ademola-Game-dev/League-Soccer` (motor 3D, 22 jugadores, OpenGL, Apache-2.0) y `FlavioMili/Player12` (simulación compartida de partido, C++23/SDL3). Se registraron como referencias; no se incorporó código externo todavía por diferencias de plataforma, dependencias y arquitectura.
+- Próximo trabajo: proteger el área de los porteros tras la separación de colisiones y mejorar la IA de los jugadores de campo. No cerrar P0 sin pruebas de partido en Android.
+- Documento técnico ampliado en `docs/NATIVE_RUNTIME_INTEGRATION_STATUS_2026-11-19.md`.
