@@ -336,3 +336,8 @@ La auditoría `data/historical_completion_audit_2026-11-17.json` registra el tra
 - Plantilla: club `FN-ESP-BARCELONA` (Litoral Barcelona); jugador controlado en amistosos cuando Litoral Barcelona es local.
 - Prueba automatizada: `tests/test_maximo_padilla_profile.gd`, ejecutada antes de exportar el APK.
 - Pendiente de validación en Godot/Android: el runner de GitHub Actions no ha sido asignado; no hay APK probado.
+
+
+## Corrección CI 44507868982 — 19-11-2026
+
+La prueba headless de Máximo Padilla ahora desactiva el procesamiento físico antes de añadir el jugador al SceneTree. El test de perfil inspecciona la escena y no debe iniciar el controlador de partido; la prueba separada de InputMap valida las acciones reales del proyecto. El dorsal verificado es 30. Informe: [diagnóstico CI 44507868982](docs/CI_44507868982_DIAGNOSIS.md). La nueva CI debe terminar antes de confirmar el éxito o la APK.
