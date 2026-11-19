@@ -118,6 +118,7 @@
 - [ ] Pruebas de navegación, persistencia y recuperación tras cierre inesperado.
 
 ## Fase 4 — Partido jugable
+- [x] Corregir la liberación de posesión de la IA: pases y despejes de campo/portero aplican impulso al balón mediante una operación común; prueba RigidBody3D añadida (confirmación CI pendiente).
 - [ ] Dos equipos y 22 jugadores.
 - [ ] IA de compañeros, rivales y porteros.
 - [ ] Reglas, árbitro, faltas y fuera de juego.
