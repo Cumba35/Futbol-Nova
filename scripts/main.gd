@@ -548,9 +548,10 @@ func _reset_training_ball() -> void:
 			spawn_position = Vector3(0.0, 0.35, 44.0)
 		"free_practice":
 			spawn_position = Vector3(0.0, 0.35, 0.0)
-	if match_11v11_controller != null and match_11v11_controller.has_method("reset_ball_for_restart"):
-		match_11v11_controller.reset_ball_for_restart(spawn_position)
-	else:
+	var reset_by_controller := false
+	if is_instance_valid(match_11v11_controller) and match_11v11_controller.has_method("reset_ball_for_restart"):
+		reset_by_controller = bool(match_11v11_controller.call("reset_ball_for_restart", spawn_position))
+	if not reset_by_controller and is_instance_valid(ball):
 		ball.freeze = false
 		ball.sleeping = false
 		ball.linear_velocity = Vector3.ZERO
@@ -559,8 +560,10 @@ func _reset_training_ball() -> void:
 		ball.reset_physics_interpolation()
 
 func _reset_ball() -> void:
-	if match_11v11_controller != null and match_11v11_controller.has_method("reset_ball_for_restart"):
-		match_11v11_controller.reset_ball_for_restart(Vector3(0.0, 0.35, 0.0))
+	var reset_by_controller := false
+	if is_instance_valid(match_11v11_controller) and match_11v11_controller.has_method("reset_ball_for_restart"):
+		reset_by_controller = bool(match_11v11_controller.call("reset_ball_for_restart", Vector3(0.0, 0.35, 0.0)))
+	if reset_by_controller or not is_instance_valid(ball):
 		return
 	ball.freeze = false
 	ball.sleeping = false
