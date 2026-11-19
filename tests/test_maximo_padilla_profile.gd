@@ -10,7 +10,7 @@ func _initialize() -> void:
 
 func _test_watchdog() -> void:
 	await create_timer(45.0).timeout
-	push_error("MAXIMO PADILLA PROFILE TEST: superó el límite interno de 120 segundos.")
+	push_error("MAXIMO PADILLA PROFILE TEST: superó el límite interno de 45 segundos.")
 	quit(1)
 
 func _run() -> void:
@@ -64,6 +64,7 @@ func _run() -> void:
 	var collision := instance.get_node_or_null("CollisionShape3D") as CollisionShape3D
 	assert(collision != null and collision.shape is CapsuleShape3D, "El jugador necesita una cápsula de colisión")
 	assert(is_equal_approx((collision.shape as CapsuleShape3D).height, 1.8), "La colisión debe corresponder a 180 cm")
+	instance.set_physics_process(false)
 	root.add_child(instance)
 	await create_timer(0.01).timeout
 	var visual := instance.get_node_or_null("MaximoPadillaVisual3D") as Node3D
@@ -75,7 +76,6 @@ func _run() -> void:
 	instance.queue_free()
 	await create_timer(0.01).timeout
 	var career_service = preload("res://scripts/legend/legend_career_service.gd").new()
-	root.add_child(career_service)
 	var career_result: Dictionary = career_service.start_career_from_catalog(found)
 	assert(career_result.get("ok", false), "Máximo debe poder iniciar una carrera desde el catálogo: %s" % str(career_result.get("error", career_result.get("errors", []))))
 	var career_player: Dictionary = career_result.get("career", {}).get("player", {})
@@ -84,6 +84,6 @@ func _run() -> void:
 	assert(str(career_player.get("shirt_name", "")) == "PADILLA", "El nombre de uniforme debe conservarse")
 	assert(str(career_result.get("career", {}).get("club_id", "")) == "FN-ESP-BARCELONA", "Debe conservarse el club elegido")
 	print("MAXIMO_PROFILE_TEST: career validated")
-	career_service.queue_free()
+	career_service.free()
 	print("FUTBOL_NOVA_MAXIMO_PADILLA_PROFILE_TEST: PASS")
 	quit(0)
