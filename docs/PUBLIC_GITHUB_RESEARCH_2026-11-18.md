@@ -111,3 +111,12 @@ Se revisaron además estos repositorios públicos en GitHub:
 | [golviral/FootballUni](https://github.com/golviral/FootballUni) | README con controles teclado/táctiles y lobby multijugador; no se encontró `project.godot` ni LICENSE en las rutas consultadas | Inventario de acciones táctiles como referencia para revisar accesibilidad de controles | Evidencia insuficiente para integración; no copiar código/assets |
 
 La referencia más cercana por alcance es `mdmuntakim/pitch`, pero usa Godot 4.5.2 y no expone una licencia en la raíz revisada. Por ello no se importó código. Se mantiene Fútbol Nova en Godot 4.4.1 y offline; se prioriza robustecer pruebas de toque, pelota, IA y reinicios dentro del motor propio.
+
+
+## Auditoría de referencia Godot — FreeKick — 19 noviembre 2026
+
+Se revisó [AKM-8byte/FreeKick](https://github.com/AKM-8byte/FreeKick), un proyecto público de entrenamiento de tiros libres 3D. Su README indica Godot 4.7.2 y su archivo `LICENSE` confirma MIT. Se inspeccionaron `scripts/ball_physics_profile.gd`, `scripts/keeper_perception.gd`, `scripts/goal_net.gd`, `tests/keeper_perception_tests.gd` y `tests/net_broadphase_tests.gd`.
+
+**Ideas técnicas que merece la pena adaptar de forma independiente:** perfiles de física con rangos validados; percepción del portero basada en muestras pasadas y semilla reproducible; pruebas de decisiones del guardameta con tiros pareados; comparación de colisiones de red mediante barrido de referencia; límites de memoria y densidad visual configurables.
+
+**Decisión:** no se importó código ni assets. El proyecto usa Godot 4.7.2, mientras Fútbol Nova está fijado en Godot 4.4.1; su implementación de red de tela y sus escenas pertenecen a un entrenamiento de tiro libre, no al partido 11v11. La licencia MIT permite reutilización con atribución, pero cualquier eventual portado debe hacerse archivo por archivo, conservando avisos de copyright y pruebas de compatibilidad. Por ahora se documentan patrones y no se introduce una dependencia externa.
