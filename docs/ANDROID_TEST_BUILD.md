@@ -143,3 +143,12 @@ La corrección es añadir `data/imports/.gdignore` para excluir únicamente esa 
 La ejecución `44450427320` superó la importación de recursos, la validación de 519 nombres de clubes, el archivo histórico, la navegación del hub y el modelo de vuelo del balón. La prueba de fundamentos 11v11 falló al comprobar `linear_velocity` inmediatamente después de llamar a `apply_central_impulse()`, sin esperar el siguiente paso de física.
 
 Se corrigió la prueba para crear un `RigidBody3D` con masa y colisión esférica equivalentes al balón del juego, aplicar el impulso y comprobar la velocidad después de un `physics_frame` adicional. La implementación del controlador no se cambió en esta revisión: primero se está validando que la prueba mida el resultado físico en el momento correcto. La ejecución `44450701630` debe confirmar el ajuste; si vuelve a fallar, se investigará el impulso del cuerpo real antes de modificar la mecánica.
+
+
+### Corrección del reinicio de balón en práctica libre — 19 noviembre 2026
+
+La ejecución `44450701630` confirmó que importación, catálogos, hub, modelo de vuelo y fundamentos 11v11 pasan. La aceptación del amistoso detectó que un gol en práctica libre no devolvía el balón al centro.
+
+La causa estaba en el límite entre `main.gd` y el controlador: `reset_ball_for_restart()` retornaba sin hacer nada cuando el controlador aún no tenía una referencia `_ball` (situación normal antes de iniciar un amistoso), pero la pantalla principal interpretaba la mera existencia del método como un reinicio exitoso y no ejecutaba su alternativa directa sobre `game.ball`.
+
+La función del controlador ahora devuelve `true` solo cuando reinició el cuerpo enlazado y `false` si no tiene balón. Tanto `_reset_training_ball()` como `_reset_ball()` usan ese resultado y aplican la alternativa local cuando hace falta. La prueba de aceptación ya existente comprueba que el balón vuelva al punto de inicio tras un gol en práctica libre. Los dos archivos de código se sincronizaron y releyeron en ambos repositorios; la siguiente ejecución CI debe validar el arreglo.
