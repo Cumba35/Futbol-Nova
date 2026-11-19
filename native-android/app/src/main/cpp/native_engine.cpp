@@ -15,7 +15,7 @@ struct Mesh { GLuint vao=0,vbo=0; GLsizei count=0; GLenum mode=GL_TRIANGLES; };
 GLuint program=0; GLint mvpLoc=-1,colorLoc=-1;
 int screenW=1,screenH=1; bool paused=false;
 float stickX=0,stickY=0; bool shoot=false,pass=false,skill=false,pressure=false;
-float ballX=0,ballZ=0,ballY=.22f,ballVX=0,ballVY=0,ballVZ=0;
+float ballX=0,ballZ=6.35f,ballY=.22f,ballVX=0,ballVY=0,ballVZ=0;
 float playerX=0,playerZ=7.0f,playerYaw=0,matchTime=0;
 Mesh fieldMesh{},lineMesh{},sphereMesh{},standMesh{},goalMesh{};
 std::array<V3,22> players{};
@@ -104,12 +104,21 @@ void update(float dt){
  players[10]={playerX,0,playerZ};
  const V3 formation[11]={{0,0,-45},{22,0,-30},{8,0,-32},{-8,0,-32},{-22,0,-30},{0,0,-10},{15,0,-8},{-15,0,-8},{22,0,18},{0,0,24},{-22,0,18}};
  for(int i=0;i<22;i++){if(i==10)continue;int local=i%11;float dir=i<11?1.0f:-1.0f;V3 base=formation[local];float support=std::clamp((ballZ*dir)/70.0f,-.22f,.22f);float tx=base.x+std::clamp(ballX*.18f,-7.0f,7.0f);float tz=(i<11?base.z:-base.z)+support*12.0f;
- float dx=tx-players[i].x,dz=tz-players[i].z;float d=std::sqrt(dx*dx+dz*dz);float speed=(2.0f+playerPace[i]*.025f)*(pressure&&i>=11?1.65f:1.0f);
+ float dx=tx-players[i].x,dz=tz-players[i].z;float d=std::sqrt(dx*dx+dz*dz);float speed=(2.0f+playerPace[i]*.025f)*(pressure&&i<11?1.65f:1.0f);
  if(d>.08f){float step=std::min(d,speed*dt);players[i].x+=dx/d*step;players[i].z+=dz/d*step;}
  }
- if(pass||shoot){float dx=std::sin(playerYaw);float dz=-std::cos(playerYaw);float power=shoot?25.0f:15.0f;ballVX=dx*power;ballVZ=dz*power;ballVY=shoot?7.0f:2.0f;ballX=playerX+dx*.65f;ballZ=playerZ+dz*.65f;ballY=.35f;shoot=false;pass=false;}
- if(skill){float dx=std::sin(playerYaw),dz=-std::cos(playerYaw);ballX=playerX+dx*.9f;ballZ=playerZ+dz*.9f;ballY=.25f;ballVX=dx*3.8f;ballVZ=dz*3.8f;ballVY=.2f;skill=false;}
- ballX+=ballVX*dt;ballY+=ballVY*dt;ballZ+=ballVZ*dt;ballVY-=9.81f*dt;
+ float dx=std::sin(playerYaw),dz=-std::cos(playerYaw);
+ float ballDistance=std::sqrt((ballX-playerX)*(ballX-playerX)+(ballZ-playerZ)*(ballZ-playerZ));
+ bool controlledPossession=ballDistance<1.45f&&ballY<1.1f;
+ if((pass||shoot)&&controlledPossession){
+  float power=shoot?25.0f:15.0f;ballVX=dx*power;ballVZ=dz*power;ballVY=shoot?7.0f:2.0f;
+  ballX=playerX+dx*.72f;ballZ=playerZ+dz*.72f;ballY=.35f;
+ }
+ if(skill&&controlledPossession){ballX=playerX+dx*.95f;ballZ=playerZ+dz*.95f;ballY=.24f;ballVX=dx*2.4f;ballVZ=dz*2.4f;ballVY=.15f;}
+ shoot=false;pass=false;skill=false;
+ if(controlledPossession&&!pressure&&ballDistance<1.1f){ballX=playerX+dx*.72f;ballZ=playerZ+dz*.72f;ballY=.24f;ballVX=stickX*5.0f;ballVZ=-stickY*5.0f;}
+ else {ballX+=ballVX*dt;ballY+=ballVY*dt;ballZ+=ballVZ*dt;}
+ ballVY-=9.81f*dt;
  ballVX*=std::pow(.985f,dt*60);ballVZ*=std::pow(.985f,dt*60);
  if(ballY<.22f){ballY=.22f;ballVY=std::abs(ballVY)*.38f;if(std::abs(ballVY)<.7f)ballVY=0;}
  for(int i=0;i<22;i++){float dx=ballX-players[i].x,dz=ballZ-players[i].z;float d2=dx*dx+dz*dz;if(d2<.42f&&ballY<1.05f&&std::abs(ballVX)+std::abs(ballVZ)<3.0f){float inv=1.0f/std::max(.01f,std::sqrt(d2));ballVX=dx*inv*2.0f;ballVZ=dz*inv*2.0f;}}
@@ -133,14 +142,22 @@ extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeFr
 }
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeTouch(JNIEnv*,jclass,jfloat x,jfloat y,jint action,jint w,jint h){
  float nx=x/(float)std::max(1,w),ny=y/(float)std::max(1,h);
+ bool joystick=nx<.38f&&ny>.55f;
+ bool pressZone=nx>.78f&&ny>.86f;
+ bool shootZone=nx>.78f&&ny>.68f&&ny<=.86f;
+ bool passZone=nx>.65f&&nx<=.78f&&ny>.48f&&ny<=.68f;
+ bool skillZone=nx>.78f&&ny<=.68f;
  if(action==0||action==2){
-  if(nx<.38f&&ny>.55f){stickX=std::clamp((nx-.17f)*6.0f,-1.0f,1.0f);stickY=std::clamp((ny-.79f)*6.0f,-1.0f,1.0f);}
-  else if(action==0&&nx>.78f&&ny>.86f){pressure=true;}
-  else if(action==0&&nx>.78f&&ny>.68f&&ny<=.86f){shoot=true;}
-  else if(action==0&&nx>.65f&&nx<=.78f&&ny>.48f&&ny<=.68f){pass=true;}
-  else if(action==0&&nx>.78f&&ny<=.68f){skill=true;}
+  if(joystick){stickX=std::clamp((nx-.17f)*6.0f,-1.0f,1.0f);stickY=std::clamp((ny-.79f)*6.0f,-1.0f,1.0f);}
+  if(action==0&&pressZone)pressure=true;
+  if(action==0&&shootZone)shoot=true;
+  if(action==0&&passZone)pass=true;
+  if(action==0&&skillZone)skill=true;
  }
- if(action==1||action==3||action==4){stickX=0;stickY=0;pressure=false;}
+ if(action==1||action==3||action==4||action==6){
+  if(joystick){stickX=0;stickY=0;}
+  if(pressZone)pressure=false;
+ }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeSetPlayerProfile(
