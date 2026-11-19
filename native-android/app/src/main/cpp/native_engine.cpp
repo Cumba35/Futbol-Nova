@@ -16,7 +16,7 @@ struct Mesh { GLuint vao=0,vbo=0; GLsizei count=0; GLenum mode=GL_TRIANGLES; };
 GLuint program=0; GLint mvpLoc=-1,colorLoc=-1;
 int screenW=1,screenH=1; bool paused=false;
 float stickX=0,stickY=0; bool shoot=false,pass=false,skill=false,pressure=false; int joystickPointer=-1,pressurePointer=-1;
-float ballX=0,ballZ=.72f,ballY=.22f,ballVX=0,ballVY=0,ballVZ=0;
+float ballX=0,ballZ=.72f,ballY=.22f,ballVX=0,ballVY=0,ballVZ=0,ballReleaseTimer=0.0f;
 float playerX=0,playerZ=0.0f,playerYaw=3.1415926f,matchTime=0,matchSeconds=0; int homeScore=0,awayScore=0; int controlledPlayer=9; float halfDurationSeconds=180.0f; int matchPhase=0; bool homeDefendsNegative=true;
 Mesh fieldMesh{},lineMesh{},sphereMesh{},standMesh{},goalMesh{};
 std::array<V3,22> players{};
@@ -172,6 +172,7 @@ void collideGoalFrame(){
 }
 void update(float dt){
  matchTime+=dt;
+ ballReleaseTimer=std::max(0.0f,ballReleaseTimer-dt);
  float controlledPace=std::clamp(playerPace[(size_t)controlledPlayer]/75.0f,.75f,1.30f);
  playerX=std::clamp(playerX+stickX*dt*8.0f*controlledPace,-32.0f,32.0f);
  playerZ=std::clamp(playerZ-stickY*dt*8.0f*controlledPace,-50.0f,50.0f);
@@ -229,7 +230,46 @@ void update(float dt){
  playerX=players[(size_t)controlledPlayer].x;playerZ=players[(size_t)controlledPlayer].z;
  float dx=std::sin(playerYaw),dz=-std::cos(playerYaw);
  float ballDistance=std::sqrt((ballX-playerX)*(ballX-playerX)+(ballZ-playerZ)*(ballZ-playerZ));
- bool controlledPossession=ballDistance<1.45f&&ballY<1.1f;
+ bool controlledPossession=ballDistance<1.45f&&ballY<1.1f&&ballReleaseTimer<=0.0f;
+ bool kicked=false;
+ // Give the closest AI player a basic first-touch decision when the user is not in possession.
+ if(!controlledPossession&&ballReleaseTimer<=0.0f&&ballY<.95f&&std::sqrt(ballVX*ballVX+ballVZ*ballVZ)<4.0f){
+  int closest=-1;float closestD=1.0e9f;
+  for(int i=1;i<22;i++){
+   if(i==11||i==controlledPlayer)continue;
+   float ox=players[(size_t)i].x-ballX,oz=players[(size_t)i].z-ballZ,d=ox*ox+oz*oz;
+   if(d<closestD){closestD=d;closest=i;}
+  }
+  if(closest>=0&&closestD<.95f*.95f){
+   bool home=closest<11;
+   float attackDirection=home?(homeDefendsNegative?1.0f:-1.0f):(homeDefendsNegative?-1.0f:1.0f);
+   int first=home?1:12,last=home?10:21,target=-1;float best=1.0e9f;
+   float tx=0.0f,tz=attackDirection*53.0f;
+   bool takeShot=attackDirection*ballZ>31.0f;
+   if(!takeShot){
+    for(int i=first;i<=last;i++){
+     if(i==closest)continue;
+     float ox=players[(size_t)i].x-players[(size_t)closest].x;
+     float oz=players[(size_t)i].z-players[(size_t)closest].z;
+     float distance=std::sqrt(ox*ox+oz*oz);
+     if(distance<2.5f||distance>27.0f)continue;
+     float progress=oz*attackDirection;
+     float score=distance-progress*.35f;
+     if(score<best){best=score;target=i;}
+    }
+   }
+   if(target>=0){tx=players[(size_t)target].x;tz=players[(size_t)target].z;}
+   float kx=tx-players[(size_t)closest].x,kz=tz-players[(size_t)closest].z;
+   float length=std::sqrt(kx*kx+kz*kz);
+   if(length>.001f){
+    kx/=length;kz/=length;
+    ballX=players[(size_t)closest].x+kx*.72f;ballZ=players[(size_t)closest].z+kz*.72f;ballY=.34f;
+    float power=takeShot?22.0f:13.0f;
+    ballVX=kx*power;ballVZ=kz*power;ballVY=takeShot?4.8f:1.4f;
+    ballReleaseTimer=.52f;kicked=true;
+   }
+  }
+ }
  if((pass||shoot)&&controlledPossession){
   float kickX=dx,kickZ=dz;
   if(pass){
@@ -256,15 +296,16 @@ void update(float dt){
   float power=shoot?25.0f:15.0f;
   ballVX=kickX*power;ballVZ=kickZ*power;ballVY=shoot?7.0f:2.0f;
   ballX=playerX+kickX*.72f;ballZ=playerZ+kickZ*.72f;ballY=.35f;
+  ballReleaseTimer=.52f;kicked=true;
  }
- if(skill&&controlledPossession){ballX=playerX+dx*.95f;ballZ=playerZ+dz*.95f;ballY=.24f;ballVX=dx*2.4f;ballVZ=dz*2.4f;ballVY=.15f;}
+ if(skill&&controlledPossession){ballX=playerX+dx*.95f;ballZ=playerZ+dz*.95f;ballY=.24f;ballVX=dx*2.4f;ballVZ=dz*2.4f;ballVY=.15f;kicked=true;}
  shoot=false;pass=false;skill=false;
- if(controlledPossession&&!pressure&&ballDistance<1.1f){
+ if(controlledPossession&&!kicked&&!pressure&&ballDistance<1.1f){
   ballX=playerX+dx*.72f;ballZ=playerZ+dz*.72f;ballY=.24f;
   ballVX=stickX*5.0f;ballVZ=-stickY*5.0f;
  }
  float oldX=ballX,oldZ=ballZ;
- if(!controlledPossession||pressure){
+ if(!controlledPossession||pressure||kicked){
   ballX+=ballVX*dt;ballY+=ballVY*dt;ballZ+=ballVZ*dt;
   ballVY-=9.81f*dt;
  }
@@ -311,7 +352,7 @@ void update(float dt){
  bool awayGoal=homeDefendsNegative?crossedNegative:crossedPositive;
  if(homeGoal){
   homeScore++;playerX=0;playerZ=0;players[(size_t)controlledPlayer]={0,0,0};players[0]={0,0,homeDefendsNegative?-49.5f:49.5f};players[11]={0,0,homeDefendsNegative?49.5f:-49.5f};
-  ballX=0;ballZ=.72f;ballY=.22f;ballVX=ballVY=ballVZ=0;keepers={};
+  ballX=0;ballZ=.72f;ballY=.22f;ballVX=ballVY=ballVZ=0;ballReleaseTimer=0;keepers={};
  }else if(awayGoal){
   awayScore++;playerX=0;playerZ=0;players[(size_t)controlledPlayer]={0,0,0};players[0]={0,0,homeDefendsNegative?-49.5f:49.5f};players[11]={0,0,homeDefendsNegative?49.5f:-49.5f};
   ballX=0;ballZ=.72f;ballY=.22f;ballVX=ballVY=ballVZ=0;keepers={};
@@ -392,7 +433,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeSt
  for(auto &player:players)player.z=-player.z;
  playerX=players[(size_t)controlledPlayer].x;playerZ=players[(size_t)controlledPlayer].z;
  playerYaw=3.1415926f-playerYaw;
- ballX=0;ballY=.22f;ballZ=0;ballVX=ballVY=ballVZ=0;keepers={};
+ ballX=0;ballY=.22f;ballZ=0;ballVX=ballVY=ballVZ=0;ballReleaseTimer=0;keepers={};
  matchSeconds=0;matchPhase=2;paused=false;
 }
 extern "C" JNIEXPORT jint JNICALL Java_com_nova_futbolnova_MainActivity_nativeGetMatchPhase(JNIEnv*,jclass){return matchPhase;}
