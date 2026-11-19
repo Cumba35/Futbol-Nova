@@ -51,3 +51,8 @@ Este registro resume las decisiones y el estado conocido al 2026-11-19. No repre
 Se inició el primer bloque P0 del amistoso 3D. En `native-android/app/src/main/cpp/native_engine.cpp` se incorporó una primera implementación de porteros en los puestos 0 y 11, con seguimiento/anticipación del balón, estirada lateral y bloqueo. También se añadieron colisiones continuas balón-jugador, colisiones con postes/travesaño y comprobación del cruce de la línea de gol. Código guardado en commit `fe26b055510452c46a15491a051041c06e509bbf` de `work/native-3d-engine`.
 
 Estado honesto: cambio guardado y releído en GitHub; todavía no hay evidencia de compilación CI posterior ni de prueba física en Android. No considerar porteros/colisiones terminados hasta revisar CI y probar tiros, paradas, rebotes y goles en el dispositivo. Detalle técnico en `docs/NATIVE_RUNTIME_INTEGRATION_STATUS_2026-11-19.md`.
+
+
+## Continuidad — corrección CI y despejes de portero (2026-11-19)
+
+El primer CI de porteros falló por cierre ausente del namespace C++ antes de JNI. Se corrigió en `d6fabd32aabeed4278bd94ac936750cf833a5f6d`. Luego se añadió despeje dirigido del portero (hacia el campo, con componente lateral y elevación) y se eliminaron parámetros no usados de la colisión del marco en `8463db93b7a74b5443408b48c750eb6a8c059c29`. El archivo `native_engine.cpp` fue releído y verificado en GitHub. CI `44640197543` corresponde al commit de corrección de namespace; falta comprobar CI para el HEAD más reciente con despejes y probar en Android. No declarar la función terminada todavía.
