@@ -50,7 +50,7 @@ static func build_catalog(registry: NovaFootballDataRegistry) -> Dictionary:
 			"confederation_verified_at": str(association.get("confederation_verified_at", ""))
 		})
 	var country_code_aliases := {
-		"Cuba": "CUB", "England": "ENG", "Spain": "ESP", "Brazil": "BRA", "Italy": "ITA", "Germany": "GER", "France": "FRA", "Portugal": "POR", "Argentina": "ARG", "United States": "USA", "USA": "USA", "Türkiye": "TUR",
+		"Cuba": "CUB", "England": "ENG", "Spain": "ESP", "Brazil": "BRA", "Italy": "ITA", "Germany": "GER", "France": "FRA", "Portugal": "POR", "Argentina": "ARG", "United States": "USA", "United States of America": "USA", "USA": "USA", "Türkiye": "TUR",
 		"Belgium": "BEL", "Saudi Arabia": "KSA", "Ecuador": "ECU", "Greece": "GRE",
 		"Egypt": "EGY", "Czechia": "CZE", "Japan": "JPN", "Paraguay": "PAR", "Cyprus": "CYP"
 	}
