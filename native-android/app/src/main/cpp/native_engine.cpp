@@ -134,7 +134,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeFr
  static double last=0; timespec ts{};clock_gettime(CLOCK_MONOTONIC,&ts);double now=ts.tv_sec+ts.tv_nsec*1e-9;float dt=last==0?0.016f:(float)std::clamp(now-last,0.001,0.04);last=now;
  if(!paused){update(dt);matchSeconds+=dt;}glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);glUseProgram(program);
  float aspect=(float)screenW/(float)screenH;auto proj=perspective(.92f,aspect,.1f,180.0f);
- V3 eye{playerX+0.0f,30.0f,playerZ+58.0f},center{ballX*.35f+playerX*.65f,0,ballZ*.35f+playerZ*.65f};auto vp=mul(proj,lookAt(eye,center,{0,1,0}));
+ V3 eye{playerX-std::sin(playerYaw)*18.0f,10.5f,playerZ+std::cos(playerYaw)*18.0f},center{ballX*.40f+playerX*.60f,1.0f,ballZ*.40f+playerZ*.60f};auto vp=mul(proj,lookAt(eye,center,{0,1,0}));
  draw(standMesh,vp,model(0,0,0,1,1,1),.055f,.085f,.12f);
  draw(fieldMesh,vp,identity(),.035f,.34f,.13f);
  draw(lineMesh,vp,identity(),.88f,.94f,.85f);
