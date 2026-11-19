@@ -112,3 +112,11 @@ Nuevo run #193 (44444407781) disparado por el cambio de código, SHA 1efc90260a8
 - GitHub Actions run #193 (ID 44444407781), SHA 1efc90260a8d24e19d0d8b0dd335181a1ece4518: importación, validación de nombres originales y archivo histórico, pruebas del hub/pantallas, física del balón, fundación 11v11, amistoso en vivo y porterías/redes completadas con éxito. La prueba de Máximo Padilla estaba en ejecución en la última consulta; pruebas restantes y exportación APK siguen pendientes.
 - No se declara todavía CI global aprobado, APK exportada ni prueba en dispositivo Android. PR #4 permanece sin fusionar hasta completar la aceptación.
 - Restricción reiterada: desarrollo con GitHub y ChatGPT solamente; sin servicios externos de ejecución, APIs comerciales o SDK de terceros obligatorios.
+
+## Corrección de acciones de entrada detectada en CI — 19-11-2026
+
+- Los logs de GitHub Actions mostraron consultas a acciones inexistentes (`move_left`, `move_right`, `move_forward`, `move_back`, `pass_ball`, `shoot_ball`, `skill_action`, `pressure_action`) durante la instancia del jugador. La causa raíz era que `project.godot` no declaraba estas acciones base; el módulo de mando opcional solo las registraba cuando se instalaba.
+- Corrección guardada en `project.godot`: se registraron las ocho acciones en InputMap con zonas muertas apropiadas y eventos vacíos para permitir que los controles táctiles Android las activen mediante `Input.action_press`; el módulo de mando sigue siendo opcional y añade sus bindings de gamepad.
+- Se añadió `tests/test_input_actions.gd` para verificar que las ocho acciones existen, se pueden pulsar y liberar. Se agregó un paso dedicado al workflow Android antes de las pruebas principales.
+- Commits: `a39be03baaea1f63c838bdafbaefc27d1d58cc33` (InputMap), `535b3d1349c8b3f40a734e8b9ef76c1697c6acd8` (test), `d7276c6d029501c633cda0db44170c4a6218ae12` (workflow).
+- El run #193 fue iniciado con un SHA anterior a esta corrección y no puede validar este cambio. El push de código dispara una nueva ejecución; pendiente comprobar el nuevo test, la aceptación de Máximo, las regresiones y la exportación APK.
