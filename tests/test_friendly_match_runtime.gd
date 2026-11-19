@@ -151,6 +151,10 @@ func _run_acceptance_test() -> void:
 					failures.append("El jugador siguió moviéndose durante la pausa del partido.")
 				if not game.ball.freeze:
 					failures.append("El balón RigidBody3D siguió activo durante la pausa.")
+				if not game.ball.linear_velocity.is_equal_approx(Vector3.ZERO):
+					failures.append("El balón conservó velocidad lineal durante la pausa.")
+				if not game.ball.angular_velocity.is_equal_approx(Vector3.ZERO):
+					failures.append("El balón conservó velocidad angular durante la pausa.")
 				await process_frame
 				if game.ball.global_position.distance_to(ball_position_before_pause) > 0.001:
 					failures.append("El balón se desplazó durante la pausa del partido.")
