@@ -610,6 +610,14 @@ func _nearest_teammate_to_ball(home_team: bool) -> int:
 	return nearest_index
 
 
+static func apply_ai_kick(ball: RigidBody3D, direction: Vector3, force: float) -> bool:
+	if not is_instance_valid(ball) or not direction.is_finite() or direction.length_squared() < 0.001 or not is_finite(force) or force <= 0.0:
+		return false
+	ball.freeze = false
+	ball.sleeping = false
+	ball.apply_central_impulse(direction.normalized() * clampf(force, 0.0, 20.0))
+	return true
+
 func _try_ai_ball_action(actor_index: int, actor_data: Dictionary) -> void:
 	if float(actor_data.kick_cooldown) > 0.0:
 		return
@@ -625,11 +633,8 @@ func _try_ai_ball_action(actor_index: int, actor_data: Dictionary) -> void:
 			return
 		# Atajada/despeje básico: el portero desvía hacia una zona lateral y segura.
 		var clear_direction := goalkeeper_clear_direction(home_team, _ball.global_position.x, _ends_swapped)
-		if owns_ball:
-			_clear_ball_possession()
-		else:
-			_ball.freeze = false
-		_ball.apply_central_impulse(clear_direction * 10.5)
+		_clear_ball_possession()
+		apply_ai_kick(_ball, clear_direction, 10.5)
 		actor_data.kick_cooldown = 1.8
 		_actors[actor_index] = actor_data
 		return
@@ -646,11 +651,8 @@ func _try_ai_ball_action(actor_index: int, actor_data: Dictionary) -> void:
 		# Sin línea de pase clara: progresión/ despeje hacia campo rival.
 		impulse_direction = Vector3(-_ball.global_position.x * 0.035, 0.10, attack_sign).normalized()
 		force = 8.8 if attacking_third else 4.6
-	if owns_ball:
-		_clear_ball_possession()
-	else:
-		_ball.freeze = false
-	_ball.apply_central_impulse(impulse_direction * force)
+	_clear_ball_possession()
+	apply_ai_kick(_ball, impulse_direction, force)
 	actor_data.kick_cooldown = 1.25
 	_actors[actor_index] = actor_data
 
