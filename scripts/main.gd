@@ -180,6 +180,10 @@ func _create_stadium() -> void:
 		_make_stadium_material(Color("#34475B")),
 		_make_stadium_material(Color("#1B2838"))
 	]
+	var seat_materials := [
+		_make_stadium_material(Color("#71839A")),
+		_make_stadium_material(Color("#8E9AA8"))
+	]
 	for tier in range(3):
 		var tier_width := 4.2
 		var tier_height := 2.2
@@ -188,6 +192,13 @@ func _create_stadium() -> void:
 		for side in [-1.0, 1.0]:
 			_add_stadium_block(stadium, "LongStand_%d_%d" % [tier, int(side)], Vector3(tier_width, tier_height, FIELD_LENGTH + 18.0), Vector3(side * (FIELD_WIDTH * 0.5 + offset), y, 0.0), stand_materials[tier])
 			_add_stadium_block(stadium, "EndStand_%d_%d" % [tier, int(side)], Vector3(FIELD_WIDTH + 18.0, tier_height, tier_width), Vector3(0.0, y, side * (FIELD_LENGTH * 0.5 + offset)), stand_materials[tier])
+			for row in range(3):
+				var row_y := y - tier_height * 0.5 + 0.45 + row * 0.55
+				var face_x := side * (FIELD_WIDTH * 0.5 + offset - tier_width * 0.5 - 0.06)
+				var face_z := side * (FIELD_LENGTH * 0.5 + offset - tier_width * 0.5 - 0.06)
+				var seat_material: Material = seat_materials[(tier + row) % seat_materials.size()]
+				_add_stadium_block(stadium, "LongStandSeats_%d_%d_%d" % [tier, int(side), row], Vector3(0.16, 0.18, FIELD_LENGTH + 17.0), Vector3(face_x, row_y, 0.0), seat_material)
+				_add_stadium_block(stadium, "EndStandSeats_%d_%d_%d" % [tier, int(side), row], Vector3(FIELD_WIDTH + 17.0, 0.18, 0.16), Vector3(0.0, row_y, face_z), seat_material)
 	# Four original floodlight pylons. The field's main directional light
 	# remains the primary mobile-friendly light source.
 	for x_side in [-1.0, 1.0]:
