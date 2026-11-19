@@ -233,6 +233,12 @@ func _run_acceptance_test() -> void:
 					var player_forward: Vector3 = -game.player.global_transform.basis.z
 					game.match_11v11_controller.call("_clear_ball_possession")
 					# Isolate this controlled-possession scenario from a prior AI touch.
+					# Keep the 21 AI actors away while validating the human input path;
+					# their normal ball-seeking behavior is covered by the earlier AI test.
+					for actor_data in game.match_11v11_controller._actors:
+						var actor_node: Node3D = actor_data.get("node")
+						if is_instance_valid(actor_node):
+							actor_node.global_position = game.player.global_position + Vector3(30.0, 0.0, 30.0)
 					game.match_11v11_controller._ball_possession_lockout = 0.0
 					game.ball.freeze = false
 					game.ball.sleeping = false
