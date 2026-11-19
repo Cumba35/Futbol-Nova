@@ -370,7 +370,7 @@ func _load_eligible_teams() -> void:
 		var team_id := str(raw_id)
 		var team: Dictionary = registry.teams_by_id[team_id]
 		var roster: Array = _get_combined_team_roster(team_id)
-		if roster.size() < 11:
+		if roster.is_empty():
 			continue
 		var display_name := str(team.get("name", team.get("short_name", team_id))).strip_edges()
 		if display_name.is_empty():
