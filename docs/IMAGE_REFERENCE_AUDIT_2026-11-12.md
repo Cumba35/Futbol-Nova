@@ -13,3 +13,19 @@ Pendientes confirmados:
 Limitación: el conector GitHub disponible permite crear blobs si se le proporciona el contenido base64, pero en esta ejecución no expone una transferencia directa de los archivos locales binarios. No se han creado archivos vacíos ni se han marcado pendientes como completados.
 
 Inventario actualizado: assets/references/README.md
+
+
+## Verificación cruzada de repositorios — 19-11-2026
+
+Se volvió a consultar el árbol Git completo de distribución y Workspace. Las cuatro referencias visuales activas tienen blobs idénticos en ambos repositorios:
+
+| Archivo | SHA de blob | Tamaño |
+|---|---|---:|
+| `assets/references/pause-menu-reference.jpg` | `b32c5026f5cea0f9becbbd32cc154cb7551860d7` | 7,044 bytes |
+| `assets/references/kit-selection-reference.jpg` | `73dd73511d87bf7edd0102cc3fd6c52d0fa3cc41` | 8,184 bytes |
+| `assets/references/legend-mode-home-reference.jpg` | `7b85aea31e6e4637de56ded9c6bcfd5e3fe381c4` | 9,173 bytes |
+| `assets/references/main-menu-settings-reference.jpg` | `fc940c8812cb9d9c2b26673188f82a1257ebb742` | 14,210 bytes |
+
+La captura antigua de Ultimate Team existe únicamente como archivo de exclusión en Nova Workspace; no está en el árbol de distribución. No debe incorporarse a pantallas ni materiales del juego. Las cuatro referencias activas son guía de composición, no assets de producción.
+
+Los originales en alta resolución, la captura Manager, los ajustes de partido, los ajustes de mando y la imagen azul HOME / PLAY / CLUB siguen pendientes de transferencia. No se encontró una copia recuperable de esos nombres/temas en la búsqueda de Dropbox realizada el 19-11-2026. Mantener pendientes hasta disponer de los adjuntos originales o una copia verificable.
