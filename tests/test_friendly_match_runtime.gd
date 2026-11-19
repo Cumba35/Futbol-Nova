@@ -110,9 +110,9 @@ func _run_acceptance_test() -> void:
 				failures.append("El amistoso no seleccionó Real Madrid como equipo local a la izquierda.")
 			if selected_away_id != "FN-ESP-BARCELONA":
 				failures.append("El amistoso no seleccionó Barcelona como visitante a la derecha.")
-			if setup._home_lineup_preview == null or setup._home_lineup_preview.text.split("\\n").size() != 12:
+			if setup._home_lineup_preview == null or setup._home_lineup_preview.text.split("\n").size() != 12:
 				failures.append("La pantalla no muestra los once titulares del equipo local.")
-			if setup._away_lineup_preview == null or setup._away_lineup_preview.text.split("\\n").size() != 12:
+			if setup._away_lineup_preview == null or setup._away_lineup_preview.text.split("\n").size() != 12:
 				failures.append("La pantalla no muestra los once titulares del equipo visitante.")
 			if setup._stadium_option == null or setup._stadium_option.item_count < 1:
 				failures.append("La pantalla previa no ofrece un estadio base jugable.")
