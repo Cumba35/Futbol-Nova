@@ -3,10 +3,13 @@ extends SceneTree
 const ANIER_SCENE: PackedScene = preload("res://scenes/players/anier_cumba.tscn")
 const LegendService = preload("res://scripts/legend/legend_career_service.gd")
 
+var _check_index := 0
+
 
 func _check(condition: bool, message: String = "Anier profile assertion failed") -> bool:
+	_check_index += 1
 	if not condition:
-		push_error(message)
+		push_error("%s (check %d)" % [message, _check_index])
 		quit(1)
 		return false
 	return true
