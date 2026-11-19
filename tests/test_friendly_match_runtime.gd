@@ -137,12 +137,68 @@ func _run_acceptance_test() -> void:
 					failures.append("El jugador controlado dejó de existir al iniciar el amistoso.")
 				elif game.match_11v11_controller._player != game.player:
 					failures.append("El motor conserva una referencia antigua en vez del futbolista controlado actual.")
+				# Exercise the actual pause UI and verify that the independent
+				# RigidBody3D ball is frozen and restored without losing momentum.
+				var ball_position_before_pause: Vector3 = game.ball.global_position
+				var ball_velocity_before_pause := Vector3(4.0, 1.5, 2.0)
+				var ball_angular_before_pause := Vector3(0.2, 0.4, 0.1)
+				game.ball.freeze = false
+				game.ball.sleeping = false
+				game.ball.linear_velocity = ball_velocity_before_pause
+				game.ball.angular_velocity = ball_angular_before_pause
 				game.match_11v11_controller.set_match_paused(true)
 				if game.player.is_physics_processing():
 					failures.append("El jugador siguió moviéndose durante la pausa del partido.")
-				game.match_11v11_controller.set_match_paused(false)
+				if not game.ball.freeze:
+					failures.append("El balón RigidBody3D siguió activo durante la pausa.")
+				await process_frame
+				if game.ball.global_position.distance_to(ball_position_before_pause) > 0.001:
+					failures.append("El balón se desplazó durante la pausa del partido.")
+				game.game_hub.open_pause_menu()
+				await process_frame
+				if game.game_hub.current_subpage != "pause" or not game.game_hub.root.visible:
+					failures.append("El menú real de pausa no se abrió sobre el partido.")
+				var pause_grid: Node = game.game_hub.content_box.find_child("PauseActionGrid", true, false)
+				if pause_grid == null or pause_grid.get_child_count() != 6:
+					failures.append("El menú de pausa no muestra sus seis acciones.")
+				else:
+					var resume_button := pause_grid.get_child(0) as Button
+					var replay_button := pause_grid.get_child(1) as Button
+					var tactics_button := pause_grid.get_child(2) as Button
+					if resume_button == null or resume_button.text != "REANUDAR PARTIDO":
+						failures.append("Reanudar partido debe ser la primera acción de pausa.")
+					if replay_button == null or not replay_button.disabled:
+						failures.append("La repetición debe permanecer deshabilitada mientras no exista el módulo.")
+					if tactics_button == null or not tactics_button.disabled:
+						failures.append("Las tácticas deben permanecer deshabilitadas mientras no estén implementadas.")
+					var facts_button := pause_grid.get_child(3) as Button
+					if facts_button != null:
+						facts_button.pressed.emit()
+						await process_frame
+						if game.game_hub.current_subpage != "pause_facts":
+							failures.append("Datos del partido no abrió su pantalla de resumen.")
+						var back_to_pause := game.game_hub.content_box.get_child(game.game_hub.content_box.get_child_count() - 1) as Button
+						if back_to_pause != null:
+							back_to_pause.pressed.emit()
+							await process_frame
+						else:
+							failures.append("La pantalla de datos no ofrece volver a pausa.")
+					pause_grid = game.game_hub.content_box.find_child("PauseActionGrid", true, false)
+					if pause_grid != null:
+						(pause_grid.get_child(0) as Button).pressed.emit()
+						await process_frame
+				if game.game_hub.root.visible:
+					failures.append("Reanudar no cerró el menú de pausa.")
+				if game.match_11v11_controller.get("_paused"):
+					failures.append("Reanudar no reactivó el controlador del partido.")
 				if not game.player.is_physics_processing():
 					failures.append("El jugador no recuperó sus controles al reanudar el partido.")
+				if game.ball.freeze:
+					failures.append("El balón permaneció congelado después de reanudar.")
+				if not game.ball.linear_velocity.is_equal_approx(ball_velocity_before_pause):
+					failures.append("El balón no recuperó su velocidad lineal al reanudar.")
+				if not game.ball.angular_velocity.is_equal_approx(ball_angular_before_pause):
+					failures.append("El balón no recuperó su velocidad angular al reanudar.")
 				game.match_11v11_controller._transfer_possession(game.player, true, "controlled_player")
 				if not game.ball.freeze:
 					failures.append("La prueba no pudo establecer la posesión previa al reinicio.")
