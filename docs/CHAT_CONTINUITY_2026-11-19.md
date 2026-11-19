@@ -21,25 +21,24 @@ La aplicación nativa cuenta con shell/menús Android, carga offline de datos ca
 
 ## Próximo foco de implementación
 Seguir el orden P0/P1/P2 de `docs/FRIENDLY_MODE_PRIORITY_AND_ACCEPTANCE.md`, priorizando:
-1. Porteros, colisiones y comportamiento físico del balón.
-2. IA básica de compañeros y rivales.
-3. Pase, tiro, regate, robo y cambio de jugador.
-4. Goles, reinicios y reglas básicas del juego.
-5. Pausa, reanudación, salida y reinicio fiables.
-6. Dos tiempos, descanso, resultado final y revancha.
+1. Resolver jugadores personalizados para sus clubes y selecciones, y mostrarlos en plantillas y amistosos.
+2. Enviar identidad y perfil visual de esos jugadores al motor 3D, manteniendo rasgos personales y adaptando la equipación al equipo.
+3. Porteros, colisiones y comportamiento físico del balón.
+4. IA básica de compañeros y rivales.
+5. Pase, tiro, regate, robo y cambio de jugador.
+6. Goles, reinicios y reglas básicas del juego.
+7. Pausa, reanudación, salida y reinicio fiables.
+8. Dos tiempos, descanso, resultado final y revancha.
+
+## Requisito añadido en esta continuidad
+El usuario pidió que los jugadores personalizados aparezcan en sus respectivos equipos y selecciones. El contrato está documentado en `docs/CUSTOM_PLAYERS_TEAM_AND_NATIONAL_SELECTION.md`. La implementación todavía está pendiente: el código actual indexa perfiles por ID y aplica atributos si el ID ya está en la plantilla, pero no resuelve todas las pertenencias de club/selección ni transmite la identidad y apariencia al motor 3D. No declarar la función lista hasta probarla desde el selector de plantillas hasta el partido.
 
 ## Referencias del proyecto
 - Prioridad y criterios de aceptación: `docs/FRIENDLY_MODE_PRIORITY_AND_ACCEPTANCE.md`
+- Jugadores personalizados en clubes y selecciones: `docs/CUSTOM_PLAYERS_TEAM_AND_NATIONAL_SELECTION.md`
+- Estado técnico del runtime: `docs/NATIVE_RUNTIME_INTEGRATION_STATUS_2026-11-19.md`
 - Política de motor exclusivamente nativo: `docs/NATIVE_ONLY_ENGINE_POLICY.md`
 - Pull request de desarrollo: https://github.com/Cumba35/Futbol-Nova/pull/5
 
 ## Nota de precisión
 Este registro resume las decisiones y el estado conocido al 2026-11-19. No representa una nueva compilación, una prueba física en el teléfono ni una declaración de que las funciones pendientes ya estén implementadas.
-
-## Continuidad de esta sesión — auditoría del runtime
-
-Se verificó el estado de la PR #5 (abierta, WIP) y el HEAD de la rama antes de continuar. Se revisaron los criterios de aceptación, el README Android, el workflow ARM64 y el código Java/C++ del runtime.
-
-La auditoría está registrada en `docs/NATIVE_RUNTIME_INTEGRATION_STATUS_2026-11-19.md`, sección **Auditoría de código nativo — continuidad 2026-11-19**. Los bloqueadores principales confirmados son: ausencia de porteros funcionales, jugador controlado fijo en el índice 9, IA de formación sin roles tácticos, colisiones parciales, pase sin compañero objetivo, presión sin robo real y ausencia de reloj configurable/dos tiempos/saques completos.
-
-La siguiente implementación debe comenzar por porteros + física/colisiones del balón y mantener los criterios P0/P1 de `docs/FRIENDLY_MODE_PRIORITY_AND_ACCEPTANCE.md`. La revisión fue estática: no se realizó una nueva compilación ni una prueba física en Android en esta sesión.
