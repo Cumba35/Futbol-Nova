@@ -121,6 +121,26 @@ static func evaluate_tackle(attacker_position: Vector3, attacker_forward: Vector
 	var dangerous_contact := attacker_is_behind and distance <= 1.05
 	return {"in_range": true, "foul": dangerous_contact, "success": not dangerous_contact and facing >= facing_threshold, "distance": distance}
 
+static func validate_roster_selection(team_id: String, player_ids: Array, player_profiles: Dictionary) -> bool:
+	if team_id.is_empty() or player_ids.size() != 11:
+		return false
+	var seen := {}
+	for raw_id in player_ids:
+		var player_id := str(raw_id).strip_edges()
+		if player_id.is_empty() or seen.has(player_id) or not player_profiles.has(player_id):
+			return false
+		var profile_value: Variant = player_profiles[player_id]
+		if not profile_value is Dictionary:
+			return false
+		var profile: Dictionary = profile_value
+		var attributes: Variant = profile.get("attributes", {})
+		if str(profile.get("id", "")) != player_id or str(profile.get("club_id", "")) != team_id:
+			return false
+		if str(profile.get("display_name", "")).strip_edges().is_empty() or not attributes is Dictionary or attributes.is_empty():
+			return false
+		seen[player_id] = true
+	return seen.size() == 11
+
 static func validate_lineups(home_lineup: Array, away_lineup: Array) -> bool:
 	if home_lineup.size() != 11 or away_lineup.size() != 11:
 		return false
@@ -154,8 +174,9 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 	var away_player_ids: Array = match_settings.get("away_player_ids", [])
 	if home_team_id == away_team_id:
 		return {"ok": false, "error": "El equipo local y el visitante deben ser diferentes."}
-	if (not home_player_ids.is_empty() and home_player_ids.size() != 11) or (not away_player_ids.is_empty() and away_player_ids.size() != 11):
-		return {"ok": false, "error": "Cada equipo debe aportar exactamente once identificadores de titulares."}
+	var has_roster_selection := not home_player_ids.is_empty() or not away_player_ids.is_empty()
+	if has_roster_selection and (home_player_ids.size() != 11 or away_player_ids.size() != 11):
+		return {"ok": false, "error": "El amistoso debe aportar once titulares válidos para ambos equipos."}
 	var player_profiles: Dictionary = {}
 	var football_data_service := get_node_or_null("/root/FootballData")
 	if football_data_service != null:
@@ -166,6 +187,11 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 				player_profiles = profile_catalog
 	var home_lineup := build_lineup(home_team_id, true, home_player_ids, player_profiles)
 	var away_lineup := build_lineup(away_team_id, false, away_player_ids, player_profiles)
+	if has_roster_selection:
+		if not validate_roster_selection(home_team_id, home_player_ids, player_profiles):
+			return {"ok": false, "error": "La plantilla local no coincide con los IDs, club o atributos de sus titulares."}
+		if not validate_roster_selection(away_team_id, away_player_ids, player_profiles):
+			return {"ok": false, "error": "La plantilla visitante no coincide con los IDs, club o atributos de sus titulares."}
 	if not validate_lineups(home_lineup, away_lineup):
 		return {"ok": false, "error": "Las alineaciones 11 contra 11 no superaron la validación."}
 	_home_team_id = home_team_id
