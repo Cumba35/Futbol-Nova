@@ -77,13 +77,23 @@ void setupTeams(){
  for(int i=0;i<11;i++){players[i]=formation[i];players[11+i]={formation[i].x,0,-formation[i].z};}
 }
 void drawPlayer(const std::array<float,16>&vp,V3 p,bool home,float yaw,int slot){
- float r=home?.12f:.88f,g=home?.72f:.14f,b=home?.22f:.18f;
+ float r=home?.10f:.86f,g=home?.68f:.16f,b=home?.20f:.19f;
  float h=std::clamp(playerHeight[slot]/175.0f,.92f,1.08f);
  float athletic=std::clamp(.96f+playerOverall[slot]/1750.0f,.98f,1.06f);
- draw(sphereMesh,vp,model(p.x,p.y+.82f*h,p.z,.34f*athletic,.62f*h,.25f,yaw),r,g,b);
- draw(sphereMesh,vp,model(p.x,p.y+1.52f*h,p.z,.19f*h,.19f*h,.19f*h),.88f,.72f,.56f);
- draw(sphereMesh,vp,model(p.x-.13f*athletic,p.y+.24f*h,p.z,.11f,.30f*h,.12f,yaw),.08f,.08f,.10f);
- draw(sphereMesh,vp,model(p.x+.13f*athletic,p.y+.24f*h,p.z,.11f,.30f*h,.12f,yaw),.08f,.08f,.10f);
+ float stride=std::sin(matchTime*7.2f+slot*1.31f)*.13f;
+ float armSwing=std::sin(matchTime*7.2f+slot*1.31f+3.14159f)*.11f;
+ // Torso, shorts and head.
+ draw(sphereMesh,vp,model(p.x,p.y+1.02f*h,p.z,.31f*athletic,.43f*h,.21f,yaw),r,g,b);
+ draw(sphereMesh,vp,model(p.x,p.y+.66f*h,p.z,.24f*athletic,.19f*h,.19f,yaw),.055f,.065f,.075f);
+ draw(sphereMesh,vp,model(p.x,p.y+1.57f*h,p.z,.17f*h,.18f*h,.17f*h),.88f,.72f,.58f);
+ // Arms swing opposite to the legs during locomotion.
+ draw(sphereMesh,vp,model(p.x-.29f*athletic,p.y+.98f*h,p.z+armSwing,.085f,.31f*h,.09f,yaw),.88f,.72f,.58f);
+ draw(sphereMesh,vp,model(p.x+.29f*athletic,p.y+.98f*h,p.z-armSwing,.085f,.31f*h,.09f,yaw),.88f,.72f,.58f);
+ // Thighs, shins and dark boots: a procedural articulated-looking blockout.
+ draw(sphereMesh,vp,model(p.x-.12f,p.y+.40f*h,p.z+stride,.105f,.25f*h,.11f,yaw),.12f,.13f,.15f);
+ draw(sphereMesh,vp,model(p.x+.12f,p.y+.40f*h,p.z-stride,.105f,.25f*h,.11f,yaw),.12f,.13f,.15f);
+ draw(sphereMesh,vp,model(p.x-.12f,p.y+.17f*h,p.z+stride*1.45f,.075f,.18f*h,.085f,yaw),.08f,.09f,.10f);
+ draw(sphereMesh,vp,model(p.x+.12f,p.y+.17f*h,p.z-stride*1.45f,.075f,.18f*h,.085f,yaw),.08f,.09f,.10f);
 }
 void update(float dt){
  matchTime+=dt;
