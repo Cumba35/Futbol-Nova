@@ -55,6 +55,10 @@ Por ahora estas referencias se usan para comparar enfoques, no como dependencias
 - [ ] Prueba de escena Android y exportación de APK arm64.
 - [ ] Instalación y prueba manual en un teléfono Android.
 
+## Prueba adicional de controles táctiles
+
+El 2026-11-19 se amplió `tests/test_touch_controls.gd` para comprobar que dos dedos que mantienen el mismo botón no se cancelan mutuamente, que el joystick virtual genera movimiento y que el movimiento se libera al soltar el dedo. Cambio guardado en el commit `8841a9d900218d7b38bf73edcd77f446c8231df0`. Su ejecución automatizada está pendiente en el workflow 331, en cola detrás del workflow 330.
+
 ## Incidencia de CI corregida
 
 El 2026-11-19, el workflow `Fútbol Nova - pruebas y APK Android` (run 44541374751) completó correctamente las pruebas específicas del amistoso, incluida la aceptación 11v11 hasta el pitido final. Se detuvo después en `tests/test_shared_foundation.gd`, que referenciaba directamente el autoload `FootballDatabase` desde una prueba ejecutada con `--script`. La prueba se corrigió para resolver el autoload desde `root` en tiempo de ejecución. La corrección debe considerarse pendiente de validación hasta que una nueva ejecución de CI termine correctamente.
