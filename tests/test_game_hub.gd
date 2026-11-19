@@ -186,7 +186,10 @@ func _run_tests() -> void:
 	hub._open_main_page("settings")
 	await process_frame
 	_expect(hub.current_page == "settings", "Settings main screen must open")
-	_expect(hub.content_box.get_child_count() == 11, "Settings must expose eleven categories")
+	_expect(hub.content_box.get_child_count() == 1, "Settings must group its categories in a responsive grid")
+	var settings_grid := hub.content_box.get_child(0) as GridContainer
+	_expect(settings_grid != null and settings_grid.get_child_count() == 11, "Settings grid must expose all eleven categories")
+	_expect(hub._settings_grid_columns(600.0) == 2 and hub._settings_grid_columns(1280.0) == 4, "Settings grid must adapt between mobile and wide layouts")
 	hub._open_settings_category("Controles")
 	await process_frame
 	_expect(hub.current_subpage == "Controles", "Controller settings subpage must open")
@@ -194,6 +197,13 @@ func _run_tests() -> void:
 	await process_frame
 	_expect(hub.current_subpage == "Módulos", "Modules settings subpage must open")
 	_expect(hub.content_box.get_child_count() == 3, "Modules subpage must expose catalog action and back navigation")
+	var pause_resume_requested := [false]
+	hub.pause_resume_requested.connect(func(): pause_resume_requested[0] = true)
+	hub.open_pause_menu()
+	_expect(hub.current_subpage == "pause", "Pause menu must open as a dedicated match screen")
+	_expect(hub.content_box.get_child_count() == 1, "Pause menu must render its team panel and action grid")
+	hub._resume_pause_menu()
+	_expect(pause_resume_requested[0] and not hub.root.visible, "Resume must emit its signal and close the pause overlay")
 	hub._show_training()
 	await process_frame
 	_expect(hub.current_page == "home", "Training remains a subpage of Home")
