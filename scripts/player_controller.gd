@@ -51,4 +51,6 @@ func _kick_ball(force: float) -> void:
 		var flight_spin := Vector3.UP * clampf(lateral_speed * 2.0, -24.0, 24.0)
 		if match_controller.release_controlled_ball(direction, force, flight_spin):
 			return
+	if match_controller != null and match_controller.has_method("notify_ball_kicked"):
+		match_controller.notify_ball_kicked()
 	ball.apply_central_impulse(direction * force)
