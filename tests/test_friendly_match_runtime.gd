@@ -16,6 +16,32 @@ func _test_watchdog() -> void:
 
 func _run_acceptance_test() -> void:
 	var failures := PackedStringArray()
+	var sample_profiles: Dictionary = {}
+	var sample_home_ids: Array = []
+	var sample_away_ids: Array = []
+	for index in range(11):
+		var home_id := "TEST_HOME_%02d" % index
+		var away_id := "TEST_AWAY_%02d" % index
+		sample_home_ids.append(home_id)
+		sample_away_ids.append(away_id)
+		sample_profiles[home_id] = {"id": home_id, "club_id": "test_home", "display_name": "Home %02d" % index, "attributes": {"spd": 70}}
+		sample_profiles[away_id] = {"id": away_id, "club_id": "test_away", "display_name": "Away %02d" % index, "attributes": {"spd": 70}}
+	if not MATCH_11V1V.validate_roster_selection("test_home", sample_home_ids, sample_profiles):
+		failures.append("El motor rechazó once titulares válidos del club local.")
+	if not MATCH_11V1V.validate_roster_selection("test_away", sample_away_ids, sample_profiles):
+		failures.append("El motor rechazó once titulares válidos del club visitante.")
+	var duplicate_home_ids := sample_home_ids.duplicate()
+	duplicate_home_ids[10] = duplicate_home_ids[0]
+	if MATCH_11V1V.validate_roster_selection("test_home", duplicate_home_ids, sample_profiles):
+		failures.append("El motor aceptó titulares duplicados.")
+	var wrong_club_profiles: Dictionary = sample_profiles.duplicate(true)
+	wrong_club_profiles[sample_home_ids[0]]["club_id"] = "test_away"
+	if MATCH_11V1V.validate_roster_selection("test_home", sample_home_ids, wrong_club_profiles):
+		failures.append("El motor aceptó un jugador perteneciente a otro club.")
+	var incomplete_profiles: Dictionary = sample_profiles.duplicate(true)
+	incomplete_profiles[sample_home_ids[0]]["attributes"] = {}
+	if MATCH_11V1V.validate_roster_selection("test_home", sample_home_ids, incomplete_profiles):
+		failures.append("El motor aceptó un perfil sin atributos.")
 	var moments_service: Node = root.get_node_or_null("MomentsService")
 	var original_moments_state: Dictionary = {}
 	var training_moments_progress := -1
