@@ -289,7 +289,11 @@ func save_master_catalog(catalog: Dictionary) -> bool:
 				return _fail("Paquete de plantillas referencia una fuente inexistente: " + str(source_id))
 	var league_keys := {}
 	for league in catalog.league_directory:
-		if not league is Dictionary or int(league.get("source_rank", 0)) <= 0 or str(league.get("league", "")).is_empty() or str(league.get("country", "")).is_empty():
+		if not league is Dictionary:
+			return _fail("Entrada incompleta en el directorio de ligas.")
+		var source_rank := int(league.get("source_rank", 0))
+		var existing_base := bool(league.get("counts_as_existing_base", false))
+		if source_rank < 0 or (source_rank == 0 and not existing_base) or str(league.get("league", "")).strip_edges().is_empty() or str(league.get("country", "")).strip_edges().is_empty():
 			return _fail("Entrada incompleta en el directorio de ligas.")
 		var league_key := str(league.country) + "|" + str(league.league)
 		if league_keys.has(league_key):
