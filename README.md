@@ -55,3 +55,8 @@ Se corrigió el aislamiento headless de la prueba de Máximo Padilla: la física
 - La revisión de referencias públicas y licencias está en [FRIENDLY_MODE_REFERENCE_AUDIT.md](docs/FRIENDLY_MODE_REFERENCE_AUDIT.md). No se han añadido dependencias externas al motor.
 - Los cambios de pruebas, documentación y estado también se sincronizaron en la ruta canónica `Cumba35/Nova-Workspace/proyectos/juegos/futbol-nova/`. Las ejecuciones 490–492 de ese repositorio terminaron sin runner asignado (`runner_id=0`), sin ejecutar pruebas; no son fallos funcionales confirmados.
 - La nueva ejecución 332 está en cola detrás de la ejecución 330. No declarar el APK terminado hasta que exista el artefacto `futbol-nova-android-debug` y se pueda instalar y jugar en un dispositivo Android.
+
+
+## Actualización de mantenimiento — 19-11-2026
+
+La ejecución 334 (`44549563484`) superó las pruebas principales del amistoso local 11v11 y la escena Android, pero no pudo exportar el APK porque Godot no tenía configuradas sus rutas globales de Android SDK y Java. Se corrigió el workflow para generar `~/.config/godot/editor_settings-4.4.tres` con ambas rutas y el keystore temporal. La corrección está en el commit `fb024313eb48571695cc912e12da9eee00e28751` de Futbol-Nova. La ejecución 335 (`44551233214`) está en curso; no declarar APK disponible hasta verificar exportación, artefacto ARM64 e instalación real. Diagnóstico completo: `docs/CI_44549563484_DIAGNOSIS.md`.
