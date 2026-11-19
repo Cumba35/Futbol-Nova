@@ -169,3 +169,11 @@ Validación pendiente:
 - Verificar el flujo completo con duraciones cortas, pausa manual, descanso, cambio de lado, goles en ambos sentidos, final y revancha.
 - Probar en Android real que el diálogo de descanso no se duplica y que el reloj se detiene correctamente.
 - El árbitro, faltas, fueras de juego, saques de banda/esquina/puerta y estadísticas finales siguen pendientes.
+
+## Resolución de posesión y primera decisión de IA (2026-11-19)
+
+La revisión estática detectó que el bloque de retención de balón podía sobrescribir la velocidad de un pase o tiro durante el mismo frame. Se añadió un estado breve de liberación del balón para que los disparos y pases realmente recorran el campo y no sean absorbidos de nuevo por el jugador que los ejecutó.
+
+También se añadió una primera decisión para el futbolista IA más cercano cuando el usuario no tiene la posesión: llevar el balón si no encuentra pase, buscar un compañero de su equipo y disparar cuando se acerca a la portería rival. El comportamiento es heurístico y temporal; no equivale a una IA táctica completa ni a un sistema formal de posesión.
+
+Pendiente: CI ARM64 del commit actual y pruebas de juego reales para comprobar que el balón no se atasca, que los pases llegan a compañeros, que los rivales interceptan y que los tiros se dirigen hacia ambas porterías.
