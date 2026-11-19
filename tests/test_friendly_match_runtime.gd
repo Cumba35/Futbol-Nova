@@ -43,7 +43,7 @@ func _run_acceptance_test() -> void:
 	if game.match_11v11_controller == null:
 		failures.append("La escena principal no creó el motor de partido 11 contra 11.")
 	var stadium = game.get_node_or_null("NovaStadium")
-	if stadium == null or stadium.get_child_count() < 20:
+	if stadium == null or stadium.get_child_count() < 50:
 		failures.append("El estadio base procedural no se creó completo.")
 	var football_data_service: Node = root.get_node_or_null("FootballData")
 	var football_registry: Variant = football_data_service.get("registry") if football_data_service != null else null
