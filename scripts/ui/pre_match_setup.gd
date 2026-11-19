@@ -40,9 +40,11 @@ static func get_default_team_indices(team_ids: Array[String]) -> Dictionary:
 static func build_starting_eleven(roster: Array) -> Array[String]:
 	var selected: Array[String] = []
 	var used_ids := {}
+	var ordered_roster := roster.duplicate(true)
+	ordered_roster.sort_custom(func(a, b): return int(a.get("overall", 0)) > int(b.get("overall", 0)) if a is Dictionary and b is Dictionary else a is Dictionary)
 	for preferred_positions in STARTING_POSITION_PRIORITY:
 		var selected_id := ""
-		for raw_player in roster:
+		for raw_player in ordered_roster:
 			if not raw_player is Dictionary:
 				continue
 			var player_id := str(raw_player.get("id", ""))
@@ -53,7 +55,7 @@ static func build_starting_eleven(roster: Array) -> Array[String]:
 				selected_id = player_id
 				break
 		if selected_id.is_empty():
-			for raw_player in roster:
+			for raw_player in ordered_roster:
 				if not raw_player is Dictionary:
 					continue
 				var fallback_id := str(raw_player.get("id", ""))
