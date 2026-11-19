@@ -186,7 +186,7 @@ public final class MainActivity extends Activity {
         @Override protected void onDraw(Canvas c){
             float w=getWidth(),h=getHeight(),s=Math.min(w,h);
             p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(3);p.setColor(0xB8C9F45A);
-            c.drawCircle(s*.17f,h*.79f,s*.105f,p);p.setStyle(Paint.Style.FILL);p.setColor(0xB8C9F45A);c.drawCircle(s*.17f,h*.79f,s*.035f,p);
+            c.drawCircle(w*.17f,h*.79f,s*.105f,p);p.setStyle(Paint.Style.FILL);p.setColor(0xB8C9F45A);c.drawCircle(w*.17f,h*.79f,s*.035f,p);
             drawButton(c,w*.90f,h*.77f,s*.07f,"TIRO");drawButton(c,w*.69f,h*.60f,s*.055f,"PASE");
             drawButton(c,w*.90f,h*.58f,s*.055f,"REGATE");drawButton(c,w*.90f,h*.92f,s*.055f,"PRESIÓN");
         }
