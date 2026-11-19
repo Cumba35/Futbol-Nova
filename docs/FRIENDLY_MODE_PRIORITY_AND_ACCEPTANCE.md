@@ -83,3 +83,7 @@ No se da por validado hasta que termine el workflow nativo Android y se comprueb
 Se incorporó selección de duración por tiempo (3–20 minutos), descanso automático, inversión de campo y sentido de ataque al comenzar la segunda mitad, y finalización automática con resultado y opción de revancha. Las transiciones usan la cola del hilo OpenGL para evitar modificar el estado del partido desde el hilo de interfaz mientras el motor renderiza.
 
 La fase sigue pendiente de compilación CI del último commit y prueba en teléfono. No se declara terminado el amistoso hasta comprobar los dos tiempos, el cambio de lado, goles de ambos equipos, pausa, salida y revancha.
+
+## Ajuste de física de posesión y comportamiento IA — 2026-11-19
+
+Se corrigió un defecto estático por el que el control de balón podía cancelar inmediatamente un pase o tiro. El motor conserva ahora una ventana corta de balón liberado y permite que la trayectoria avance. Los jugadores IA pueden intentar un pase, conducir el balón o tirar al acercarse al área. No se considera validado hasta CI y prueba física; faltan entradas/robos, marcaje táctico, decisiones de equipo y más reglas.
