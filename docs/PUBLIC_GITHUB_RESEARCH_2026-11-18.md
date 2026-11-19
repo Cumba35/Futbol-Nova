@@ -98,3 +98,16 @@ Se amplió la búsqueda en GitHub con repositorios Godot/GDScript de fútbol. Se
 | [richardschembri/GodotBasic3DFootball](https://github.com/richardschembri/GodotBasic3DFootball) | README y project.godot; prototipo 3D de estudio, controles teclado para dos jugadores; no se encontró archivo LICENSE en la ruta revisada | Referencia visual muy básica, sin evidencia de una arquitectura de partido completa ni de compatibilidad móvil actual | No copiar código ni assets por licencia no confirmada y por falta de ventajas técnicas verificadas |
 
 La búsqueda refuerza que Fútbol Nova debe conservar su simulación Godot 4.4.1 propia, local y offline. Se priorizan mejoras pequeñas con pruebas reproducibles frente a importar motores completos, código de licencia incompatible o servicios de terceros.
+
+
+## Auditoría adicional de simuladores 3D Android y pruebas — 19 noviembre 2026
+
+Se revisaron además estos repositorios públicos en GitHub:
+
+| Proyecto | Evidencia revisada | Ideas útiles | Decisión de integración |
+|---|---|---|---|
+| [mdmuntakim/pitch](https://github.com/mdmuntakim/pitch) (Matchday Eleven) | README, `project.godot`, `src/core/ball.gd`, `src/core/player_agent.gd`, `src/core/referee.gd`, `src/core/match_state.gd`, `tests/run_tests.gd` y workflow Android. Declara Godot 4.5.2, Android arm64, partido 11v11, controles multitáctiles, física de balón y 51 checks. No se encontró archivo LICENSE en la raíz consultada | Separación de lógica pura del estado del partido, pruebas headless de física/reinicios, validación multitáctil por dedo, controles configurables y generación determinista de assets | No copiar código ni assets sin licencia confirmada. Usar como lista de verificación de arquitectura y pruebas; adaptar solo ideas reimplementadas de forma independiente y compatibles con Godot 4.4.1 |
+| [namelesssyf/soccer-box-game](https://github.com/namelesssyf/soccer-box-game) | README y `project.godot`; Godot 4.7.1, 3D físico, IA de portero, mando, pruebas de regresión y arquitectura online autoritativa. No se encontró LICENSE en la raíz consultada | Telemetría de partido, pruebas de regresión, desconexión/recuperación de jugador y separación de sistemas online | No copiar ni introducir servicios de red. La versión del motor y la arquitectura online no corresponden al juego base offline |
+| [golviral/FootballUni](https://github.com/golviral/FootballUni) | README con controles teclado/táctiles y lobby multijugador; no se encontró `project.godot` ni LICENSE en las rutas consultadas | Inventario de acciones táctiles como referencia para revisar accesibilidad de controles | Evidencia insuficiente para integración; no copiar código/assets |
+
+La referencia más cercana por alcance es `mdmuntakim/pitch`, pero usa Godot 4.5.2 y no expone una licencia en la raíz revisada. Por ello no se importó código. Se mantiene Fútbol Nova en Godot 4.4.1 y offline; se prioriza robustecer pruebas de toque, pelota, IA y reinicios dentro del motor propio.
