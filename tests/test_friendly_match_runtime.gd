@@ -175,6 +175,8 @@ func _run_acceptance_test() -> void:
 					var action_layout: Dictionary = touch_layer.call("_button_layout")
 					var player_forward: Vector3 = -game.player.global_transform.basis.z
 					game.match_11v11_controller.call("_clear_ball_possession")
+					# Isolate this controlled-possession scenario from a prior AI touch.
+					game.match_11v11_controller._ball_possession_lockout = 0.0
 					game.ball.freeze = false
 					game.ball.sleeping = false
 					game.ball.linear_velocity = Vector3.ZERO
@@ -204,6 +206,10 @@ func _run_acceptance_test() -> void:
 					game.ball.angular_velocity = Vector3.ZERO
 					for _frame in range(16):
 						await physics_frame
+					game.match_11v11_controller.call("_clear_ball_possession")
+					game.match_11v11_controller._ball_possession_lockout = 0.0
+					game.ball.freeze = false
+					game.ball.linear_velocity = Vector3.ZERO
 					game.ball.global_position = game.player.global_position + player_forward * 0.75 + Vector3.UP * 0.25
 					game.match_11v11_controller.call("_update_ball_possession")
 					if not game.match_11v11_controller.has_controlled_possession():
