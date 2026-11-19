@@ -25,10 +25,11 @@ func _test_watchdog() -> void:
 	quit(1)
 
 
-func _has_two_named_parts(parent: Node, prefix: String) -> bool:
+func _has_two_named_parts(parent: Node, prefix: String, excluded_fragment: String = "") -> bool:
 	var matches := 0
 	for child in parent.find_children("*", "Node", true, false):
-		if String(child.name).begins_with(prefix):
+		var child_name := String(child.name)
+		if child_name.begins_with(prefix) and (excluded_fragment.is_empty() or not child_name.contains(excluded_fragment)):
 			matches += 1
 	return matches >= 2
 
@@ -121,11 +122,11 @@ func _run() -> void:
 	if not _check(_has_two_named_parts(anier, "boot_gold_design_"), "Both gold boot details must be generated"): return
 	if not _check(_has_two_named_parts(anier, "boot_black_design_"), "Both black boot details must be generated"): return
 	if not _check(_has_two_named_parts(anier, "shin_guard_"), "Both shin guards must be generated"): return
-	if not _check(anier.find_child("glove_1.0", true, false) != null): return
-	if not _check(anier.find_child("inner_shirt_sleeve_1.0", true, false) != null): return
+	if not _check(_has_two_named_parts(anier, "glove_", "_detail_"), "Both gloves must be generated"): return
+	if not _check(_has_two_named_parts(anier, "inner_shirt_sleeve_"), "Both inner-shirt sleeves must be generated"): return
 	if not _check(anier.find_child("inner_shirt_neckline", true, false) != null): return
-	if not _check(anier.find_child("glove_red_detail_1.0", true, false) != null): return
-	if not _check(anier.find_child("glove_gold_detail_1.0", true, false) != null): return
+	if not _check(_has_two_named_parts(anier, "glove_red_detail_"), "Both red glove details must be generated"): return
+	if not _check(_has_two_named_parts(anier, "glove_gold_detail_"), "Both gold glove details must be generated"): return
 	if not _check(anier.find_child("captain_armband", true, false) != null): return
 	if not _check(anier.find_child("CollisionShape3D", true, false) != null): return
 	if not _check(is_equal_approx(float(anier.get("player_height_m")), 1.71)): return
