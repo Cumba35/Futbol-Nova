@@ -106,6 +106,8 @@ public final class MainActivity extends Activity {
         for(org.json.JSONObject p:data.customPlayers){
             custom.addView(text(p.optString("name","Jugador")+" · "+p.optString("position","")+" · GRL "+p.optInt("overall",0)+" / POT "+p.optInt("potential",0),14,Color.WHITE,true));
             custom.addView(text(p.optString("id","")+" · "+p.optString("club_id","Club pendiente"),11,0xFFB6C7CB,false));
+            String nationalTeam=p.optString("national_team_name",p.optString("preferred_national_team","Selección pendiente"));
+            custom.addView(text("Selección: "+nationalTeam,12,0xFFB8E85A,true));
         }
         LinearLayout help=card();help.addView(text("IDENTIDAD NOVA",17,0xFFB8E85A,true));
         help.addView(text("Interfaz original inspirada en la claridad de FIFA 23 y la presentación y simulación moderna de FC 26. Sin recursos copiados ni motores externos.",13,0xFFE4ECEE,false));
