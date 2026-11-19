@@ -32,7 +32,7 @@ public final class MainActivity extends Activity {
     private TextView scoreboard;
     private Runnable scoreRefresh;
 
-    private static native void nativeTouch(float x,float y,int action,int width,int height);
+    private static native void nativeTouch(float x,float y,int action,int pointerId,int width,int height);
     private static native void nativePause(boolean paused);
     private static native void nativeSwitchPlayer();
     private static native int nativeGetHomeScore();
@@ -197,8 +197,10 @@ public final class MainActivity extends Activity {
         private void drawButton(Canvas c,float x,float y,float r,String label){p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(3);p.setColor(0xD8C9F45A);c.drawCircle(x,y,r,p);p.setStyle(Paint.Style.FILL);p.setColor(Color.WHITE);p.setTextAlign(Paint.Align.CENTER);p.setTextSize(Math.max(12,r*.34f));c.drawText(label,x,y+p.getTextSize()*.35f,p);}
         @Override public boolean onTouchEvent(MotionEvent e){
             int index=e.getActionIndex();
-            if(e.getActionMasked()==MotionEvent.ACTION_DOWN&&e.getX(index)<getWidth()*.30f&&e.getY(index)<getHeight()*.27f){nativeSwitchPlayer();return true;}
-            nativeTouch(e.getX(index),e.getY(index),e.getActionMasked(),getWidth(),getHeight());return true;
+            int action=e.getActionMasked();
+            if((action==MotionEvent.ACTION_DOWN||action==MotionEvent.ACTION_POINTER_DOWN)&&
+               e.getX(index)<getWidth()*.30f&&e.getY(index)<getHeight()*.27f){nativeSwitchPlayer();return true;}
+            nativeTouch(e.getX(index),e.getY(index),action,e.getPointerId(index),getWidth(),getHeight());return true;
         }
     }
 }
