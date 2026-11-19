@@ -70,3 +70,10 @@ La ejecución `44441146949` en Godot 4.4.1 llegó a ejecutar la importación y l
 Correcciones guardadas en la rama independiente: `scripts/ui/pre_match_setup.gd` ahora usa `Button.text_alignment`; `tests/test_friendly_match_runtime.gd` declara el preload del servicio de Momentos y tipos `String` explícitos. La rama maestra de Workspace recibió la corrección de la tarjeta y mantiene los tipos explícitos en su prueba equivalente.
 
 **Estado posterior:** los archivos corregidos se releyeron desde GitHub. Todavía no hay resultado de una ejecución nueva con esos commits; no se declara aprobada la prueba runtime ni la exportación APK.
+
+
+## Integración de perfiles individuales al partido — 19-11-2026
+
+Se cerró una brecha entre el selector y el runtime: el selector ya enviaba los IDs de los titulares, pero el motor solo los utilizaba como identificadores y no aplicaba sus atributos. Ahora `build_lineup` resuelve los IDs desde `FootballData.registry.players_by_id` y adjunta el perfil a cada plaza. Los 21 actores de IA guardan nombre, posición, valoración, atributos y pie preferido; la velocidad se calcula desde `spd` y la del portero desde `gkspd`. Pases, despejes y entradas usan `short`, `longp`, `kick` y `tack`. El jugador controlado conserva su perfil como metadata y recibe ajustes de velocidad, aceleración, pase, tiro y alcance de entrada desde sus atributos.
+
+Se amplió `test_friendly_match_runtime.gd` para verificar que los 21 jugadores de IA y el jugador controlado reciben perfiles reales del catálogo Nova, que las estadísticas modifican parámetros de juego, y que el amistoso conserva equipos, colores y estadio. La suite aún debe volver a ejecutarse en GitHub Actions después de estos commits; no se declara el test aprobado ni la APK exportada.
