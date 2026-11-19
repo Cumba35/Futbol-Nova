@@ -1,6 +1,6 @@
 # Fútbol Nova — Menú de pausa durante el partido
 
-**Estado:** diseño funcional documentado; maqueta e implementación pendientes.  
+**Estado:** implementación parcial comprobada; menú de pausa, resumen, acciones, confirmación de salida y reanudación están conectados. La alineación gráfica, tácticas y repetición siguen pendientes.  
 **Referencia visual archivada:** `assets/references/pause-menu-reference.jpg` (JPEG optimizado, 384 × 216). El adjunto original recibido en el chat era de 1536 × 864; esta copia reducida se archivó para consulta visual. El original a resolución completa aún no está incorporado.  
 **Ruta prevista:** [pause-menu-reference.jpg](../assets/references/pause-menu-reference.jpg).  
 **Estado de archivo:** la referencia visual está guardada y verificada en GitHub. La copia archivada es una versión optimizada de menor resolución; conservar e incorporar también el original de 1536 × 864 cuando se disponga de un mecanismo de transferencia binaria adecuado. Consultar [el índice de referencias](../assets/references/README.md).
@@ -68,3 +68,19 @@ Se conserva la identidad y la jerarquía de la referencia, pero no se fuerza una
 - Conectar tácticas, datos, ajustes y replay.
 - Definir consecuencias de abandonar por modo.
 - Probar distintas resoluciones y métodos de entrada.
+
+
+## Estado real de implementación — 19-11-2026
+
+La pausa ya tiene una primera implementación funcional en `scripts/ui/game_hub.gd` y su integración con el partido está en `scripts/main.gd`:
+
+- `open_pause_menu()` muestra un panel sobre la escena y oculta la navegación principal.
+- El diseño cambia entre composición horizontal y vertical según el ancho de pantalla.
+- Incluye Reanudar, Repetición, Tácticas, Datos del partido, Configuración y Abandonar.
+- Repetición y Tácticas se mantienen deshabilitadas porque sus sistemas todavía no están disponibles.
+- Datos del partido abre un resumen; Abandonar exige confirmación.
+- Reanudar devuelve el control al partido.
+
+**Corrección de física añadida el 19-11-2026:** el balón es un `RigidBody3D` y no se detenía necesariamente al pausar solo el controlador de IA y el jugador. Ahora el controlador guarda el estado de congelación, sueño, velocidad lineal y velocidad angular, congela el balón al pausar y restaura esos valores al reanudar o detener el encuentro. La prueba de aceptación del amistoso ahora ejercita el menú real, comprueba las seis acciones, revisa la pantalla de datos y verifica que el balón no se desplaza durante la pausa ni pierde su velocidad al reanudar.
+
+**Pendiente:** sustituir el resumen textual por una alineación visual 4-3-3 con nombres/valoraciones; implementar tácticas y repeticiones reales; completar estadísticas de tiros, posesión, faltas y eventos; revisar pausa de audio y cámara; probar navegación táctil y orientación vertical/horizontal en dispositivo Android. La captura de referencia sigue siendo guía de composición, no recurso gráfico del juego.
