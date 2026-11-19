@@ -366,7 +366,7 @@ func _create_team_badge(fallback_text: String) -> Button:
 	badge.disabled = true
 	badge.focus_mode = Control.FOCUS_NONE
 	badge.text = fallback_text
-	badge.text_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	badge.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	badge.custom_minimum_size = Vector2(120, 68)
 	badge.add_theme_font_size_override("font_size", 20)
 	badge.add_theme_color_override("font_color", TEXT_COLOR)
