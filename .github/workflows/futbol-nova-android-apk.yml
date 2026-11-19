@@ -114,6 +114,9 @@ jobs:
       - name: Validate historical competition archive
         run: python tools/validate_historical_competitions.py
 
+      - name: Core test — base input actions
+        run: timeout --signal=TERM --kill-after=15s 60s godot --headless --path . --script res://tests/test_input_actions.gd
+
       - name: Core test — hub and main screens
         run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_game_hub.gd
 
