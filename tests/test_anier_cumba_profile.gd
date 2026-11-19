@@ -28,7 +28,7 @@ func _test_watchdog() -> void:
 func _has_two_named_parts(parent: Node, prefix: String) -> bool:
 	var matches := 0
 	for child in parent.find_children("*", "Node", true, false):
-		if child.name.to_string().begins_with(prefix):
+		if String(child.name).begins_with(prefix):
 			matches += 1
 	return matches >= 2
 
