@@ -110,3 +110,8 @@ La ejecución `44419455179` pasó importación, validación de clubes, validaci�
 Se portó al repositorio maestro la corrección que resuelve el servicio mediante `get_node_or_null("/root/MomentsService")`, junto con la lógica separada de goles de entrenamiento y amistosos. La prueba runtime se recuperó con carga de escena posterior a la inicialización de autoloads, watchdog, comprobación de progreso de Momentos y verificación del amistoso de muestra Albor Madrid vs Litoral Barcelona. Se declaró explícitamente el script de Momentos usado por la prueba para evitar identificadores no declarados.
 
 El workflow maestro ahora se ejecuta automáticamente al cambiar archivos del proyecto en `main` o ramas `work/**`, en pull requests hacia `main` y manualmente. Se añadieron pruebas independientes de vuelo del balón y de colisiones/contención de porterías. **La nueva ejecución todavía no tiene un resultado CI confirmado; no se afirma que la suite haya pasado ni que exista una APK nueva.**
+
+
+### Estadios procedurales — 18 noviembre 2026
+
+El juego base incorpora tres estadios originales offline. La preparación transmite el ID elegido y la escena principal construye la geometría del estadio al iniciar el amistoso. El workflow incluye `test_stadium_builder.gd` y la prueba runtime comprueba que el estadio seleccionado se aplique. La vista previa dentro de la pantalla de preparación, la iluminación dinámica y la validación física de las gradas siguen pendientes.
