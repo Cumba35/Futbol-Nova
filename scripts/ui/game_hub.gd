@@ -51,6 +51,10 @@ var active_draw_ceremony: NovaCompetitionDrawCeremony
 
 func _ready() -> void:
 	_build_shell()
+	var preferences: Node = get_node_or_null("/root/NovaPreferences")
+	if preferences != null and preferences.has_signal("ui_scale_changed"):
+		if not preferences.ui_scale_changed.is_connected(_on_ui_scale_preference_changed):
+			preferences.ui_scale_changed.connect(_on_ui_scale_preference_changed)
 	if not FootballData.draw_ceremony_requested.is_connected(_on_draw_ceremony_requested):
 		FootballData.draw_ceremony_requested.connect(_on_draw_ceremony_requested)
 	_show_home()
@@ -1700,6 +1704,10 @@ func _on_ui_scale_changed(value: float, value_label: Label, preferences: Node) -
 	value_label.text = "Tamaño del texto: %d%%" % int(round(value))
 	status_label.text = "Tamaño guardado." if saved else "No se pudo guardar el tamaño del texto."
 	if saved:
+		_apply_ui_scale_to_tree(root)
+
+func _on_ui_scale_preference_changed(_value: float) -> void:
+	if is_inside_tree() and root != null:
 		_apply_ui_scale_to_tree(root)
 
 func _set_scaled_font(control: Control, base_size: int) -> void:
