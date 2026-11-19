@@ -76,6 +76,8 @@ var _extra_time: CheckBox
 var _penalties: CheckBox
 var _start_button: Button
 var _team_ids: Array[String] = []
+var _custom_players: OptionButton
+var _roster_status: Label
 
 func _ready() -> void:
 	_build_interface()
@@ -179,6 +181,44 @@ func _build_interface() -> void:
 	_away_teams.item_selected.connect(_on_team_selection_changed)
 	away_column.add_child(_away_teams)
 
+	var custom_roster_title := Label.new()
+	custom_roster_title.text = "JUGADORES PERSONALIZADOS"
+	custom_roster_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	custom_roster_title.add_theme_color_override("font_color", ACCENT)
+	column.add_child(custom_roster_title)
+	var custom_roster_help := Label.new()
+	custom_roster_help.text = "Incorpora tus futbolistas creados a la plantilla del club local o visitante. La asignación queda guardada."
+	custom_roster_help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	custom_roster_help.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	custom_roster_help.add_theme_color_override("font_color", MUTED)
+	column.add_child(custom_roster_help)
+	_custom_players = OptionButton.new()
+	_custom_players.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_custom_players.custom_minimum_size.y = 44
+	column.add_child(_custom_players)
+	var roster_actions := HBoxContainer.new()
+	roster_actions.alignment = BoxContainer.ALIGNMENT_CENTER
+	roster_actions.add_theme_constant_override("separation", 8)
+	column.add_child(roster_actions)
+	var add_home_button := Button.new()
+	add_home_button.text = "AÑADIR AL LOCAL"
+	add_home_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	add_home_button.custom_minimum_size.y = 44
+	add_home_button.pressed.connect(_assign_custom_player_to_selected_team.bind(true))
+	roster_actions.add_child(add_home_button)
+	var add_away_button := Button.new()
+	add_away_button.text = "AÑADIR AL VISITANTE"
+	add_away_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	add_away_button.custom_minimum_size.y = 44
+	add_away_button.pressed.connect(_assign_custom_player_to_selected_team.bind(false))
+	roster_actions.add_child(add_away_button)
+	_roster_status = Label.new()
+	_roster_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_roster_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_roster_status.add_theme_color_override("font_color", MUTED)
+	column.add_child(_roster_status)
+	_refresh_custom_player_options()
+
 	_summary = Label.new()
 	_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -244,6 +284,71 @@ func _build_interface() -> void:
 	_start_button.pressed.connect(_start_match)
 	actions.add_child(_start_button)
 
+func _get_custom_roster_service() -> Node:
+	return get_node_or_null("/root/CustomPlayerRoster")
+
+func _refresh_custom_player_options() -> void:
+	if _custom_players == null:
+		return
+	_custom_players.clear()
+	var service := _get_custom_roster_service()
+	if service == null:
+		_custom_players.add_item("Registro de jugadores no disponible")
+		_custom_players.set_item_disabled(0, true)
+		return
+	var players: Array = service.call("get_created_players")
+	for player in players:
+		if not player is Dictionary:
+			continue
+		var player_id := str(player.get("id", "")).strip_edges()
+		if player_id.is_empty():
+			continue
+		var name := str(player.get("display_name", player.get("full_name", player_id)))
+		var assigned_team := str(service.call("get_assigned_team_id", player_id))
+		var suffix := " • " + assigned_team if not assigned_team.is_empty() else " • Sin club"
+		_custom_players.add_item(name + suffix)
+		_custom_players.set_item_metadata(_custom_players.item_count - 1, player_id)
+	if _custom_players.item_count == 0:
+		_custom_players.add_item("No hay jugadores personalizados guardados")
+		_custom_players.set_item_disabled(0, true)
+	else:
+		_custom_players.select(0)
+
+func _selected_custom_player_id() -> String:
+	if _custom_players == null or _custom_players.item_count == 0 or _custom_players.selected < 0:
+		return ""
+	return str(_custom_players.get_item_metadata(_custom_players.selected))
+
+func _assign_custom_player_to_selected_team(home_team: bool) -> void:
+	var player_id := _selected_custom_player_id()
+	var team_id := _selected_team_id(_home_teams if home_team else _away_teams)
+	var service := _get_custom_roster_service()
+	if service == null or player_id.is_empty() or team_id.is_empty():
+		if _roster_status != null:
+			_roster_status.text = "Selecciona un jugador personalizado y un club."
+		return
+	var result: Dictionary = service.call("assign_created_player_to_team", player_id, team_id)
+	if bool(result.get("ok", false)):
+		var registry: Variant = _get_football_registry()
+		var team_name := str(registry.teams_by_id.get(team_id, {}).get("name", team_id)) if registry != null else team_id
+		_roster_status.text = "Jugador incorporado a " + team_name + ". La plantilla se guardó correctamente."
+	else:
+		_roster_status.text = str(result.get("error", "No se pudo modificar la plantilla."))
+	_refresh_custom_player_options()
+	_refresh_validation()
+
+func _get_combined_team_roster(team_id: String) -> Array:
+	var registry: Variant = _get_football_registry()
+	if registry == null or not registry.teams_by_id.has(team_id):
+		return []
+	var roster: Array = registry.get_team_roster(team_id)
+	var service := _get_custom_roster_service()
+	if service != null:
+		for player in service.call("get_players_for_team", team_id):
+			if player is Dictionary and not str(player.get("id", "")).is_empty():
+				roster.append(player)
+	return roster
+
 func _get_football_registry() -> Variant:
 	var football_data_service: Node = get_node_or_null("/root/FootballData")
 	return football_data_service.get("registry") if football_data_service != null else null
@@ -262,7 +367,7 @@ func _load_eligible_teams() -> void:
 	for raw_id in ids:
 		var team_id := str(raw_id)
 		var team: Dictionary = registry.teams_by_id[team_id]
-		var roster: Array = registry.get_team_roster(team_id)
+		var roster: Array = _get_combined_team_roster(team_id)
 		if roster.size() < 11:
 			continue
 		var display_name := str(team.get("name", team.get("short_name", team_id))).strip_edges()
@@ -301,8 +406,8 @@ func _refresh_validation() -> void:
 	var valid := not home_id.is_empty() and not away_id.is_empty() and home_id != away_id
 	var registry: Variant = _get_football_registry()
 	valid = valid and registry != null
-	var home_roster: Array = registry.get_team_roster(home_id) if valid else []
-	var away_roster: Array = registry.get_team_roster(away_id) if valid else []
+	var home_roster: Array = _get_combined_team_roster(home_id) if valid else []
+	var away_roster: Array = _get_combined_team_roster(away_id) if valid else []
 	valid = valid and home_roster.size() >= 11 and away_roster.size() >= 11
 	valid = valid and not _selected_stadium_id().is_empty()
 	_start_button.disabled = not valid
@@ -334,8 +439,8 @@ func _start_match() -> void:
 		return
 	var home_team: Dictionary = registry.teams_by_id[home_id]
 	var away_team: Dictionary = registry.teams_by_id[away_id]
-	var home_roster: Array = registry.get_team_roster(home_id)
-	var away_roster: Array = registry.get_team_roster(away_id)
+	var home_roster: Array = _get_combined_team_roster(home_id)
+	var away_roster: Array = _get_combined_team_roster(away_id)
 	var home_player_ids := build_starting_eleven(home_roster)
 	var away_player_ids := build_starting_eleven(away_roster)
 	if home_player_ids.size() != 11 or away_player_ids.size() != 11:
