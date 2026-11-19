@@ -52,7 +52,7 @@ func _run_tests() -> void:
 	if selected_friendly.size() == 1:
 		var friendly_settings: Dictionary = selected_friendly[0]
 		_expect(str(friendly_settings.get("home_team_id", "")) != str(friendly_settings.get("away_team_id", "")), "Friendly preparation must reject the same club on both sides")
-		_expect(friendly_settings.get("home_player_ids", []).size() == 11 and friendly_settings.get("away_player_ids", []).size() == 11, "Friendly preparation must provide eleven real player IDs per side")
+		_expect(friendly_settings.get("home_player_ids", []).size() == 11 and friendly_settings.get("away_player_ids", []).size() == 11, "Friendly preparation must provide eleven valid Nova player IDs per side")
 		_expect(str(friendly_settings.get("match_type", "")) == "friendly", "Pre-match setup must identify the encounter as a friendly")
 	await process_frame
 
