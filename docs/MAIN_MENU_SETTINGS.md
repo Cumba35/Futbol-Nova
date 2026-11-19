@@ -72,9 +72,10 @@ La navegación muestra las once categorías, pero no todas tienen controles func
 | Módulos | Información y acceso al catálogo |
 | Datos | Tarjeta informativa; herramientas de exportación/importación y recuperación no están conectadas desde esta pantalla |
 | Información | Información básica de versión/estado |
-| Edición, Música, Juego, Audio, Gráficos, Accesibilidad y Administración | Aún muestran contenido reservado; no se deben presentar como ajustes operativos |
+| Audio | Volumen principal y silencio global funcionales, con persistencia local; buses independientes de música, efectos y comentarios pendientes |
+| Edición, Música, Juego, Gráficos, Accesibilidad y Administración | Aún muestran contenido reservado; no se deben presentar como ajustes operativos |
 
-La pantalla debe considerarse **parcialmente implementada**, no terminada. Las siguientes mejoras prioritarias son un servicio local persistente de preferencias, controles de audio/volumen reales, perfiles gráficos Android, accesibilidad (escala/contraste), opciones de juego que se apliquen al amistoso y herramientas de datos con confirmación. Música solo se habilitará cuando haya pistas autorizadas disponibles; no se mostrará un selector vacío ni se fingirá reproducción.
+La pantalla debe considerarse **parcialmente implementada**, no terminada. Las siguientes mejoras prioritarias son un servicio local persistente de preferencias, buses independientes de audio, perfiles gráficos Android, accesibilidad (escala/contraste), opciones de juego que se apliquen al amistoso y herramientas de datos con confirmación. El volumen general ya está implementado. Música solo se habilitará cuando haya pistas autorizadas disponibles; no se mostrará un selector vacío ni se fingirá reproducción.
 
 Las opciones deben conservar el idioma español y guardar las preferencias en el dispositivo. Cada control deberá tener una prueba que verifique tanto su efecto como su persistencia tras reiniciar.
 
