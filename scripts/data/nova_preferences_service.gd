@@ -3,13 +3,17 @@ class_name NovaPreferencesService
 
 signal master_volume_changed(value: float)
 signal master_mute_changed(muted: bool)
+signal ui_scale_changed(value: float)
 
 const SETTINGS_PATH := "user://futbol_nova_settings.cfg"
 const SECTION_AUDIO := "audio"
+const SECTION_INTERFACE := "interface"
 const DEFAULT_MASTER_VOLUME := 0.8
+const DEFAULT_UI_SCALE := 1.0
 
 var master_volume: float = DEFAULT_MASTER_VOLUME
 var master_muted: bool = false
+var ui_scale: float = DEFAULT_UI_SCALE
 
 func _ready() -> void:
 	load_preferences()
@@ -20,9 +24,11 @@ func load_preferences() -> void:
 	if error == OK:
 		master_volume = clampf(float(config.get_value(SECTION_AUDIO, "master_volume", DEFAULT_MASTER_VOLUME)), 0.0, 1.0)
 		master_muted = bool(config.get_value(SECTION_AUDIO, "master_muted", false))
+		ui_scale = clampf(float(config.get_value(SECTION_INTERFACE, "ui_scale", DEFAULT_UI_SCALE)), 0.8, 1.3)
 	_apply_audio()
 	master_volume_changed.emit(master_volume)
 	master_mute_changed.emit(master_muted)
+	ui_scale_changed.emit(ui_scale)
 
 func set_master_volume(value: float) -> bool:
 	master_volume = clampf(value, 0.0, 1.0)
@@ -39,6 +45,15 @@ func set_master_muted(value: bool) -> bool:
 func get_audio_preferences() -> Dictionary:
 	return {"master_volume": master_volume, "master_muted": master_muted}
 
+func set_ui_scale(value: float) -> bool:
+	ui_scale = clampf(value, 0.8, 1.3)
+	ui_scale_changed.emit(ui_scale)
+	return _save_preferences()
+
+func get_ui_preferences() -> Dictionary:
+	return {"ui_scale": ui_scale}
+
+
 func _apply_audio() -> void:
 	var master_bus := AudioServer.get_bus_index("Master")
 	if master_bus < 0:
@@ -53,4 +68,5 @@ func _save_preferences() -> bool:
 		return false
 	config.set_value(SECTION_AUDIO, "master_volume", master_volume)
 	config.set_value(SECTION_AUDIO, "master_muted", master_muted)
+	config.set_value(SECTION_INTERFACE, "ui_scale", ui_scale)
 	return config.save(SETTINGS_PATH) == OK
