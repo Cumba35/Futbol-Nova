@@ -35,8 +35,10 @@ static func normalize_player(player: Dictionary) -> Dictionary:
 	var season = statistics.get("current_season", {})
 	statistics["career"] = normalize_totals(career if career is Dictionary else {})
 	statistics["current_season"] = normalize_totals(season if season is Dictionary else {})
-	if not statistics.get("season_history", []) is Array:
-		statistics["season_history"] = []
+	var season_history = statistics.get("season_history", [])
+	if not season_history is Array:
+		season_history = []
+	statistics["season_history"] = season_history
 	var has_recorded_matches := int(statistics["career"].get("appearances", 0)) > 0
 	statistics["data_status"] = str(statistics.get("data_status", "registrado" if has_recorded_matches else "sin_partidos_registrados"))
 	normalized["statistics"] = statistics
