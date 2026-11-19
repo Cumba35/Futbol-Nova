@@ -25,6 +25,19 @@ Mejorar el modo amistoso de Fútbol Nova sin sustituir su arquitectura ni import
 - Área útil: ejemplo pequeño de escena 3D, movimiento y colisiones.
 - Estado: referencia educativa; revisar los avisos de terceros y la licencia antes de reutilizar archivos o recursos.
 
+
+### MIT-licensed Godot soccer reference
+- Repository: https://github.com/krimshi/godot-soccer
+- License: MIT (verified in the repository's root LICENSE file).
+- Relevance: a small 2D GDScript soccer project; useful as a lightweight reference for input handling, player/ball interaction and mobile-friendly gameplay patterns, but not a drop-in 3D 11v11 engine.
+- Decision: study patterns only for now. Any copied source or asset would retain the MIT copyright and license notice; no external code or assets have been imported into Fútbol Nova.
+
+### League-Soccer / GameplayFootball fork
+- Repository: https://github.com/erengaygusuz/fotbiler-football
+- License: Apache License 2.0 (verified in the root LICENSE file).
+- Relevance: C++ match engine with 22-player simulation, tactical AI, ball physics and match integration tests. Its engine and build stack differ from this Godot/GDScript mobile project, so direct integration would add unnecessary build and Android compatibility risk.
+- Decision: use its documented systems as architectural comparison only; no native engine dependency is being added to the Android build.
+
 ## Decisión técnica
 
 Por ahora estas referencias se usan para comparar enfoques, no como dependencias ni como fuente de código copiado. Fútbol Nova conserva su propio controlador 11v11, sistema de posesión, atributos de jugadores, plantillas personalizadas y controles táctiles.
