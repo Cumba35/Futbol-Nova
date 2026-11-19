@@ -23,6 +23,19 @@ const STARTING_POSITION_PRIORITY := [
 	["ED", "MD", "CAD"]
 ]
 
+static func get_default_team_indices(team_ids: Array[String]) -> Dictionary:
+	var home_index := team_ids.find("FN-ESP-REAL-MADRID")
+	var away_index := team_ids.find("FN-ESP-BARCELONA")
+	if home_index < 0 and not team_ids.is_empty():
+		home_index = 0
+	if away_index < 0 or away_index == home_index:
+		away_index = -1
+		for index in range(team_ids.size()):
+			if index != home_index:
+				away_index = index
+				break
+	return {"home": home_index, "away": away_index}
+
 static func build_starting_eleven(roster: Array) -> Array[String]:
 	var selected: Array[String] = []
 	var used_ids := {}
@@ -218,11 +231,11 @@ func _load_eligible_teams() -> void:
 	_home_teams.clear()
 	_away_teams.clear()
 	_team_ids.clear()
-	var registry = _get_football_registry()
-	if registry == null:
+	if FootballData.registry == null:
 		_summary.text = "El catálogo de clubes no está disponible. No se puede iniciar el amistoso."
 		return
 
+	var registry = FootballData.registry
 	var ids: Array = registry.teams_by_id.keys()
 	ids.sort()
 	for raw_id in ids:
@@ -242,9 +255,16 @@ func _load_eligible_teams() -> void:
 		_team_ids.append(team_id)
 
 	if _team_ids.size() >= 2:
-		_home_teams.select(0)
-		_away_teams.select(1)
-		_refresh_validation()
+		var defaults := get_default_team_indices(_team_ids)
+		var home_index := int(defaults.get("home", -1))
+		var away_index := int(defaults.get("away", -1))
+		if home_index >= 0 and away_index >= 0 and home_index != away_index:
+			_home_teams.select(home_index)
+			_away_teams.select(away_index)
+			_refresh_validation()
+		else:
+			_summary.text = "No se pudieron asignar dos clubes diferentes para el amistoso."
+			_start_button.disabled = true
 	else:
 		_summary.text = "Se necesitan al menos dos clubes con once jugadores válidos."
 		_start_button.disabled = true
@@ -258,13 +278,8 @@ func _refresh_validation() -> void:
 	var home_id := _selected_team_id(_home_teams)
 	var away_id := _selected_team_id(_away_teams)
 	var valid := not home_id.is_empty() and not away_id.is_empty() and home_id != away_id
-	var registry = _get_football_registry()
-	if registry == null:
-		_start_button.disabled = true
-		_summary.text = "El catálogo de clubes no está disponible."
-		return
-	var home_roster: Array = registry.get_team_roster(home_id) if valid else []
-	var away_roster: Array = registry.get_team_roster(away_id) if valid else []
+	var home_roster: Array = FootballData.registry.get_team_roster(home_id) if valid else []
+	var away_roster: Array = FootballData.registry.get_team_roster(away_id) if valid else []
 	valid = valid and home_roster.size() >= 11 and away_roster.size() >= 11
 	_start_button.disabled = not valid
 	if home_id == away_id and not home_id.is_empty():
@@ -283,15 +298,10 @@ func _start_match() -> void:
 		return
 	var home_id := _selected_team_id(_home_teams)
 	var away_id := _selected_team_id(_away_teams)
-	var registry = _get_football_registry()
-	if registry == null:
-		_summary.text = "El catálogo de clubes no está disponible."
-		_start_button.disabled = true
-		return
-	var home_team: Dictionary = registry.teams_by_id[home_id]
-	var away_team: Dictionary = registry.teams_by_id[away_id]
-	var home_roster: Array = registry.get_team_roster(home_id)
-	var away_roster: Array = registry.get_team_roster(away_id)
+	var home_team: Dictionary = FootballData.registry.teams_by_id[home_id]
+	var away_team: Dictionary = FootballData.registry.teams_by_id[away_id]
+	var home_roster: Array = FootballData.registry.get_team_roster(home_id)
+	var away_roster: Array = FootballData.registry.get_team_roster(away_id)
 	var home_player_ids := build_starting_eleven(home_roster)
 	var away_player_ids := build_starting_eleven(away_roster)
 	if home_player_ids.size() != 11 or away_player_ids.size() != 11:
@@ -318,8 +328,3 @@ func _start_match() -> void:
 func _close() -> void:
 	setup_closed.emit()
 	queue_free()
-
-
-func _get_football_registry() -> Variant:
-	var data_service := get_node_or_null("/root/FootballData")
-	return data_service.get("registry") if data_service != null else null
