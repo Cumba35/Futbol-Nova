@@ -35,3 +35,11 @@ Seguir el orden P0/P1/P2 de `docs/FRIENDLY_MODE_PRIORITY_AND_ACCEPTANCE.md`, pri
 
 ## Nota de precisión
 Este registro resume las decisiones y el estado conocido al 2026-11-19. No representa una nueva compilación, una prueba física en el teléfono ni una declaración de que las funciones pendientes ya estén implementadas.
+
+## Continuidad de esta sesión — auditoría del runtime
+
+Se verificó el estado de la PR #5 (abierta, WIP) y el HEAD de la rama antes de continuar. Se revisaron los criterios de aceptación, el README Android, el workflow ARM64 y el código Java/C++ del runtime.
+
+La auditoría está registrada en `docs/NATIVE_RUNTIME_INTEGRATION_STATUS_2026-11-19.md`, sección **Auditoría de código nativo — continuidad 2026-11-19**. Los bloqueadores principales confirmados son: ausencia de porteros funcionales, jugador controlado fijo en el índice 9, IA de formación sin roles tácticos, colisiones parciales, pase sin compañero objetivo, presión sin robo real y ausencia de reloj configurable/dos tiempos/saques completos.
+
+La siguiente implementación debe comenzar por porteros + física/colisiones del balón y mantener los criterios P0/P1 de `docs/FRIENDLY_MODE_PRIORITY_AND_ACCEPTANCE.md`. La revisión fue estática: no se realizó una nueva compilación ni una prueba física en Android en esta sesión.
