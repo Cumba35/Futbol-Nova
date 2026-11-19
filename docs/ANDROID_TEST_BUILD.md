@@ -152,3 +152,10 @@ La ejecución `44450701630` confirmó que importación, catálogos, hub, modelo 
 La causa estaba en el límite entre `main.gd` y el controlador: `reset_ball_for_restart()` retornaba sin hacer nada cuando el controlador aún no tenía una referencia `_ball` (situación normal antes de iniciar un amistoso), pero la pantalla principal interpretaba la mera existencia del método como un reinicio exitoso y no ejecutaba su alternativa directa sobre `game.ball`.
 
 La función del controlador ahora devuelve `true` solo cuando reinició el cuerpo enlazado y `false` si no tiene balón. Tanto `_reset_training_ball()` como `_reset_ball()` usan ese resultado y aplican la alternativa local cuando hace falta. La prueba de aceptación ya existente comprueba que el balón vuelva al punto de inicio tras un gol en práctica libre. Los dos archivos de código se sincronizaron y releyeron en ambos repositorios; la siguiente ejecución CI debe validar el arreglo.
+
+
+## Entrega en Dropbox y autorización de APK — 2026-11-19
+
+- La carpeta de destino del proyecto en Dropbox está confirmada: `/Aplicaciones/Fútbol Nova/`. Contiene actualmente `FutbolNova-debug.apk` (29,961,953 bytes; modificado 2026-11-19 15:21 UTC). No reemplazarla sin una orden explícita de generación y verificación de versión.
+- Regla del propietario: generar APK solo cuando lo ordene explícitamente. No confundir una compilación de CI para validar código con autorización para producir una APK de entrega. Al recibir la orden, compilar, comprobar ABI/instalación y pruebas disponibles, subir a la carpeta anterior y releer metadata para verificar nombre, tamaño y fecha.
+- Prioridad de validación: Amistosos 11v11 de principio a fin y pantallas relacionadas, comparando jerarquía, navegación y comportamiento móvil con las imágenes de `assets/references/` y especificaciones de UI. Documentar por separado resultados automáticos, revisión visual y prueba en teléfono.
