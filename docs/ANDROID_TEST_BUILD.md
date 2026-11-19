@@ -120,3 +120,10 @@ El juego base incorpora tres estadios originales offline. La preparación transm
 ### Corrección de liberación del balón por la IA — 19 noviembre 2026
 
 La revisión del controlador 11v11 encontró que los futbolistas de IA y los porteros liberaban la posesión, pero no aplicaban el impulso previsto al balón. Se centralizó la operación en `apply_ai_kick()`: valida cuerpo, dirección y fuerza, descongela/despierta el balón y aplica el impulso. La prueba de fundamentos crea un `RigidBody3D` real y comprueba que el balón adquiere velocidad, además de rechazar una dirección nula. Esta corrección queda pendiente de confirmación por la siguiente ejecución de GitHub Actions; no certifica por sí sola el partido completo ni la APK.
+
+
+### Diagnóstico CI y corrección de compilación headless — 19 noviembre 2026
+
+La ejecución `44448995746` terminó con fallo en `Core test — live friendly match, goals and periods`. El log identificó dos causas primarias: `scripts/main.gd:502` no podía inferir el tipo de `active_match` en Godot 4.4.1; y `scripts/ui/pre_match_setup.gd` referenciaba el autoload `FootballData` como identificador global en un script pre-cargado por pruebas headless. El acceso inválido posterior a `game_hub` y el timeout eran consecuencias de que la escena principal no llegó a compilar.
+
+Se corrigió `active_match` con tipo explícito `bool`. La pantalla de preparación ahora resuelve el servicio mediante `get_node_or_null("/root/FootballData")`, valida que el registro siga disponible antes de consultar plantillas y vuelve a comprobar que ambos equipos existan al iniciar. Se añadió una prueba de regresión en `test_shared_foundation.gd` para impedir referencias estáticas al autoload y exigir la resolución dinámica. Los cambios están guardados en el repositorio maestro; falta sincronizar la copia de distribución y confirmar el siguiente resultado CI antes de considerar resuelta la incidencia.
