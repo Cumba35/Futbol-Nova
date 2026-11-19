@@ -9,6 +9,7 @@ const PANEL_ALT := Color("#1b3827")
 const ACCENT := Color("#c8f45a")
 const TEXT_COLOR := Color("#f4f7ef")
 const MUTED := Color("#a8b7aa")
+const STADIUM_BUILDER = preload("res://scripts/stadiums/stadium_builder.gd")
 const STARTING_POSITION_PRIORITY := [
 	["POR", "GK", "G"],
 	["LI", "CAI"],
@@ -68,6 +69,7 @@ static func build_starting_eleven(roster: Array) -> Array[String]:
 var _home_teams: OptionButton
 var _away_teams: OptionButton
 var _summary: Label
+var _stadiums: OptionButton
 var _half_length: OptionButton
 var _clock_mode: OptionButton
 var _extra_time: CheckBox
@@ -183,6 +185,21 @@ func _build_interface() -> void:
 	_summary.add_theme_color_override("font_color", MUTED)
 	column.add_child(_summary)
 
+	var stadium_title := Label.new()
+	stadium_title.text = "ESTADIO"
+	stadium_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	stadium_title.add_theme_color_override("font_color", TEXT_COLOR)
+	column.add_child(stadium_title)
+	_stadiums = OptionButton.new()
+	_stadiums.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_stadiums.custom_minimum_size.y = 44
+	for stadium in STADIUM_BUILDER.get_catalog():
+		_stadiums.add_item(str(stadium.get("name", "Estadio")))
+		_stadiums.set_item_metadata(_stadiums.item_count - 1, str(stadium.get("id", "")))
+	if _stadiums.item_count > 0:
+		_stadiums.select(0)
+	column.add_child(_stadiums)
+
 	var match_options := GridContainer.new()
 	match_options.columns = 2
 	match_options.add_theme_constant_override("h_separation", 14)
@@ -281,6 +298,7 @@ func _refresh_validation() -> void:
 	var home_roster: Array = FootballData.registry.get_team_roster(home_id) if valid else []
 	var away_roster: Array = FootballData.registry.get_team_roster(away_id) if valid else []
 	valid = valid and home_roster.size() >= 11 and away_roster.size() >= 11
+	valid = valid and not _selected_stadium_id().is_empty()
 	_start_button.disabled = not valid
 	if home_id == away_id and not home_id.is_empty():
 		_summary.text = "El equipo local y el visitante deben ser diferentes."
@@ -288,6 +306,11 @@ func _refresh_validation() -> void:
 		_summary.text = "Plantillas verificadas: %d jugadores locales y %d visitantes. Alineaciones iniciales: 11 por equipo." % [home_roster.size(), away_roster.size()]
 	else:
 		_summary.text = "No se pudo validar una de las plantillas. El partido permanece bloqueado."
+
+func _selected_stadium_id() -> String:
+	if _stadiums == null or _stadiums.item_count == 0 or _stadiums.selected < 0:
+		return ""
+	return str(_stadiums.get_item_metadata(_stadiums.selected))
 
 func _on_team_selection_changed(_index: int) -> void:
 	_refresh_validation()
@@ -316,6 +339,7 @@ func _start_match() -> void:
 		"away_team_name": str(away_team.get("name", away_id)),
 		"home_player_ids": home_player_ids,
 		"away_player_ids": away_player_ids,
+		"stadium_id": _selected_stadium_id(),
 		"half_length_minutes": _half_length.get_selected_id(),
 		"clock_mode": "stopped" if _clock_mode.get_selected_id() == 1 else "continuous",
 		"extra_time_enabled": _extra_time.button_pressed,
