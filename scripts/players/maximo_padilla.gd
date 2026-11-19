@@ -59,7 +59,8 @@ func _build_visual() -> void:
 		_add_capsule("upper_arm_%s" % side, Vector3(side * 0.255, 1.19, 0), Vector3(0.075, 0.24, 0.075), Color("#A51E3B"))
 		_add_capsule("forearm_%s" % side, Vector3(side * 0.29, 0.91, 0), Vector3(0.06, 0.19, 0.06), Color("#75452F"))
 		# The compression sleeve is drawn last so it remains visible over the forearm.
-		_add_capsule("inner_shirt_sleeve_%s" % side, Vector3(side * 0.29, 0.91, -0.002), Vector3(0.064, 0.198, 0.064), Color("#E9E9E9"))
+		var sleeve_side := "left" if side < 0.0 else "right"
+		_add_capsule("inner_shirt_sleeve_%s" % sleeve_side, Vector3(side * 0.29, 0.91, -0.002), Vector3(0.064, 0.198, 0.064), Color("#E9E9E9"))
 		_add_sphere("hand_%s" % side, Vector3(side * 0.29, 0.76, 0), Vector3(0.055, 0.07, 0.045), Color("#75452F"))
 	# Name and number are placed on the back (+Z); the player faces -Z.
 	_add_back_text("shirt_number_30", "30", Vector3(0, 1.12, 0.226), 64)
