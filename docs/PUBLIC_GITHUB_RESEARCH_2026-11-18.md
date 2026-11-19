@@ -161,3 +161,19 @@ Se corrigió la pausa de partido en `scripts/gameplay/match_11v11_controller.gd`
 - `namelesssyf/soccer-box-game` declara Godot 4.7.1 y funcionalidades físicas/IA amplias; se toma como referencia conceptual, no como dependencia directa.
 
 **Regla de integración:** tomar patrones y casos de prueba, no copiar grandes bloques ni recursos sin comprobar versión, licencia, dependencias, rendimiento móvil y atribución. No añadir dependencias nativas C++ al APK sin medir su coste y probar exportación Android.
+
+
+## Revisión adicional de alternativas públicas — 2026-11-19
+
+### modelence/open-soccer
+- Proyecto de fútbol 11v11 en navegador con reglas de partido, cámara de retransmisión, 48 selecciones, controles reasignables y persistencia de asignaciones en localStorage.
+- Su motor está separado en lógica de partido, renderizado, proyección de cámara, constantes, matemáticas y tipos; esa separación sirve como referencia arquitectónica para mantener responsabilidades aisladas.
+- La implementación usa React/TypeScript/Canvas y una app Expo opcional, por lo que no se incorpora directamente al juego Godot 4.4.1.
+- No se encontró un archivo LICENSE en la raíz consultada; no se copia ni adapta código hasta verificar una licencia aplicable.
+
+### devinarena/Pixel-Striker
+- Juego móvil de fútbol hecho con Godot y licencia MIT.
+- Incluye modos de tiros libres, portero y penaltis, preferencias de usuario y soporte de servicios de juego.
+- Es una referencia móvil complementaria, pero su alcance no sustituye el partido 11v11 ni justifica importar escenas o recursos ajenos.
+
+No se importó código ni arte de estos repositorios. Las referencias se limitan a arquitectura, controles móviles y preferencias; cualquier reutilización futura deberá revisar compatibilidad técnica y conservar las licencias/notificaciones aplicables.
