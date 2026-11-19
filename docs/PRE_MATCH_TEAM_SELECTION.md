@@ -169,3 +169,13 @@ La ejecución `44529962976` completó esta prueba de amistoso con éxito en Godo
 **Criterio de aceptación:** no basta con abrir la escena o crear 22 nodos. El amistoso solo se considera validado cuando se puede iniciar desde la interfaz, mover al jugador, pasar, tirar, marcar, pausar/reanudar y completar los períodos sin errores. La prueba headless es necesaria, pero no sustituye la instalación y prueba manual de la APK en Android.
 
 **Pendiente funcional visible:** los botones de repetición y tácticas del menú de pausa siguen deshabilitados; la tanda de penaltis está marcada en desarrollo y no tiene motor; las sustituciones reales, árbitro completo, faltas/reinicios y presentación visual completa de la pantalla previa siguen fuera del alcance de esta aceptación inicial.
+
+
+## Corrección de posesión tras pase/tiro — 19 noviembre 2026
+
+La aceptación de controles táctiles encontró un fallo real del motor: después de liberar la pelota, el controlador podía volver a asignar posesión al jugador/IA durante el mismo ciclo de física, antes de que el impulso del balón se integrara. Esto podía congelar la pelota justo después de un pase o tiro.
+
+- El controlador 11v11 ahora aplica una ventana breve de protección de posesión tras un golpe (0,18 s), evitando que el balón vuelva a quedar fijado al futbolista antes de comenzar su trayectoria.
+- La protección se aplica al pase/tiro del jugador, al despeje del portero y a los pases/despejes de la IA; se reinicia al iniciar o detener un partido.
+- La prueba de amistoso adquiere posesión real con el jugador controlado, pulsa PASE/TIRO táctiles y verifica que el balón gana velocidad, permanece libre y no vuelve a congelarse inmediatamente.
+- La prueba también verifica que la IA local y visitante se reposiciona según el balón y que el joystick virtual desplaza al jugador.
