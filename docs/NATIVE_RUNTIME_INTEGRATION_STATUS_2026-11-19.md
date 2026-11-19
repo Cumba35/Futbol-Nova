@@ -23,7 +23,7 @@ Fecha: 2026-11-19. Rama: `work/native-3d-engine`.
 - Atributos de altura, GRL, ritmo, regate y defensa procedentes de los datos de la plantilla.
 - Controles táctiles con zonas corregidas para movimiento, pase, tiro, regate y presión; se corrigió el desajuste entre coordenadas dibujadas y zonas táctiles en pantallas panorámicas.
 - Movimiento de balón condicionado a la proximidad del jugador, toque de regate y presión defensiva aplicada al equipo controlado.
-- Reloj de partido, marcador actualizado y detección básica de gol entre los postes.
+- Reloj de partido, marcador actualizado, detección básica de gol entre los postes y reinicio del saque en el centro después de marcar.
 - IA inicial que desplaza las líneas y acompaña la acción; todavía no equivale a una IA táctica completa.
 
 ## Límites que se mantienen deliberadamente
@@ -32,7 +32,7 @@ Fecha: 2026-11-19. Rama: `work/native-3d-engine`.
 - Las demás ligas/temporadas y las selecciones nacionales siguen sujetas a sus estados de verificación, procedencia y validación del motor. Estar empaquetadas como JSON no las convierte en contenido jugable.
 - Los modelos de jugadores siguen siendo un blockout procedural de primitivas, no modelos humanos de alta fidelidad ni equivalentes visuales a FIFA/FC.
 - Los menús de carrera, entrenador, ligas, copas, TAS y entrenamiento están representados en el catálogo, pero sus sistemas de juego aún deben construirse y probarse.
-- El reloj y marcador básicos ya están conectados al motor, y existe detección inicial de goles; todavía faltan saques de centro y reinicio correcto de posiciones, árbitro, sustituciones, faltas, fueras de juego, porteros funcionales, animaciones esqueléticas, repetición y pruebas completas en teléfono.
+- El reloj y marcador básicos ya están conectados al motor, existe detección inicial de goles y el saque se reinicia en el centro; todavía faltan árbitro, sustituciones, faltas, fueras de juego, porteros funcionales, animaciones esqueléticas, repetición y pruebas completas en teléfono.
 - Los estadios listados en la especificación de producto aún deben convertirse en escenarios 3D reales; las gradas y porterías actuales son primitivas de prueba.
 
 ## Pruebas y publicación
