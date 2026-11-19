@@ -202,16 +202,19 @@ func _run_tests() -> void:
 	var master_slider := hub.content_box.find_child("MasterVolumeSlider", true, false) as HSlider
 	var master_mute := hub.content_box.find_child("MasterMuteToggle", true, false) as CheckBox
 	_expect(master_slider != null and master_mute != null, "Audio settings must expose working master volume and mute controls")
-	var saved_volume := NovaPreferences.master_volume
-	var saved_mute := NovaPreferences.master_muted
+	var preferences: Node = root.get_node_or_null("NovaPreferences")
+	_expect(preferences != null, "NovaPreferences autoload must be registered")
+	var saved_volume := float(preferences.get("master_volume")) if preferences != null else 0.8
+	var saved_mute := bool(preferences.get("master_muted")) if preferences != null else false
 	if master_slider != null:
 		master_slider.value_changed.emit(43.0)
-		_expect(is_equal_approx(NovaPreferences.master_volume, 0.43), "Audio slider must apply the master volume immediately")
+		_expect(is_equal_approx(float(preferences.get("master_volume")), 0.43), "Audio slider must apply the master volume immediately")
 	if master_mute != null:
 		master_mute.toggled.emit(not saved_mute)
-		_expect(NovaPreferences.master_muted == not saved_mute, "Audio mute control must apply immediately")
-	NovaPreferences.set_master_volume(saved_volume)
-	NovaPreferences.set_master_muted(saved_mute)
+		_expect(bool(preferences.get("master_muted")) == not saved_mute, "Audio mute control must apply immediately")
+	if preferences != null:
+		preferences.call("set_master_volume", saved_volume)
+		preferences.call("set_master_muted", saved_mute)
 	var pause_resume_requested := [false]
 	hub.pause_resume_requested.connect(func(): pause_resume_requested[0] = true)
 	hub.open_pause_menu()
