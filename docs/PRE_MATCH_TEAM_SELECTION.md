@@ -171,3 +171,8 @@ La prueba está integrada en el workflow manual de GitHub Actions, pero aún no 
 La escena de partido aplica paletas de equipación Nova originales según los IDs de los clubes de muestra: marfil cálido y azul noche para Albor Madrid, y granate apagado con pantalón azul oscuro para Litoral Barcelona. Son colores sólidos propios del juego; no se reproducen patrones, escudos, fabricantes ni patrocinadores oficiales. El controlador vuelve a sus colores genéricos cuando se eligen otros clubes.
 
 La selección de clubes incluye campos de búsqueda independientes para local y visitante. El catálogo base reúne cientos de clubes, por lo que no se obliga al jugador a recorrer manualmente toda la lista; el filtro conserva la selección si sigue coincidiendo y el amistoso se valida de nuevo al cambiarla.
+
+
+## Aplicación de perfiles al partido amistoso
+
+Los IDs de los once titulares de cada club se transmiten al motor 11v11 y se resuelven contra `FootballData.registry.players_by_id`. Cada futbolista de IA conserva su nombre, posición, valoración, pie preferido y diccionario de atributos; su velocidad de movimiento deriva de `spd` y, para porteros, de `gkspd`. La toma de decisiones usa los atributos de pase largo/corto, despeje de portero y entradas para ajustar fuerza y alcance. El futbolista controlado recibe el perfil de su puesto en el once y sus atributos ajustan velocidad, aceleración, pase, tiro y alcance de entrada. Si el registro no está disponible, los partidos de pruebas de bajo nivel pueden seguir usando la alineación genérica, pero el amistoso de la interfaz exige plantillas válidas.
