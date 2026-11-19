@@ -66,3 +66,27 @@ El 2026-11-19, el workflow `Fútbol Nova - pruebas y APK Android` (run 445413747
 ## Siguiente prioridad
 
 Corregir cualquier nuevo bloqueo real de CI y conseguir el APK Android. Después, realizar una prueba manual centrada en el control táctil, la posesión, los pases, los tiros, los goles y la IA durante un amistoso completo.
+
+### Controles multitáctiles Godot 4.4 — referencia MIT adicional (2026-11-19)
+
+- Repositorio: https://github.com/JoenTNT/godot_thumbstick_addon
+- Licencia: MIT verificada leyendo el archivo raíz `LICENSE`; conservar aviso y texto de licencia si se reutiliza cualquier fragmento.
+- Compatibilidad declarada: `project.godot` indica Godot 4.4 y GL Compatibility. El README registra controlador virtual y controlador multitáctil, y el historial del proyecto indica soporte probado en Godot 4.4.
+- Relevancia: referencia útil para comparar el manejo de varios dedos y joystick en la versión exacta de Godot usada por Fútbol Nova.
+- Decisión: no importar el addon por ahora. El controlador nativo ya está integrado con las acciones InputMap del juego y la aceptación actual verifica dos dedos en un mismo botón, joystick y liberación de acciones. Evitamos duplicar controladores hasta que una prueba en teléfono revele una carencia concreta.
+
+### Referencia Android de fútbol multijugador — MIT (2026-11-19)
+
+- Repositorio: https://github.com/luiz734/multiplayer-soccer
+- Licencia: MIT verificada en el archivo raíz `LICENSE`.
+- `project.godot` declara Godot 4.2 y el README indica pruebas en Android; el proyecto es multijugador y no dispone de modo de un jugador.
+- Relevancia: puede servir para estudiar empaquetado Android, resolución/orientación y estructura de escenas Godot. No aporta el motor de simulación IA local 11v11 que necesita Fútbol Nova.
+- Decisión: referencia de exportación solamente; no integrar red ni reemplazar el modo amistoso local.
+
+### Resultados CI tras la corrección de exportación (2026-11-19)
+
+- El workflow 333 (`44548526728`, commit `213a70a8`) importó recursos y superó las pruebas de base 11v11 y amistoso en vivo con goles y períodos. También superó las pruebas anteriores de acciones de entrada y limpieza de controles táctiles.
+- Al registrar esta actualización, ejecutaba `Core test — NOVA resource policy`; la exportación arm64 y la subida del APK seguían pendientes.
+- El workflow 332 había llegado a la exportación y falló por `gradle_build/use_gradle_build=false` con `min_sdk`/`target_sdk` personalizados. La corrección se guardó en ambos repositorios activando Gradle.
+- No hay todavía artefacto `futbol-nova-android-debug` confirmado en el run 333. El artefacto de fuente Godot sí fue publicado; no confundirlo con el APK.
+
