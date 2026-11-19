@@ -29,3 +29,11 @@ Se volvió a consultar el árbol Git completo de distribución y Workspace. Las 
 La captura antigua de Ultimate Team existe únicamente como archivo de exclusión en Nova Workspace; no está en el árbol de distribución. No debe incorporarse a pantallas ni materiales del juego. Las cuatro referencias activas son guía de composición, no assets de producción.
 
 Los originales en alta resolución, la captura Manager, los ajustes de partido, los ajustes de mando y la imagen azul HOME / PLAY / CLUB siguen pendientes de transferencia. No se encontró una copia recuperable de esos nombres/temas en la búsqueda de Dropbox realizada el 19-11-2026. Mantener pendientes hasta disponer de los adjuntos originales o una copia verificable.
+
+
+## Actualización — aislamiento de referencias visuales y diagnóstico CI (2026-11-19)
+
+- Las imágenes de referencia del directorio assets/references/ son material de diseño, no recursos del juego. Se añadió .gdignore en ambos repositorios para evitar que Godot intente importarlas como recursos de ejecución.
+- El workflow 259 alcanzó las pruebas de regresión, pero falló en test_anier_cumba_profile.gd; por ello no se exportó la APK.
+- Se añadió un número de comprobación al mensaje de error de cada aserción del perfil Anier para identificar exactamente la condición que falle en la siguiente ejecución.
+- La nueva ejecución Android debe confirmar que la exclusión de referencias elimina el error de importación y mostrar la aserción concreta si persiste el fallo.
