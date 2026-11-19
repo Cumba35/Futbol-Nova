@@ -109,6 +109,10 @@ func _draw() -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_WINDOW_FOCUS_OUT:
 		_release_all()
+	elif what == CanvasItem.NOTIFICATION_VISIBILITY_CHANGED and not is_visible_in_tree():
+		# Hiding the touch layer (pause/menu/scene transition) must not leave
+		# virtual movement or action inputs held after the overlay disappears.
+		_release_all()
 
 func _release_all() -> void:
 	joystick_touch_id = -1
