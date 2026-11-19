@@ -97,6 +97,14 @@ jobs:
           echo "GODOT_ANDROID_KEYSTORE_DEBUG_USER=androiddebugkey" >> "$GITHUB_ENV"
           echo "GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD=android" >> "$GITHUB_ENV"
 
+      - name: Verify raw source datasets stay outside Godot resource imports
+        shell: bash
+        run: |
+          test -f data/imports/.gdignore
+          test -f data/imports/spain_2026_27_club_membership.csv
+          test -f data/imports/verified_club_membership.csv
+          test -f data/imports/verified_player_squads.csv
+
       - name: Import project resources
         run: godot --headless --editor --path . --import --quit
 
