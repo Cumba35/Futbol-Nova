@@ -58,8 +58,8 @@ static func build_starting_eleven(roster: Array) -> Array[String]:
 var _home_teams: OptionButton
 var _away_teams: OptionButton
 var _summary: Label
-var _home_badge: Label
-var _away_badge: Label
+var _home_badge: Button
+var _away_badge: Button
 var _home_lineup_preview: Label
 var _away_lineup_preview: Label
 var _stadium_option: OptionButton
@@ -326,20 +326,24 @@ func _team_option_label(team_id: String, team: Dictionary) -> String:
 func _team_match_display_name(team_id: String, team: Dictionary) -> String:
 	return _team_option_label(team_id, team)
 
-func _create_team_badge(fallback_text: String) -> Label:
-	var badge := Label.new()
+func _create_team_badge(fallback_text: String) -> Button:
+	var badge := Button.new()
+	badge.disabled = true
+	badge.focus_mode = Control.FOCUS_NONE
 	badge.text = fallback_text
 	badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	badge.custom_minimum_size = Vector2(120, 68)
 	badge.add_theme_font_size_override("font_size", 20)
 	badge.add_theme_color_override("font_color", TEXT_COLOR)
+	badge.add_theme_color_override("font_disabled_color", TEXT_COLOR)
 	var style := StyleBoxFlat.new()
 	style.bg_color = PANEL_ALT
 	style.border_color = ACCENT
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(16)
 	badge.add_theme_stylebox_override("normal", style)
+	badge.add_theme_stylebox_override("disabled", style)
 	return badge
 
 func _create_lineup_preview() -> Label:
@@ -365,13 +369,14 @@ func _refresh_team_previews() -> void:
 	if _away_lineup_preview != null:
 		_away_lineup_preview.text = _format_starting_lineup(away_id)
 
-func _set_badge_palette(badge: Label, is_madrid: bool, is_barcelona: bool) -> void:
+func _set_badge_palette(badge: Button, is_madrid: bool, is_barcelona: bool) -> void:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color("#25334A") if is_madrid else (Color("#173B79") if is_barcelona else PANEL_ALT)
 	style.border_color = Color("#D7C28A") if is_madrid else (Color("#A51E3B") if is_barcelona else ACCENT)
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(16)
 	badge.add_theme_stylebox_override("normal", style)
+	badge.add_theme_stylebox_override("disabled", style)
 
 func _selected_team_label(selector: OptionButton) -> String:
 	return selector.get_item_text(selector.selected) if selector != null and selector.selected >= 0 else "EQUIPO"
