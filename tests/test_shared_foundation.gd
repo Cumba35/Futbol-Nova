@@ -11,6 +11,7 @@ const CubaImporter = preload("res://scripts/data/cuba_league_importer.gd")
 const DataService = preload("res://scripts/data/football_data_service.gd")
 const CompetitionRules = preload("res://scripts/simulation/competition_format_rules.gd")
 const CommercialService = preload("res://scripts/manager/club_commercial_service.gd")
+const PreMatchSetup = preload("res://scripts/ui/pre_match_setup.gd")
 
 func _initialize() -> void:
 	var failures := PackedStringArray()
