@@ -134,9 +134,21 @@ func _run_acceptance_test() -> void:
 				await process_frame
 				print("FRIENDLY_TEST: friendly match started")
 				var summary: Dictionary = game.match_11v11_controller.get_match_summary()
+				var expected_home_player_ids := {}
+				var expected_away_player_ids := {}
+				for roster_player in football_registry.get_team_roster(selected_home_id):
+					expected_home_player_ids[str(roster_player.get("id", ""))] = true
+				for roster_player in football_registry.get_team_roster(selected_away_id):
+					expected_away_player_ids[str(roster_player.get("id", ""))] = true
 				var applied_roster_profiles := 0
 				for actor_data in game.match_11v11_controller._actors:
 					var actor_attributes: Dictionary = actor_data.get("attributes", {})
+					var actor_player_id := str(actor_data.get("player_id", ""))
+					var actor_team_id := str(actor_data.get("team_id", ""))
+					if actor_team_id == selected_home_id and not expected_home_player_ids.has(actor_player_id):
+						failures.append("Un jugador local no pertenece a la plantilla seleccionada.")
+					if actor_team_id == selected_away_id and not expected_away_player_ids.has(actor_player_id):
+						failures.append("Un jugador visitante no pertenece a la plantilla seleccionada.")
 					if str(actor_data.get("display_name", "")).is_empty() or actor_attributes.is_empty() or int(actor_data.get("overall", 0)) <= 0:
 						failures.append("Un futbolista de IA no recibió su perfil, atributos y valoración desde la plantilla.")
 					if float(actor_data.get("speed", 0.0)) <= 0.0:
@@ -147,6 +159,8 @@ func _run_acceptance_test() -> void:
 				var controlled_profile: Dictionary = game.player.get_meta("nova_player_profile", {})
 				if controlled_profile.is_empty() or controlled_profile.get("attributes", {}).is_empty():
 					failures.append("El futbolista controlado no conservó su perfil de la plantilla local.")
+				if not expected_home_player_ids.has(str(controlled_profile.get("id", ""))):
+					failures.append("El jugador controlado no pertenece a la plantilla local seleccionada.")
 				var controlled_attributes: Dictionary = controlled_profile.get("attributes", {})
 				var expected_move_speed := lerpf(6.4, 8.2, clampf(float(controlled_attributes.get("spd", 70.0)) / 99.0, 0.0, 1.0))
 				var expected_pass_force := lerpf(4.8, 7.0, clampf(float(controlled_attributes.get("short", 70.0)) / 99.0, 0.0, 1.0))
