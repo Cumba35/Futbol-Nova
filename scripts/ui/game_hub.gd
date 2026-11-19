@@ -3,12 +3,14 @@ extends CanvasLayer
 signal training_mode_selected(mode_id: String)
 signal match_11v11_requested
 signal catalog_requested
+signal pause_resume_requested
+signal pause_exit_requested
 
-const PANEL := Color("#12291d")
-const PANEL_ALT := Color("#1b3827")
-const LIME := Color("#c8f45a")
-const MUTED := Color("#a8b7aa")
-const WHITE := Color("#f4f7ef")
+const PANEL := Color("#101b32")
+const PANEL_ALT := Color("#1b2d4d")
+const LIME := Color("#63d8e8")
+const MUTED := Color("#a9b9cf")
+const WHITE := Color("#f3f6fc")
 const TAS_SEASON_ID := "2027"
 const MAIN_PAGES := ["home", "online", "modes", "settings"]
 const DOWNLOAD_ICON := "⬇"
@@ -18,6 +20,10 @@ const INTERNATIONAL_COMPETITIONS_PATH := "res://data/international_club_competit
 
 var root: Control
 var content_box: VBoxContainer
+var main_nav_container: HFlowContainer
+var footer_container: HBoxContainer
+var match_controller: Node
+var _pause_context := false
 var page_title: Label
 var page_subtitle: Label
 var status_label: Label
@@ -57,7 +63,8 @@ func _build_shell() -> void:
 	add_child(root)
 
 	var shade := ColorRect.new()
-	shade.color = Color(0.015, 0.045, 0.028, 0.94)
+	shade.name = "HubShade"
+	shade.color = Color(0.012, 0.025, 0.075, 0.94)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(shade)
@@ -89,6 +96,7 @@ func _build_shell() -> void:
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(spacer)
 	var nav := HFlowContainer.new()
+	main_nav_container = nav
 	nav.add_theme_constant_override("h_separation", 8)
 	nav.add_theme_constant_override("v_separation", 6)
 	layout.add_child(nav)
@@ -99,7 +107,7 @@ func _build_shell() -> void:
 
 	var separator := ColorRect.new()
 	separator.custom_minimum_size.y = 2
-	separator.color = Color(0.78, 0.96, 0.35, 0.8)
+	separator.color = Color(0.25, 0.78, 0.90, 0.85)
 	layout.add_child(separator)
 
 	page_title = Label.new()
@@ -127,6 +135,7 @@ func _build_shell() -> void:
 	layout.add_child(status_label)
 
 	var footer := HBoxContainer.new()
+	footer_container = footer
 	footer.add_theme_constant_override("separation", 8)
 	layout.add_child(footer)
 
@@ -175,7 +184,7 @@ func _nav_button(caption: String) -> Button:
 	normal.set_corner_radius_all(11)
 	button.add_theme_stylebox_override("normal", normal)
 	var hover := normal.duplicate()
-	hover.bg_color = Color("#2b4c32")
+	hover.bg_color = Color("#29456b")
 	button.add_theme_stylebox_override("hover", hover)
 	return button
 
@@ -184,7 +193,7 @@ func _make_panel() -> PanelContainer:
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var style := StyleBoxFlat.new()
 	style.bg_color = PANEL
-	style.border_color = Color(0.55, 0.78, 0.24, 0.75)
+	style.border_color = Color("#376d9a")
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(15)
 	style.content_margin_left = 18
@@ -193,6 +202,55 @@ func _make_panel() -> PanelContainer:
 	style.content_margin_bottom = 14
 	panel.add_theme_stylebox_override("panel", style)
 	return panel
+
+func _set_shade_opacity(alpha: float) -> void:
+	if root == null:
+		return
+	var shade := root.get_node_or_null("HubShade") as ColorRect
+	if shade != null:
+		shade.color = Color(0.012, 0.025, 0.075, clampf(alpha, 0.0, 1.0))
+
+
+func _set_pause_navigation_mode(active: bool) -> void:
+	if main_nav_container != null:
+		main_nav_container.visible = not active
+	if footer_container != null:
+		footer_container.visible = not active
+
+
+func _settings_grid_columns(viewport_width: float) -> int:
+	return 2 if viewport_width < 700.0 else 4
+
+
+func _make_pause_panel() -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("#101820")
+	style.border_color = Color("#a7d65a")
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(8)
+	style.content_margin_left = 16
+	style.content_margin_right = 16
+	style.content_margin_top = 14
+	style.content_margin_bottom = 14
+	panel.add_theme_stylebox_override("panel", style)
+	return panel
+
+
+func _pause_action_button(caption: String, highlighted: bool = false) -> Button:
+	var button := _nav_button(caption)
+	button.custom_minimum_size = Vector2(170, 70)
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	if highlighted:
+		var selected := StyleBoxFlat.new()
+		selected.bg_color = Color("#f3f5ef")
+		selected.set_corner_radius_all(8)
+		button.add_theme_stylebox_override("normal", selected)
+		button.add_theme_color_override("font_color", Color("#17231b"))
+		button.add_theme_color_override("font_hover_color", Color("#17231b"))
+	return button
+
 
 func _clear_content() -> void:
 	for child in content_box.get_children():
@@ -227,6 +285,9 @@ func _open_main_page(page: String) -> void:
 func _show_home() -> void:
 	current_page = "home"
 	current_subpage = ""
+	_pause_context = false
+	_set_pause_navigation_mode(false)
+	_set_shade_opacity(0.94)
 	_clear_content()
 	_update_header("INICIO", "Juego base • Amistosos, ayuda y ajustes.")
 
@@ -1445,12 +1506,144 @@ func _show_settings() -> void:
 	current_subpage = ""
 	_clear_content()
 	_update_header("CONFIGURACIÓN", "Ajustes del juego y administración.")
+	var grid := GridContainer.new()
+	grid.name = "SettingsCategoryGrid"
+	grid.columns = _settings_grid_columns(get_viewport().get_visible_rect().size.x)
+	grid.add_theme_constant_override("h_separation", 12)
+	grid.add_theme_constant_override("v_separation", 12)
+	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content_box.add_child(grid)
 	for category in SETTINGS_CATEGORIES:
 		var button := _nav_button(category.to_upper())
+		button.custom_minimum_size = Vector2(0, 76)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.tooltip_text = "Abrir ajustes de " + category
 		button.pressed.connect(_open_settings_category.bind(category))
-		content_box.add_child(button)
+		grid.add_child(button)
+	if _pause_context:
+		var resume_button := _nav_button("VOLVER AL PARTIDO")
+		resume_button.custom_minimum_size.y = 48
+		resume_button.pressed.connect(open_pause_menu)
+		content_box.add_child(resume_button)
 	status_label.text = "Selecciona una categoría para consultar su estado."
+
+func set_match_controller(controller: Node) -> void:
+	match_controller = controller
+
+
+func open_pause_menu() -> void:
+	root.visible = true
+	_pause_context = true
+	_set_pause_navigation_mode(true)
+	_set_shade_opacity(0.52)
+	current_page = "home"
+	current_subpage = "pause"
+	_clear_content()
+	_update_header("PARTIDO EN PAUSA", "El encuentro está detenido. Elige una acción para continuar.")
+	var wide_layout := get_viewport().get_visible_rect().size.x >= 700.0
+	var main_layout: Container
+	if wide_layout:
+		main_layout = HBoxContainer.new()
+	else:
+		main_layout = VBoxContainer.new()
+	main_layout.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content_box.add_child(main_layout)
+
+	var summary: Dictionary = {}
+	if match_controller != null and match_controller.has_method("get_match_summary"):
+		summary = match_controller.call("get_match_summary")
+	var team_panel := _make_pause_panel()
+	team_panel.custom_minimum_size.x = 250 if wide_layout else 0
+	main_layout.add_child(team_panel)
+	var team_column := VBoxContainer.new()
+	team_column.add_theme_constant_override("separation", 10)
+	team_panel.add_child(team_column)
+	team_column.add_child(_label("RESUMEN DEL ENCUENTRO", 17, Color("#a7d65a")))
+	team_column.add_child(_label("PARTIDO LOCAL  •  11 CONTRA 11", 14, WHITE))
+	team_column.add_child(_label("LOCAL: " + str(summary.get("home_team_id", "Equipo local")), 12, MUTED))
+	team_column.add_child(_label("VISITANTE: " + str(summary.get("away_team_id", "Equipo visitante")), 12, MUTED))
+	team_column.add_child(_label("Jugadores locales: %d" % int(summary.get("home_players", 0)), 12, WHITE))
+	team_column.add_child(_label("Jugadores visitantes: %d" % int(summary.get("away_players", 0)), 12, WHITE))
+	team_column.add_child(_label("La alineación y el estado del encuentro se conservan al reanudar.", 12, MUTED))
+
+	var actions_panel := _make_pause_panel()
+	actions_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	main_layout.add_child(actions_panel)
+	var actions := GridContainer.new()
+	actions.name = "PauseActionGrid"
+	actions.columns = 2 if wide_layout else 1
+	actions.add_theme_constant_override("h_separation", 10)
+	actions.add_theme_constant_override("v_separation", 10)
+	actions.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	actions_panel.add_child(actions)
+
+	var resume := _pause_action_button("REANUDAR PARTIDO", true)
+	resume.pressed.connect(_resume_pause_menu)
+	actions.add_child(resume)
+	var replay := _pause_action_button("REPETICIÓN INSTANTÁNEA")
+	replay.disabled = true
+	replay.tooltip_text = "El sistema de repetición todavía no está instalado."
+	actions.add_child(replay)
+	var tactics := _pause_action_button("ENTRENADOR / TÁCTICAS")
+	tactics.disabled = true
+	tactics.tooltip_text = "La gestión táctica durante el partido sigue pendiente."
+	actions.add_child(tactics)
+	var facts := _pause_action_button("DATOS DEL PARTIDO")
+	facts.pressed.connect(_show_pause_match_facts)
+	actions.add_child(facts)
+	var settings := _pause_action_button("CONFIGURACIÓN")
+	settings.pressed.connect(_show_settings)
+	actions.add_child(settings)
+	var leave := _pause_action_button("ABANDONAR PARTIDO")
+	leave.pressed.connect(_confirm_pause_exit)
+	actions.add_child(leave)
+	status_label.text = "Partido pausado • Reloj y simulación detenidos"
+
+
+func _resume_pause_menu() -> void:
+	root.visible = false
+	_pause_context = false
+	_set_pause_navigation_mode(false)
+	_set_shade_opacity(0.94)
+	current_subpage = ""
+	pause_resume_requested.emit()
+
+
+func _show_pause_match_facts() -> void:
+	current_page = "home"
+	current_subpage = "pause_facts"
+	_clear_content()
+	_update_header("DATOS DEL PARTIDO", "Resumen disponible del encuentro pausado.")
+	var summary: Dictionary = {}
+	if match_controller != null and match_controller.has_method("get_match_summary"):
+		summary = match_controller.call("get_match_summary")
+	var remaining := maxf(0.0, float(summary.get("clock_remaining_seconds", 0.0)))
+	var total_seconds := int(remaining)
+	var clock_text := "%02d:%02d" % [int(total_seconds / 60.0), total_seconds % 60]
+	_add_info_card("FASE", str(summary.get("match_phase", "Información no disponible")))
+	_add_info_card("TIEMPO RESTANTE", clock_text)
+	_add_info_card("JUGADORES", "%d locales • %d visitantes" % [int(summary.get("home_players", 0)), int(summary.get("away_players", 0))])
+	_add_info_card("EQUIPOS", "%s vs %s" % [str(summary.get("home_team_id", "Local")), str(summary.get("away_team_id", "Visitante"))])
+	var back := _nav_button("VOLVER A PAUSA")
+	back.pressed.connect(open_pause_menu)
+	content_box.add_child(back)
+	status_label.text = "Datos del partido • Lectura del estado actual"
+
+
+func _confirm_pause_exit() -> void:
+	var dialog := ConfirmationDialog.new()
+	dialog.title = "ABANDONAR PARTIDO"
+	dialog.dialog_text = "¿Seguro que quieres abandonar este encuentro? El partido se detendrá y volverás al menú de inicio."
+	dialog.ok_button_text = "ABANDONAR"
+	dialog.cancel_button_text = "SEGUIR JUGANDO"
+	dialog.confirmed.connect(func():
+		pause_exit_requested.emit()
+		dialog.queue_free()
+	)
+	dialog.canceled.connect(dialog.queue_free)
+	add_child(dialog)
+	dialog.popup_centered()
+
 
 func _open_settings_category(category: String) -> void:
 	current_subpage = category
@@ -1588,6 +1781,9 @@ func _select_training_mode(mode_id: String) -> void:
 
 func open_home() -> void:
 	root.visible = true
+	_pause_context = false
+	_set_pause_navigation_mode(false)
+	_set_shade_opacity(0.94)
 	_show_home()
 
 func open_controller_settings() -> void:
@@ -1616,6 +1812,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			_cycle_main_page(-1)
 
 func _navigate_back() -> void:
+	if current_subpage == "pause":
+		_resume_pause_menu()
+		return
+	if current_subpage == "pause_facts":
+		open_pause_menu()
+		return
 	if not current_subpage.is_empty():
 		match current_page:
 			"home":
@@ -1626,6 +1828,9 @@ func _navigate_back() -> void:
 				_show_modes()
 			"settings":
 				_show_settings()
+		return
+	if _pause_context:
+		open_pause_menu()
 		return
 	if current_page != "home":
 		_cycle_main_page(-1)
@@ -1646,12 +1851,18 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	if not root.visible or not event.pressed:
 		return
 	if event.is_action_pressed("ui_cancel"):
-		if current_subpage == "training":
+		if current_subpage == "pause":
+			_resume_pause_menu()
+		elif current_subpage == "pause_facts":
+			open_pause_menu()
+		elif current_subpage == "training":
 			_show_home()
 		elif current_subpage == "manager_career":
 			_show_modes()
 		elif current_subpage != "":
 			_show_settings()
+		elif _pause_context:
+			open_pause_menu()
 		elif current_page != "home":
 			_show_home()
 
