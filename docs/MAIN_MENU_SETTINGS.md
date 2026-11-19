@@ -108,6 +108,6 @@ Las opciones deben conservar el idioma español y guardar las preferencias en el
 
 - Se habilitó Configuración → Accesibilidad con un control real de escala de texto del 80 % al 130 %, en pasos de 5 %.
 - El valor se guarda en `user://futbol_nova_settings.cfg` bajo la sección `interface` y se recupera al iniciar.
-- Los nuevos textos y botones del menú usan la escala guardada; al navegar y abrir otra pantalla el tamaño actualizado se aplica sin reiniciar el juego.
+- Los textos, botones y encabezados principales del Game Hub usan la escala guardada; al navegar y abrir otra pantalla el tamaño actualizado se aplica sin reiniciar el juego.
 - La prueba `tests/test_nova_preferences_service.gd` comprueba persistencia de la escala en una segunda instancia.
 - No se ofrecen aún opciones de contraste, lector de pantalla ni reasignación completa de controles; permanecen pendientes hasta implementar y probar su efecto.
