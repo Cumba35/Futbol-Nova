@@ -12,6 +12,7 @@ const MATCH_RULES = preload("res://scripts/gameplay/match_rules.gd")
 const TOUCH_CONTROLS = preload("res://scripts/input/touch_controls.gd")
 const LOADING_SCREEN = preload("res://scripts/ui/loading_screen.gd")
 const PRE_MATCH_SETUP = preload("res://scripts/ui/pre_match_setup.gd")
+const STADIUM_BUILDER = preload("res://scripts/stadiums/stadium_builder.gd")
 
 const FIELD_WIDTH := 68.0
 const FIELD_LENGTH := 105.0
@@ -43,6 +44,8 @@ var touch_controls: Control
 var match_11v11_controller: Node3D
 var match_camera: Camera3D
 var pre_match_setup
+var stadium_root: Node3D
+var current_stadium_id := "nova_central"
 var current_training_mode_id := ""
 
 func _ready() -> void:
@@ -59,6 +62,7 @@ func _ready() -> void:
 	_create_lighting()
 	_create_pitch()
 	_create_goals()
+	_apply_stadium(current_stadium_id)
 	loading_screen.set_progress(38.0, "Preparando el campo y las porterías...")
 	await get_tree().process_frame
 
@@ -125,6 +129,15 @@ func _create_lighting() -> void:
 	var graphics_result: Dictionary = GRAPHICS_MODULE.apply_to(environment, sun)
 	if bool(graphics_result.get("ok", false)):
 		print("Fútbol Nova: " + str(graphics_result.get("message", "Mejoras gráficas activadas.")))
+
+func _apply_stadium(stadium_id: String) -> void:
+	var config: Dictionary = STADIUM_BUILDER.get_stadium_config(stadium_id)
+	var resolved_id := str(config.get("id", "nova_central"))
+	if is_instance_valid(stadium_root):
+		stadium_root.queue_free()
+	stadium_root = STADIUM_BUILDER.build_stadium(resolved_id)
+	add_child(stadium_root)
+	current_stadium_id = resolved_id
 
 func _create_pitch() -> void:
 	var floor_body := StaticBody3D.new()
@@ -746,6 +759,7 @@ func _start_11v11_match(match_overrides: Dictionary = {}) -> void:
 	if not bool(result.get("ok", false)):
 		gesture_hint_label.text = str(result.get("error", "No se pudo iniciar el partido."))
 		return
+	_apply_stadium(str(match_overrides.get("stadium_id", current_stadium_id)))
 	score_home = 0
 	score_away = 0
 	_reset_ball()
