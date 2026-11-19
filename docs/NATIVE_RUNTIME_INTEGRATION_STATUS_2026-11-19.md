@@ -55,14 +55,22 @@ Revisión estática de `native_engine.cpp` y `MainActivity.java` sobre el HEAD d
 - La detección de gol y el reinicio son básicos. No están implementados los estados completos de saque inicial, saque de banda, córner, saque de puerta, fuera de juego, falta o penalti.
 - El HUD actual muestra marcador y tiempo acumulado; no muestra eventos arbitrales, jugador activo, energía ni estadísticas finales.
 
+### Integración pendiente de perfiles personalizados
+
+La revisión de `CanonicalDataRepository.java`, `custom_players.json`, el manifiesto y el motor C++ confirma que los perfiles se indexan por ID y algunos atributos solo se aplican si la plantilla ya contiene ese mismo ID. Aún no existe un resolvedor que incorpore perfiles ausentes según `club_id` y la selección nacional configurada; tampoco se ha verificado el flujo de selección nacional en Amistosos. El motor no recibe todavía ID, nombre, número de camiseta ni configuración visual individual. Por eso, que un perfil figure en el JSON no significa que aparezca ya en su equipo o en el partido 3D.
+
+Contrato y criterios detallados: `docs/CUSTOM_PLAYERS_TEAM_AND_NATIONAL_SELECTION.md`. La pertenencia debe resolverse por IDs, no por nombres. `preferred_national_team` debe resolver a una selección válida y no debe inferirse pertenencia por `nationality`, `birth_country`, `favorite_club` o `favorite_national_team`.
+
 ### Orden técnico inmediato
 
-1. Separar el estado de partido del renderizado: fases de juego, posesión, reinicios y reloj configurable.
-2. Añadir dos porteros como actores dedicados con posicionamiento, anticipación, desplazamiento lateral, bloqueo y despeje.
-3. Corregir colisiones continuas de balón con jugadores, porteros, postes, larguero y límites del campo.
-4. Implementar selección/cambio de jugador y acciones con objetivos: pase a compañero, tiro orientado y robo.
-5. Sustituir el movimiento uniforme por roles y decisiones tácticas mínimas para ambos equipos.
-6. Incorporar saques, pausa, descanso, segundo tiempo, final y revancha.
-7. Añadir pruebas automatizadas de física/reglas y ejecutar CI; después instalar y probar el APK en Android real.
+1. Resolver perfiles personalizados por ID para clubes y selecciones, detectar duplicados y exponerlos en las plantillas/selector de amistosos.
+2. Enviar identidad y perfil visual del jugador al motor nativo, conservando rasgos personales y adaptando equipación al equipo.
+3. Separar el estado de partido del renderizado: fases de juego, posesión, reinicios y reloj configurable.
+4. Añadir dos porteros como actores dedicados con posicionamiento, anticipación, desplazamiento lateral, bloqueo y despeje.
+5. Corregir colisiones continuas de balón con jugadores, porteros, postes, larguero y límites del campo.
+6. Implementar selección/cambio de jugador y acciones con objetivos: pase a compañero, tiro orientado y robo.
+7. Sustituir el movimiento uniforme por roles y decisiones tácticas mínimas para ambos equipos.
+8. Incorporar saques, pausa, descanso, segundo tiempo, final y revancha.
+9. Añadir pruebas automatizadas de pertenencia, perfiles, física/reglas y ejecutar CI; después instalar y probar el APK en Android real.
 
 No marcar ninguno de estos puntos como resuelto sin cambio de código y evidencia de prueba.
