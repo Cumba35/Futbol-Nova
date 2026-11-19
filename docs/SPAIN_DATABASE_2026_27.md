@@ -43,3 +43,14 @@ Se guardó `data/players/esp_base_2026_27.json` con 1.804 perfiles ficticios (22
 - Temporada uniforme `2026-27`.
 - 1.804 perfiles ficticios estáticos guardados; 22 por club, con IDs únicos y atributos en el esquema del juego.
 - Integración Godot y pruebas de motor todavía pendientes.
+
+
+## Integración con el amistoso de muestra — 19 noviembre 2026
+
+La pantalla previa selecciona ahora por ID estable:
+- Local: `FN-ESP-REAL-MADRID` (Albor Madrid, representante ficticio de Real Madrid).
+- Visitante: `FN-ESP-BARCELONA` (Litoral Barcelona, representante ficticio de FC Barcelona).
+
+El importador de plantillas mantiene los 22 perfiles Nova por club; el selector forma un once inicial 4-3-3 priorizando posiciones y evitando IDs repetidos. La vista previa permite revisar los once nombres antes de iniciar el partido.
+
+No se ha sustituido la base ficticia por plantillas profesionales reales. Los nombres de futbolistas del paquete español son perfiles ficticios originales; la referencia de afiliación a clubes reales no convierte esos perfiles en jugadores de los equipos profesionales.

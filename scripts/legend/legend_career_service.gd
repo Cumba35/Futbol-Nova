@@ -502,9 +502,12 @@ func start_manager_after_retirement(club_id: String = "") -> Dictionary:
 	var target_club := club_id if not club_id.is_empty() else str(career.get("last_club_id", ""))
 	if target_club.is_empty():
 		return {"ok": false, "error": "Selecciona un club para iniciar tu carrera de entrenador."}
-	if ManagerCareer.load_career():
+	var manager_career: Node = get_node_or_null("/root/ManagerCareer")
+	if manager_career == null:
+		return {"ok": false, "error": "El servicio de carrera de Manager no está disponible."}
+	if bool(manager_career.call("load_career")):
 		return {"ok": false, "error": "Ya existe una carrera de Manager guardada. Se ha protegido para no sobrescribirla."}
-	return ManagerCareer.start_coach_career(target_club)
+	return manager_career.call("start_coach_career", target_club)
 
 func get_player_statistics() -> Dictionary:
 	if career.is_empty():
@@ -542,8 +545,9 @@ func save_career() -> bool:
 		if FileAccess.file_exists(backup_path):
 			DirAccess.rename_absolute(backup_path, ProjectSettings.globalize_path(SAVE_PATH))
 		return false
-	if get_tree() != null and get_tree().root.has_node("FootballDatabase"):
-		return FootballDatabase.save_career_record("legend_active", career)
+	var football_database: Node = get_node_or_null("/root/FootballDatabase")
+	if football_database != null:
+		return bool(football_database.call("save_career_record", "legend_active", career))
 	return true
 
 func load_career() -> bool:
@@ -552,8 +556,9 @@ func load_career() -> bool:
 		var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
 		if file != null:
 			parsed = JSON.parse_string(file.get_as_text())
-	if not parsed is Dictionary and get_tree() != null and get_tree().root.has_node("FootballDatabase"):
-		var backup_record: Dictionary = FootballDatabase.get_career_record("legend_active")
+	var football_database: Node = get_node_or_null("/root/FootballDatabase")
+	if not parsed is Dictionary and football_database != null:
+		var backup_record: Dictionary = football_database.call("get_career_record", "legend_active")
 		if not backup_record.is_empty():
 			parsed = backup_record
 	if not parsed is Dictionary:

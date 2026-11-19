@@ -161,3 +161,14 @@ The complete name register is `data/club_identity_name_review_2026-11-17.json`; 
 
 **Approval boundary:** this completes the original game-facing name assignment and English display-name review only. It does not certify trademarks, crests, kits, sponsors, visual assets, or full club identity approval. Those remain release gates. The six-country membership audits and historical player identity links are also still pending. No club is made playable or downloadable by this name change.
 
+
+
+## Pantalla de amistoso y estadio base — 19 noviembre 2026
+
+La pantalla previa usa los IDs canónicos del catálogo para dejar Real Madrid/Albor Madrid como local a la izquierda y FC Barcelona/Litoral Barcelona como visitante a la derecha. Se muestran once jugadores de la plantilla Nova de cada club antes del inicio. El flujo envía los IDs de equipo y estadio al motor 11v11.
+
+Las diez ligas base mantienen 725 clubes y 15.950 perfiles ficticios, 22 por club. La prueba `test_ten_base_leagues_complete.gd` valida el importador, 22 referencias por club, once iniciales únicos, 31 competiciones y al menos un primer partido 11v11 por competición. La prueba forma parte del workflow manual de GitHub Actions; no se marca como aprobada hasta que exista un resultado real de ejecución.
+
+El juego base incluye ahora un estadio original procedural `Estadio Nova` (28.000 asientos declarados en el catálogo) con gradas de tres niveles, cuatro torres de iluminación y marcador visual. La capacidad es metadato de diseño, no una medición de geometría de asientos. Estadios oficiales o de terceros no se han importado.
+
+Los perfiles ficticios no se deben confundir con las plantillas profesionales de Real Madrid o Barcelona. La reutilización de bases de nombres reales requiere revisar origen, temporada y derechos de redistribución antes de incorporarlas.

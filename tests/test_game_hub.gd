@@ -39,6 +39,16 @@ func _run_tests() -> void:
 	await process_frame
 	_expect(pre_match._home_teams.item_count >= 2 and pre_match._away_teams.item_count >= 2, "Friendly preparation must list at least two clubs with valid rosters")
 	_expect(not pre_match._start_button.disabled, "Friendly preparation must enable start when two valid clubs are selected")
+	pre_match._home_filter.text = "Real Madrid"
+	pre_match._on_home_filter_changed("Real Madrid")
+	_expect(pre_match._home_teams.item_count == 1 and pre_match._selected_team_id(pre_match._home_teams) == "FN-ESP-REAL-MADRID", "Friendly home selector must search the Madrid representative")
+	pre_match._home_filter.text = ""
+	pre_match._on_home_filter_changed("")
+	pre_match._away_filter.text = "FC Barcelona"
+	pre_match._on_away_filter_changed("FC Barcelona")
+	_expect(pre_match._away_teams.item_count == 1 and pre_match._selected_team_id(pre_match._away_teams) == "FN-ESP-BARCELONA", "Friendly away selector must search the Barcelona representative")
+	pre_match._away_filter.text = ""
+	pre_match._on_away_filter_changed("")
 	pre_match._away_teams.select(pre_match._home_teams.selected)
 	pre_match._refresh_validation()
 	_expect(pre_match._start_button.disabled, "Friendly preparation must block selecting the same club twice")
@@ -52,7 +62,7 @@ func _run_tests() -> void:
 	if selected_friendly.size() == 1:
 		var friendly_settings: Dictionary = selected_friendly[0]
 		_expect(str(friendly_settings.get("home_team_id", "")) != str(friendly_settings.get("away_team_id", "")), "Friendly preparation must reject the same club on both sides")
-		_expect(friendly_settings.get("home_player_ids", []).size() == 11 and friendly_settings.get("away_player_ids", []).size() == 11, "Friendly preparation must provide eleven real player IDs per side")
+		_expect(friendly_settings.get("home_player_ids", []).size() == 11 and friendly_settings.get("away_player_ids", []).size() == 11, "Friendly preparation must provide eleven valid Nova player IDs per side")
 		_expect(str(friendly_settings.get("match_type", "")) == "friendly", "Pre-match setup must identify the encounter as a friendly")
 	await process_frame
 

@@ -264,3 +264,12 @@ No se ha integrado ni copiado código o assets de estos repositorios en esta fas
 - Cada mockup se entregará en el chat y se registrará con estado: propuesta, corregido, aprobado o sustituido.
 - Mockup, implementación y prueba son estados distintos.
 - Mantener consistencia con `GAME_DESIGN.md` y el estándar global `Nova-Nexus/library/game-creation-standards.md`.
+
+
+## Actualización del amistoso — 19 noviembre 2026
+
+La pantalla de preparación añade paneles de identidad de club, selección de equipo y una lista compacta del once inicial para ambos lados. En el amistoso de muestra, Real Madrid/Albor Madrid aparece a la izquierda y FC Barcelona/Litoral Barcelona a la derecha. Los paneles son gráficos tipográficos originales, no escudos oficiales. La vista previa enumera los once perfiles ficticios de Fútbol Nova por posición y nombre.
+
+El selector de estadio obtiene su contenido de `data/stadiums/base_stadiums.json`. La versión base incluye Estadio Nova, un recinto procedural original. La escena de partido incorpora gradas geométricas y torres de iluminación de bajo coste. Los recintos oficiales se añadirán únicamente con recursos propios o licencias verificadas.
+
+La pantalla es adaptable mediante ScrollContainer y disposición vertical en vistas compactas. Falta validar visualmente en dispositivos Android reales, distintas relaciones de aspecto y rendimiento gráfico.

@@ -134,3 +134,52 @@ Las elecciones cosméticas de un amistoso no deben alterar los datos permanentes
 12. El botón de inicio no permite lanzar un partido con datos inválidos o selecciones incompatibles.
 
 **Límite actual:** esta especificación no afirma que la pantalla ni sus selectores estén implementados. Deben integrarse con el catálogo de datos, el contrato común de partido y el motor de reglas, y probarse en Godot/Android antes de considerarlos terminados.
+
+
+## Implementación de presentación y amistoso base — 19 noviembre 2026
+
+Se amplió la pantalla de preparación con:
+- **Real Madrid / Albor Madrid** preseleccionado a la izquierda como local, ID estable `FN-ESP-REAL-MADRID`.
+- **FC Barcelona / Litoral Barcelona** preseleccionado a la derecha como visitante, ID estable `FN-ESP-BARCELONA`.
+- Paneles de identidad tipográficos originales (no son escudos oficiales ni copias de sus marcas).
+- Vista previa del once inicial de cada equipo con posición y nombre de cada jugador de la plantilla Nova.
+- Selector de estadio cargado desde `data/stadiums/base_stadiums.json`; el único recinto incluido en la base es Estadio Nova.
+- El ID del estadio se transmite a la configuración del encuentro.
+- El HUD del partido muestra las identidades de referencia y conserva el ID interno para seleccionar el personaje controlable correcto.
+
+El nombre visible combina la referencia de club solicitada con el nombre ficticio propio del juego. Esto conserva la política de identidad original: Albor Madrid representa a Real Madrid y Litoral Barcelona representa a FC Barcelona. No se han importado escudos, equipaciones, patrocinadores ni modelos oficiales.
+
+**Importante sobre las plantillas:** las bases de las diez ligas contienen 725 clubes y 15.950 perfiles ficticios (22 por club), no plantillas profesionales reales verificadas. La pantalla muestra los once titulares de esos perfiles Nova. No debe anunciarse como la plantilla real 2026/27 del Real Madrid o del Barcelona. Para nombres de futbolistas profesionales se requiere una fuente estacional verificable y condiciones de reutilización compatibles.
+
+## Estadio base procedural
+
+Se añadió `NovaStadium` a la escena principal con gradas originales de tres niveles, cuatro torres de iluminación y marcador visual. El campo, porterías y redes físicas siguen siendo los elementos de juego. El recinto usa geometría procedural ligera, sin modelos externos, y está incluido en la instalación base offline.
+
+## Pruebas de aceptación añadidas
+
+`tests/test_friendly_match_runtime.gd` ahora comprueba:
+- Creación del nodo de estadio y de sus componentes visuales.
+- Selección inicial exacta de los IDs Real Madrid local y Barcelona visitante.
+- Vista previa de once titulares para ambos equipos.
+- Existencia de al menos un estadio base seleccionable.
+- Inicio del amistoso con 11 futbolistas por equipo y conservación del estadio elegido.
+- Conservación de los nombres visibles en el HUD.
+
+La prueba está integrada en el workflow manual de GitHub Actions, pero aún no se ha ejecutado en esta revisión. La validación visual en Android sigue pendiente.
+
+
+La escena de partido aplica paletas de equipación Nova originales según los IDs de los clubes de muestra: marfil cálido y azul noche para Albor Madrid, y granate apagado con pantalón azul oscuro para Litoral Barcelona. Son colores sólidos propios del juego; no se reproducen patrones, escudos, fabricantes ni patrocinadores oficiales. El controlador vuelve a sus colores genéricos cuando se eligen otros clubes.
+
+La selección de clubes incluye campos de búsqueda independientes para local y visitante. El catálogo base reúne cientos de clubes, por lo que no se obliga al jugador a recorrer manualmente toda la lista; el filtro conserva la selección si sigue coincidiendo y el amistoso se valida de nuevo al cambiarla.
+
+
+## Aplicación de perfiles al partido amistoso
+
+Los IDs de los once titulares de cada club se transmiten al motor 11v11 y se resuelven contra `FootballData.registry.players_by_id`. Cada futbolista de IA conserva su nombre, posición, valoración, pie preferido y diccionario de atributos; su velocidad de movimiento deriva de `spd` y, para porteros, de `gkspd`. La toma de decisiones usa los atributos de pase largo/corto, despeje de portero y entradas para ajustar fuerza y alcance. El futbolista controlado recibe el perfil de su puesto en el once y sus atributos ajustan velocidad, aceleración, pase, tiro y alcance de entrada. Si el registro no está disponible, los partidos de pruebas de bajo nivel pueden seguir usando la alineación genérica, pero el amistoso de la interfaz exige plantillas válidas.
+
+
+## Estadio seleccionado y validación estricta de titulares — 19-11-2026
+
+El catálogo base incorpora tres recintos originales jugables: Estadio Nova, Arena Costa Azul y Parque Central Nova. Cada opción lleva un ID estable; al iniciar el amistoso se reconstruye el recinto procedural correspondiente. Arena Costa Azul usa gradas cubiertas y paleta turquesa; Parque Central Nova usa paleta verde y una marquesina compacta. Los tres conservan el terreno y los elementos de juego, sin depender de modelos externos.
+
+El motor ahora exige que, cuando la interfaz entrega plantillas, ambos equipos aporten exactamente once IDs únicos. Cada ID debe existir en `players_by_id`, coincidir con el `id` del perfil, pertenecer al `club_id` correcto y tener nombre y atributos válidos. Se rechazan titulares duplicados, de otro club o con perfil incompleto. La prueba de aceptación cubre además las cuatro pantallas principales, las once categorías de ajustes, los tres estadios y la reconstrucción del estadio elegido.

@@ -3,6 +3,7 @@ extends SceneTree
 const MAIN_SCENE_PATH := "res://scenes/main.tscn"
 const MATCH_CLOCK_STATE := preload("res://scripts/gameplay/match_clock_state_machine.gd")
 const MATCH_11V11 := preload("res://scripts/gameplay/match_11v11_controller.gd")
+const MOMENTS_SERVICE_SCRIPT := preload("res://scripts/moments/daily_moments_service.gd")
 
 func _initialize() -> void:
 	call_deferred("_run_acceptance_test")
@@ -15,6 +16,32 @@ func _test_watchdog() -> void:
 
 func _run_acceptance_test() -> void:
 	var failures := PackedStringArray()
+	var sample_profiles: Dictionary = {}
+	var sample_home_ids: Array = []
+	var sample_away_ids: Array = []
+	for index in range(11):
+		var home_id := "TEST_HOME_%02d" % index
+		var away_id := "TEST_AWAY_%02d" % index
+		sample_home_ids.append(home_id)
+		sample_away_ids.append(away_id)
+		sample_profiles[home_id] = {"id": home_id, "club_id": "test_home", "display_name": "Home %02d" % index, "attributes": {"spd": 70}}
+		sample_profiles[away_id] = {"id": away_id, "club_id": "test_away", "display_name": "Away %02d" % index, "attributes": {"spd": 70}}
+	if not MATCH_11V11.validate_roster_selection("test_home", sample_home_ids, sample_profiles):
+		failures.append("El motor rechazó once titulares válidos del club local.")
+	if not MATCH_11V11.validate_roster_selection("test_away", sample_away_ids, sample_profiles):
+		failures.append("El motor rechazó once titulares válidos del club visitante.")
+	var duplicate_home_ids := sample_home_ids.duplicate()
+	duplicate_home_ids[10] = duplicate_home_ids[0]
+	if MATCH_11V11.validate_roster_selection("test_home", duplicate_home_ids, sample_profiles):
+		failures.append("El motor aceptó titulares duplicados.")
+	var wrong_club_profiles: Dictionary = sample_profiles.duplicate(true)
+	wrong_club_profiles[sample_home_ids[0]]["club_id"] = "test_away"
+	if MATCH_11V11.validate_roster_selection("test_home", sample_home_ids, wrong_club_profiles):
+		failures.append("El motor aceptó un jugador perteneciente a otro club.")
+	var incomplete_profiles: Dictionary = sample_profiles.duplicate(true)
+	incomplete_profiles[sample_home_ids[0]]["attributes"] = {}
+	if MATCH_11V11.validate_roster_selection("test_home", sample_home_ids, incomplete_profiles):
+		failures.append("El motor aceptó un perfil sin atributos.")
 	var moments_service: Node = root.get_node_or_null("MomentsService")
 	var original_moments_state: Dictionary = {}
 	var training_moments_progress := -1
@@ -42,6 +69,9 @@ func _run_acceptance_test() -> void:
 		failures.append("La escena principal no creó el menú de juego.")
 	if game.match_11v11_controller == null:
 		failures.append("La escena principal no creó el motor de partido 11 contra 11.")
+	var stadium = game.get_node_or_null("NovaStadium")
+	if stadium == null or stadium.get_child_count() < 50:
+		failures.append("El estadio base procedural no se creó completo.")
 	var football_data_service: Node = root.get_node_or_null("FootballData")
 	var football_registry: Variant = football_data_service.get("registry") if football_data_service != null else null
 	if football_registry == null:
@@ -78,6 +108,8 @@ func _run_acceptance_test() -> void:
 		moments_service.set("_state", clean_moments_state)
 		game._on_training_mode_selected("free_practice")
 		game.ball.global_position = Vector3(0.0, 0.35, 53.0)
+		game.ball.linear_velocity = Vector3(3.0, 0.0, 2.0)
+		game.ball.angular_velocity = Vector3(0.0, 2.0, 0.0)
 		game._on_goal_body_entered(game.ball, "away")
 		var daily_after_training: Dictionary = moments_service.call("get_daily_challenge")
 		training_moments_progress = int(daily_after_training.get("progress", 0))
@@ -87,6 +119,8 @@ func _run_acceptance_test() -> void:
 			failures.append("El juego no conservó el modo de entrenamiento activo para registrar el gol.")
 		if game.ball.global_position.distance_to(Vector3(0.0, 0.35, 0.0)) > 0.01:
 			failures.append("El balón no regresó al punto de inicio de práctica libre después del gol.")
+		if game.ball.linear_velocity.length() > 0.001 or game.ball.angular_velocity.length() > 0.001:
+			failures.append("El reinicio de entrenamiento no limpió la velocidad lineal y angular del balón.")
 
 	# Use the same pre-match screen and button path as a real player.
 	if game.match_11v11_controller != null and football_registry != null:
@@ -103,8 +137,47 @@ func _run_acceptance_test() -> void:
 				failures.append("El botón Iniciar amistoso está bloqueado pese a existir dos clubes válidos.")
 			var selected_home_id: String = str(setup._selected_team_id(setup._home_teams))
 			var selected_away_id: String = str(setup._selected_team_id(setup._away_teams))
-			var expected_home_name := str(football_registry.teams_by_id.get(selected_home_id, {}).get("name", selected_home_id))
-			var expected_away_name := str(football_registry.teams_by_id.get(selected_away_id, {}).get("name", selected_away_id))
+			if selected_home_id != "FN-ESP-REAL-MADRID":
+				failures.append("El amistoso no seleccionó Real Madrid como equipo local a la izquierda.")
+			if selected_away_id != "FN-ESP-BARCELONA":
+				failures.append("El amistoso no seleccionó Barcelona como visitante a la derecha.")
+			if setup._home_badge == null or not setup._home_badge.text.contains("REAL MADRID"):
+				failures.append("La tarjeta local no identifica al representante de Real Madrid.")
+			if setup._away_badge == null or not setup._away_badge.text.contains("FC BARCELONA"):
+				failures.append("La tarjeta visitante no identifica al representante de Barcelona.")
+			if football_registry.get_team_roster(selected_home_id).size() != 22:
+				failures.append("La plantilla base de Real Madrid no contiene 22 perfiles Nova.")
+			if football_registry.get_team_roster(selected_away_id).size() != 22:
+				failures.append("La plantilla base de Barcelona no contiene 22 perfiles Nova.")
+			if setup._home_lineup_preview == null or setup._home_lineup_preview.text.split("\n").size() != 12:
+				failures.append("La pantalla no muestra los once titulares del equipo local.")
+			if setup._away_lineup_preview == null or setup._away_lineup_preview.text.split("\n").size() != 12:
+				failures.append("La pantalla no muestra los once titulares del equipo visitante.")
+			if setup._stadium_option == null or setup._stadium_option.item_count < 3:
+				failures.append("La pantalla previa no ofrece los tres estadios base jugables.")
+			var expected_stadium_ids := ["nova_stadium_main", "nova_coastal_arena", "nova_central_park"]
+			var coastal_stadium_index := -1
+			for expected_stadium_id in expected_stadium_ids:
+				var found_stadium := false
+				for stadium_index in range(setup._stadium_option.item_count):
+					if str(setup._stadium_option.get_item_metadata(stadium_index)) == expected_stadium_id:
+						found_stadium = true
+						if expected_stadium_id == "nova_coastal_arena":
+							coastal_stadium_index = stadium_index
+						break
+				if not found_stadium:
+					failures.append("Falta un estadio base jugable: " + expected_stadium_id)
+			for expected_stadium_id in expected_stadium_ids:
+				game.current_stadium_id = expected_stadium_id
+				game._rebuild_stadium_for_match()
+				var rebuilt_stadium = game.get_node_or_null("NovaStadium")
+				if rebuilt_stadium == null or str(rebuilt_stadium.get_meta("stadium_id", "")) != expected_stadium_id or rebuilt_stadium.get_child_count() < 50:
+					failures.append("No se pudo construir el estadio seleccionado: " + expected_stadium_id)
+			if coastal_stadium_index >= 0:
+				setup._stadium_option.select(coastal_stadium_index)
+				setup._refresh_validation()
+			var expected_home_name: String = setup._team_match_display_name(selected_home_id, football_registry.teams_by_id.get(selected_home_id, {}))
+			var expected_away_name: String = setup._team_match_display_name(selected_away_id, football_registry.teams_by_id.get(selected_away_id, {}))
 			if selected_home_id.is_empty() or selected_away_id.is_empty() or selected_home_id == selected_away_id:
 				failures.append("La selección inicial no contiene dos clubes distintos.")
 			else:
@@ -112,6 +185,53 @@ func _run_acceptance_test() -> void:
 				await process_frame
 				print("FRIENDLY_TEST: friendly match started")
 				var summary: Dictionary = game.match_11v11_controller.get_match_summary()
+				var expected_home_player_ids := {}
+				var expected_away_player_ids := {}
+				for roster_player in football_registry.get_team_roster(selected_home_id):
+					expected_home_player_ids[str(roster_player.get("id", ""))] = true
+				for roster_player in football_registry.get_team_roster(selected_away_id):
+					expected_away_player_ids[str(roster_player.get("id", ""))] = true
+				var applied_roster_profiles := 0
+				for actor_data in game.match_11v11_controller._actors:
+					var actor_attributes: Dictionary = actor_data.get("attributes", {})
+					var actor_player_id := str(actor_data.get("player_id", ""))
+					var actor_team_id := str(actor_data.get("team_id", ""))
+					if actor_team_id == selected_home_id and not expected_home_player_ids.has(actor_player_id):
+						failures.append("Un jugador local no pertenece a la plantilla seleccionada.")
+					if actor_team_id == selected_away_id and not expected_away_player_ids.has(actor_player_id):
+						failures.append("Un jugador visitante no pertenece a la plantilla seleccionada.")
+					if str(actor_data.get("display_name", "")).is_empty() or actor_attributes.is_empty() or int(actor_data.get("overall", 0)) <= 0:
+						failures.append("Un futbolista de IA no recibió su perfil, atributos y valoración desde la plantilla.")
+					if float(actor_data.get("speed", 0.0)) <= 0.0:
+						failures.append("Un futbolista de IA no recibió velocidad derivada de sus atributos.")
+					applied_roster_profiles += 1
+				if applied_roster_profiles != 21:
+					failures.append("El partido no aplicó perfiles individuales a los 21 futbolistas de IA.")
+				var controlled_profile: Dictionary = game.player.get_meta("nova_player_profile", {})
+				if controlled_profile.is_empty() or controlled_profile.get("attributes", {}).is_empty():
+					failures.append("El futbolista controlado no conservó su perfil de la plantilla local.")
+				if not expected_home_player_ids.has(str(controlled_profile.get("id", ""))):
+					failures.append("El jugador controlado no pertenece a la plantilla local seleccionada.")
+				var controlled_attributes: Dictionary = controlled_profile.get("attributes", {})
+				var expected_move_speed := lerpf(6.4, 8.2, clampf(float(controlled_attributes.get("spd", 70.0)) / 99.0, 0.0, 1.0))
+				var expected_pass_force := lerpf(4.8, 7.0, clampf(float(controlled_attributes.get("short", 70.0)) / 99.0, 0.0, 1.0))
+				var expected_shot_force := lerpf(9.5, 13.0, clampf(float(controlled_attributes.get("shot", 70.0)) / 99.0, 0.0, 1.0))
+				if not is_equal_approx(float(game.player.get("move_speed")), expected_move_speed):
+					failures.append("La velocidad del jugador controlado no coincide con sus atributos.")
+				if not is_equal_approx(float(game.player.get("pass_force")), expected_pass_force):
+					failures.append("La fuerza de pase no se calculó desde la plantilla del jugador.")
+				if not is_equal_approx(float(game.player.get("shot_force")), expected_shot_force):
+					failures.append("La fuerza de tiro no se calculó desde la plantilla del jugador.")
+				var sample_kit_colors: Dictionary = game.match_11v11_controller.get("_team_colors")
+				if not sample_kit_colors.get("home", Color.BLACK).is_equal_approx(Color("#E7E2D5")):
+					failures.append("El representante local de Real Madrid no aplicó su equipación Nova original.")
+				if not sample_kit_colors.get("away", Color.BLACK).is_equal_approx(Color("#A04A57")):
+					failures.append("El representante visitante de Barcelona no aplicó su equipación Nova original.")
+				if game.current_stadium_id != "nova_coastal_arena":
+					failures.append("El partido no conservó Arena Costa Azul como estadio seleccionado.")
+				var active_stadium = game.get_node_or_null("NovaStadium")
+				if active_stadium == null or str(active_stadium.get_meta("stadium_id", "")) != "nova_coastal_arena":
+					failures.append("El amistoso no reconstruyó la geometría del estadio elegido.")
 				if not bool(summary.get("active", false)):
 					failures.append("El motor rechazó el amistoso iniciado desde la pantalla de preparación.")
 				if int(summary.get("home_players", 0)) != 11:

@@ -9,6 +9,9 @@ const PANEL_ALT := Color("#1b3827")
 const ACCENT := Color("#c8f45a")
 const TEXT_COLOR := Color("#f4f7ef")
 const MUTED := Color("#a8b7aa")
+const DEFAULT_HOME_TEAM_ID := "FN-ESP-REAL-MADRID"
+const DEFAULT_AWAY_TEAM_ID := "FN-ESP-BARCELONA"
+const DEFAULT_STADIUM_ID := "nova_stadium_main"
 const STARTING_POSITION_PRIORITY := [
 	["POR", "GK", "G"],
 	["LI", "CAI"],
@@ -54,7 +57,15 @@ static func build_starting_eleven(roster: Array) -> Array[String]:
 
 var _home_teams: OptionButton
 var _away_teams: OptionButton
+var _home_filter: LineEdit
+var _away_filter: LineEdit
+var _eligible_teams: Array[Dictionary] = []
 var _summary: Label
+var _home_badge: Button
+var _away_badge: Button
+var _home_lineup_preview: Label
+var _away_lineup_preview: Label
+var _stadium_option: OptionButton
 var _half_length: OptionButton
 var _clock_mode: OptionButton
 var _extra_time: CheckBox
@@ -115,7 +126,7 @@ func _build_interface() -> void:
 	column.add_child(heading)
 
 	var description := Label.new()
-	description.text = "Selecciona dos clubes con plantillas verificadas. La selección solo afecta a este encuentro."
+	description.text = "Selecciona dos clubes con plantillas Nova completas. Los perfiles son ficticios y la selección solo afecta a este encuentro."
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	description.add_theme_color_override("font_color", MUTED)
@@ -135,6 +146,15 @@ func _build_interface() -> void:
 	home_title.add_theme_font_size_override("font_size", 18)
 	home_title.add_theme_color_override("font_color", TEXT_COLOR)
 	home_column.add_child(home_title)
+	_home_badge = _create_team_badge("LOCAL")
+	home_column.add_child(_home_badge)
+	_home_lineup_preview = _create_lineup_preview()
+	home_column.add_child(_home_lineup_preview)
+	_home_filter = LineEdit.new()
+	_home_filter.placeholder_text = "Buscar equipo local..."
+	_home_filter.custom_minimum_size.y = 42
+	_home_filter.text_changed.connect(_on_home_filter_changed)
+	home_column.add_child(_home_filter)
 	_home_teams = OptionButton.new()
 	_home_teams.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_home_teams.custom_minimum_size.y = 48
@@ -158,6 +178,15 @@ func _build_interface() -> void:
 	away_title.add_theme_font_size_override("font_size", 18)
 	away_title.add_theme_color_override("font_color", TEXT_COLOR)
 	away_column.add_child(away_title)
+	_away_badge = _create_team_badge("VISITANTE")
+	away_column.add_child(_away_badge)
+	_away_lineup_preview = _create_lineup_preview()
+	away_column.add_child(_away_lineup_preview)
+	_away_filter = LineEdit.new()
+	_away_filter.placeholder_text = "Buscar equipo visitante..."
+	_away_filter.custom_minimum_size.y = 42
+	_away_filter.text_changed.connect(_on_away_filter_changed)
+	away_column.add_child(_away_filter)
 	_away_teams = OptionButton.new()
 	_away_teams.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_away_teams.custom_minimum_size.y = 48
@@ -169,6 +198,17 @@ func _build_interface() -> void:
 	_summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_summary.add_theme_color_override("font_color", MUTED)
 	column.add_child(_summary)
+
+	var stadium_title := Label.new()
+	stadium_title.text = "ESTADIO DEL ENCUENTRO"
+	stadium_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	stadium_title.add_theme_color_override("font_color", TEXT_COLOR)
+	column.add_child(stadium_title)
+	_stadium_option = OptionButton.new()
+	_stadium_option.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_stadium_option.custom_minimum_size.y = 44
+	column.add_child(_stadium_option)
+	_load_base_stadiums()
 
 	var match_options := GridContainer.new()
 	match_options.columns = 2
@@ -214,10 +254,42 @@ func _build_interface() -> void:
 	_start_button.pressed.connect(_start_match)
 	actions.add_child(_start_button)
 
+func _load_base_stadiums() -> void:
+	_stadium_option.clear()
+	var path := "res://data/stadiums/base_stadiums.json"
+	if not FileAccess.file_exists(path):
+		_summary.text = "Falta el catálogo de estadios base. No se puede iniciar el amistoso."
+		return
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		_summary.text = "No se pudo leer el catálogo de estadios base."
+		return
+	var parsed = JSON.parse_string(file.get_as_text())
+	if not parsed is Dictionary:
+		_summary.text = "El catálogo de estadios base contiene datos inválidos."
+		return
+	for raw_stadium in parsed.get("stadiums", []):
+		if not raw_stadium is Dictionary or not bool(raw_stadium.get("included_in_base_game", false)) or not bool(raw_stadium.get("playable", false)):
+			continue
+		var stadium_id := str(raw_stadium.get("id", ""))
+		var stadium_name := str(raw_stadium.get("name", "")).strip_edges()
+		if stadium_id.is_empty() or stadium_name.is_empty():
+			continue
+		_stadium_option.add_item(stadium_name, _stadium_option.item_count + 1)
+		_stadium_option.set_item_metadata(_stadium_option.item_count - 1, stadium_id)
+	if _stadium_option.item_count > 0:
+		var default_index := 0
+		for index in range(_stadium_option.item_count):
+			if str(_stadium_option.get_item_metadata(index)) == DEFAULT_STADIUM_ID:
+				default_index = index
+				break
+		_stadium_option.select(default_index)
+
 func _load_eligible_teams() -> void:
 	_home_teams.clear()
 	_away_teams.clear()
 	_team_ids.clear()
+	_eligible_teams.clear()
 	var registry = _get_football_registry()
 	if registry == null:
 		_summary.text = "El catálogo de clubes no está disponible. No se puede iniciar el amistoso."
@@ -231,23 +303,135 @@ func _load_eligible_teams() -> void:
 		var roster: Array = registry.get_team_roster(team_id)
 		if roster.size() < 11:
 			continue
-		var display_name := str(team.get("name", team.get("short_name", team_id))).strip_edges()
+		var display_name := _team_option_label(team_id, team)
 		if display_name.is_empty():
 			display_name = team_id
-		_home_teams.add_item(display_name)
-		_away_teams.add_item(display_name)
-		var item_index := _home_teams.item_count - 1
-		_home_teams.set_item_metadata(item_index, team_id)
-		_away_teams.set_item_metadata(item_index, team_id)
+		_eligible_teams.append({"id": team_id, "label": display_name})
 		_team_ids.append(team_id)
 
 	if _team_ids.size() >= 2:
-		_home_teams.select(0)
-		_away_teams.select(1)
+		_populate_team_selector(_home_teams, _home_filter.text, DEFAULT_HOME_TEAM_ID)
+		_populate_team_selector(_away_teams, _away_filter.text, DEFAULT_AWAY_TEAM_ID)
 		_refresh_validation()
 	else:
 		_summary.text = "Se necesitan al menos dos clubes con once jugadores válidos."
 		_start_button.disabled = true
+
+func _populate_team_selector(selector: OptionButton, filter_text: String, preferred_id: String = "") -> void:
+	var previous_id := _selected_team_id(selector)
+	if previous_id.is_empty():
+		previous_id = preferred_id
+	selector.clear()
+	var query := filter_text.strip_edges().to_lower()
+	for team in _eligible_teams:
+		var team_id := str(team.get("id", ""))
+		var label := str(team.get("label", team_id))
+		if not query.is_empty() and not label.to_lower().contains(query):
+			continue
+		selector.add_item(label)
+		selector.set_item_metadata(selector.item_count - 1, team_id)
+	var selected_index := _find_team_index(selector, previous_id)
+	if selected_index < 0 and selector.item_count > 0:
+		selected_index = 0
+	if selected_index >= 0:
+		selector.select(selected_index)
+
+func _on_home_filter_changed(value: String) -> void:
+	_populate_team_selector(_home_teams, value, DEFAULT_HOME_TEAM_ID)
+	_refresh_validation()
+
+func _on_away_filter_changed(value: String) -> void:
+	_populate_team_selector(_away_teams, value, DEFAULT_AWAY_TEAM_ID)
+	_refresh_validation()
+
+func _find_team_index(selector: OptionButton, team_id: String) -> int:
+	for index in range(selector.item_count):
+		if str(selector.get_item_metadata(index)) == team_id:
+			return index
+	return -1
+
+func _team_option_label(team_id: String, team: Dictionary) -> String:
+	var internal_name := str(team.get("name", team.get("short_name", team_id))).strip_edges()
+	if team_id == DEFAULT_HOME_TEAM_ID:
+		return "Real Madrid · " + internal_name
+	if team_id == DEFAULT_AWAY_TEAM_ID:
+		return "FC Barcelona · " + internal_name
+	return internal_name
+
+func _team_match_display_name(team_id: String, team: Dictionary) -> String:
+	return _team_option_label(team_id, team)
+
+func _create_team_badge(fallback_text: String) -> Button:
+	var badge := Button.new()
+	badge.disabled = true
+	badge.focus_mode = Control.FOCUS_NONE
+	badge.text = fallback_text
+	badge.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	badge.custom_minimum_size = Vector2(120, 68)
+	badge.add_theme_font_size_override("font_size", 20)
+	badge.add_theme_color_override("font_color", TEXT_COLOR)
+	badge.add_theme_color_override("font_disabled_color", TEXT_COLOR)
+	var style := StyleBoxFlat.new()
+	style.bg_color = PANEL_ALT
+	style.border_color = ACCENT
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(16)
+	badge.add_theme_stylebox_override("normal", style)
+	badge.add_theme_stylebox_override("disabled", style)
+	return badge
+
+func _create_lineup_preview() -> Label:
+	var preview := Label.new()
+	preview.text = "ONCE INICIAL\nCargando plantilla..."
+	preview.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	preview.custom_minimum_size.y = 168
+	preview.add_theme_font_size_override("font_size", 11)
+	preview.add_theme_color_override("font_color", MUTED)
+	return preview
+
+func _refresh_team_previews() -> void:
+	var home_id := _selected_team_id(_home_teams)
+	var away_id := _selected_team_id(_away_teams)
+	if _home_badge != null:
+		_home_badge.text = "REAL MADRID\nALBOR MADRID" if home_id == DEFAULT_HOME_TEAM_ID else _selected_team_label(_home_teams)
+		_set_badge_palette(_home_badge, home_id == DEFAULT_HOME_TEAM_ID, false)
+	if _away_badge != null:
+		_away_badge.text = "FC BARCELONA\nLITORAL BARCELONA" if away_id == DEFAULT_AWAY_TEAM_ID else _selected_team_label(_away_teams)
+		_set_badge_palette(_away_badge, false, away_id == DEFAULT_AWAY_TEAM_ID)
+	if _home_lineup_preview != null:
+		_home_lineup_preview.text = _format_starting_lineup(home_id)
+	if _away_lineup_preview != null:
+		_away_lineup_preview.text = _format_starting_lineup(away_id)
+
+func _set_badge_palette(badge: Button, is_madrid: bool, is_barcelona: bool) -> void:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("#25334A") if is_madrid else (Color("#173B79") if is_barcelona else PANEL_ALT)
+	style.border_color = Color("#D7C28A") if is_madrid else (Color("#A51E3B") if is_barcelona else ACCENT)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(16)
+	badge.add_theme_stylebox_override("normal", style)
+	badge.add_theme_stylebox_override("disabled", style)
+
+func _selected_team_label(selector: OptionButton) -> String:
+	return selector.get_item_text(selector.selected) if selector != null and selector.selected >= 0 else "EQUIPO"
+
+func _format_starting_lineup(team_id: String) -> String:
+	var registry = _get_football_registry()
+	if registry == null or team_id.is_empty():
+		return "ONCE INICIAL\nSin plantilla disponible"
+	var roster: Array = registry.get_team_roster(team_id)
+	var starting_ids := build_starting_eleven(roster)
+	if starting_ids.size() != 11:
+		return "ONCE INICIAL\nPlantilla incompleta"
+	var by_id := {}
+	for player in roster:
+		by_id[str(player.get("id", ""))] = player
+	var lines := PackedStringArray(["ONCE INICIAL · PLANTILLA NOVA"])
+	for player_id in starting_ids:
+		var player: Dictionary = by_id.get(player_id, {})
+		var player_name := str(player.get("display_name", player.get("name", player_id)))
+		lines.append("%s · %s" % [str(player.get("primary_position", "JUG")), player_name])
+	return "\n".join(lines)
 
 func _selected_team_id(selector: OptionButton) -> String:
 	if selector == null or selector.item_count == 0 or selector.selected < 0:
@@ -257,12 +441,13 @@ func _selected_team_id(selector: OptionButton) -> String:
 func _refresh_validation() -> void:
 	var home_id := _selected_team_id(_home_teams)
 	var away_id := _selected_team_id(_away_teams)
-	var valid := not home_id.is_empty() and not away_id.is_empty() and home_id != away_id
+	var valid := not home_id.is_empty() and not away_id.is_empty() and home_id != away_id and _stadium_option != null and _stadium_option.item_count > 0
 	var registry = _get_football_registry()
 	if registry == null:
 		_start_button.disabled = true
 		_summary.text = "El catálogo de clubes no está disponible."
 		return
+	_refresh_team_previews()
 	var home_roster: Array = registry.get_team_roster(home_id) if valid else []
 	var away_roster: Array = registry.get_team_roster(away_id) if valid else []
 	valid = valid and home_roster.size() >= 11 and away_roster.size() >= 11
@@ -270,7 +455,7 @@ func _refresh_validation() -> void:
 	if home_id == away_id and not home_id.is_empty():
 		_summary.text = "El equipo local y el visitante deben ser diferentes."
 	elif valid:
-		_summary.text = "Plantillas verificadas: %d jugadores locales y %d visitantes. Alineaciones iniciales: 11 por equipo." % [home_roster.size(), away_roster.size()]
+		_summary.text = "Plantillas Nova completas: %d perfiles locales y %d visitantes. Once inicial: 11 por equipo." % [home_roster.size(), away_roster.size()]
 	else:
 		_summary.text = "No se pudo validar una de las plantillas. El partido permanece bloqueado."
 
@@ -304,6 +489,9 @@ func _start_match() -> void:
 		"away_team_id": away_id,
 		"home_team_name": str(home_team.get("name", home_id)),
 		"away_team_name": str(away_team.get("name", away_id)),
+		"home_team_display_name": _team_match_display_name(home_id, home_team),
+		"away_team_display_name": _team_match_display_name(away_id, away_team),
+		"stadium_id": str(_stadium_option.get_item_metadata(_stadium_option.selected)) if _stadium_option.selected >= 0 else "",
 		"home_player_ids": home_player_ids,
 		"away_player_ids": away_player_ids,
 		"half_length_minutes": _half_length.get_selected_id(),

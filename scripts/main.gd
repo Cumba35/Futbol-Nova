@@ -23,6 +23,8 @@ var score_home := 0
 var score_away := 0
 var home_team_display_name := "LOCAL"
 var away_team_display_name := "VISITANTE"
+var home_team_id_current := ""
+var current_stadium_id := "nova_stadium_main"
 var score_label: Label
 var match_clock_label: Label
 var continue_period_button: Button
@@ -58,6 +60,7 @@ func _ready() -> void:
 
 	_create_lighting()
 	_create_pitch()
+	_create_stadium()
 	_create_goals()
 	loading_screen.set_progress(38.0, "Preparando el campo y las porterías...")
 	await get_tree().process_frame
@@ -165,6 +168,97 @@ func _create_pitch() -> void:
 	white.albedo_color = Color(0.92, 0.94, 0.88)
 	center_circle.material_override = white
 	add_child(center_circle)
+
+func _create_stadium() -> void:
+	# Lightweight procedural venue included in the base game. No third-party
+	# stadium models, branding or textures are required to play offline.
+	var stadium := Node3D.new()
+	stadium.name = "NovaStadium"
+	stadium.set_meta("stadium_id", current_stadium_id)
+	add_child(stadium)
+	var stand_colors: Array[Color] = [Color("#263343"), Color("#34475B"), Color("#1B2838")]
+	var seat_colors: Array[Color] = [Color("#71839A"), Color("#8E9AA8")]
+	var roof_color := Color("#1B2838")
+	if current_stadium_id == "nova_coastal_arena":
+		stand_colors = [Color("#123C4B"), Color("#176074"), Color("#0C2B3A")]
+		seat_colors = [Color("#6FC4D0"), Color("#D7F0E8")]
+		roof_color = Color("#092C3A")
+	elif current_stadium_id == "nova_central_park":
+		stand_colors = [Color("#244A36"), Color("#386447"), Color("#193A2B")]
+		seat_colors = [Color("#D6C59A"), Color("#A7B78A")]
+		roof_color = Color("#172F25")
+	var stand_materials: Array[Material] = []
+	for color in stand_colors:
+		stand_materials.append(_make_stadium_material(color))
+	var seat_materials: Array[Material] = []
+	for color in seat_colors:
+		seat_materials.append(_make_stadium_material(color))
+	for tier in range(3):
+		var tier_width := 4.2
+		var tier_height := 2.2
+		var offset := 3.0 + tier * tier_width
+		var y := 1.2 + tier * tier_height
+		for side in [-1.0, 1.0]:
+			_add_stadium_block(stadium, "LongStand_%d_%d" % [tier, int(side)], Vector3(tier_width, tier_height, FIELD_LENGTH + 18.0), Vector3(side * (FIELD_WIDTH * 0.5 + offset), y, 0.0), stand_materials[tier])
+			_add_stadium_block(stadium, "EndStand_%d_%d" % [tier, int(side)], Vector3(FIELD_WIDTH + 18.0, tier_height, tier_width), Vector3(0.0, y, side * (FIELD_LENGTH * 0.5 + offset)), stand_materials[tier])
+			for row in range(3):
+				var row_y := y - tier_height * 0.5 + 0.45 + row * 0.55
+				var face_x: float = side * (FIELD_WIDTH * 0.5 + offset - tier_width * 0.5 - 0.06)
+				var face_z: float = side * (FIELD_LENGTH * 0.5 + offset - tier_width * 0.5 - 0.06)
+				var seat_material: Material = seat_materials[(tier + row) % seat_materials.size()]
+				_add_stadium_block(stadium, "LongStandSeats_%d_%d_%d" % [tier, int(side), row], Vector3(0.16, 0.18, FIELD_LENGTH + 17.0), Vector3(face_x, row_y, 0.0), seat_material)
+				_add_stadium_block(stadium, "EndStandSeats_%d_%d_%d" % [tier, int(side), row], Vector3(FIELD_WIDTH + 17.0, 0.18, 0.16), Vector3(0.0, row_y, face_z), seat_material)
+	# Four original floodlight pylons. The field's main directional light
+	# remains the primary mobile-friendly light source.
+	for x_side in [-1.0, 1.0]:
+		for z_side in [-1.0, 1.0]:
+			var pole := MeshInstance3D.new()
+			pole.name = "FloodlightTower"
+			var pole_mesh := CylinderMesh.new()
+			pole_mesh.top_radius = 0.18
+			pole_mesh.bottom_radius = 0.28
+			pole_mesh.height = 17.0
+			pole.mesh = pole_mesh
+			pole.position = Vector3(x_side * 43.0, 8.5, z_side * 61.0)
+			pole.material_override = stand_materials[2]
+			stadium.add_child(pole)
+			var lamp_bar := MeshInstance3D.new()
+			var lamp_mesh := BoxMesh.new()
+			lamp_mesh.size = Vector3(2.8, 0.35, 0.7)
+			lamp_bar.mesh = lamp_mesh
+			lamp_bar.position = pole.position + Vector3(0.0, 8.2, 0.0)
+			lamp_bar.material_override = _make_stadium_material(Color("#D8E7F2"))
+			stadium.add_child(lamp_bar)
+	_add_stadium_block(stadium, "MainScoreboard", Vector3(18.0, 5.0, 0.8), Vector3(0.0, 11.0, -FIELD_LENGTH * 0.5 - 15.0), stand_materials[2])
+	if current_stadium_id == "nova_coastal_arena":
+		for side in [-1.0, 1.0]:
+			_add_stadium_block(stadium, "CoveredStandRoof_%d" % int(side), Vector3(7.5, 0.55, FIELD_LENGTH + 20.0), Vector3(side * (FIELD_WIDTH * 0.5 + 8.8), 10.8, 0.0), _make_stadium_material(roof_color))
+			_add_stadium_block(stadium, "RoofSupport_%d" % int(side), Vector3(0.28, 4.0, FIELD_LENGTH + 15.0), Vector3(side * (FIELD_WIDTH * 0.5 + 5.5), 8.6, 0.0), _make_stadium_material(roof_color))
+	elif current_stadium_id == "nova_central_park":
+		_add_stadium_block(stadium, "CentralParkWestCanopy", Vector3(5.0, 0.45, FIELD_LENGTH + 12.0), Vector3(-FIELD_WIDTH * 0.5 - 8.0, 9.2, 0.0), _make_stadium_material(roof_color))
+
+func _rebuild_stadium_for_match() -> void:
+	var existing := get_node_or_null("NovaStadium")
+	if existing != null:
+		remove_child(existing)
+		existing.queue_free()
+	_create_stadium()
+
+func _make_stadium_material(color: Color) -> StandardMaterial3D:
+	var material := StandardMaterial3D.new()
+	material.albedo_color = color
+	material.roughness = 0.88
+	return material
+
+func _add_stadium_block(parent: Node3D, block_name: String, dimensions: Vector3, at: Vector3, material: Material) -> void:
+	var stand := MeshInstance3D.new()
+	stand.name = block_name
+	var mesh := BoxMesh.new()
+	mesh.size = dimensions
+	stand.mesh = mesh
+	stand.position = at
+	stand.material_override = material
+	parent.add_child(stand)
 
 func _add_field_line(at: Vector3, dimensions: Vector3) -> void:
 	var line := MeshInstance3D.new()
@@ -321,7 +415,7 @@ func _create_player() -> void:
 	add_child(anier_player)
 
 func _switch_controlled_player_for_selected_club() -> void:
-	var should_use_maximo := home_team_display_name == "Litoral Barcelona"
+	var should_use_maximo := home_team_id_current == "FN-ESP-BARCELONA" or home_team_display_name == "Litoral Barcelona"
 	var desired_script = load("res://scripts/players/maximo_padilla.gd") if should_use_maximo else load("res://scripts/players/anier_cumba.gd")
 	if player != null and player.get_script() == desired_script:
 		return
@@ -486,7 +580,7 @@ func _on_skill_circle_gesture_completed() -> void:
 func _on_goal_body_entered(body: Node3D, _scoring_side: String) -> void:
 	if body != ball:
 		return
-	var active_match := match_11v11_controller != null and match_11v11_controller.is_match_active()
+	var active_match: bool = match_11v11_controller != null and match_11v11_controller.is_match_active()
 	var active_training := not current_training_mode_id.is_empty()
 	if not active_match and not active_training:
 		return
@@ -535,25 +629,28 @@ func _reset_training_ball() -> void:
 			spawn_position = Vector3(0.0, 0.35, 44.0)
 		"free_practice":
 			spawn_position = Vector3(0.0, 0.35, 0.0)
-	if match_11v11_controller != null and match_11v11_controller.has_method("reset_ball_for_restart"):
-		match_11v11_controller.reset_ball_for_restart(spawn_position)
-	else:
-		ball.freeze = false
-		ball.sleeping = false
-		ball.linear_velocity = Vector3.ZERO
-		ball.angular_velocity = Vector3.ZERO
-		ball.global_position = spawn_position
-		ball.reset_physics_interpolation()
-
-func _reset_ball() -> void:
-	if match_11v11_controller != null and match_11v11_controller.has_method("reset_ball_for_restart"):
-		match_11v11_controller.reset_ball_for_restart(Vector3(0.0, 0.35, 0.0))
+	# Training runs outside the 11v11 controller. Its _ball reference is null
+	# after stop_match(), so reset the scene ball directly.
+	if not is_instance_valid(ball):
 		return
 	ball.freeze = false
 	ball.sleeping = false
 	ball.linear_velocity = Vector3.ZERO
 	ball.angular_velocity = Vector3.ZERO
-	ball.global_position = Vector3(0, 0.35, 0)
+	ball.global_position = spawn_position
+	ball.reset_physics_interpolation()
+
+func _reset_ball() -> void:
+	if match_11v11_controller != null and match_11v11_controller.is_match_active() and match_11v11_controller.has_method("reset_ball_for_restart"):
+		match_11v11_controller.reset_ball_for_restart(Vector3(0.0, 0.35, 0.0))
+		return
+	if not is_instance_valid(ball):
+		return
+	ball.freeze = false
+	ball.sleeping = false
+	ball.linear_velocity = Vector3.ZERO
+	ball.angular_velocity = Vector3.ZERO
+	ball.global_position = Vector3(0.0, 0.35, 0.0)
 	ball.reset_physics_interpolation()
 
  
@@ -727,6 +824,7 @@ func _start_11v11_match(match_overrides: Dictionary = {}) -> void:
 	var allow_penalties := bool(match_overrides.get("penalties_enabled", match_penalties_check != null and match_penalties_check.button_pressed))
 	var match_settings := {
 		"half_length_minutes": selected_half_minutes,
+		"stadium_id": str(match_overrides.get("stadium_id", "nova_stadium_main")),
 		"clock_mode": selected_clock_mode,
 		"extra_time_enabled": allow_extra_time,
 		"competition_allows_extra_time": allow_extra_time,
@@ -736,8 +834,11 @@ func _start_11v11_match(match_overrides: Dictionary = {}) -> void:
 	match_settings.merge(match_overrides, true)
 	# Seleccionar el modelo definitivo antes de entregar la referencia al motor.
 	# Si se reemplaza después, el controlador conserva un CharacterBody3D liberado.
-	home_team_display_name = str(match_overrides.get("home_team_name", "Equipo local"))
-	away_team_display_name = str(match_overrides.get("away_team_name", "Equipo visitante"))
+	home_team_id_current = str(match_overrides.get("home_team_id", ""))
+	home_team_display_name = str(match_overrides.get("home_team_display_name", match_overrides.get("home_team_name", "Equipo local")))
+	away_team_display_name = str(match_overrides.get("away_team_display_name", match_overrides.get("away_team_name", "Equipo visitante")))
+	current_stadium_id = str(match_overrides.get("stadium_id", "nova_stadium_main"))
+	_rebuild_stadium_for_match()
 	_switch_controlled_player_for_selected_club()
 	if player == null or not is_instance_valid(player):
 		gesture_hint_label.text = "No se pudo preparar el futbolista controlado."
@@ -778,7 +879,7 @@ func _start_11v11_match(match_overrides: Dictionary = {}) -> void:
 		addons_button.visible = false
 	score_label.add_theme_font_size_override("font_size", 18)
 	score_label.text = "%s  0 - 0  %s" % [home_team_display_name, away_team_display_name]
-	gesture_hint_label.text = "Amistoso: %s vs %s. Controlas a %s." % [home_team_display_name, away_team_display_name, "Máximo Padilla" if home_team_display_name == "Litoral Barcelona" else "Anier Cumbá"]
+	gesture_hint_label.text = "Amistoso: %s vs %s. Controlas a %s." % [home_team_display_name, away_team_display_name, "Máximo Padilla" if home_team_id_current == "FN-ESP-BARCELONA" else "Anier Cumbá"]
 	print("Fútbol Nova: partido local 11v11 iniciado con reloj por períodos.")
 
 func _on_match_clock_updated(phase: String, _elapsed_seconds: float, remaining_seconds: float, _added_seconds: int) -> void:

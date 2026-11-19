@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0.0",
+  "product": "Fútbol Nova",
+  "policy": "Only original fictional venues and procedural assets are included in the base game.",
+  "stadiums": [
+    {
+      "id": "nova_stadium_main",
+      "name": "Estadio Nova",
+      "country_code": "NOVA",
+      "capacity": 28000,
+      "surface": "natural_grass",
+      "venue_type": "original_procedural",
+      "included_in_base_game": true,
+      "playable": true,
+      "scene": "procedural:res://scripts/main.gd::_create_stadium",
+      "visual_assets": "three_tier_open_stands_seating_floodlights_scoreboard",
+      "source": "original_futbol_nova_content",
+      "license": "project_owned_original"
+    },
+    {
+      "id": "nova_coastal_arena",
+      "name": "Arena Costa Azul",
+      "country_code": "NOVA",
+      "capacity": 36000,
+      "surface": "natural_grass",
+      "venue_type": "original_procedural",
+      "included_in_base_game": true,
+      "playable": true,
+      "scene": "procedural:res://scripts/main.gd::_create_stadium",
+      "visual_assets": "covered_stands_turquoise_seating_floodlights_scoreboard",
+      "source": "original_futbol_nova_content",
+      "license": "project_owned_original"
+    },
+    {
+      "id": "nova_central_park",
+      "name": "Parque Central Nova",
+      "country_code": "NOVA",
+      "capacity": 22000,
+      "surface": "natural_grass",
+      "venue_type": "original_procedural",
+      "included_in_base_game": true,
+      "playable": true,
+      "scene": "procedural:res://scripts/main.gd::_create_stadium",
+      "visual_assets": "compact_green_stands_seating_floodlights_scoreboard_canopy",
+      "source": "original_futbol_nova_content",
+      "license": "project_owned_original"
+    }
+  ]
+}

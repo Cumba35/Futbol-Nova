@@ -59,7 +59,7 @@ var _team_colors := {
 	"away": Color("#E7E9EF")
 }
 
-static func build_lineup(team_id: String, home_team: bool, player_ids: Array = []) -> Array[Dictionary]:
+static func build_lineup(team_id: String, home_team: bool, player_ids: Array = [], player_profiles: Dictionary = {}) -> Array[Dictionary]:
 	if team_id.is_empty() or (not player_ids.is_empty() and player_ids.size() != 11):
 		return []
 	var lineup: Array[Dictionary] = []
@@ -69,8 +69,11 @@ static func build_lineup(team_id: String, home_team: bool, player_ids: Array = [
 		var player_id := str(player_ids[index]) if not player_ids.is_empty() else "%s_%02d" % [team_id, index + 1]
 		if player_id.is_empty():
 			return []
+		var profile_value: Variant = player_profiles.get(player_id, {})
+		var player_profile: Dictionary = profile_value if profile_value is Dictionary else {}
 		lineup.append({
 			"player_id": player_id,
+			"profile": player_profile.duplicate(true),
 			"team_id": team_id,
 			"role": str(slot.role),
 			"position": Vector3(float(slot.x), 0.0, z_value),
@@ -118,6 +121,26 @@ static func evaluate_tackle(attacker_position: Vector3, attacker_forward: Vector
 	var dangerous_contact := attacker_is_behind and distance <= 1.05
 	return {"in_range": true, "foul": dangerous_contact, "success": not dangerous_contact and facing >= facing_threshold, "distance": distance}
 
+static func validate_roster_selection(team_id: String, player_ids: Array, player_profiles: Dictionary) -> bool:
+	if team_id.is_empty() or player_ids.size() != 11:
+		return false
+	var seen := {}
+	for raw_id in player_ids:
+		var player_id := str(raw_id).strip_edges()
+		if player_id.is_empty() or seen.has(player_id) or not player_profiles.has(player_id):
+			return false
+		var profile_value: Variant = player_profiles[player_id]
+		if not profile_value is Dictionary:
+			return false
+		var profile: Dictionary = profile_value
+		var attributes: Variant = profile.get("attributes", {})
+		if str(profile.get("id", "")) != player_id or str(profile.get("club_id", "")) != team_id:
+			return false
+		if str(profile.get("display_name", "")).strip_edges().is_empty() or not attributes is Dictionary or attributes.is_empty():
+			return false
+		seen[player_id] = true
+	return seen.size() == 11
+
 static func validate_lineups(home_lineup: Array, away_lineup: Array) -> bool:
 	if home_lineup.size() != 11 or away_lineup.size() != 11:
 		return false
@@ -151,15 +174,32 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 	var away_player_ids: Array = match_settings.get("away_player_ids", [])
 	if home_team_id == away_team_id:
 		return {"ok": false, "error": "El equipo local y el visitante deben ser diferentes."}
-	if (not home_player_ids.is_empty() and home_player_ids.size() != 11) or (not away_player_ids.is_empty() and away_player_ids.size() != 11):
-		return {"ok": false, "error": "Cada equipo debe aportar exactamente once identificadores de titulares."}
-	var home_lineup := build_lineup(home_team_id, true, home_player_ids)
-	var away_lineup := build_lineup(away_team_id, false, away_player_ids)
+	var has_roster_selection := not home_player_ids.is_empty() or not away_player_ids.is_empty()
+	if has_roster_selection and (home_player_ids.size() != 11 or away_player_ids.size() != 11):
+		return {"ok": false, "error": "El amistoso debe aportar once titulares válidos para ambos equipos."}
+	var player_profiles: Dictionary = {}
+	var football_data_service := get_node_or_null("/root/FootballData")
+	if football_data_service != null:
+		var registry_value: Variant = football_data_service.get("registry")
+		if registry_value != null:
+			var profile_catalog: Variant = registry_value.get("players_by_id")
+			if profile_catalog is Dictionary:
+				player_profiles = profile_catalog
+	var home_lineup := build_lineup(home_team_id, true, home_player_ids, player_profiles)
+	var away_lineup := build_lineup(away_team_id, false, away_player_ids, player_profiles)
+	if has_roster_selection:
+		if not validate_roster_selection(home_team_id, home_player_ids, player_profiles):
+			return {"ok": false, "error": "La plantilla local no coincide con los IDs, club o atributos de sus titulares."}
+		if not validate_roster_selection(away_team_id, away_player_ids, player_profiles):
+			return {"ok": false, "error": "La plantilla visitante no coincide con los IDs, club o atributos de sus titulares."}
 	if not validate_lineups(home_lineup, away_lineup):
 		return {"ok": false, "error": "Las alineaciones 11 contra 11 no superaron la validación."}
 	_home_team_id = home_team_id
 	_away_team_id = away_team_id
+	_resolve_team_colors(home_team_id, away_team_id)
 	_player.global_position = home_lineup[9].position
+	_player.set_meta("nova_player_profile", home_lineup[9].get("profile", {}).duplicate(true))
+	_apply_controlled_player_profile(home_lineup[9].get("profile", {}))
 	_player.rotation.y = 0.0
 	for index in range(home_lineup.size()):
 		if index == 9:
@@ -173,6 +213,42 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 	_decision_clock = AI_DECISION_INTERVAL
 	match_started.emit(11, 11)
 	return {"ok": true, "home_players": 11, "away_players": 11, "controlled_player_id": home_lineup[9].player_id}
+
+
+
+func _apply_controlled_player_profile(profile_value: Variant) -> void:
+	if not profile_value is Dictionary or not is_instance_valid(_player):
+		return
+	var profile: Dictionary = profile_value
+	var attributes: Dictionary = profile.get("attributes", {})
+	if attributes.is_empty():
+		return
+	var pace := clampf(float(attributes.get("spd", 70.0)) / 99.0, 0.0, 1.0)
+	var acceleration_rating := clampf(float(attributes.get("acc", 70.0)) / 99.0, 0.0, 1.0)
+	var passing := clampf(float(attributes.get("short", 70.0)) / 99.0, 0.0, 1.0)
+	var shooting := clampf(float(attributes.get("shot", 70.0)) / 99.0, 0.0, 1.0)
+	var tackling := clampf(float(attributes.get("tack", 70.0)) / 99.0, 0.0, 1.0)
+	_player.set("move_speed", lerpf(6.4, 8.2, pace))
+	_player.set("acceleration", lerpf(17.0, 25.0, acceleration_rating))
+	_player.set("pass_force", lerpf(4.8, 7.0, passing))
+	_player.set("shot_force", lerpf(9.5, 13.0, shooting))
+	_player.set("tackle_reach_bonus", lerpf(0.0, 0.35, tackling))
+
+func _resolve_team_colors(home_team_id: String, away_team_id: String) -> void:
+	# Original Nova kit palettes distinguish the two sample clubs without
+	# reproducing their official shirt patterns, badges or sponsor layouts.
+	_team_colors = {
+		"home": Color("#D92E3A"),
+		"away": Color("#E7E9EF")
+	}
+	if home_team_id == "FN-ESP-REAL-MADRID":
+		_team_colors.home = Color("#E7E2D5")
+	elif home_team_id == "FN-ESP-BARCELONA":
+		_team_colors.home = Color("#A04A57")
+	if away_team_id == "FN-ESP-REAL-MADRID":
+		_team_colors.away = Color("#E7E2D5")
+	elif away_team_id == "FN-ESP-BARCELONA":
+		_team_colors.away = Color("#A04A57")
 
 func stop_match() -> void:
 	_active = false
@@ -455,7 +531,10 @@ func _try_ai_tackle(actor_index: int, actor_data: Dictionary) -> void:
 				break
 	if bool(actor_data.home_team) == owner_home:
 		return
-	var result := evaluate_tackle(actor.global_position, -actor.global_transform.basis.z, _possession_owner.global_position, -_possession_owner.global_transform.basis.z)
+	var attributes: Dictionary = actor_data.get("attributes", {})
+	var tackle_rating := float(attributes.get("tack", 70.0))
+	var tackle_reach := clampf(1.55 + tackle_rating / 99.0 * 0.45, 1.55, 2.0)
+	var result := evaluate_tackle(actor.global_position, -actor.global_transform.basis.z, _possession_owner.global_position, -_possession_owner.global_transform.basis.z, tackle_reach, 0.15)
 	if not bool(result.get("in_range", false)):
 		return
 	actor_data.tackle_cooldown = 1.35
@@ -471,6 +550,13 @@ func _create_ai_actor(player_data: Dictionary) -> void:
 	actor.position = player_data.position
 	actor.add_to_group("match_players")
 	var is_home := bool(player_data.home_team)
+	var profile: Dictionary = player_data.get("profile", {})
+	var attributes: Dictionary = profile.get("attributes", {})
+	var speed_rating := float(attributes.get("spd", 70.0))
+	var goalkeeper_speed_rating := float(attributes.get("gkspd", speed_rating))
+	var movement_speed := clampf(3.8 + speed_rating / 99.0 * 1.5, 3.8, 5.3)
+	if str(player_data.role) == "GK":
+		movement_speed = clampf(3.7 + goalkeeper_speed_rating / 99.0 * 0.9, 3.8, 4.6)
 	var kit_color: Color = _team_colors.home if is_home else _team_colors.away
 	var body := MeshInstance3D.new()
 	var body_mesh := CapsuleMesh.new()
@@ -502,9 +588,14 @@ func _create_ai_actor(player_data: Dictionary) -> void:
 		"team_id": str(player_data.team_id),
 		"home_team": is_home,
 		"role": str(player_data.role),
+		"display_name": str(profile.get("display_name", profile.get("name", player_data.player_id))),
+		"primary_position": str(profile.get("primary_position", player_data.role)),
+		"overall": int(profile.get("estimated_overall", 0)),
+		"attributes": attributes.duplicate(true),
+		"preferred_foot": str(profile.get("preferred_foot", "right")),
 		"home_position": player_data.position,
 		"target": player_data.position,
-		"speed": 5.0 if str(player_data.role) != "GK" else 4.2,
+		"speed": movement_speed,
 		"stamina": 100.0,
 		"kick_cooldown": 0.0,
 		"tackle_cooldown": 0.0
@@ -625,27 +716,33 @@ func _try_ai_ball_action(actor_index: int, actor_data: Dictionary) -> void:
 			return
 		# Atajada/despeje básico: el portero desvía hacia una zona lateral y segura.
 		var clear_direction := goalkeeper_clear_direction(home_team, _ball.global_position.x, _ends_swapped)
+		var keeper_attributes: Dictionary = actor_data.get("attributes", {})
+		var keeper_kick_rating := float(keeper_attributes.get("kick", 70.0))
+		var keeper_clear_force := lerpf(8.5, 12.0, clampf(keeper_kick_rating / 99.0, 0.0, 1.0))
 		if owns_ball:
 			_clear_ball_possession()
 		else:
 			_ball.freeze = false
-		_ball.apply_central_impulse(clear_direction * 10.5)
+		_ball.apply_central_impulse(clear_direction * keeper_clear_force)
 		actor_data.kick_cooldown = 1.8
 		_actors[actor_index] = actor_data
 		return
 	var attack_sign := _attack_sign(home_team)
 	var attacking_third := is_ball_in_attacking_third(_ball.global_position.z, home_team, 22.0, _ends_swapped)
 	var pass_target := _find_forward_pass_target(actor_index, home_team)
+	var player_attributes: Dictionary = actor_data.get("attributes", {})
+	var passing_rating := float(player_attributes.get("short", 70.0))
+	var long_pass_rating := float(player_attributes.get("longp", passing_rating))
 	var impulse_direction: Vector3
 	var force: float
 	if pass_target != Vector3.INF:
 		# Pase raso dirigido a un compañero adelantado y cercano.
 		impulse_direction = (pass_target - _ball.global_position + Vector3.UP * 0.08).normalized()
-		force = 7.2
+		force = lerpf(6.2, 8.0, clampf(passing_rating / 99.0, 0.0, 1.0))
 	else:
 		# Sin línea de pase clara: progresión/ despeje hacia campo rival.
 		impulse_direction = Vector3(-_ball.global_position.x * 0.035, 0.10, attack_sign).normalized()
-		force = 8.8 if attacking_third else 4.6
+		force = lerpf(7.8, 10.0, clampf(long_pass_rating / 99.0, 0.0, 1.0)) if attacking_third else lerpf(4.0, 6.0, clampf(long_pass_rating / 99.0, 0.0, 1.0))
 	if owns_ball:
 		_clear_ball_possession()
 	else:
