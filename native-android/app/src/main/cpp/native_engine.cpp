@@ -105,7 +105,7 @@ void update(float dt){
  matchTime+=dt;
  float controlledPace=std::clamp(playerPace[10]/75.0f,.75f,1.30f);
  playerX=std::clamp(playerX+stickX*dt*8.0f*controlledPace,-32.0f,32.0f);
- playerZ=std::clamp(playerZ-stickY*dt*8.0f*controlledPace,-50.0f,50.0f);
+ playerZ=std::clamp(playerZ+stickY*dt*8.0f*controlledPace,-50.0f,50.0f);
  if(std::abs(stickX)+std::abs(stickY)>.08f)playerYaw=std::atan2(stickX,-stickY);
  players[10]={playerX,0,playerZ};
  const V3 formation[11]={{0,0,-45},{22,0,-30},{8,0,-32},{-8,0,-32},{-22,0,-30},{0,0,-10},{15,0,-8},{-15,0,-8},{22,0,18},{0,0,24},{-22,0,18}};
@@ -122,7 +122,7 @@ void update(float dt){
  }
  if(skill&&controlledPossession){ballX=playerX+dx*.95f;ballZ=playerZ+dz*.95f;ballY=.24f;ballVX=dx*2.4f;ballVZ=dz*2.4f;ballVY=.15f;}
  shoot=false;pass=false;skill=false;
- if(controlledPossession&&!pressure&&ballDistance<1.1f){ballX=playerX+dx*.72f;ballZ=playerZ+dz*.72f;ballY=.24f;ballVX=stickX*5.0f;ballVZ=-stickY*5.0f;}
+ if(controlledPossession&&!pressure&&ballDistance<1.1f){ballX=playerX+dx*.72f;ballZ=playerZ+dz*.72f;ballY=.24f;ballVX=stickX*5.0f;ballVZ=stickY*5.0f;}
  else {ballX+=ballVX*dt;ballY+=ballVY*dt;ballZ+=ballVZ*dt;}
  ballVY-=9.81f*dt;
  ballVX*=std::pow(.985f,dt*60);ballVZ*=std::pow(.985f,dt*60);
