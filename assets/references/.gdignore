@@ -1,0 +1,1 @@
+Reference-only design images. Keep these available for visual review, but exclude them from Godot resource imports and runtime assets.
