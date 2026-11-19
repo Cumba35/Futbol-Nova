@@ -100,3 +100,14 @@ Limitaciones que siguen pendientes:
 - No se ha confirmado aún una compilación posterior a este cambio ni una prueba física en Android. No declarar el bloqueador P0 resuelto hasta que CI compile y se pruebe el APK en el teléfono.
 - Deben probarse tiros rasos, tiros altos, disparos desde ambos lados, rebotes en postes/travesaño, paradas y goles legítimos para detectar falsos positivos.
 
+
+
+### Corrección de compilación y despejes de portero — 2026-11-19
+
+- La primera ejecución CI del cambio inicial falló en C++ por faltar el cierre del namespace anónimo antes de las funciones JNI. El log de GitHub Actions identificó `expected '}'` al final del archivo y señaló el namespace abierto.
+- Se añadió el cierre del namespace antes de `nativeInit` en commit `d6fabd32aabeed4278bd94ac936750cf833a5f6d`.
+- Se limpió la firma de `collideGoalFrame` para quitar parámetros no usados y se añadió un despeje dirigido cuando un portero toca el balón: envía el balón hacia el campo contrario, con componente lateral según el punto de contacto y elevación mínima para evitar que el rebote vuelva directo a la portería.
+- Código actualizado en commit `8463db93b7a74b5443408b48c750eb6a8c059c29`; relectura desde GitHub confirmó el despeje y la firma corregida.
+- La compilación del commit de corrección de namespace se lanzó como ejecución `44640197543`; debe comprobarse su conclusión. Como el despeje se guardó en un commit posterior, también debe existir y completarse una ejecución CI para el HEAD más reciente antes de dar por buena la APK.
+- No se ha hecho prueba visual/física del juego en un teléfono Android. La estirada sigue siendo una animación procedural sencilla; no es una animación esquelética ni una parada de captura/agarre.
+
