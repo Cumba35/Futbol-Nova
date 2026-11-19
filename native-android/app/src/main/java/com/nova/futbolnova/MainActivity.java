@@ -175,10 +175,10 @@ public final class MainActivity extends Activity {
             float w=getWidth(),h=getHeight(),s=Math.min(w,h);
             p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(3);p.setColor(0xB8C9F45A);
             c.drawCircle(s*.17f,h*.79f,s*.105f,p);p.setStyle(Paint.Style.FILL);p.setColor(0xB8C9F45A);c.drawCircle(s*.17f,h*.79f,s*.035f,p);
-            drawButton(c,w-s*.18f,h*.77f,s*.07f,"TIRO");drawButton(c,w-s*.31f,h*.60f,s*.055f,"PASE");
-            drawButton(c,w-s*.18f,h*.58f,s*.055f,"REGATE");drawButton(c,w-s*.18f,h*.92f,s*.055f,"PRESIÓN");
+            drawButton(c,w*.90f,h*.77f,s*.07f,"TIRO");drawButton(c,w*.69f,h*.60f,s*.055f,"PASE");
+            drawButton(c,w*.90f,h*.58f,s*.055f,"REGATE");drawButton(c,w*.90f,h*.92f,s*.055f,"PRESIÓN");
         }
         private void drawButton(Canvas c,float x,float y,float r,String label){p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(3);p.setColor(0xD8C9F45A);c.drawCircle(x,y,r,p);p.setStyle(Paint.Style.FILL);p.setColor(Color.WHITE);p.setTextAlign(Paint.Align.CENTER);p.setTextSize(Math.max(12,r*.34f));c.drawText(label,x,y+p.getTextSize()*.35f,p);}
-        @Override public boolean onTouchEvent(MotionEvent e){nativeTouch(e.getX(),e.getY(),e.getActionMasked(),getWidth(),getHeight());return true;}
+        @Override public boolean onTouchEvent(MotionEvent e){int index=e.getActionIndex();nativeTouch(e.getX(index),e.getY(index),e.getActionMasked(),getWidth(),getHeight());return true;}
     }
 }
