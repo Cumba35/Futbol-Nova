@@ -99,7 +99,9 @@ public final class MainActivity extends Activity {
         LinearLayout info=card();info.addView(text("BASE DE DATOS OFFLINE",17,0xFFB8E85A,true));
         info.addView(text(data.baseClubCount+" clubes catalogados · "+data.generatedClubCount+" clubes de temporada en el lote generado · "+data.customPlayerCount+" futbolistas personalizados · "+data.baseLeagueCount+" ligas base configuradas.",13,0xFFE4ECEE,false));
         info.addView(text(data.firstDivisionTeams+" plantillas de primera + "+data.secondDivisionTeams+" de segunda cargadas · "+data.skillCount+" habilidades registradas · "+data.techniqueCount+" técnicas · "+data.officialBallCount+" balones.",12,0xFFB6C7CB,false));
-        info.addView(text("Los clubes sin plantilla completa o con estado de revisión permanecen en el catálogo, pero no se habilitan para jugar.",12,0xFFFFD18A,false));
+        info.addView(text("Solo se habilitan para jugar las plantillas verificadas con 22 futbolistas e identificadores únicos.",12,0xFFFFD18A,false));
+        for(String warning:data.warnings)info.addView(text("Aviso: "+warning,11,0xFFFFB0A0,false));
+        info.addView(text("Versión de datos: "+data.dataVersion,11,0xFF9EB3B9,false));
         LinearLayout custom=card();custom.addView(text("JUGADORES PERSONALIZADOS",17,0xFFB8E85A,true));
         for(org.json.JSONObject p:data.customPlayers){
             custom.addView(text(p.optString("name","Jugador")+" · "+p.optString("position","")+" · GRL "+p.optInt("overall",0)+" / POT "+p.optInt("potential",0),14,Color.WHITE,true));
@@ -134,7 +136,7 @@ public final class MainActivity extends Activity {
             if(m.downloadable)c.addView(text("Paquete marcado como descargable por el catálogo; requiere verificación de integridad e instalación antes de activarse.",11,0xFFB6C7CB,false));
         }
     }
-    private String statusLabel(String s){switch(s){case "installed":case "available":case "ready":return "Disponible";case "testing":return "En pruebas";case "in_development":return "En desarrollo";default:return "Planificado";}}
+    private String statusLabel(String s){switch(s){case "installed":return "Instalado";case "available":return "Disponible para descargar";case "ready":return "Listo para integrar";case "testing":return "En pruebas";case "in_development":return "En desarrollo";default:return "Planificado";}}
     private void settingsScreen(){
         heading("CONFIGURACIÓN","Preferencias del motor y del partido");
         String[] groups={"Edición","Módulos","Música","Juego","Datos","Controles","Audio","Gráficos","Accesibilidad","Administración","Información"};
