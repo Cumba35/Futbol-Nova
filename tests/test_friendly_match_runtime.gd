@@ -134,6 +134,19 @@ func _run_acceptance_test() -> void:
 				await process_frame
 				print("FRIENDLY_TEST: friendly match started")
 				var summary: Dictionary = game.match_11v11_controller.get_match_summary()
+				var applied_roster_profiles := 0
+				for actor_data in game.match_11v11_controller._actors:
+					var actor_attributes: Dictionary = actor_data.get("attributes", {})
+					if str(actor_data.get("display_name", "")).is_empty() or actor_attributes.is_empty() or int(actor_data.get("overall", 0)) <= 0:
+						failures.append("Un futbolista de IA no recibió su perfil, atributos y valoración desde la plantilla.")
+					if float(actor_data.get("speed", 0.0)) <= 0.0:
+						failures.append("Un futbolista de IA no recibió velocidad derivada de sus atributos.")
+					applied_roster_profiles += 1
+				if applied_roster_profiles != 21:
+					failures.append("El partido no aplicó perfiles individuales a los 21 futbolistas de IA.")
+				var controlled_profile: Dictionary = game.player.get_meta("nova_player_profile", {})
+				if controlled_profile.is_empty() or controlled_profile.get("attributes", {}).is_empty():
+					failures.append("El futbolista controlado no conservó su perfil de la plantilla local.")
 				var sample_kit_colors: Dictionary = game.match_11v11_controller.get("_team_colors")
 				if not sample_kit_colors.get("home", Color.BLACK).is_equal_approx(Color("#E7E2D5")):
 					failures.append("El representante local de Real Madrid no aplicó su equipación Nova original.")
