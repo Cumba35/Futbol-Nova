@@ -25,6 +25,17 @@ func _run_tests() -> void:
 	var added: Dictionary = service.add_created_player(player)
 	assert(bool(added.get("ok", false)), "Debe guardar jugadores creados en el registro separado")
 	assert(service.get_created_players().size() > 0, "El registro debe devolver jugadores personalizados")
+	var assigned_home: Dictionary = service.assign_created_player_to_team("NOVA-USER-ROSTER-TEST", "FN-ESP-REAL-MADRID")
+	assert(bool(assigned_home.get("ok", false)), "Debe incorporar el jugador personalizado a la plantilla local")
+	assert(str(service.get_assigned_team_id("NOVA-USER-ROSTER-TEST")) == "FN-ESP-REAL-MADRID", "La asignación de club debe quedar guardada")
+	assert(service.get_players_for_team("FN-ESP-REAL-MADRID").size() == 1, "La plantilla debe incluir al futbolista personalizado")
+	var reassigned: Dictionary = service.assign_created_player_to_team("NOVA-USER-ROSTER-TEST", "FN-ESP-BARCELONA")
+	assert(bool(reassigned.get("ok", false)), "Debe permitir cambiar al jugador a otro club")
+	assert(service.get_players_for_team("FN-ESP-REAL-MADRID").is_empty(), "El jugador no debe permanecer duplicado en el club anterior")
+	assert(service.get_players_for_team("FN-ESP-BARCELONA").size() == 1, "El nuevo club debe recibir al jugador")
+	var removed: Dictionary = service.remove_created_player_from_team("NOVA-USER-ROSTER-TEST", "FN-ESP-BARCELONA")
+	assert(bool(removed.get("ok", false)), "Debe permitir retirar al jugador de la plantilla")
+	assert(service.get_assigned_team_id("NOVA-USER-ROSTER-TEST").is_empty(), "El jugador debe quedar sin club al retirarlo")
 	var rejected: Dictionary = service.add_created_player({
 		"id": "NOVA-CATALOG-TEST",
 		"origin": "nova_catalog",
@@ -38,7 +49,11 @@ func _run_tests() -> void:
 	assert(not bool(service.select_for_online("NOVA-CATALOG-TEST").get("ok", false)), "No debe permitir seleccionar como propio un jugador fuera del registro personalizado")
 	service.clear_online_selection()
 	assert(service.get_online_selected_player().is_empty(), "Debe poder quitar la selección para Online")
-	service._players.erase(player)
+	for index in range(service._players.size() - 1, -1, -1):
+		if str(service._players[index].get("id", "")) == "NOVA-USER-ROSTER-TEST":
+			service._players.remove_at(index)
+	service._team_assignments.erase("FN-ESP-REAL-MADRID")
+	service._team_assignments.erase("FN-ESP-BARCELONA")
 	service._save_roster()
 	print("FUTBOL_NOVA_CUSTOM_PLAYER_ROSTER_TESTS: PASS")
 	quit(0)
