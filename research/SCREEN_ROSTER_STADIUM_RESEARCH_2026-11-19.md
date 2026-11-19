@@ -102,3 +102,13 @@ El mismo run falló en tests/test_maximo_padilla_profile.gd: el script de carrer
 Corrección aplicada en scripts/legend/legend_career_service.gd, commit 1efc90260a8d24e19d0d8b0dd335181a1ece4518: ambas rutas resuelven /root/FootballDatabase con get_node_or_null y usan call() solo si el autoload existe. Se releyó el archivo desde GitHub y se verificó que ya no quedan referencias globales directas a FootballDatabase en el script.
 
 Nuevo run #193 (44444407781) disparado por el cambio de código, SHA 1efc90260a8d24e19d0d8b0dd335181a1ece4518; estado al documentar: en ejecución; configuración de Godot y firma temporal completadas, importación de recursos en curso. Las pruebas de Máximo, diez ligas, regresiones y exportación APK siguen pendientes de resultado de este nuevo run. No declarar aún APK ni CI global aprobados.
+
+
+## Referencias adicionales y seguimiento CI — 19-11-2026
+
+- Se inspeccionó [TechAoba/soccer-game](https://github.com/TechAoba/soccer-game): Godot/GDScript 2D y licencia MIT confirmada en LICENSE. Se conserva como referencia menor de organización de escenas y recursos; no se copiaron archivos.
+- Se inspeccionó [modelence/open-soccer](https://github.com/modelence/open-soccer): motor 11v11 en Canvas/TypeScript, cámara broadcast y arquitectura por dominios; no se encontró LICENSE en la raíz consultada. Solo referencia conceptual, sin copiar código/assets y sin añadir Modelence ni dependencias web.
+- Se volvió a comprobar [openfootmanager/openfootmanager](https://github.com/openfootmanager/openfootmanager): GPL-3.0 en LICENSE.md; solo referencia de simulación de gestión, sin incorporación de código.
+- GitHub Actions run #193 (ID 44444407781), SHA 1efc90260a8d24e19d0d8b0dd335181a1ece4518: importación, validación de nombres originales y archivo histórico, pruebas del hub/pantallas, física del balón, fundación 11v11, amistoso en vivo y porterías/redes completadas con éxito. La prueba de Máximo Padilla estaba en ejecución en la última consulta; pruebas restantes y exportación APK siguen pendientes.
+- No se declara todavía CI global aprobado, APK exportada ni prueba en dispositivo Android. PR #4 permanece sin fusionar hasta completar la aceptación.
+- Restricción reiterada: desarrollo con GitHub y ChatGPT solamente; sin servicios externos de ejecución, APIs comerciales o SDK de terceros obligatorios.
