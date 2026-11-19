@@ -152,3 +152,20 @@ Las elecciones cosméticas de un amistoso no deben alterar los datos permanentes
 12. El botón de inicio no permite lanzar un partido con datos inválidos o selecciones incompatibles.
 
 **Límite actual:** el selector de equipos, el once inicial, las opciones básicas del amistoso y el selector de tres estadios procedurales ya están conectados al inicio del partido. Las vistas 3D de jugadores/estadios dentro de la preparación, OVR, escudos, equipaciones, balón, preferencias persistentes y la validación visual completa siguen pendientes. No se consideran terminados hasta superar CI Godot 4.4.1 y pruebas Android.
+
+
+## Prioridad de validación: amistoso jugable y controles Android — 19 noviembre 2026
+
+El modo Amistoso es ahora la ruta principal de aceptación del juego. La prueba automatizada `tests/test_friendly_match_runtime.gd` abre la escena principal y utiliza el mismo flujo de preparación e inicio que el jugador. Comprueba:
+
+- Selección inicial de Real Madrid a la izquierda y Barcelona a la derecha, dos plantillas válidas, once titulares por lado y selección del estadio.
+- Inicio real del controlador 11v11, creación de 22 futbolistas, jugador controlado correcto, nombres y marcador.
+- Controles Android de extremo a extremo: joystick virtual que desplaza al futbolista, botón táctil PASE y botón táctil TIRO que impulsan el balón mediante el controlador real del jugador.
+- Pausa y reanudación del partido, inmovilización/restauración del balón, reinicios después de gol y protección del marcador cuando el encuentro no está activo.
+- Goles de ambos equipos, actualización del marcador, progreso de entrenamiento separado del amistoso, reloj, descanso, cambio de lado, segundo tiempo, final y descansos de prórroga.
+
+La ejecución `44529962976` completó esta prueba de amistoso con éxito en Godot 4.4.1 antes de añadir la nueva cobertura de joystick/pase/tiro táctil. Esa ejecución completa falló después, en `tests/test_football_database.gd`, por inferencia de tipos en dos variables del test; ambas declaraciones se tiparon explícitamente. La siguiente ejecución debe validar de nuevo el amistoso con las nuevas interacciones táctiles y continuar hasta exportar APK.
+
+**Criterio de aceptación:** no basta con abrir la escena o crear 22 nodos. El amistoso solo se considera validado cuando se puede iniciar desde la interfaz, mover al jugador, pasar, tirar, marcar, pausar/reanudar y completar los períodos sin errores. La prueba headless es necesaria, pero no sustituye la instalación y prueba manual de la APK en Android.
+
+**Pendiente funcional visible:** los botones de repetición y tácticas del menú de pausa siguen deshabilitados; la tanda de penaltis está marcada en desarrollo y no tiene motor; las sustituciones reales, árbitro completo, faltas/reinicios y presentación visual completa de la pantalla previa siguen fuera del alcance de esta aceptación inicial.
