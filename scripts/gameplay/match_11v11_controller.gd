@@ -42,6 +42,7 @@ const FORMATION_433 := [
 var _player: CharacterBody3D
 var _ball: RigidBody3D
 var _ball_flight_spin := Vector3.ZERO
+var _ball_pause_state: Dictionary = {}
 var _actors: Array[Dictionary] = []
 var _decision_clock := 0.0
 var _controlled_tackle_cooldown := 0.0
@@ -177,6 +178,7 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 func stop_match() -> void:
 	_active = false
 	_paused = false
+	_restore_ball_after_pause()
 	for actor in _actors:
 		var node: Node3D = actor.get("node")
 		if is_instance_valid(node):
@@ -190,10 +192,38 @@ func stop_match() -> void:
 	_ball = null
 
 func set_match_paused(value: bool) -> void:
+	if _paused == value:
+		return
 	_paused = value
 	if is_instance_valid(_player):
 		_player.set_physics_process(not _paused)
+	if is_instance_valid(_ball):
+		if _paused:
+			# A RigidBody3D keeps simulating independently of this controller.
+			# Snapshot its exact state and freeze it so the ball cannot drift
+			# while the match clock, AI and controlled player are paused.
+			_ball_pause_state = {
+				"freeze": _ball.freeze,
+				"sleeping": _ball.sleeping,
+				"linear_velocity": _ball.linear_velocity,
+				"angular_velocity": _ball.angular_velocity
+			}
+			_ball.freeze = true
+			_ball.sleeping = true
+		else:
+			_restore_ball_after_pause()
 	match_paused.emit(_paused)
+
+
+func _restore_ball_after_pause() -> void:
+	if _ball_pause_state.is_empty():
+		return
+	if is_instance_valid(_ball):
+		_ball.freeze = bool(_ball_pause_state.get("freeze", false))
+		_ball.linear_velocity = _ball_pause_state.get("linear_velocity", Vector3.ZERO)
+		_ball.angular_velocity = _ball_pause_state.get("angular_velocity", Vector3.ZERO)
+		_ball.sleeping = bool(_ball_pause_state.get("sleeping", false))
+	_ball_pause_state.clear()
 
 func set_match_score(home_score: int, away_score: int) -> void:
 	if not _match_clock_state.is_empty():
