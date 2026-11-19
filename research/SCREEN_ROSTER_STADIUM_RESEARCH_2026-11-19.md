@@ -61,3 +61,12 @@
 - Solo después de resultados satisfactorios actualizar el estado de publicación de las ligas.
 
 **No se declara que el APK, la interfaz visual o la ejecución Godot hayan sido validados en dispositivo.**
+
+
+## Correcciones tras la primera ejecución de CI — 19-11-2026
+
+La ejecución `44441146949` en Godot 4.4.1 llegó a ejecutar la importación y las pruebas iniciales. La validación de nombres de clubes y el archivo histórico pasaron; también pasaron la prueba del hub, el modelo de vuelo del balón y la base 11v11. La prueba runtime del amistoso se detuvo por errores de parseo (`MOMENTS_SERVICE_SCRIPT` no declarado y dos variables sin tipo explícito) y por una propiedad de alineación no válida en el control `Button` de las tarjetas.
+
+Correcciones guardadas en la rama independiente: `scripts/ui/pre_match_setup.gd` ahora usa `Button.text_alignment`; `tests/test_friendly_match_runtime.gd` declara el preload del servicio de Momentos y tipos `String` explícitos. La rama maestra de Workspace recibió la corrección de la tarjeta y mantiene los tipos explícitos en su prueba equivalente.
+
+**Estado posterior:** los archivos corregidos se releyeron desde GitHub. Todavía no hay resultado de una ejecución nueva con esos commits; no se declara aprobada la prueba runtime ni la exportación APK.
