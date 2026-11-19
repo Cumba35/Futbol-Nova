@@ -98,6 +98,40 @@ func _run_acceptance_test() -> void:
 		if setup == null or not is_instance_valid(setup):
 			failures.append("No se abrió la preparación del amistoso.")
 		else:
+			var custom_roster_service: Node = root.get_node_or_null("CustomPlayerRoster")
+			var friendly_custom_player_id := "NOVA-FRIENDLY-CUSTOM-ROSTER-TEST"
+			if custom_roster_service == null:
+				failures.append("El servicio de jugadores personalizados no está disponible en la preparación del amistoso.")
+			else:
+				var custom_attributes := {}
+				for attribute_key in ["acc", "spd", "attp", "fin", "shot", "long", "vol", "pen", "vis", "cross", "fk", "short", "longp", "curve", "agi", "bal", "react", "ctrl", "drib", "comp", "int", "head", "aware", "tack", "slide", "jump", "sta", "str", "agr", "dive", "hand", "kick", "ref", "gkspd", "gkpos"]:
+					custom_attributes[attribute_key] = 99
+				var custom_player := {
+					"id": friendly_custom_player_id,
+					"origin": "user_created",
+					"full_name": "Prueba NOVA Plantilla",
+					"display_name": "Prueba NOVA Plantilla",
+					"primary_position": "MCO",
+					"nationality_id": "CUB",
+					"overall": 99,
+					"attributes": custom_attributes
+				}
+				var custom_saved: Dictionary = custom_roster_service.call("add_created_player", custom_player)
+				if not bool(custom_saved.get("ok", false)):
+					failures.append("No se pudo crear el futbolista de prueba para verificar su incorporación al amistoso.")
+				else:
+					setup.call("_refresh_custom_player_options")
+					for option_index in range(setup._custom_players.item_count):
+						if str(setup._custom_players.get_item_metadata(option_index)) == friendly_custom_player_id:
+							setup._custom_players.select(option_index)
+							break
+					setup.call("_assign_custom_player_to_selected_team", true)
+					var assigned_roster: Array = setup.call("_get_combined_team_roster", "FN-ESP-REAL-MADRID")
+					if not assigned_roster.any(func(item): return str(item.get("id", "")) == friendly_custom_player_id):
+						failures.append("El futbolista personalizado no apareció en la plantilla del club local.")
+					var custom_starting_eleven: Array[String] = setup.build_starting_eleven(assigned_roster)
+					if not custom_starting_eleven.has(friendly_custom_player_id):
+						failures.append("El futbolista personalizado de mayor valoración no fue incluido en el once inicial.")
 			if setup._home_teams.item_count < 2 or setup._away_teams.item_count < 2:
 				failures.append("La preparación no muestra al menos dos clubes elegibles.")
 			if setup._stadiums.item_count != 3:
@@ -133,6 +167,16 @@ func _run_acceptance_test() -> void:
 					failures.append("El equipo visitante no quedó con once jugadores en el campo.")
 				if int(summary.get("ai_players", 0)) != 21:
 					failures.append("El partido no creó los 21 futbolistas de IA además del jugador controlado.")
+				var custom_actor_found := false
+				for actor_data in game.match_11v11_controller._actors:
+					if str(actor_data.get("player_id", "")) == "NOVA-FRIENDLY-CUSTOM-ROSTER-TEST":
+						custom_actor_found = true
+						if str(actor_data.get("display_name", "")) != "Prueba NOVA Plantilla" or int(actor_data.get("overall", 0)) != 99:
+							failures.append("El motor no conservó la identidad y valoración del futbolista personalizado.")
+						if float(actor_data.get("speed", 0.0)) <= 5.0:
+							failures.append("Los atributos de velocidad del futbolista personalizado no influyeron en el jugador del partido.")
+				if not custom_actor_found:
+					failures.append("El futbolista personalizado incorporado no llegó a la alineación activa del amistoso.")
 				if game.player == null or not is_instance_valid(game.player):
 					failures.append("El jugador controlado dejó de existir al iniciar el amistoso.")
 				elif game.match_11v11_controller._player != game.player:
@@ -443,6 +487,13 @@ func _run_acceptance_test() -> void:
 	print("FRIENDLY_TEST: assertions completed")
 	if game.match_11v11_controller != null:
 		game.match_11v11_controller.stop_match()
+	var custom_roster_cleanup: Node = root.get_node_or_null("CustomPlayerRoster")
+	if custom_roster_cleanup != null:
+		for index in range(custom_roster_cleanup.get("_players").size() - 1, -1, -1):
+			if str(custom_roster_cleanup.get("_players")[index].get("id", "")) == "NOVA-FRIENDLY-CUSTOM-ROSTER-TEST":
+				custom_roster_cleanup.get("_players").remove_at(index)
+		custom_roster_cleanup.get("_team_assignments").erase("FN-ESP-REAL-MADRID")
+		custom_roster_cleanup.call("_save_roster")
 	if moments_service != null and not original_moments_state.is_empty():
 		moments_service.set("_state", original_moments_state)
 		moments_service.call("_save")
