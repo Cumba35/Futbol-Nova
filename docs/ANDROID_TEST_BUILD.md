@@ -136,3 +136,10 @@ La ejecución `44449744055` falló antes de ejecutar las pruebas: Godot 4.4.1 in
 La corrección es añadir `data/imports/.gdignore` para excluir únicamente esa carpeta del escaneo/importación de recursos de Godot. Los archivos permanecen en GitHub y siguen disponibles para `tools/build_global_database.py` y las validaciones Python, que acceden al sistema de archivos directamente. El workflow ahora comprueba que el marcador y los tres CSV existan antes de importar el proyecto.
 
 **Validación pendiente:** la siguiente ejecución debe superar `Import project resources` y continuar con las pruebas Godot. No se considera corregido hasta que el workflow completo termine correctamente; todavía no hay APK nueva confirmada.
+
+
+### Ajuste de prueba de impulso físico — 19 noviembre 2026
+
+La ejecución `44450427320` superó la importación de recursos, la validación de 519 nombres de clubes, el archivo histórico, la navegación del hub y el modelo de vuelo del balón. La prueba de fundamentos 11v11 falló al comprobar `linear_velocity` inmediatamente después de llamar a `apply_central_impulse()`, sin esperar el siguiente paso de física.
+
+Se corrigió la prueba para crear un `RigidBody3D` con masa y colisión esférica equivalentes al balón del juego, aplicar el impulso y comprobar la velocidad después de un `physics_frame` adicional. La implementación del controlador no se cambió en esta revisión: primero se está validando que la prueba mida el resultado físico en el momento correcto. La ejecución `44450701630` debe confirmar el ajuste; si vuelve a fallar, se investigará el impulso del cuerpo real antes de modificar la mecánica.
