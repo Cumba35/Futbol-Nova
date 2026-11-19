@@ -34,3 +34,8 @@ Las alternativas públicas, sus licencias, compatibilidad Android y decisiones d
 - Se corrigió la referencia global `ManagerCareer` que impedía compilar la prueba headless del perfil de Máximo Padilla; detalle en [CI_44450991327_FIX.md](docs/CI_44450991327_FIX.md).
 - La corrección está sincronizada con `Cumba35/Nova-Workspace`; la nueva ejecución CI `44453253855` debe terminar antes de declarar aprobada la corrección o la APK.
 - Godot 4.4.1, funcionamiento offline y Android ARM64 se mantienen como requisitos.
+
+
+## Estado CI — 19-11-2026
+
+La ejecución 44453253855 detectó una segunda referencia global a FootballDatabase en el servicio de carrera durante compilación headless. Se corrigieron las llamadas de guardado y carga mediante búsqueda de /root/FootballDatabase; la corrección está sincronizada con Nova Workspace. CI nueva 44507868982 pendiente. Ver docs/CI_44450991327_FIX.md. No declarar APK validada antes de completar la CI.
