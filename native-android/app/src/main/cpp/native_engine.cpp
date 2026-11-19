@@ -16,7 +16,7 @@ GLuint program=0; GLint mvpLoc=-1,colorLoc=-1;
 int screenW=1,screenH=1; bool paused=false;
 float stickX=0,stickY=0; bool shoot=false,pass=false,skill=false,pressure=false;
 float ballX=0,ballZ=.72f,ballY=.22f,ballVX=0,ballVY=0,ballVZ=0;
-float playerX=0,playerZ=0.0f,playerYaw=3.1415926f,matchTime=0,matchSeconds=0; int homeScore=0,awayScore=0;
+float playerX=0,playerZ=0.0f,playerYaw=3.1415926f,matchTime=0,matchSeconds=0; int homeScore=0,awayScore=0; int controlledPlayer=9;
 Mesh fieldMesh{},lineMesh{},sphereMesh{},standMesh{},goalMesh{};
 std::array<V3,22> players{};
 std::array<float,22> playerHeight{};
@@ -171,19 +171,23 @@ void collideGoalFrame(){
 }
 void update(float dt){
  matchTime+=dt;
- float controlledPace=std::clamp(playerPace[9]/75.0f,.75f,1.30f);
+ float controlledPace=std::clamp(playerPace[(size_t)controlledPlayer]/75.0f,.75f,1.30f);
  playerX=std::clamp(playerX+stickX*dt*8.0f*controlledPace,-32.0f,32.0f);
  playerZ=std::clamp(playerZ-stickY*dt*8.0f*controlledPace,-50.0f,50.0f);
  if(std::abs(stickX)+std::abs(stickY)>.08f)playerYaw=std::atan2(stickX,stickY);
- players[9]={playerX,0,playerZ};
+ players[(size_t)controlledPlayer]={playerX,0,playerZ};
  const V3 formation[11]={{0,0,-45},{22,0,-30},{8,0,-32},{-8,0,-32},{-22,0,-30},{0,0,-10},{15,0,-8},{-15,0,-8},{22,0,18},{0,0,24},{-22,0,18}};
+ int nearestHome=-1,nearestAway=-1;float homeDistance=1.0e9f,awayDistance=1.0e9f;
+ for(int i=1;i<=10;i++){if(i!=controlledPlayer){float dx=players[(size_t)i].x-ballX,dz=players[(size_t)i].z-ballZ;float d=dx*dx+dz*dz;if(d<homeDistance){homeDistance=d;nearestHome=i;}}}
+ for(int i=12;i<=21;i++){float dx=players[(size_t)i].x-ballX,dz=players[(size_t)i].z-ballZ;float d=dx*dx+dz*dz;if(d<awayDistance){awayDistance=d;nearestAway=i;}}
  for(int i=0;i<22;i++){
-  if(i==0||i==9||i==11)continue;
+  if(i==0||i==controlledPlayer||i==11)continue;
   int local=i%11;
   V3 base=formation[local];
   float support=std::clamp(ballZ/70.0f,-.22f,.22f);
   float tx=base.x+std::clamp(ballX*.18f,-7.0f,7.0f);
   float tz=(i<11?base.z:-base.z)+support*12.0f;
+  if(i==nearestHome||i==nearestAway){tx=ballX;tz=ballZ+(i<11?-1.1f:1.1f);}
   float dx=tx-players[(size_t)i].x,dz=tz-players[(size_t)i].z;
   float d=std::sqrt(dx*dx+dz*dz);
   float speed=(2.0f+playerPace[(size_t)i]*.025f)*(pressure&&i<11?1.65f:1.0f);
@@ -220,14 +224,36 @@ void update(float dt){
  players[11].x=std::clamp(players[11].x,-3.15f,3.15f);
  players[11].z=std::clamp(players[11].z,48.8f,51.0f);
  // Keep the controlled-player coordinates synchronized after contact resolution.
- playerX=players[9].x;playerZ=players[9].z;
+ playerX=players[(size_t)controlledPlayer].x;playerZ=players[(size_t)controlledPlayer].z;
  float dx=std::sin(playerYaw),dz=-std::cos(playerYaw);
  float ballDistance=std::sqrt((ballX-playerX)*(ballX-playerX)+(ballZ-playerZ)*(ballZ-playerZ));
  bool controlledPossession=ballDistance<1.45f&&ballY<1.1f;
  if((pass||shoot)&&controlledPossession){
+  float kickX=dx,kickZ=dz;
+  if(pass){
+   int target=-1;float best=1.0e9f;
+   for(int i=1;i<=10;i++){
+    if(i==controlledPlayer)continue;
+    float tx=players[(size_t)i].x-playerX,tz=players[(size_t)i].z-playerZ;
+    float distance=std::sqrt(tx*tx+tz*tz);
+    if(distance<2.5f||distance>28.0f)continue;
+    float progress=players[(size_t)i].z-playerZ;
+    float score=distance+std::max(0.0f,-progress)*1.8f-progress*.22f;
+    bool blocked=false;
+    for(int j=12;j<=21;j++){
+     float sx=players[(size_t)j].x-playerX,sz=players[(size_t)j].z-playerZ;
+     float t=std::clamp((sx*tx+sz*tz)/(distance*distance),0.0f,1.0f);
+     float ox=sx-tx*t,oz=sz-tz*t;
+     if(t>.08f&&t<.92f&&ox*ox+oz*oz<1.35f*1.35f){blocked=true;break;}
+    }
+    if(blocked)score+=18.0f;
+    if(score<best){best=score;target=i;}
+   }
+   if(target>=0){kickX=players[(size_t)target].x-playerX;kickZ=players[(size_t)target].z-playerZ;float len=std::sqrt(kickX*kickX+kickZ*kickZ);if(len>.001f){kickX/=len;kickZ/=len;}}
+  }
   float power=shoot?25.0f:15.0f;
-  ballVX=dx*power;ballVZ=dz*power;ballVY=shoot?7.0f:2.0f;
-  ballX=playerX+dx*.72f;ballZ=playerZ+dz*.72f;ballY=.35f;
+  ballVX=kickX*power;ballVZ=kickZ*power;ballVY=shoot?7.0f:2.0f;
+  ballX=playerX+kickX*.72f;ballZ=playerZ+kickZ*.72f;ballY=.35f;
  }
  if(skill&&controlledPossession){ballX=playerX+dx*.95f;ballZ=playerZ+dz*.95f;ballY=.24f;ballVX=dx*2.4f;ballVZ=dz*2.4f;ballVY=.15f;}
  shoot=false;pass=false;skill=false;
@@ -247,7 +273,7 @@ void update(float dt){
  float ballSpeed=std::sqrt(ballVX*ballVX+ballVZ*ballVZ);
  if(ballSpeed>1.0f || !controlledPossession){
   for(int i=0;i<22;i++){
-   if(i==9&&controlledPossession)continue;
+   if(i==controlledPlayer&&controlledPossession)continue;
    float px=players[(size_t)i].x,pz=players[(size_t)i].z;
    float t=segLen2>.0001f?std::clamp(((px-oldX)*segX+(pz-oldZ)*segZ)/segLen2,0.0f,1.0f):1.0f;
    float cx=oldX+segX*t,cz=oldZ+segZ*t;
@@ -280,10 +306,10 @@ void update(float dt){
  bool homeGoal=(oldZ<53.0f&&ballZ>=53.0f&&std::abs(ballX)<3.44f&&ballY<2.22f);
  bool awayGoal=(oldZ>-53.0f&&ballZ<=-53.0f&&std::abs(ballX)<3.44f&&ballY<2.22f);
  if(homeGoal){
-  homeScore++;playerX=0;playerZ=0;players[9]={0,0,0};players[0]={0,0,-49.5f};players[11]={0,0,49.5f};
+  homeScore++;playerX=0;playerZ=0;players[(size_t)controlledPlayer]={0,0,0};players[0]={0,0,-49.5f};players[11]={0,0,49.5f};
   ballX=0;ballZ=.72f;ballY=.22f;ballVX=ballVY=ballVZ=0;keepers={};
  }else if(awayGoal){
-  awayScore++;playerX=0;playerZ=0;players[9]={0,0,0};players[0]={0,0,-49.5f};players[11]={0,0,49.5f};
+  awayScore++;playerX=0;playerZ=0;players[(size_t)controlledPlayer]={0,0,0};players[0]={0,0,-49.5f};players[11]={0,0,49.5f};
   ballX=0;ballZ=.72f;ballY=.22f;ballVX=ballVY=ballVZ=0;keepers={};
  }
  if(std::abs(ballX)>34){ballX=std::copysign(34.0f,ballX);ballVX*=-.55f;}
@@ -304,7 +330,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeFr
  draw(fieldMesh,vp,identity(),.035f,.34f,.13f);
  draw(lineMesh,vp,identity(),.88f,.94f,.85f);
  draw(goalMesh,vp,identity(),.92f,.95f,.96f);
- for(int i=0;i<22;i++){float yaw=i==9?playerYaw:(i<11?3.1415926f:0.0f);drawPlayer(vp,players[i],i<11,yaw,i);}
+ for(int i=0;i<22;i++){float yaw=i==controlledPlayer?playerYaw:(i<11?3.1415926f:0.0f);drawPlayer(vp,players[i],i<11,yaw,i);}
  draw(sphereMesh,vp,model(ballX,ballY,ballZ,.22f,.22f,.22f),.96f,.96f,.92f);
 }
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeTouch(JNIEnv*,jclass,jfloat x,jfloat y,jint action,jint w,jint h){
@@ -337,6 +363,15 @@ extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeSe
  playerDefending[(size_t)slot]=std::clamp((float)defending,1.0f,99.0f);
 }
 
+extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeSwitchPlayer(JNIEnv*,jclass){
+ std::array<std::pair<float,int>,10> ranked{};
+ for(int n=0;n<10;n++){int slot=n+1;float dx=players[(size_t)slot].x-ballX,dz=players[(size_t)slot].z-ballZ;ranked[(size_t)n]={dx*dx+dz*dz,slot};}
+ std::sort(ranked.begin(),ranked.end(),[](const auto&a,const auto&b){return a.first<b.first;});
+ int currentRank=0;for(int n=0;n<10;n++)if(ranked[(size_t)n].second==controlledPlayer)currentRank=n;
+ controlledPlayer=ranked[(size_t)((currentRank+1)%10)].second;
+ playerX=players[(size_t)controlledPlayer].x;playerZ=players[(size_t)controlledPlayer].z;
+ playerYaw=std::atan2(ballX-playerX,ballZ-playerZ);
+}
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativePause(JNIEnv*,jclass,jboolean value){paused=value;}
 
 extern "C" JNIEXPORT jint JNICALL Java_com_nova_futbolnova_MainActivity_nativeGetHomeScore(JNIEnv*,jclass){return homeScore;}
