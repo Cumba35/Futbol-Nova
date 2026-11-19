@@ -111,11 +111,11 @@ func _build_shell() -> void:
 	layout.add_child(separator)
 
 	page_title = Label.new()
-	page_title.add_theme_font_size_override("font_size", int(round(32.0 * _get_ui_scale())))
+	_set_scaled_font(page_title, 32)
 	page_title.add_theme_color_override("font_color", WHITE)
 	layout.add_child(page_title)
 	page_subtitle = Label.new()
-	page_subtitle.add_theme_font_size_override("font_size", int(round(14.0 * _get_ui_scale())))
+	_set_scaled_font(page_subtitle, 14)
 	page_subtitle.add_theme_color_override("font_color", MUTED)
 	layout.add_child(page_subtitle)
 
@@ -130,7 +130,7 @@ func _build_shell() -> void:
 
 	status_label = Label.new()
 	status_label.custom_minimum_size.y = 22
-	status_label.add_theme_font_size_override("font_size", 12)
+	_set_scaled_font(status_label, 12)
 	status_label.add_theme_color_override("font_color", MUTED)
 	layout.add_child(status_label)
 
@@ -152,7 +152,7 @@ func _build_shell() -> void:
 	page_indicator.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	page_indicator.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	page_indicator.add_theme_color_override("font_color", LIME)
-	page_indicator.add_theme_font_size_override("font_size", int(round(13.0 * _get_ui_scale())))
+	_set_scaled_font(page_indicator, 13)
 	footer.add_child(page_indicator)
 
 	var footer_spacer_right := Control.new()
@@ -168,7 +168,7 @@ func _add_main_nav(parent: Container, caption: String, page: String) -> void:
 	var compact_layout := get_viewport().get_visible_rect().size.x < 700.0
 	var button := _nav_button(caption)
 	button.custom_minimum_size.x = 70 if compact_layout else 112
-	button.add_theme_font_size_override("font_size", 10 if compact_layout else 13)
+	_set_scaled_font(button, 10 if compact_layout else 13)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.pressed.connect(_open_main_page.bind(page))
 	parent.add_child(button)
@@ -177,7 +177,7 @@ func _nav_button(caption: String) -> Button:
 	var button := Button.new()
 	button.text = caption
 	button.custom_minimum_size = Vector2(112, 40)
-	button.add_theme_font_size_override("font_size", int(round(13.0 * _get_ui_scale())))
+	_set_scaled_font(button, 13)
 	button.add_theme_color_override("font_color", WHITE)
 	var normal := StyleBoxFlat.new()
 	normal.bg_color = PANEL_ALT
@@ -267,7 +267,7 @@ func _update_header(title_text: String, subtitle_text: String) -> void:
 		page_indicator.text = "%d/4 • %s" % [index + 1, page_names[index]] if compact_layout else "PANTALLA %d DE 4   •   %s" % [index + 1, page_names[index]]
 	else:
 		page_indicator.text = "SUBMENÚ"
-	page_indicator.add_theme_font_size_override("font_size", 11 if compact_layout else 13)
+	_set_scaled_font(page_indicator, 11 if compact_layout else 13)
 	if back_navigation_button != null:
 		back_navigation_button.disabled = current_page == "home" and current_subpage.is_empty()
 	if next_navigation_button != null:
@@ -1699,6 +1699,19 @@ func _on_ui_scale_changed(value: float, value_label: Label, preferences: Node) -
 	var saved: bool = bool(preferences.call("set_ui_scale", value / 100.0))
 	value_label.text = "Tamaño del texto: %d%%" % int(round(value))
 	status_label.text = "Tamaño guardado." if saved else "No se pudo guardar el tamaño del texto."
+	if saved:
+		_apply_ui_scale_to_tree(root)
+
+func _set_scaled_font(control: Control, base_size: int) -> void:
+	control.set_meta("nova_base_font_size", base_size)
+	control.add_theme_font_size_override("font_size", int(round(float(base_size) * _get_ui_scale())))
+
+func _apply_ui_scale_to_tree(node: Node) -> void:
+	if node is Control and node.has_meta("nova_base_font_size"):
+		var base_size := int(node.get_meta("nova_base_font_size"))
+		(node as Control).add_theme_font_size_override("font_size", int(round(float(base_size) * _get_ui_scale())))
+	for child in node.get_children():
+		_apply_ui_scale_to_tree(child)
 
 func _get_ui_scale() -> float:
 	var preferences: Node = get_node_or_null("/root/NovaPreferences")
@@ -1775,7 +1788,7 @@ func _safe_int(value: Variant, fallback: int = 0) -> int:
 func _label(value: String, font_size: int, color: Color) -> Label:
 	var label := Label.new()
 	label.text = value
-	label.add_theme_font_size_override("font_size", int(round(float(font_size) * _get_ui_scale())))
+	_set_scaled_font(label, font_size)
 	label.add_theme_color_override("font_color", color)
 	return label
 
