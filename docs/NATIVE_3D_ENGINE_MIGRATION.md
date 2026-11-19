@@ -18,6 +18,10 @@ Fútbol Nova deja de depender de Godot o de cualquier otro motor externo. El jue
 - Interfaz Android nativa: menús, selector de clubes, controles multitáctiles y escalado por relación de aspecto.
 - Datos deportivos y guardados offline; integración gradual de los catálogos existentes.
 
+## Integración de diseño y datos — 19-11-2026
+
+La especificación `docs/NATIVE_FIFA23_FC26_DESIGN_AND_DATA_INTEGRATION.md` reúne las referencias visuales archivadas, el diseño FIFA 23 + FC 26 adaptado a identidad NOVA, los modos ya definidos, las exclusiones y el mapa de datos canónicos. La fuente de datos de jugadores es `data/custom_players.json`; los catálogos de modos son `data/game_modules_manifest.json` y `data/optional_modules_catalog.json`. El proyecto Android ahora incluye el directorio `data/` como assets y lee los perfiles `NOVA-PLAYER-0035` (Anier Cumbá) y `NOVA-PLAYER-0036` (Máximo Padilla) para aplicarlos a los actores 3D iniciales. Esta primera integración transmite altura, GRL, ritmo, regate y defensa; los modelos visibles siguen siendo primitivas geométricas y no se consideran futbolistas finales.
+
 ## Primera base añadida
 `native-android/` es un proyecto Android independiente, con ABI arm64-v8a, Java 17, C++17, CMake y OpenGL ES 3.0. Incluye una escena 3D generada por código, 22 marcadores corporales procedurales, cámara en perspectiva, joystick táctil y movimiento/impulso básico del balón. Es un prototipo de renderizado, no un partido terminado ni un APK validado.
 
