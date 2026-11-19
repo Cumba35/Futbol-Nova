@@ -25,6 +25,14 @@ func _test_watchdog() -> void:
 	quit(1)
 
 
+func _has_two_named_parts(parent: Node, prefix: String) -> bool:
+	var matches := 0
+	for child in parent.find_children("*", "Node", true, false):
+		if child.name.to_string().begins_with(prefix):
+			matches += 1
+	return matches >= 2
+
+
 func _run() -> void:
 	var file := FileAccess.open("res://data/custom_players.json", FileAccess.READ)
 	if not _check(file != null, "custom_players.json must exist"): return
@@ -107,12 +115,12 @@ func _run() -> void:
 	if not _check(anier.find_child("AnierVisual3D", true, false) != null): return
 	if not _check(anier.find_child("torso", true, false) != null): return
 	if not _check(anier.find_child("shirt_untucked_hem", true, false) != null): return
-	if not _check(anier.find_child("long_sock_1.0", true, false) != null): return
-	if not _check(anier.find_child("boot_1.0", true, false) != null): return
-	if not _check(anier.find_child("boot_sole_1.0", true, false) != null): return
-	if not _check(anier.find_child("boot_gold_design_1.0", true, false) != null): return
-	if not _check(anier.find_child("boot_black_design_1.0", true, false) != null): return
-	if not _check(anier.find_child("shin_guard_1.0", true, false) != null): return
+	if not _check(_has_two_named_parts(anier, "long_sock_"), "Both long socks must be generated"): return
+	if not _check(_has_two_named_parts(anier, "boot_"), "Both boots must be generated"): return
+	if not _check(_has_two_named_parts(anier, "boot_sole_"), "Both boot soles must be generated"): return
+	if not _check(_has_two_named_parts(anier, "boot_gold_design_"), "Both gold boot details must be generated"): return
+	if not _check(_has_two_named_parts(anier, "boot_black_design_"), "Both black boot details must be generated"): return
+	if not _check(_has_two_named_parts(anier, "shin_guard_"), "Both shin guards must be generated"): return
 	if not _check(anier.find_child("glove_1.0", true, false) != null): return
 	if not _check(anier.find_child("inner_shirt_sleeve_1.0", true, false) != null): return
 	if not _check(anier.find_child("inner_shirt_neckline", true, false) != null): return
