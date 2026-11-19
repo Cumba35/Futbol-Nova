@@ -704,19 +704,18 @@ func _try_ai_ball_action(actor_index: int, actor_data: Dictionary) -> void:
 	var attack_sign := _attack_sign(home_team)
 	var attacking_third := is_ball_in_attacking_third(_ball.global_position.z, home_team, 22.0, _ends_swapped)
 	var pass_target := _find_forward_pass_target(actor_index, home_team)
+	var player_attributes: Dictionary = actor_data.get("attributes", {})
+	var passing_rating := float(player_attributes.get("short", 70.0))
+	var long_pass_rating := float(player_attributes.get("longp", passing_rating))
 	var impulse_direction: Vector3
 	var force: float
 	if pass_target != Vector3.INF:
 		# Pase raso dirigido a un compañero adelantado y cercano.
 		impulse_direction = (pass_target - _ball.global_position + Vector3.UP * 0.08).normalized()
-		var player_attributes: Dictionary = actor_data.get("attributes", {})
-		var passing_rating := float(player_attributes.get("short", 70.0))
 		force = lerpf(6.2, 8.0, clampf(passing_rating / 99.0, 0.0, 1.0))
 	else:
 		# Sin línea de pase clara: progresión/ despeje hacia campo rival.
 		impulse_direction = Vector3(-_ball.global_position.x * 0.035, 0.10, attack_sign).normalized()
-		var player_attributes: Dictionary = actor_data.get("attributes", {})
-		var long_pass_rating := float(player_attributes.get("longp", 70.0))
 		force = lerpf(7.8, 10.0, clampf(long_pass_rating / 99.0, 0.0, 1.0)) if attacking_third else lerpf(4.0, 6.0, clampf(long_pass_rating / 99.0, 0.0, 1.0))
 	if owns_ball:
 		_clear_ball_possession()
