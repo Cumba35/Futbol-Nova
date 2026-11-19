@@ -1672,7 +1672,10 @@ func _open_settings_category(category: String) -> void:
 
 func _show_audio_settings() -> void:
 	_add_info_card("VOLUMEN GENERAL", "Ajusta el volumen de todos los sonidos del juego. El cambio se aplica inmediatamente y se guarda en este dispositivo.")
-	var volume_label := _label("Volumen principal: %d%%" % int(round(NovaPreferences.master_volume * 100.0)), 15, WHITE)
+	var preferences: Node = get_node_or_null("/root/NovaPreferences")
+	var current_volume := float(preferences.get("master_volume")) if preferences != null else 0.8
+	var current_muted := bool(preferences.get("master_muted")) if preferences != null else false
+	var volume_label := _label("Volumen principal: %d%%" % int(round(current_volume * 100.0)), 15, WHITE)
 	volume_label.name = "MasterVolumeValue"
 	content_box.add_child(volume_label)
 	var volume_slider := HSlider.new()
@@ -1680,26 +1683,34 @@ func _show_audio_settings() -> void:
 	volume_slider.min_value = 0.0
 	volume_slider.max_value = 100.0
 	volume_slider.step = 1.0
-	volume_slider.value = NovaPreferences.master_volume * 100.0
+	volume_slider.value = current_volume * 100.0
 	volume_slider.custom_minimum_size.y = 36
 	volume_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	volume_slider.value_changed.connect(_on_master_volume_changed.bind(volume_label))
+	volume_slider.editable = preferences != null
+	volume_slider.value_changed.connect(_on_master_volume_changed.bind(volume_label, preferences))
 	content_box.add_child(volume_slider)
 	var mute := CheckBox.new()
 	mute.name = "MasterMuteToggle"
 	mute.text = "Silenciar todo el juego"
-	mute.button_pressed = NovaPreferences.master_muted
+	mute.button_pressed = current_muted
+	mute.disabled = preferences == null
 	mute.add_theme_color_override("font_color", WHITE)
-	mute.toggled.connect(_on_master_mute_toggled)
+	mute.toggled.connect(_on_master_mute_toggled.bind(preferences))
 	content_box.add_child(mute)
+	if preferences == null:
+		_add_info_card("PREFERENCIAS NO DISPONIBLES", "No se pudo cargar el servicio local de configuración.")
 	_add_info_card("MÚSICA Y EFECTOS", "La mezcla actual solo expone el bus principal. Los controles independientes de música, efectos y comentarios se habilitarán cuando esos canales estén configurados; no se muestran interruptores que todavía no tengan efecto.")
 
-func _on_master_volume_changed(value: float, value_label: Label) -> void:
-	NovaPreferences.set_master_volume(value / 100.0)
+func _on_master_volume_changed(value: float, value_label: Label, preferences: Node) -> void:
+	if preferences == null:
+		return
+	preferences.call("set_master_volume", value / 100.0)
 	value_label.text = "Volumen principal: %d%%" % int(round(value))
 
-func _on_master_mute_toggled(muted: bool) -> void:
-	NovaPreferences.set_master_muted(muted)
+func _on_master_mute_toggled(muted: bool, preferences: Node) -> void:
+	if preferences == null:
+		return
+	preferences.call("set_master_muted", muted)
 
 func _add_info_card(title_text: String, body_text: String) -> void:
 	var panel := _make_panel()
