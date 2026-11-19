@@ -106,6 +106,16 @@ Nuevo run #193 (44444407781) disparado por el cambio de código, SHA 1efc90260a8
 
 ## Referencias adicionales y seguimiento CI — 19-11-2026
 
+
+## Corrección del test de Máximo y controles de partido — 19-11-2026
+
+Run #193 terminó con fallo en `tests/test_maximo_padilla_profile.gd`: el test llegaba a cargar el perfil, pero al añadir el `CharacterBody3D` a la escena dejaba activo `_physics_process`, que consultaba acciones InputMap ausentes en el entorno aislado de `--script`; además, el servicio de carrera se añadía al árbol global y podía escribir también en la base persistente global durante la prueba. El watchdog interno terminó la prueba antes de que concluyera.
+
+Cambios guardados en la rama:
+- `project.godot`, commit `419545d37c331c48ebf432bf60e0d5c3a083fdd6`: asigna controles de teclado WASD y teclas F/espacio/E/Q a pase, tiro, habilidad y presión; antes las ocho acciones estaban definidas sin eventos físicos.
+- `tests/test_maximo_padilla_profile.gd`, commit `19b2028fa0c4ab2dd1c5e339e5380c84ae66ebb2`: desactiva la física de la instancia durante la comprobación estática del modelo 3D, ejecuta el servicio de carrera aislado del árbol global para evitar escrituras de prueba en el autoload de base de datos y corrige el texto del watchdog a 45 segundos.
+
+Los archivos se releyeron desde GitHub y se verificaron sus SHA. Los nuevos workflows de esos commits están en cola/ejecución; todavía no se certifica el test ni la APK. Se mantiene PR #4 abierto y sin fusionar.
 - Se inspeccionó [TechAoba/soccer-game](https://github.com/TechAoba/soccer-game): Godot/GDScript 2D y licencia MIT confirmada en LICENSE. Se conserva como referencia menor de organización de escenas y recursos; no se copiaron archivos.
 - Se inspeccionó [modelence/open-soccer](https://github.com/modelence/open-soccer): motor 11v11 en Canvas/TypeScript, cámara broadcast y arquitectura por dominios; no se encontró LICENSE en la raíz consultada. Solo referencia conceptual, sin copiar código/assets y sin añadir Modelence ni dependencias web.
 - Se volvió a comprobar [openfootmanager/openfootmanager](https://github.com/openfootmanager/openfootmanager): GPL-3.0 en LICENSE.md; solo referencia de simulación de gestión, sin incorporación de código.
