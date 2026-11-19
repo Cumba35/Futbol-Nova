@@ -60,3 +60,20 @@ La captura se conserva como referencia interna. No se copiarán logotipos, marca
 - El volumen de música es independiente de efectos, ambiente y voces/comentarios.
 - La reproducción no debe reiniciarse en cada cambio de pantalla ni duplicarse. La mezcla debe preservar la audibilidad de alertas y otros canales.
 - Solo se ofrecen pistas realmente disponibles y con derechos de uso adecuados.
+
+
+## Auditoría de implementación — 19-11-2026
+
+La navegación muestra las once categorías, pero no todas tienen controles funcionales todavía. La revisión de `scripts/ui/game_hub.gd` confirma:
+
+| Categoría | Estado observado |
+|---|---|
+| Controles | Vista de estado del módulo/mando y mapa de botones; remapeo y perfiles persistentes pendientes |
+| Módulos | Información y acceso al catálogo |
+| Datos | Tarjeta informativa; herramientas de exportación/importación y recuperación no están conectadas desde esta pantalla |
+| Información | Información básica de versión/estado |
+| Edición, Música, Juego, Audio, Gráficos, Accesibilidad y Administración | Aún muestran contenido reservado; no se deben presentar como ajustes operativos |
+
+La pantalla debe considerarse **parcialmente implementada**, no terminada. Las siguientes mejoras prioritarias son un servicio local persistente de preferencias, controles de audio/volumen reales, perfiles gráficos Android, accesibilidad (escala/contraste), opciones de juego que se apliquen al amistoso y herramientas de datos con confirmación. Música solo se habilitará cuando haya pistas autorizadas disponibles; no se mostrará un selector vacío ni se fingirá reproducción.
+
+Las opciones deben conservar el idioma español y guardar las preferencias en el dispositivo. Cada control deberá tener una prueba que verifique tanto su efecto como su persistencia tras reiniciar.
