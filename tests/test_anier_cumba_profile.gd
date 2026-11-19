@@ -5,6 +5,14 @@ const LegendService = preload("res://scripts/legend/legend_career_service.gd")
 
 func _initialize() -> void:
 	call_deferred("_run")
+	call_deferred("_test_watchdog")
+
+
+func _test_watchdog() -> void:
+	await create_timer(60.0).timeout
+	push_error("ANIER PROFILE TEST: la prueba superó 60 segundos.")
+	quit(1)
+
 
 func _run() -> void:
 	var file := FileAccess.open("res://data/custom_players.json", FileAccess.READ)
@@ -27,7 +35,8 @@ func _run() -> void:
 	assert(player.shirt_number == 35)
 	assert(player.team_role == "captain")
 	assert(player.preferred_foot == "right")
-	assert(player.club_name == "Albor Madrid", "Anier plays for the fictional Real Madrid representative club")
+	assert(player.club_name == "Real Madrid", "Anier's owner-confirmed current club is Real Madrid")
+	assert(player.club_id == "FN-ESP-REAL-MADRID", "Anier must retain the canonical Real Madrid club ID")
 	assert(player.favorite_club == "Real Madrid", "The representative club keeps its real-world reference separate")
 	assert(player.overall == 92, "Anier's confirmed overall must be 92")
 	assert(player.potential == 97, "Anier potential must be 97")
@@ -78,6 +87,9 @@ func _run() -> void:
 
 	var anier := ANIER_SCENE.instantiate()
 	assert(anier != null, "Anier's 3D scene must instantiate")
+	# This acceptance test inspects the procedural visual, not live movement.
+	# Disable inherited input/physics before add_child() invokes _ready().
+	anier.set_physics_process(false)
 	root.add_child(anier)
 	await process_frame
 	assert(anier.get_script().resource_path.ends_with("anier_cumba.gd"))
