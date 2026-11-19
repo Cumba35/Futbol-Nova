@@ -200,7 +200,13 @@ public final class MainActivity extends Activity {
             int action=e.getActionMasked();
             if((action==MotionEvent.ACTION_DOWN||action==MotionEvent.ACTION_POINTER_DOWN)&&
                e.getX(index)<getWidth()*.30f&&e.getY(index)<getHeight()*.27f){nativeSwitchPlayer();return true;}
-            nativeTouch(e.getX(index),e.getY(index),action,e.getPointerId(index),getWidth(),getHeight());return true;
+            if(action==MotionEvent.ACTION_MOVE){
+                for(int i=0;i<e.getPointerCount();i++)
+                    nativeTouch(e.getX(i),e.getY(i),action,e.getPointerId(i),getWidth(),getHeight());
+            }else{
+                nativeTouch(e.getX(index),e.getY(index),action,e.getPointerId(index),getWidth(),getHeight());
+            }
+            return true;
         }
     }
 }
