@@ -55,3 +55,12 @@ Los perfiles personalizados del catálogo canónico deben aparecer en los equipo
 5. Añadir pruebas unitarias de pertenencia, duplicados, preferencia nacional y cambio de equipación; después compilar y probar el amistoso en Android.
 
 No marcar como terminado hasta que se verifique el flujo de plantilla a partido 3D.
+
+## Asignaciones nacionales confirmadas por el propietario — 2026-11-19
+
+- `NOVA-PLAYER-0035` (Anier Cumbá): club `FN-ESP-REAL-MADRID`; selección Cuba (`CUB`, asociación `FIFA-MA-052`). Se corrigió `preferred_national_team` de `BRA` a `CUB` conforme a la confirmación del propietario.
+- `NOVA-PLAYER-0036` (Máximo Padilla): club `FN-ESP-BARCELONA`; selección Cuba (`CUB`, asociación `FIFA-MA-052`).
+- Raymond: selección Brasil (`BRA`, asociación `FIFA-MA-028`). Su perfil no aparece en `data/custom_players.json` de esta rama y no se localizó su ID estable; la asignación está confirmada pero pendiente de enlazar al perfil canónico. No inventar ni duplicar un registro.
+- Estas asignaciones representan el canon del juego confirmado por el propietario, no convocatorias oficiales reales.
+
+El manifiesto `data/national_teams_manifest.json` declara cero paquetes publicados y que las plantillas nacionales aún no se han construido. Por ello, las asignaciones de Anier y Máximo ya están guardadas en los perfiles y se muestran en la pantalla Inicio, pero Cuba y Brasil todavía no son equipos nacionales seleccionables ni se ha probado que los jugadores aparezcan en una plantilla nacional 22v22 dentro del amistoso. La integración jugable sigue pendiente.
