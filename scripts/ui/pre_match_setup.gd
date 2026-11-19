@@ -57,6 +57,9 @@ static func build_starting_eleven(roster: Array) -> Array[String]:
 
 var _home_teams: OptionButton
 var _away_teams: OptionButton
+var _home_filter: LineEdit
+var _away_filter: LineEdit
+var _eligible_teams: Array[Dictionary] = []
 var _summary: Label
 var _home_badge: Button
 var _away_badge: Button
@@ -147,6 +150,11 @@ func _build_interface() -> void:
 	home_column.add_child(_home_badge)
 	_home_lineup_preview = _create_lineup_preview()
 	home_column.add_child(_home_lineup_preview)
+	_home_filter = LineEdit.new()
+	_home_filter.placeholder_text = "Buscar equipo local..."
+	_home_filter.custom_minimum_size.y = 42
+	_home_filter.text_changed.connect(_on_home_filter_changed)
+	home_column.add_child(_home_filter)
 	_home_teams = OptionButton.new()
 	_home_teams.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_home_teams.custom_minimum_size.y = 48
@@ -174,6 +182,11 @@ func _build_interface() -> void:
 	away_column.add_child(_away_badge)
 	_away_lineup_preview = _create_lineup_preview()
 	away_column.add_child(_away_lineup_preview)
+	_away_filter = LineEdit.new()
+	_away_filter.placeholder_text = "Buscar equipo visitante..."
+	_away_filter.custom_minimum_size.y = 42
+	_away_filter.text_changed.connect(_on_away_filter_changed)
+	away_column.add_child(_away_filter)
 	_away_teams = OptionButton.new()
 	_away_teams.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_away_teams.custom_minimum_size.y = 48
@@ -276,6 +289,7 @@ func _load_eligible_teams() -> void:
 	_home_teams.clear()
 	_away_teams.clear()
 	_team_ids.clear()
+	_eligible_teams.clear()
 	var registry = _get_football_registry()
 	if registry == null:
 		_summary.text = "El catálogo de clubes no está disponible. No se puede iniciar el amistoso."
@@ -292,22 +306,43 @@ func _load_eligible_teams() -> void:
 		var display_name := _team_option_label(team_id, team)
 		if display_name.is_empty():
 			display_name = team_id
-		_home_teams.add_item(display_name)
-		_away_teams.add_item(display_name)
-		var item_index := _home_teams.item_count - 1
-		_home_teams.set_item_metadata(item_index, team_id)
-		_away_teams.set_item_metadata(item_index, team_id)
+		_eligible_teams.append({"id": team_id, "label": display_name})
 		_team_ids.append(team_id)
 
 	if _team_ids.size() >= 2:
-		var home_index := _find_team_index(_home_teams, DEFAULT_HOME_TEAM_ID)
-		var away_index := _find_team_index(_away_teams, DEFAULT_AWAY_TEAM_ID)
-		_home_teams.select(home_index if home_index >= 0 else 0)
-		_away_teams.select(away_index if away_index >= 0 else (1 if _team_ids.size() > 1 else 0))
+		_populate_team_selector(_home_teams, _home_filter.text, DEFAULT_HOME_TEAM_ID)
+		_populate_team_selector(_away_teams, _away_filter.text, DEFAULT_AWAY_TEAM_ID)
 		_refresh_validation()
 	else:
 		_summary.text = "Se necesitan al menos dos clubes con once jugadores válidos."
 		_start_button.disabled = true
+
+func _populate_team_selector(selector: OptionButton, filter_text: String, preferred_id: String = "") -> void:
+	var previous_id := _selected_team_id(selector)
+	if previous_id.is_empty():
+		previous_id = preferred_id
+	selector.clear()
+	var query := filter_text.strip_edges().to_lower()
+	for team in _eligible_teams:
+		var team_id := str(team.get("id", ""))
+		var label := str(team.get("label", team_id))
+		if not query.is_empty() and not label.to_lower().contains(query):
+			continue
+		selector.add_item(label)
+		selector.set_item_metadata(selector.item_count - 1, team_id)
+	var selected_index := _find_team_index(selector, previous_id)
+	if selected_index < 0 and selector.item_count > 0:
+		selected_index = 0
+	if selected_index >= 0:
+		selector.select(selected_index)
+
+func _on_home_filter_changed(value: String) -> void:
+	_populate_team_selector(_home_teams, value, DEFAULT_HOME_TEAM_ID)
+	_refresh_validation()
+
+func _on_away_filter_changed(value: String) -> void:
+	_populate_team_selector(_away_teams, value, DEFAULT_AWAY_TEAM_ID)
+	_refresh_validation()
 
 func _find_team_index(selector: OptionButton, team_id: String) -> int:
 	for index in range(selector.item_count):
