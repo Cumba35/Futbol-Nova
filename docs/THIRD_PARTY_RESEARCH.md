@@ -74,3 +74,16 @@ La revisión amplía el panorama, pero no cambia la decisión técnica: el juego
 | erengaygusuz/fotbiler-football | No confirmada en esta revisión | Simulación 22 jugadores, IA táctica, árbitro, carrera; código C++ propio | Referencia de funcionalidades y casos de prueba, no compatible como dependencia Godot/GDScript. |
 
 No se añadió código externo en esta revisión. Se mantiene Godot 4.4.1, Android ARM64, renderer y recursos compatibles con móviles, y juego offline. Cualquier incorporación futura requiere revisar el archivo LICENSE de cada componente y registrar atribución.
+
+
+## Revisión pública adicional — 19-11-2026
+
+| Repositorio | Hallazgo | Decisión |
+|---|---|---|
+| `angree/openswos` ([GitHub](https://github.com/angree/openswos)) | Recreación de SWOS en Godot 4 + C#, licencia MIT declarada; material de estudio sobre reglas, balón, porteros, entradas y ritmo de partido. | No portar directamente: C# y arquitectura diferentes, además depende de archivos de juego originales que el usuario debe aportar. Estudiar patrones sin copiar assets. |
+| `antxiko/OpenComputerFutbolSimulator` ([GitHub](https://github.com/antxiko/OpenComputerFutbolSimulator)) | Godot 4.6.2/GDScript; motor determinista, datos JSON, calendario, ascensos/descensos, carrera y guardados. | Útil para comparar simulación reproducible y datos. No portar archivos hasta verificar licencia y adaptar a Godot 4.4.1. |
+| `aliyavuzz/Godotball` ([GitHub](https://github.com/aliyavuzz/Godotball)) | Godot 4.4.1, Apache-2.0 declarado, motor C++/GDExtension con SCons para física, árbitro y 22 jugadores. | Coincide la versión, pero la compilación nativa aumenta el riesgo de Android ARM64 y el tamaño. Referencia técnica, sin dependencia incorporada. |
+| `namelesssyf/soccer-box-game` ([GitHub](https://github.com/namelesssyf/soccer-box-game)) | Godot 4.7.1, físicas, control local y online; licencia no confirmada en los datos consultados. | Solo referencia conceptual; no reutilizar código ni assets sin licencia y adaptación confirmadas. |
+| `openfootmanager/openfootmanager` ([GitHub](https://github.com/openfootmanager/openfootmanager)) | Manager con simulación por eventos, SQLite y arquitectura Rust/Tauri/React; GPL-3.0. | Referencia de diseño para gestión y persistencia, no dependencia directa: tecnología distinta y copyleft GPL incompatible con una integración no revisada. |
+
+No se importó código externo en esta revisión. Se priorizan Godot 4.4.1, GDScript, Android ARM64, ejecución offline y licencias compatibles.
