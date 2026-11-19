@@ -425,7 +425,7 @@ func _create_hud() -> void:
 	layer.add_child(catalog_button)
 
 	var hub_button := Button.new()
-	hub_button.text = "Inicio / Entrenamiento"
+	hub_button.text = "PAUSA"
 	hub_button.position = Vector2(24, 185)
 	hub_button.pressed.connect(_toggle_game_hub)
 	layer.add_child(hub_button)
@@ -612,6 +612,9 @@ func _create_game_hub() -> void:
 	game_hub.training_mode_selected.connect(_on_training_mode_selected)
 	game_hub.match_11v11_requested.connect(_open_pre_match_setup)
 	game_hub.catalog_requested.connect(_open_download_catalog)
+	game_hub.set_match_controller(match_11v11_controller)
+	game_hub.pause_resume_requested.connect(_on_pause_resume_requested)
+	game_hub.pause_exit_requested.connect(_on_pause_exit_requested)
 	add_child(game_hub)
 
 func _on_training_mode_selected(mode_id: String) -> void:
@@ -654,19 +657,42 @@ func _on_training_mode_selected(mode_id: String) -> void:
 
 func _toggle_game_hub() -> void:
 	current_training_mode_id = ""
+	if game_hub == null:
+		return
 	if match_11v11_controller != null and match_11v11_controller.is_match_active():
 		match_11v11_controller.set_match_paused(true)
+		game_hub.open_pause_menu()
+	else:
+		game_hub.open_home()
+	if touch_controls != null:
+		touch_controls.visible = false
+
+
+func _on_pause_resume_requested() -> void:
+	if match_11v11_controller != null and match_11v11_controller.is_match_active():
+		match_11v11_controller.set_match_paused(false)
+	if touch_controls != null:
+		touch_controls.visible = DisplayServer.is_touchscreen_available()
+
+
+func _on_pause_exit_requested() -> void:
+	if match_11v11_controller != null:
+		match_11v11_controller.stop_match()
+	current_training_mode_id = ""
 	if game_hub != null:
 		game_hub.open_home()
 	if touch_controls != null:
 		touch_controls.visible = false
+
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") and game_hub != null and not game_hub.root.visible:
 		current_training_mode_id = ""
 		if match_11v11_controller != null and match_11v11_controller.is_match_active():
 			match_11v11_controller.set_match_paused(true)
-		game_hub.open_home()
+			game_hub.open_pause_menu()
+		else:
+			game_hub.open_home()
 		if touch_controls != null:
 			touch_controls.visible = false
 		get_viewport().set_input_as_handled()
