@@ -239,7 +239,7 @@ void update(float dt){
     float tx=players[(size_t)i].x-playerX,tz=players[(size_t)i].z-playerZ;
     float distance=std::sqrt(tx*tx+tz*tz);
     if(distance<2.5f||distance>28.0f)continue;
-    float progress=players[(size_t)i].z-playerZ;
+    float progress=(players[(size_t)i].z-playerZ)*(homeDefendsNegative?1.0f:-1.0f);
     float score=distance+std::max(0.0f,-progress)*1.8f-progress*.22f;
     bool blocked=false;
     for(int j=12;j<=21;j++){
@@ -310,10 +310,10 @@ void update(float dt){
  bool homeGoal=homeDefendsNegative?crossedPositive:crossedNegative;
  bool awayGoal=homeDefendsNegative?crossedNegative:crossedPositive;
  if(homeGoal){
-  homeScore++;playerX=0;playerZ=0;players[(size_t)controlledPlayer]={0,0,0};players[0]={0,0,-49.5f};players[11]={0,0,49.5f};
+  homeScore++;playerX=0;playerZ=0;players[(size_t)controlledPlayer]={0,0,0};players[0]={0,0,homeDefendsNegative?-49.5f:49.5f};players[11]={0,0,homeDefendsNegative?49.5f:-49.5f};
   ballX=0;ballZ=.72f;ballY=.22f;ballVX=ballVY=ballVZ=0;keepers={};
  }else if(awayGoal){
-  awayScore++;playerX=0;playerZ=0;players[(size_t)controlledPlayer]={0,0,0};players[0]={0,0,-49.5f};players[11]={0,0,49.5f};
+  awayScore++;playerX=0;playerZ=0;players[(size_t)controlledPlayer]={0,0,0};players[0]={0,0,homeDefendsNegative?-49.5f:49.5f};players[11]={0,0,homeDefendsNegative?49.5f:-49.5f};
   ballX=0;ballZ=.72f;ballY=.22f;ballVX=ballVY=ballVZ=0;keepers={};
  }
  if(std::abs(ballX)>34){ballX=std::copysign(34.0f,ballX);ballVX*=-.55f;}
