@@ -143,3 +143,21 @@ Se revisó [AKM-8byte/FreeKick](https://github.com/AKM-8byte/FreeKick), un proye
 ### Mejora propia aplicada
 
 Se corrigió la pausa de partido en `scripts/gameplay/match_11v11_controller.gd`: el balón RigidBody3D se congela conservando su estado cinemático y se restaura al reanudar. Se amplió `tests/test_friendly_match_runtime.gd` para probar el flujo de UI, el estado del balón y su recuperación. Esta corrección es original de Fútbol Nova y no deriva de copiar los fragmentos C++ estudiados.
+
+
+## Revisión complementaria — 19-11-2026
+
+### [AKM-8byte/FreeKick](https://github.com/AKM-8byte/FreeKick) — MIT
+
+- Se verificaron `LICENSE`, `flight_model.gd` y `tests/physics_settings_tests.gd` directamente en el repositorio.
+- Referencias técnicas útiles: separar un perfil de física editable de la función de fuerza; hacer coincidir masa/gravedad/arrastre/Magnus entre la simulación real y el cálculo predictivo; bloquear controles durante el vuelo; probar que cada ajuste afecta el cuerpo real y la trayectoria; validar consistencia bajo diferentes tasas de física.
+- Fútbol Nova ya tiene `scripts/ball_flight_model.gd` y pruebas de vuelo propias. Próxima mejora recomendada: ampliar pruebas de coherencia entre el balón RigidBody3D y el modelo predictivo con masa, resistencia, Magnus, rebote y tasa de física; no reemplazar el modelo actual por una copia.
+- La licencia MIT permitiría reutilización bajo sus condiciones de aviso y copyright, pero no se importó código ni assets en esta revisión.
+
+### Decisión de compatibilidad
+
+- `AKM-8byte/FreeKick` se presenta para Godot 4.7.x, por lo que sus escenas/assets no se importan directamente al proyecto fijado en Godot 4.4.1.
+- `aliyavuzz/Godotball` declara Godot 4.4.1 y Apache-2.0; sirve para estudiar una posible extensión C++ futura, pero Fútbol Nova conserva GDScript y Android ARM64 como base ligera.
+- `namelesssyf/soccer-box-game` declara Godot 4.7.1 y funcionalidades físicas/IA amplias; se toma como referencia conceptual, no como dependencia directa.
+
+**Regla de integración:** tomar patrones y casos de prueba, no copiar grandes bloques ni recursos sin comprobar versión, licencia, dependencias, rendimiento móvil y atribución. No añadir dependencias nativas C++ al APK sin medir su coste y probar exportación Android.
