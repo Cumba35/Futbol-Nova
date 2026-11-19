@@ -17,7 +17,7 @@ int screenW=1,screenH=1; bool paused=false;
 float stickX=0,stickY=0; bool shoot=false,pass=false,skill=false,pressure=false;
 float ballX=0,ballZ=0,ballY=.22f,ballVX=0,ballVY=0,ballVZ=0;
 float playerX=0,playerZ=7.0f,playerYaw=0,matchTime=0;
-Mesh fieldMesh{},lineMesh{},sphereMesh{};
+Mesh fieldMesh{},lineMesh{},sphereMesh{},standMesh{},goalMesh{};
 std::array<V3,22> players{};
 std::array<float,22> playerHeight{};
 std::array<float,22> playerPace{};
@@ -60,10 +60,22 @@ void initField(){
  line(l,-34,-20,-18,-20);line(l,-18,-20,-18,20);line(l,-18,20,-34,20);
  line(l,34,-20,18,-20);line(l,18,-20,18,20);line(l,18,20,34,20);
  lineMesh=mesh(l,GL_LINES);sphereMesh=makeSphere();
+ std::vector<Vertex> stands={
+ {-42,0,-58},{-36,0,-58},{-36,7,-58},{-42,7,-58},{-42,0,58},{-36,0,58},{-36,7,58},{-42,7,58},
+ {36,0,-58},{42,0,-58},{42,7,-58},{36,7,-58},{36,0,58},{42,0,58},{42,7,58},{36,7,58},
+ {-42,0,-58},{42,0,-58},{42,7,-58},{-42,7,-58},{-42,0,58},{42,0,58},{42,7,58},{-42,7,58}};
+ const int boxIdx[]={0,1,2,0,2,3,4,5,6,4,6,7,8,9,10,8,10,11,12,13,14,12,14,15,16,17,18,16,18,19,20,21,22,20,22,23};
+ std::vector<Vertex> sv;for(int idx:boxIdx)sv.push_back(stands[(size_t)idx]);standMesh=mesh(sv);
+ std::vector<Vertex> g;
+ auto seg=[&](float x1,float y1,float z1,float x2,float y2,float z2){g.push_back({x1,y1,z1});g.push_back({x2,y2,z2});};
+ for(float z:{-53.0f,53.0f}){float sign=z<0?-1.0f:1.0f;seg(-3.66f,.1f,z, -3.66f,2.44f,z);seg(3.66f,.1f,z,3.66f,2.44f,z);seg(-3.66f,2.44f,z,3.66f,2.44f,z);seg(-3.66f,.1f,z,-3.66f,.1f,z+sign*2.0f);seg(3.66f,.1f,z,3.66f,.1f,z+sign*2.0f);seg(-3.66f,2.44f,z,-3.66f,2.44f,z+sign*2.0f);seg(3.66f,2.44f,z,3.66f,2.44f,z+sign*2.0f);}
+ goalMesh=mesh(g,GL_LINES);
 }
-void setupTeams(){for(int i=0;i<22;i++){playerHeight[i]=175.0f;playerPace[i]=72.0f;playerDribbling[i]=70.0f;playerDefending[i]=70.0f;playerOverall[i]=70;}
- for(int i=0;i<11;i++){int row=i/4,col=i%4;players[i]={-20.0f+col*12.0f,0,-40.0f+row*10.0f};}
- for(int i=0;i<11;i++){int row=i/4,col=i%4;players[11+i]={-20.0f+col*12.0f,0,40.0f-row*10.0f};}}
+void setupTeams(){
+ const V3 formation[11]={{0,0,-45},{22,0,-30},{8,0,-32},{-8,0,-32},{-22,0,-30},{0,0,-10},{15,0,-8},{-15,0,-8},{22,0,18},{0,0,24},{-22,0,18}};
+ for(int i=0;i<22;i++){playerHeight[i]=175.0f;playerPace[i]=72.0f;playerDribbling[i]=70.0f;playerDefending[i]=70.0f;playerOverall[i]=70;}
+ for(int i=0;i<11;i++){players[i]=formation[i];players[11+i]={formation[i].x,0,-formation[i].z};}
+}
 void drawPlayer(const std::array<float,16>&vp,V3 p,bool home,float yaw,int slot){
  float r=home?.12f:.88f,g=home?.72f:.14f,b=home?.22f:.18f;
  float h=std::clamp(playerHeight[slot]/175.0f,.92f,1.08f);
@@ -80,11 +92,16 @@ void update(float dt){
  playerZ=std::clamp(playerZ-stickY*dt*8.0f*controlledPace,-50.0f,50.0f);
  if(std::abs(stickX)+std::abs(stickY)>.08f)playerYaw=std::atan2(stickX,-stickY);
  players[10]={playerX,0,playerZ};
- for(int i=0;i<22;i++){if(i==10)continue;float phase=matchTime*.65f+i*1.7f;float targetZ=(i<11?-1:1)*(18.0f+std::sin(phase)*5.0f);players[i].x+=std::sin(phase*.7f+i)*dt*.65f;players[i].z+=(targetZ-players[i].z)*dt*.12f;}
+ const V3 formation[11]={{0,0,-45},{22,0,-30},{8,0,-32},{-8,0,-32},{-22,0,-30},{0,0,-10},{15,0,-8},{-15,0,-8},{22,0,18},{0,0,24},{-22,0,18}};
+ for(int i=0;i<22;i++){if(i==10)continue;int local=i%11;float dir=i<11?1.0f:-1.0f;V3 base=formation[local];float support=std::clamp((ballZ*dir)/70.0f,-.22f,.22f);float tx=base.x+std::clamp(ballX*.18f,-7.0f,7.0f);float tz=(i<11?base.z:-base.z)+support*12.0f;
+ float dx=tx-players[i].x,dz=tz-players[i].z;float d=std::sqrt(dx*dx+dz*dz);float speed=2.0f+playerPace[i]*.025f;
+ if(d>.08f){float step=std::min(d,speed*dt);players[i].x+=dx/d*step;players[i].z+=dz/d*step;}
+ }
  if(pass||shoot){float dx=shoot?std::sin(playerYaw):std::sin(playerYaw);float dz=-std::cos(playerYaw);float power=shoot?25.0f:15.0f;ballVX=dx*power;ballVZ=dz*power;ballVY=shoot?7.0f:2.0f;ballX=playerX+dx*.65f;ballZ=playerZ+dz*.65f;ballY=.35f;shoot=false;pass=false;}
  ballX+=ballVX*dt;ballY+=ballVY*dt;ballZ+=ballVZ*dt;ballVY-=9.81f*dt;
  ballVX*=std::pow(.985f,dt*60);ballVZ*=std::pow(.985f,dt*60);
  if(ballY<.22f){ballY=.22f;ballVY=std::abs(ballVY)*.38f;if(std::abs(ballVY)<.7f)ballVY=0;}
+ for(int i=0;i<22;i++){float dx=ballX-players[i].x,dz=ballZ-players[i].z;float d2=dx*dx+dz*dz;if(d2<.42f&&ballY<1.05f&&std::abs(ballVX)+std::abs(ballVZ)<3.0f){float inv=1.0f/std::max(.01f,std::sqrt(d2));ballVX=dx*inv*2.0f;ballVZ=dz*inv*2.0f;}}
  if(std::abs(ballX)>34){ballX=std::copysign(34.0f,ballX);ballVX*=-.55f;}
  if(std::abs(ballZ)>52){ballZ=std::copysign(52.0f,ballZ);ballVZ*=-.55f;}
 }
@@ -95,9 +112,11 @@ extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeFr
  static double last=0; timespec ts{};clock_gettime(CLOCK_MONOTONIC,&ts);double now=ts.tv_sec+ts.tv_nsec*1e-9;float dt=last==0?0.016f:(float)std::clamp(now-last,0.001,0.04);last=now;
  if(!paused)update(dt);glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);glUseProgram(program);
  float aspect=(float)screenW/(float)screenH;auto proj=perspective(.92f,aspect,.1f,180.0f);
- V3 eye{playerX+0.0f,18.0f,playerZ+24.0f},center{playerX,0,playerZ-5.0f};auto vp=mul(proj,lookAt(eye,center,{0,1,0}));
+ V3 eye{playerX+0.0f,30.0f,playerZ+58.0f},center{ballX*.35f+playerX*.65f,0,ballZ*.35f+playerZ*.65f};auto vp=mul(proj,lookAt(eye,center,{0,1,0}));
+ draw(standMesh,vp,model(0,0,0,1,1,1),.055f,.085f,.12f);
  draw(fieldMesh,vp,identity(),.035f,.34f,.13f);
  draw(lineMesh,vp,identity(),.88f,.94f,.85f);
+ draw(goalMesh,vp,identity(),.92f,.95f,.96f);
  for(int i=0;i<22;i++)drawPlayer(vp,players[i],i<11,i==10?playerYaw:0,i);
  draw(sphereMesh,vp,model(ballX,ballY,ballZ,.22f,.22f,.22f),.96f,.96f,.92f);
 }
