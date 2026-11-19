@@ -67,3 +67,13 @@ No se considera terminado por mostrar una escena 3D o por compilar. La meta es j
 
 ## Requisito añadido — jugadores personalizados (2026-11-19)
 La integración de pertenencia y visualización se especifica en `docs/CUSTOM_PLAYERS_TEAM_AND_NATIONAL_SELECTION.md`. La tarea incluye clubes y selecciones, resolución por IDs estables, deduplicación y conservación de rasgos personales al cambiar la equipación. Está pendiente de implementación y prueba; no se considera satisfecha por la aplicación parcial de atributos existente.
+
+## Avance implementado — 2026-11-19 (pendiente de CI y Android físico)
+
+- Añadido cambio de futbolista mediante un control táctil dedicado; la selección recorre compañeros de campo según su proximidad al balón.
+- El pase intenta encontrar un compañero adelantado y evita, con una comprobación geométrica inicial, las líneas de pase ocupadas por rivales.
+- La IA de cada equipo asigna un perseguidor al balón, mientras el resto mantiene apoyos básicos de formación.
+- El joystick y la presión conservan el ID del dedo que los activó; Java envía los movimientos de todos los punteros activos para que el multi-touch no dependa del dedo 0.
+- Reinicio del estado de entrada al iniciar el motor.
+
+No se da por validado hasta que termine el workflow nativo Android y se compruebe el funcionamiento real en un dispositivo. Siguen pendientes el robo/entrada, el control de posesión de los otros 20 jugadores, dos tiempos, descanso, saques y resultado final.
