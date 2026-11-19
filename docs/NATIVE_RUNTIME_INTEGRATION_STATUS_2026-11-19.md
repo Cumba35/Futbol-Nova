@@ -57,9 +57,13 @@ Revisión estática de `native_engine.cpp` y `MainActivity.java` sobre el HEAD d
 
 ### Integración pendiente de perfiles personalizados
 
-La revisión de `CanonicalDataRepository.java`, `custom_players.json`, el manifiesto y el motor C++ confirma que los perfiles se indexan por ID y algunos atributos solo se aplican si la plantilla ya contiene ese mismo ID. Aún no existe un resolvedor que incorpore perfiles ausentes según `club_id` y la selección nacional configurada; tampoco se ha verificado el flujo de selección nacional en Amistosos. El motor no recibe todavía ID, nombre, número de camiseta ni configuración visual individual. Por eso, que un perfil figure en el JSON no significa que aparezca ya en su equipo o en el partido 3D.
+Se guardaron asignaciones confirmadas por el propietario en `data/custom_players.json`: Anier Cumbá (`NOVA-PLAYER-0035`) y Máximo Padilla (`NOVA-PLAYER-0036`) están asignados a Cuba (`CUB`, `FIFA-MA-052`). Se corrigió el dato previo de Anier que decía `BRA`. La pantalla Inicio muestra ahora la selección nacional registrada junto a cada perfil personalizado.
 
-Contrato y criterios detallados: `docs/CUSTOM_PLAYERS_TEAM_AND_NATIONAL_SELECTION.md`. La pertenencia debe resolverse por IDs, no por nombres. `preferred_national_team` debe resolver a una selección válida y no debe inferirse pertenencia por `nationality`, `birth_country`, `favorite_club` o `favorite_national_team`.
+Raymond fue asignado por el propietario a Brasil (`BRA`, `FIFA-MA-028`), pero no se encontró su perfil en `data/custom_players.json`; no se inventó ni duplicó un registro y la vinculación por ID sigue pendiente.
+
+Esto aún no equivale a convocatorias jugables: `national_teams_manifest.json` declara 0 paquetes publicados y confirma que las plantillas nacionales no se han construido. `CanonicalDataRepository.java` todavía no carga plantillas nacionales al selector de Amistosos ni incorpora automáticamente los perfiles por `club_id`/selección. El motor tampoco recibe ID, nombre, número de camiseta ni configuración visual individual. Por tanto, la asignación ya está guardada y visible en Inicio, pero Cuba/Brasil todavía no son equipos nacionales seleccionables ni se ha probado la aparición de estos jugadores en un partido 3D.
+
+Contrato y criterios detallados: `docs/CUSTOM_PLAYERS_TEAM_AND_NATIONAL_SELECTION.md`. La pertenencia debe resolverse por IDs, no por nombres; no inferir convocatorias solo por `nationality`, `birth_country`, `favorite_club` o `favorite_national_team`.
 
 ### Orden técnico inmediato
 
