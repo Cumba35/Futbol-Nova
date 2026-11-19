@@ -9,7 +9,7 @@ func _initialize() -> void:
 	call_deferred("_test_watchdog")
 
 func _test_watchdog() -> void:
-	await create_timer(120.0).timeout
+	await create_timer(45.0).timeout
 	push_error("MAXIMO PADILLA PROFILE TEST: superó el límite interno de 120 segundos.")
 	quit(1)
 
@@ -65,7 +65,7 @@ func _run() -> void:
 	assert(collision != null and collision.shape is CapsuleShape3D, "El jugador necesita una cápsula de colisión")
 	assert(is_equal_approx((collision.shape as CapsuleShape3D).height, 1.8), "La colisión debe corresponder a 180 cm")
 	root.add_child(instance)
-	await process_frame
+	await create_timer(0.01).timeout
 	var visual := instance.get_node_or_null("MaximoPadillaVisual3D") as Node3D
 	assert(visual != null, "El controlador debe construir el modelo visual 3D")
 	assert(visual.get_node_or_null("shirt_name_padilla") is Label3D, "La camiseta debe mostrar PADILLA como texto 3D")
@@ -73,7 +73,7 @@ func _run() -> void:
 	assert(visual.get_node_or_null("inner_shirt_sleeve_1.0") != null, "Debe existir la manga interior de compresión")
 	print("MAXIMO_PROFILE_TEST: 3D scene validated")
 	instance.queue_free()
-	await process_frame
+	await create_timer(0.01).timeout
 	var career_service = preload("res://scripts/legend/legend_career_service.gd").new()
 	root.add_child(career_service)
 	var career_result: Dictionary = career_service.start_career_from_catalog(found)
