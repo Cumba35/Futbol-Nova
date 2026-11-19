@@ -5,6 +5,7 @@
 #include <vector>
 #include <array>
 #include <algorithm>
+#include <utility>
 #include <time.h>
 
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR,"FutbolNova",__VA_ARGS__)
@@ -14,7 +15,7 @@ struct Vertex { float x,y,z; };
 struct Mesh { GLuint vao=0,vbo=0; GLsizei count=0; GLenum mode=GL_TRIANGLES; };
 GLuint program=0; GLint mvpLoc=-1,colorLoc=-1;
 int screenW=1,screenH=1; bool paused=false;
-float stickX=0,stickY=0; bool shoot=false,pass=false,skill=false,pressure=false;
+float stickX=0,stickY=0; bool shoot=false,pass=false,skill=false,pressure=false; int joystickPointer=-1,pressurePointer=-1;
 float ballX=0,ballZ=.72f,ballY=.22f,ballVX=0,ballVY=0,ballVZ=0;
 float playerX=0,playerZ=0.0f,playerYaw=3.1415926f,matchTime=0,matchSeconds=0; int homeScore=0,awayScore=0; int controlledPlayer=9;
 Mesh fieldMesh{},lineMesh{},sphereMesh{},standMesh{},goalMesh{};
@@ -333,23 +334,27 @@ extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeFr
  for(int i=0;i<22;i++){float yaw=i==controlledPlayer?playerYaw:(i<11?3.1415926f:0.0f);drawPlayer(vp,players[i],i<11,yaw,i);}
  draw(sphereMesh,vp,model(ballX,ballY,ballZ,.22f,.22f,.22f),.96f,.96f,.92f);
 }
-extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeTouch(JNIEnv*,jclass,jfloat x,jfloat y,jint action,jint w,jint h){
+extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeTouch(JNIEnv*,jclass,jfloat x,jfloat y,jint action,jint pointerId,jint w,jint h){
  float nx=x/(float)std::max(1,w),ny=y/(float)std::max(1,h);
- bool joystick=nx<.38f&&ny>.55f;
+ bool joystickZone=nx<.38f&&ny>.55f;
  bool pressZone=nx>.78f&&ny>.86f;
  bool shootZone=nx>.78f&&ny>.68f&&ny<=.86f;
  bool passZone=nx>.65f&&nx<=.78f&&ny>.48f&&ny<=.68f;
  bool skillZone=nx>.78f&&ny<=.68f;
- if(action==0||action==2||action==5){
-  if(joystick){float radius=.105f*(float)std::min(w,h);stickX=std::clamp((x-.17f*w)/radius,-1.0f,1.0f);stickY=std::clamp((y-.79f*h)/radius,-1.0f,1.0f);}
-  if(action==0&&pressZone)pressure=true;
-  if(action==0&&shootZone)shoot=true;
-  if(action==0&&passZone)pass=true;
-  if(action==0&&skillZone)skill=true;
- }
- if(action==1||action==3||action==4||action==6){
-  if(joystick){stickX=0;stickY=0;}
-  if(pressZone)pressure=false;
+ if(action==0||action==5){
+  if(joystickZone&&joystickPointer<0)joystickPointer=pointerId;
+  if(joystickPointer==pointerId){float radius=.105f*(float)std::min(w,h);stickX=std::clamp((x-.17f*w)/radius,-1.0f,1.0f);stickY=std::clamp((y-.79f*h)/radius,-1.0f,1.0f);}
+  if(pressZone&&pressurePointer<0){pressurePointer=pointerId;pressure=true;}
+  if(shootZone)shoot=true;
+  if(passZone)pass=true;
+  if(skillZone)skill=true;
+ }else if(action==2){
+  if(joystickPointer==pointerId){float radius=.105f*(float)std::min(w,h);stickX=std::clamp((x-.17f*w)/radius,-1.0f,1.0f);stickY=std::clamp((y-.79f*h)/radius,-1.0f,1.0f);}
+ }else if(action==1||action==6){
+  if(joystickPointer==pointerId){joystickPointer=-1;stickX=0;stickY=0;}
+  if(pressurePointer==pointerId){pressurePointer=-1;pressure=false;}
+ }else if(action==3){
+  joystickPointer=-1;pressurePointer=-1;stickX=stickY=0;pressure=false;
  }
 }
 
@@ -370,7 +375,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeSw
  int currentRank=0;for(int n=0;n<10;n++)if(ranked[(size_t)n].second==controlledPlayer)currentRank=n;
  controlledPlayer=ranked[(size_t)((currentRank+1)%10)].second;
  playerX=players[(size_t)controlledPlayer].x;playerZ=players[(size_t)controlledPlayer].z;
- playerYaw=std::atan2(ballX-playerX,ballZ-playerZ);
+ playerYaw=std::atan2(ballX-playerX,-(ballZ-playerZ));
 }
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativePause(JNIEnv*,jclass,jboolean value){paused=value;}
 
