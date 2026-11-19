@@ -3,6 +3,7 @@ extends SceneTree
 const MAIN_SCENE_PATH := "res://scenes/main.tscn"
 const MATCH_CLOCK_STATE := preload("res://scripts/gameplay/match_clock_state_machine.gd")
 const MATCH_11V11 := preload("res://scripts/gameplay/match_11v11_controller.gd")
+const MOMENTS_SERVICE_SCRIPT := preload("res://scripts/moments/daily_moments_service.gd")
 
 func _initialize() -> void:
 	call_deferred("_run_acceptance_test")
@@ -124,8 +125,8 @@ func _run_acceptance_test() -> void:
 				failures.append("La pantalla no muestra los once titulares del equipo visitante.")
 			if setup._stadium_option == null or setup._stadium_option.item_count < 1:
 				failures.append("La pantalla previa no ofrece un estadio base jugable.")
-			var expected_home_name := setup._team_match_display_name(selected_home_id, football_registry.teams_by_id.get(selected_home_id, {}))
-			var expected_away_name := setup._team_match_display_name(selected_away_id, football_registry.teams_by_id.get(selected_away_id, {}))
+			var expected_home_name: String = setup._team_match_display_name(selected_home_id, football_registry.teams_by_id.get(selected_home_id, {}))
+			var expected_away_name: String = setup._team_match_display_name(selected_away_id, football_registry.teams_by_id.get(selected_away_id, {}))
 			if selected_home_id.is_empty() or selected_away_id.is_empty() or selected_home_id == selected_away_id:
 				failures.append("La selección inicial no contiene dos clubes distintos.")
 			else:
