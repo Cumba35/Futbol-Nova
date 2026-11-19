@@ -82,18 +82,24 @@ void drawPlayer(const std::array<float,16>&vp,V3 p,bool home,float yaw,int slot)
  float athletic=std::clamp(.96f+playerOverall[slot]/1750.0f,.98f,1.06f);
  float stride=std::sin(matchTime*7.2f+slot*1.31f)*.13f;
  float armSwing=std::sin(matchTime*7.2f+slot*1.31f+3.14159f)*.11f;
- // Torso, shorts and head.
+ // Jersey, shorts, head and a small contrasting chest stripe.
  draw(sphereMesh,vp,model(p.x,p.y+1.02f*h,p.z,.31f*athletic,.43f*h,.21f,yaw),r,g,b);
+ draw(sphereMesh,vp,model(p.x,p.y+1.04f*h,p.z-.207f,.025f,.31f*h,.018f,yaw),.92f,.94f,.86f);
  draw(sphereMesh,vp,model(p.x,p.y+.66f*h,p.z,.24f*athletic,.19f*h,.19f,yaw),.055f,.065f,.075f);
  draw(sphereMesh,vp,model(p.x,p.y+1.57f*h,p.z,.17f*h,.18f*h,.17f*h),.88f,.72f,.58f);
- // Arms swing opposite to the legs during locomotion.
- draw(sphereMesh,vp,model(p.x-.29f*athletic,p.y+.98f*h,p.z+armSwing,.085f,.31f*h,.09f,yaw),.88f,.72f,.58f);
- draw(sphereMesh,vp,model(p.x+.29f*athletic,p.y+.98f*h,p.z-armSwing,.085f,.31f*h,.09f,yaw),.88f,.72f,.58f);
- // Thighs, shins and dark boots: a procedural articulated-looking blockout.
+ draw(sphereMesh,vp,model(p.x,p.y+1.70f*h,p.z,.17f*h,.055f*h,.17f*h),.10f,.075f,.055f);
+ // Sleeves follow the shirt color; forearms remain skin-toned.
+ draw(sphereMesh,vp,model(p.x-.29f*athletic,p.y+1.17f*h,p.z+armSwing,.105f,.18f*h,.105f,yaw),r,g,b);
+ draw(sphereMesh,vp,model(p.x+.29f*athletic,p.y+1.17f*h,p.z-armSwing,.105f,.18f*h,.105f,yaw),r,g,b);
+ draw(sphereMesh,vp,model(p.x-.31f*athletic,p.y+.91f*h,p.z+armSwing*1.4f,.065f,.20f*h,.07f,yaw),.88f,.72f,.58f);
+ draw(sphereMesh,vp,model(p.x+.31f*athletic,p.y+.91f*h,p.z-armSwing*1.4f,.065f,.20f*h,.07f,yaw),.88f,.72f,.58f);
+ // Animated legs, white socks and dark boots.
  draw(sphereMesh,vp,model(p.x-.12f,p.y+.40f*h,p.z+stride,.105f,.25f*h,.11f,yaw),.12f,.13f,.15f);
  draw(sphereMesh,vp,model(p.x+.12f,p.y+.40f*h,p.z-stride,.105f,.25f*h,.11f,yaw),.12f,.13f,.15f);
- draw(sphereMesh,vp,model(p.x-.12f,p.y+.17f*h,p.z+stride*1.45f,.075f,.18f*h,.085f,yaw),.08f,.09f,.10f);
- draw(sphereMesh,vp,model(p.x+.12f,p.y+.17f*h,p.z-stride*1.45f,.075f,.18f*h,.085f,yaw),.08f,.09f,.10f);
+ draw(sphereMesh,vp,model(p.x-.12f,p.y+.17f*h,p.z+stride*1.45f,.075f,.18f*h,.085f,yaw),.92f,.93f,.90f);
+ draw(sphereMesh,vp,model(p.x+.12f,p.y+.17f*h,p.z-stride*1.45f,.075f,.18f*h,.085f,yaw),.92f,.93f,.90f);
+ draw(sphereMesh,vp,model(p.x-.12f,p.y+.065f*h,p.z+stride*1.6f-.045f,.09f,.065f*h,.15f,yaw),.055f,.06f,.065f);
+ draw(sphereMesh,vp,model(p.x+.12f,p.y+.065f*h,p.z-stride*1.6f-.045f,.09f,.065f*h,.15f,yaw),.055f,.06f,.065f);
 }
 void update(float dt){
  matchTime+=dt;
