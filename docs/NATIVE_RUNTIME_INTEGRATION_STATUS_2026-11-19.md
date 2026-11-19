@@ -137,3 +137,23 @@ Limitaciones que siguen pendientes:
 - Commit `14a8797f8321d2d79c6c8d4b701c69498ce45b45`: después de resolver las colisiones entre los 22 futbolistas, se vuelven a limitar las coordenadas de los porteros 0 y 11 al ancho y profundidad de sus respectivas áreas de portería. Así, el empuje de un compañero o rival no los deja fuera del corredor que deben defender.
 - Relectura de `native_engine.cpp` desde GitHub confirmó las cuatro restricciones de coordenadas; blob SHA `79f8d4fb4e186115b68b4a5fd3ac8760009c14a1`.
 - La ejecución CI `44640261718` valida el commit anterior de colisiones generales, no este ajuste. El cambio nuevo requiere su propia compilación antes de considerarse validado. Si no aparece ejecución automática, revisar el evento/path trigger del workflow y lanzar una compilación manual cuando esté disponible.
+
+## Amistoso nativo — control activo, pase dirigido e IA de presión (2026-11-19)
+
+Cambios guardados en `work/native-3d-engine`:
+
+- El futbolista controlado dejó de estar fijado al índice 9. Se mantiene un índice activo dinámico y el botón táctil **CAMBIAR** selecciona al siguiente compañero ordenado por proximidad al balón.
+- El pase corto busca un compañero del equipo local que esté en una distancia jugable, favorece progresar hacia la portería rival y penaliza líneas bloqueadas por defensores. El tiro conserva la dirección de orientación del futbolista.
+- La IA de cada equipo identifica a su jugador de campo más cercano al balón para que presione la jugada; los demás conservan sus posiciones de apoyo y formación desplazada por el balón.
+- El control nativo ahora asocia joystick y presión a IDs de puntero Android independientes. Los movimientos multitáctiles actualizan cada dedo activo, y soltar un dedo no debe cancelar el joystick o la presión que mantiene otro.
+- La escena nativa reinicia el jugador activo, punteros y botones al inicializar un partido. Se corrigió también el cálculo de orientación al cambiar de jugador.
+
+Archivos modificados:
+- `native-android/app/src/main/cpp/native_engine.cpp`
+- `native-android/app/src/main/java/com/nova/futbolnova/MainActivity.java`
+
+Validación:
+- Los cambios se releen desde GitHub y el workflow `.github/workflows/futbol-nova-native-android.yml` se activa con modificaciones de `native-android/**`.
+- La compilación ARM64 y la verificación de `lib/arm64-v8a/libfutbolnova.so` deben finalizar en CI antes de dar por compilado este cambio.
+- Aún no hay prueba física de la interfaz multitáctil, cambio de futbolista, pase dirigido ni decisiones IA en un teléfono. Estas mejoras son implementación inicial y no cierran P0.
+- No se ha autorizado generar una APK de entrega ni subir una nueva APK a Dropbox.
