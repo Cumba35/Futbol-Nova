@@ -173,6 +173,7 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 	_resolve_team_colors(home_team_id, away_team_id)
 	_player.global_position = home_lineup[9].position
 	_player.set_meta("nova_player_profile", home_lineup[9].get("profile", {}).duplicate(true))
+	_apply_controlled_player_profile(home_lineup[9].get("profile", {}))
 	_player.rotation.y = 0.0
 	for index in range(home_lineup.size()):
 		if index == 9:
@@ -187,6 +188,25 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 	match_started.emit(11, 11)
 	return {"ok": true, "home_players": 11, "away_players": 11, "controlled_player_id": home_lineup[9].player_id}
 
+
+
+func _apply_controlled_player_profile(profile_value: Variant) -> void:
+	if not profile_value is Dictionary or not is_instance_valid(_player):
+		return
+	var profile: Dictionary = profile_value
+	var attributes: Dictionary = profile.get("attributes", {})
+	if attributes.is_empty():
+		return
+	var pace := clampf(float(attributes.get("spd", 70.0)) / 99.0, 0.0, 1.0)
+	var acceleration_rating := clampf(float(attributes.get("acc", 70.0)) / 99.0, 0.0, 1.0)
+	var passing := clampf(float(attributes.get("short", 70.0)) / 99.0, 0.0, 1.0)
+	var shooting := clampf(float(attributes.get("shot", 70.0)) / 99.0, 0.0, 1.0)
+	var tackling := clampf(float(attributes.get("tack", 70.0)) / 99.0, 0.0, 1.0)
+	_player.set("move_speed", lerpf(6.4, 8.2, pace))
+	_player.set("acceleration", lerpf(17.0, 25.0, acceleration_rating))
+	_player.set("pass_force", lerpf(4.8, 7.0, passing))
+	_player.set("shot_force", lerpf(9.5, 13.0, shooting))
+	_player.set("tackle_reach_bonus", lerpf(0.0, 0.35, tackling))
 
 func _resolve_team_colors(home_team_id: String, away_team_id: String) -> void:
 	# Original Nova kit palettes distinguish the two sample clubs without
@@ -485,7 +505,10 @@ func _try_ai_tackle(actor_index: int, actor_data: Dictionary) -> void:
 				break
 	if bool(actor_data.home_team) == owner_home:
 		return
-	var result := evaluate_tackle(actor.global_position, -actor.global_transform.basis.z, _possession_owner.global_position, -_possession_owner.global_transform.basis.z)
+	var attributes: Dictionary = actor_data.get("attributes", {})
+	var tackle_rating := float(attributes.get("tack", 70.0))
+	var tackle_reach := clampf(1.55 + tackle_rating / 99.0 * 0.45, 1.55, 2.0)
+	var result := evaluate_tackle(actor.global_position, -actor.global_transform.basis.z, _possession_owner.global_position, -_possession_owner.global_transform.basis.z, tackle_reach, 0.15)
 	if not bool(result.get("in_range", false)):
 		return
 	actor_data.tackle_cooldown = 1.35
@@ -667,11 +690,14 @@ func _try_ai_ball_action(actor_index: int, actor_data: Dictionary) -> void:
 			return
 		# Atajada/despeje básico: el portero desvía hacia una zona lateral y segura.
 		var clear_direction := goalkeeper_clear_direction(home_team, _ball.global_position.x, _ends_swapped)
+		var keeper_attributes: Dictionary = actor_data.get("attributes", {})
+		var keeper_kick_rating := float(keeper_attributes.get("kick", 70.0))
+		var keeper_clear_force := lerpf(8.5, 12.0, clampf(keeper_kick_rating / 99.0, 0.0, 1.0))
 		if owns_ball:
 			_clear_ball_possession()
 		else:
 			_ball.freeze = false
-		_ball.apply_central_impulse(clear_direction * 10.5)
+		_ball.apply_central_impulse(clear_direction * keeper_clear_force)
 		actor_data.kick_cooldown = 1.8
 		_actors[actor_index] = actor_data
 		return
@@ -683,11 +709,15 @@ func _try_ai_ball_action(actor_index: int, actor_data: Dictionary) -> void:
 	if pass_target != Vector3.INF:
 		# Pase raso dirigido a un compañero adelantado y cercano.
 		impulse_direction = (pass_target - _ball.global_position + Vector3.UP * 0.08).normalized()
-		force = 7.2
+		var player_attributes: Dictionary = actor_data.get("attributes", {})
+		var passing_rating := float(player_attributes.get("short", 70.0))
+		force = lerpf(6.2, 8.0, clampf(passing_rating / 99.0, 0.0, 1.0))
 	else:
 		# Sin línea de pase clara: progresión/ despeje hacia campo rival.
 		impulse_direction = Vector3(-_ball.global_position.x * 0.035, 0.10, attack_sign).normalized()
-		force = 8.8 if attacking_third else 4.6
+		var player_attributes: Dictionary = actor_data.get("attributes", {})
+		var long_pass_rating := float(player_attributes.get("longp", 70.0))
+		force = lerpf(7.8, 10.0, clampf(long_pass_rating / 99.0, 0.0, 1.0)) if attacking_third else lerpf(4.0, 6.0, clampf(long_pass_rating / 99.0, 0.0, 1.0))
 	if owns_ball:
 		_clear_ball_possession()
 	else:
