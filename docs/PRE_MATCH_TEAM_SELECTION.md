@@ -169,3 +169,5 @@ La prueba está integrada en el workflow manual de GitHub Actions, pero aún no 
 
 
 La escena de partido aplica paletas de equipación Nova originales según los IDs de los clubes de muestra: marfil cálido y azul noche para Albor Madrid, y granate apagado con pantalón azul oscuro para Litoral Barcelona. Son colores sólidos propios del juego; no se reproducen patrones, escudos, fabricantes ni patrocinadores oficiales. El controlador vuelve a sus colores genéricos cuando se eligen otros clubes.
+
+La selección de clubes incluye campos de búsqueda independientes para local y visitante. El catálogo base reúne cientos de clubes, por lo que no se obliga al jugador a recorrer manualmente toda la lista; el filtro conserva la selección si sigue coincidiendo y el amistoso se valida de nuevo al cambiarla.
