@@ -39,3 +39,8 @@ Las alternativas públicas, sus licencias, compatibilidad Android y decisiones d
 ## Estado CI — 19-11-2026
 
 La ejecución 44453253855 detectó una segunda referencia global a FootballDatabase en el servicio de carrera durante compilación headless. Se corrigieron las llamadas de guardado y carga mediante búsqueda de /root/FootballDatabase; la corrección está sincronizada con Nova Workspace. CI nueva 44507868982 pendiente. Ver docs/CI_44450991327_FIX.md. No declarar APK validada antes de completar la CI.
+
+
+## Corrección CI — 19-11-2026
+
+Se corrigió el aislamiento headless de la prueba de Máximo Padilla: la física se desactiva antes de añadir el nodo al árbol. Los detalles y la sincronización están en [CI_44507868982_DIAGNOSIS.md](docs/CI_44507868982_DIAGNOSIS.md). La nueva ejecución debe pasar las regresiones y generar el APK antes de declarar la versión validada.
