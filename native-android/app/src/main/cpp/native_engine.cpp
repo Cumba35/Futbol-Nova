@@ -150,7 +150,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeTo
  bool passZone=nx>.65f&&nx<=.78f&&ny>.48f&&ny<=.68f;
  bool skillZone=nx>.78f&&ny<=.68f;
  if(action==0||action==2||action==5){
-  if(joystick){stickX=std::clamp((nx-.17f)*6.0f,-1.0f,1.0f);stickY=std::clamp((ny-.79f)*6.0f,-1.0f,1.0f);}
+  if(joystick){float radius=.105f*(float)std::min(w,h);stickX=std::clamp((x-.17f*w)/radius,-1.0f,1.0f);stickY=std::clamp((y-.79f*h)/radius,-1.0f,1.0f);}
   if(action==0&&pressZone)pressure=true;
   if(action==0&&shootZone)shoot=true;
   if(action==0&&passZone)pass=true;
