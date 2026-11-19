@@ -15,8 +15,8 @@ struct Mesh { GLuint vao=0,vbo=0; GLsizei count=0; GLenum mode=GL_TRIANGLES; };
 GLuint program=0; GLint mvpLoc=-1,colorLoc=-1;
 int screenW=1,screenH=1; bool paused=false;
 float stickX=0,stickY=0; bool shoot=false,pass=false,skill=false,pressure=false;
-float ballX=0,ballZ=7.72f,ballY=.22f,ballVX=0,ballVY=0,ballVZ=0;
-float playerX=0,playerZ=7.0f,playerYaw=3.1415926f,matchTime=0,matchSeconds=0; int homeScore=0,awayScore=0;
+float ballX=0,ballZ=.72f,ballY=.22f,ballVX=0,ballVY=0,ballVZ=0;
+float playerX=0,playerZ=0.0f,playerYaw=3.1415926f,matchTime=0,matchSeconds=0; int homeScore=0,awayScore=0;
 Mesh fieldMesh{},lineMesh{},sphereMesh{},standMesh{},goalMesh{};
 std::array<V3,22> players{};
 std::array<float,22> playerHeight{};
@@ -128,8 +128,8 @@ void update(float dt){
  ballVX*=std::pow(.985f,dt*60);ballVZ*=std::pow(.985f,dt*60);
  if(ballY<.22f){ballY=.22f;ballVY=std::abs(ballVY)*.38f;if(std::abs(ballVY)<.7f)ballVY=0;}
  for(int i=0;i<22;i++){float dx=ballX-players[i].x,dz=ballZ-players[i].z;float d2=dx*dx+dz*dz;if(d2<.42f&&ballY<1.05f&&std::abs(ballVX)+std::abs(ballVZ)<3.0f){float inv=1.0f/std::max(.01f,std::sqrt(d2));ballVX=dx*inv*2.0f;ballVZ=dz*inv*2.0f;}}
- if(ballZ > 52.5f && std::abs(ballX)<3.66f && ballY<2.44f){homeScore++;ballX=0;ballZ=0;ballY=.22f;ballVX=ballVY=ballVZ=0;}
- else if(ballZ < -52.5f && std::abs(ballX)<3.66f && ballY<2.44f){awayScore++;ballX=0;ballZ=0;ballY=.22f;ballVX=ballVY=ballVZ=0;}
+ if(ballZ > 52.5f && std::abs(ballX)<3.66f && ballY<2.44f){homeScore++;playerX=0;playerZ=0;players[9]={0,0,0};ballX=0;ballZ=.72f;ballY=.22f;ballVX=ballVY=ballVZ=0;}
+ else if(ballZ < -52.5f && std::abs(ballX)<3.66f && ballY<2.44f){awayScore++;playerX=0;playerZ=0;players[9]={0,0,0};ballX=0;ballZ=.72f;ballY=.22f;ballVX=ballVY=ballVZ=0;}
  if(std::abs(ballX)>34){ballX=std::copysign(34.0f,ballX);ballVX*=-.55f;}
  if(std::abs(ballZ)>52){ballZ=std::copysign(52.0f,ballZ);ballVZ*=-.55f;}
 }
