@@ -159,6 +159,7 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 		return {"ok": false, "error": "Las alineaciones 11 contra 11 no superaron la validación."}
 	_home_team_id = home_team_id
 	_away_team_id = away_team_id
+	_resolve_team_colors(home_team_id, away_team_id)
 	_player.global_position = home_lineup[9].position
 	_player.rotation.y = 0.0
 	for index in range(home_lineup.size()):
@@ -173,6 +174,23 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 	_decision_clock = AI_DECISION_INTERVAL
 	match_started.emit(11, 11)
 	return {"ok": true, "home_players": 11, "away_players": 11, "controlled_player_id": home_lineup[9].player_id}
+
+
+func _resolve_team_colors(home_team_id: String, away_team_id: String) -> void:
+	# Original Nova kit palettes distinguish the two sample clubs without
+	# reproducing their official shirt patterns, badges or sponsor layouts.
+	_team_colors = {
+		"home": Color("#D92E3A"),
+		"away": Color("#E7E9EF")
+	}
+	if home_team_id == "FN-ESP-REAL-MADRID":
+		_team_colors.home = Color("#E7E2D5")
+	elif home_team_id == "FN-ESP-BARCELONA":
+		_team_colors.home = Color("#23556B")
+	if away_team_id == "FN-ESP-REAL-MADRID":
+		_team_colors.away = Color("#E7E2D5")
+	elif away_team_id == "FN-ESP-BARCELONA":
+		_team_colors.away = Color("#23556B")
 
 func stop_match() -> void:
 	_active = false
