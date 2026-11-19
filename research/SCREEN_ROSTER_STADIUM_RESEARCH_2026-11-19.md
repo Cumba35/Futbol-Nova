@@ -120,3 +120,10 @@ Nuevo run #193 (44444407781) disparado por el cambio de código, SHA 1efc90260a8
 - Se añadió `tests/test_input_actions.gd` para verificar que las ocho acciones existen, se pueden pulsar y liberar. Se agregó un paso dedicado al workflow Android antes de las pruebas principales.
 - Commits: `a39be03baaea1f63c838bdafbaefc27d1d58cc33` (InputMap), `535b3d1349c8b3f40a734e8b9ef76c1697c6acd8` (test), `d7276c6d029501c633cda0db44170c4a6218ae12` (workflow).
 - El run #193 fue iniciado con un SHA anterior a esta corrección y no puede validar este cambio. El push de código dispara una nueva ejecución; pendiente comprobar el nuevo test, la aceptación de Máximo, las regresiones y la exportación APK.
+
+
+## Ajuste de la prueba de Máximo Padilla — 19-11-2026
+
+- El run #193 falló en la aceptación de Máximo: el test inició y cargó el registro del catálogo, pero no avanzó hasta el marcador final PASS; el watchdog interno de 120 segundos terminó el proceso. Los logs también mostraron acciones InputMap inexistentes, que ya fueron corregidas en el proyecto base.
+- Para evitar una espera indefinida en el test aislado, se sustituyeron las dos esperas directas de `process_frame` por temporizadores cortos del SceneTree y se redujo el watchdog a 45 segundos. La escena y sus comprobaciones visuales permanecen intactas.
+- Commit de la prueba: `75bc105132ff84e783a2b6125d24b17e53fed826`. Pendiente confirmar en CI que la prueba completa llegue a `FUTBOL_NOVA_MAXIMO_PADILLA_PROFILE_TEST: PASS` y luego ejecute regresiones/exportación APK.
