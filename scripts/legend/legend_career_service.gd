@@ -502,9 +502,12 @@ func start_manager_after_retirement(club_id: String = "") -> Dictionary:
 	var target_club := club_id if not club_id.is_empty() else str(career.get("last_club_id", ""))
 	if target_club.is_empty():
 		return {"ok": false, "error": "Selecciona un club para iniciar tu carrera de entrenador."}
-	if ManagerCareer.load_career():
+	var manager_career := get_node_or_null("/root/ManagerCareer")
+	if manager_career == null:
+		return {"ok": false, "error": "El servicio ManagerCareer no está disponible en esta ejecución."}
+	if manager_career.load_career():
 		return {"ok": false, "error": "Ya existe una carrera de Manager guardada. Se ha protegido para no sobrescribirla."}
-	return ManagerCareer.start_coach_career(target_club)
+	return manager_career.start_coach_career(target_club)
 
 func get_player_statistics() -> Dictionary:
 	if career.is_empty():
