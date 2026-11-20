@@ -203,9 +203,6 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 		return {"ok": false, "error": "Cada equipo debe aportar exactamente once identificadores de titulares."}
 	var home_lineup := build_lineup(home_team_id, true, home_player_ids)
 	var away_lineup := build_lineup(away_team_id, false, away_player_ids)
-	_controlled_player_id = str(home_lineup[9].get("player_id", ""))
-	_last_touch_player_id = ""
-	_player.set_meta("player_id", _controlled_player_id)
 	var player_records: Dictionary = match_settings.get("players_by_id", {})
 	for lineup in [home_lineup, away_lineup]:
 		for player_data in lineup:
@@ -214,6 +211,9 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 			player_data["player_data"] = record.duplicate(true) if record is Dictionary else {}
 	if not validate_lineups(home_lineup, away_lineup):
 		return {"ok": false, "error": "Las alineaciones 11 contra 11 no superaron la validación."}
+	_controlled_player_id = str(home_lineup[9].get("player_id", ""))
+	_last_touch_player_id = ""
+	_player.set_meta("player_id", _controlled_player_id)
 	_home_team_id = home_team_id
 	_away_team_id = away_team_id
 	_player.global_position = home_lineup[9].position
