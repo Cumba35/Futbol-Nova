@@ -48,3 +48,28 @@ Se ampliaron `tests/test_game_hub.gd`, `tests/test_legend_career.gd` y `tests/te
 - La animación revela clubes, grupos, fases y rivales; el botón **SALTAR SORTEO** muestra todos los resultados restantes y conserva el sorteo ya calculado.
 - Las ligas todos-contra-todos generan calendario automáticamente y no tienen sorteo de emparejamientos.
 - Pruebas añadidas: `tests/test_competition_draw_ceremony.gd` y prueba de señal en `tests/test_game_hub.gd`. Incluidas en el workflow Android con Godot 4.4.1; ejecución pendiente.
+
+
+## Selector visual de estadios — 20 noviembre 2026
+- Rediseño del selector de estadio del amistoso siguiendo la referencia visual proporcionada: lista vertical de tarjetas a la izquierda, vista panorámica 3D a la derecha, nombre/capacidad/versión y selección fucsia.
+- La vista previa se construye con la geometría real del StadiumBuilder dentro de un SubViewport; no depende de imágenes externas ni de conexión.
+- Los datos de capacidad y versión proceden del catálogo local. La selección sigue entregándose como `stadium_id` al iniciar el partido y no modifica preferencias globales.
+- El botón de confirmación conserva la validación de plantillas de 11 jugadores.
+- Prueba de catálogo ampliada para exigir metadatos de versión. La validación visual/táctil y el rendimiento del SubViewport en Android siguen pendientes de CI y prueba en dispositivo.
+
+
+## Selector FIFA-inspired de equipos y uniformes — 20 noviembre 2026
+- Se añadió una pantalla dedicada de local vs visitante con navegación independiente de clubes y equipaciones.
+- Vista previa de cuerpo completo procedural en SubViewport 3D, monograma temporal y primera/segunda equipación.
+- Los IDs de club y uniforme se transmiten al amistoso; el controlador aplica colores al equipo y uniforme diferenciado al portero.
+- La paleta está centralizada y cuenta con prueba automatizada incluida en GitHub Actions.
+- Pendientes: probar en Godot 4.4.1/Android, reemplazar modelos/monogramas temporales, añadir patrones originales, gesto de deslizamiento, OVR, detectar conflictos cromáticos y conectar la habilitación contractual de tercera equipación.
+
+
+## Dirección visual del juego base y Nova C35 — 20 noviembre 2026
+- El único estadio incluido en la instalación base pasa a ser Estadio del Fénix, sede de Nova C35. Otros estadios se reservan para paquetes opcionales.
+- La escena procedural incluye grada de cuatro lados y cuatro niveles, cubierta y soportes, iluminación, marcador C35, paneles LED, túnel, banquillos y multitud instanciada.
+- La pantalla previa al amistoso conserva la selección de equipos/equipaciones y muestra únicamente el estadio base.
+- La IA de partido utiliza un maniquí procedural articulado con torso, cabeza, brazos, piernas, medias, botas y movimiento de extremidades ligado al desplazamiento.
+- El perfil de Nova C35 está definido en `data/nova_c35_club.json`; identidad y colores iniciales son propuestas editables.
+- Pendiente: modelos humanos rigged, animaciones avanzadas, rostros/peinados, crowd reactivo y audio, y pruebas de rendimiento en Android.

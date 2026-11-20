@@ -32,3 +32,8 @@ Tomar como referencia la captura aportada por el usuario: fondo negro profundo, 
 ## Flujo de diseño
 
 Antes de implementar esta pantalla, generar un mockup visual para revisión del usuario siguiendo el flujo definido en GAME_DESIGN.md. El mockup no se considerará implementación funcional.
+
+
+## Implementación inicial conectada — 20 noviembre 2026
+
+La pantalla `scripts/ui/team_kit_selection.gd` presenta ambos equipos simultáneamente, permite recorrer clubes sin repetir rival y cambiar primera/segunda equipación por separado. Usa vistas 3D procedurales temporales y una paleta determinista en `scripts/ui/team_kit_palette.gd`. La confirmación devuelve IDs de clubes y uniformes al flujo amistoso. Los controles se adaptan apilando paneles cuando el ancho es reducido. No se usan assets de FIFA/EA. El modelo 3D y la paleta son prototipos; el carrusel táctil por deslizamiento, patrones de camisetas, escudos definitivos, OVR y validación de contraste aún deben completarse.

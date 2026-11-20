@@ -147,6 +147,9 @@ jobs:
       - name: Core test — touch input cleanup on hidden overlay
         run: timeout --signal=TERM --kill-after=15s 60s godot --headless --path . --script res://tests/test_touch_controls.gd
 
+      - name: Core test — controller hint visibility
+        run: timeout --signal=TERM --kill-after=15s 60s godot --headless --path . --script res://tests/test_controller_hint_visibility.gd
+
       - name: Core test — hub and main screens
         run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_game_hub.gd
 
@@ -165,11 +168,20 @@ jobs:
       - name: Core test — friendly goalkeeper positioning
         run: timeout --signal=TERM --kill-after=15s 120s godot --headless --path . --script res://tests/test_friendly_goalkeeper_positioning.gd
 
+      - name: Core test — procedural player visual
+        run: timeout --signal=TERM --kill-after=15s 60s godot --headless --path . --script res://tests/test_procedural_player_visual.gd
       - name: Core test — physical goal frames and net containment
         run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_goal_frame_physics.gd
 
       - name: Core test — procedural stadium catalog and geometry
         run: timeout --signal=TERM --kill-after=15s 120s godot --headless --path . --script res://tests/test_stadium_builder.gd
+
+      - name: Core test — team and kit palette
+        run: timeout --signal=TERM --kill-after=15s 60s godot --headless --path . --script res://tests/test_team_kit_palette.gd
+      - name: Core test — Nova C35 identity and league target
+        run: timeout --signal=TERM --kill-after=15s 60s godot --headless --path . --script res://tests/test_nova_c35_identity.gd
+      - name: Core test — team and kit selection navigation
+        run: timeout --signal=TERM --kill-after=15s 60s godot --headless --path . --script res://tests/test_team_kit_selection.gd
 
       - name: Core test — Máximo Padilla player profile
         run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_maximo_padilla_profile.gd

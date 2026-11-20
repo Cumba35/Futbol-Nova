@@ -94,3 +94,7 @@ El menú ya presenta Inicio con amistoso y ayuda; Online y Modos muestran conten
 5. Probar la instalación y retirada de cada módulo sin romper el juego base.
 6. Verificar navegación táctil, mando, teclado, foco y escalado en Android y PC.
 7. Construir y probar una APK base sin módulos adicionales.
+
+
+## Identidad visual inicial del juego base — 20 noviembre 2026
+La instalación base utiliza únicamente el **Estadio del Fénix**, casa de **Nova C35 (C35)**. El hub de Inicio debe usar su identidad visual y mostrar el estadio como escena deportiva principal. El resto de estadios se reserva para módulos descargables; no se muestran como opciones disponibles en la selección del amistoso base. La dirección visual y el plan de jugadores/aficionados están en `docs/FIFA23_FC26_VISUAL_DIRECTION_AND_BASE_GAME.md`.

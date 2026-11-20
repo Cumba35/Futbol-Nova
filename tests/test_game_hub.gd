@@ -27,7 +27,11 @@ func _run_tests() -> void:
 	_expect(main_nav.get_child(0).text == "INICIO" and main_nav.get_child(1).text == "⬇ ONLINE" and main_nav.get_child(2).text == "⬇ MODOS" and main_nav.get_child(3).text == "CONFIGURACIÓN", "All four screen destinations must be visible")
 	var friendly_requests := [0]
 	hub.match_11v11_requested.connect(func(): friendly_requests[0] += 1)
-	var home_friendly_panel: Control = hub.content_box.get_child(1)
+	var home_club_panel: Control = hub.content_box.get_child(1)
+	var home_club_column: Control = home_club_panel.get_child(0)
+	_expect(str(home_club_column.get_child(0).text) == "NOVA C35  ·  C35", "Home must feature Nova C35 as the representative club")
+	_expect(str(home_club_column.get_child(1).text).contains("ESTADIO DEL FÉNIX"), "Home must identify Estadio del Fénix as the base home ground")
+	var home_friendly_panel: Control = hub.content_box.get_child(2)
 	var home_friendly_column: Control = home_friendly_panel.get_child(0)
 	var friendly_button: Button = home_friendly_column.get_child(2)
 	_expect(friendly_button.text == "JUGAR AMISTOSO", "Base Home must offer a local friendly match")
@@ -37,6 +41,7 @@ func _run_tests() -> void:
 	var pre_match := PreMatchSetup.new()
 	root.add_child(pre_match)
 	await process_frame
+	_expect(pre_match._selected_stadium == "estadio_del_fenix", "Base friendly match must default to Estadio del Fénix")
 	_expect(pre_match._home_teams.item_count >= 2 and pre_match._away_teams.item_count >= 2, "Friendly preparation must list at least two clubs with valid rosters")
 	_expect(not pre_match._start_button.disabled, "Friendly preparation must enable start when two valid clubs are selected")
 	pre_match._away_teams.select(pre_match._home_teams.selected)
@@ -56,7 +61,7 @@ func _run_tests() -> void:
 		_expect(str(friendly_settings.get("match_type", "")) == "friendly", "Pre-match setup must identify the encounter as a friendly")
 	await process_frame
 
-	var home_help_panel: Control = hub.content_box.get_child(2)
+	var home_help_panel: Control = hub.content_box.get_child(3)
 	var home_help_column: Control = home_help_panel.get_child(0)
 	var help_button: Button = home_help_column.get_child(2)
 	help_button.pressed.emit()
@@ -80,7 +85,7 @@ func _run_tests() -> void:
 	hub._navigate_back()
 	await process_frame
 	_expect(hub.current_page == "home", "Back must return from Online to Home")
-	_expect(hub.content_box.get_child_count() == 3, "Base Home must show welcome, friendly match and Help only")
+	_expect(hub.content_box.get_child_count() == 4, "Base Home must show welcome, C35 identity, friendly match and Help")
 	hub._open_main_page("online")
 	await process_frame
 	_expect(hub.current_page == "online", "Online main screen must open")

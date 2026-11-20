@@ -18,6 +18,7 @@ signal match_finished(phase: String)
 const REALISM_MODULE = preload("res://scripts/modules/realism_module.gd")
 const MATCH_CLOCK_STATE = preload("res://scripts/gameplay/match_clock_state_machine.gd")
 const BALL_FLIGHT_MODEL = preload("res://scripts/ball_flight_model.gd")
+const PLAYER_VISUAL = preload("res://scripts/players/procedural_player_visual.gd")
 
 const FIELD_HALF_WIDTH := 34.0
 const FIELD_HALF_LENGTH := 52.5
@@ -211,6 +212,12 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 		return {"ok": false, "error": "Las alineaciones 11 contra 11 no superaron la validación."}
 	_home_team_id = home_team_id
 	_away_team_id = away_team_id
+	var home_kit_id := str(match_settings.get("home_kit_id", "home"))
+	var away_kit_id := str(match_settings.get("away_kit_id", "home"))
+	_team_colors.home = KIT_PALETTE.shirt_color(home_team_id, home_kit_id)
+	_team_colors.away = KIT_PALETTE.shirt_color(away_team_id, away_kit_id)
+	_team_colors.home_goalkeeper = KIT_PALETTE.shirt_color(home_team_id, home_kit_id, true)
+	_team_colors.away_goalkeeper = KIT_PALETTE.shirt_color(away_team_id, away_kit_id, true)
 	_player.global_position = home_lineup[9].position
 	_player.rotation.y = 0.0
 	for index in range(home_lineup.size()):
@@ -577,29 +584,15 @@ func _create_ai_actor(player_data: Dictionary) -> void:
 	var pace := clampf(float(attributes.get("spd", 60)), 0.0, 100.0)
 	var actor_speed := 4.2 if str(player_data.role) == "GK" else clampf(4.0 + pace * 0.015, 4.0, 5.8)
 	var kit_color: Color = _team_colors.home if is_home else _team_colors.away
-	var body := MeshInstance3D.new()
-	var body_mesh := CapsuleMesh.new()
-	body_mesh.radius = PLAYER_RADIUS
-	body_mesh.height = PLAYER_HEIGHT
-	body.mesh = body_mesh
-	body.position.y = PLAYER_HEIGHT * 0.5
-	body.material_override = _make_material(kit_color)
-	actor.add_child(body)
-	var head := MeshInstance3D.new()
-	var head_mesh := SphereMesh.new()
-	head_mesh.radius = 0.15
-	head_mesh.height = 0.30
-	head.mesh = head_mesh
-	head.position.y = PLAYER_HEIGHT + 0.12
-	head.material_override = _make_material(Color("#805039"))
-	actor.add_child(head)
-	var shorts := MeshInstance3D.new()
-	var shorts_mesh := BoxMesh.new()
-	shorts_mesh.size = Vector3(0.43, 0.22, 0.29)
-	shorts.mesh = shorts_mesh
-	shorts.position.y = 0.48
-	shorts.material_override = _make_material(Color("#18202B") if is_home else Color("#253A68"))
-	actor.add_child(shorts)
+	if str(player_data.role) == "GK":
+		kit_color = _team_colors.home_goalkeeper if is_home else _team_colors.away_goalkeeper
+	var visual := PLAYER_VISUAL.new()
+	visual.name = "PlayerVisual"
+	var skin_palette := [Color("#e0b38d"), Color("#b9825e"), Color("#8c5a3c"), Color("#69412f"), Color("#d4a17a"), Color("#f0c9a2")]
+	var skin_index := posmod(abs(str(player_data.player_id).hash()), skin_palette.size())
+	var shorts_color := kit_color.darkened(0.3)
+	visual.configure(kit_color, shorts_color, skin_palette[skin_index], str(player_data.role) == "GK", abs(str(player_data.player_id).hash()))
+	actor.add_child(visual)
 	add_child(actor)
 	# The goalkeeper uses an animatable physics body because its tactical actor
 	# moves every physics tick. This keeps collision motion synchronized instead

@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0.0",
+  "id": "CUB-S1-017",
+  "name": "Nova C35",
+  "short_name": "C35",
+  "country_code": "CUB",
+  "competition_id": "cuba_primera_division_nova",
+  "division_level": 1,
+  "fictional": true,
+  "official": false,
+  "registration_status": "confirmed_by_project_owner_pending_20_team_league_expansion",
+  "home_stadium_id": "estadio_del_fenix",
+  "home_stadium_name": "Estadio del Fénix",
+  "home_stadium_capacity": 105000,
+  "identity": {
+    "identity_type": "original_fictional_club",
+    "nickname": "El Fénix",
+    "crest_concept": "Ave fénix geométrica original que integra el monograma C35; sin copiar escudos ni marcas existentes",
+    "visual": {
+      "primary_color": "#080713",
+      "secondary_color": "#5426D8",
+      "accent_color": "#F21D48",
+      "home_kit": {
+        "status": "owner_approved_primary_identity",
+        "reference_image": "assets/clubs/nova_c35/kits/nova_c35_home_kit_reference.jpg",
+        "base": "#080713",
+        "accents": [
+          "#5426D8",
+          "#F21D48"
+        ],
+        "design": "Camiseta negra de estilo cyber-graffiti, con letras frontales de diferentes tamaños y estilos (deportiva, graffiti, manuscrita y tipografía condensada), composición irregular inspirada en la primera camiseta de referencia. Los textos promocionan NOVA Creator, NOVA IA, NOVA Apps, NOVA Workspace y NOVA Nexus. Nombre NOVA C35 y dorsal con borde púrpura azulado y centro en combinación rojo-púrpura.",
+        "shorts": "Short negro con patrón camuflaje azul-púrpura; incorpora textos promocionales del ecosistema NOVA y emblema original de corona NOVA en lugar de marcas deportivas de terceros.",
+        "branding": "Escudo NOVA C35 y símbolo de corona NOVA originales.",
+        "number_style": "Borde púrpura azulado; relleno degradado rojo-púrpura.",
+        "source": "Imagen generada y aprobada por el propietario el 2026-11-20.",
+        "usage": "Uniforme principal y referencia base para diseñar los demás uniformes originales de Fútbol Nova.",
+        "reference_image_dropbox": "/Apps/Futbol Nova/Assets/Clubs/Nova C35/Kits/nova_c35_home_kit_reference.jpg",
+        "reference_image_repository": "assets/clubs/nova_c35/kits/nova_c35_home_kit_reference.jpg",
+        "repository_binary_status": "reference image binary is backed up in Dropbox; GitHub currently stores the approved kit metadata and documentation, not the JPG binary."
+      },
+      "away_kit": {
+        "status": "to_be_designed_from_approved_home_kit",
+        "design_reference": "assets/clubs/nova_c35/kits/nova_c35_home_kit_reference.jpg",
+        "note": "Debe conservar el lenguaje gráfico cyber-graffiti y la identidad NOVA C35, con combinación de colores diferenciada para evitar conflictos con el uniforme principal."
+      },
+      "goalkeeper_kit": {
+        "status": "to_be_designed_from_approved_home_kit",
+        "design_reference": "assets/clubs/nova_c35/kits/nova_c35_home_kit_reference.jpg",
+        "note": "Diseño original de portero con alto contraste, manteniendo la marca y el lenguaje visual NOVA C35."
+      },
+      "third_kit": {
+        "availability": "locked_until_commercial_contract",
+        "unlock_rule": "active_first_division_commercial_contract_and_cleared_rights"
+      }
+    },
+    "football": {
+      "preferred_formation": "4-3-3",
+      "tactical_style": "Identidad de juego por definir con el propietario"
+    }
+  },
+  "league_target": {
+    "competition_id": "cuba_primera_division_nova",
+    "team_count": 20,
+    "format": "single_group_double_round_robin",
+    "target_rounds": 38,
+    "note": "Nova C35 será uno de los veinte clubes. La inscripción operativa y su plantilla de 22 jugadores se completarán al ampliar el catálogo de 16 a 20 clubes."
+  },
+  "notes": [
+    "La identidad y la paleta visual son una propuesta inicial original de Fútbol Nova y pueden ajustarse.",
+    "La capacidad de diseño del Estadio del Fénix es de 105 000 espectadores, según especificación del propietario del proyecto.",
+    "No se han generado futbolistas ficticios ni IDs de plantilla para Nova C35 todavía.",
+    "El propietario aprobó el uniforme principal NOVA C35 el 2026-11-20; la referencia y las especificaciones están documentadas en docs/NOVA_C35_HOME_KIT.md."
+  ]
+}

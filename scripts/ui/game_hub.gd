@@ -303,6 +303,15 @@ func _show_home() -> void:
 	welcome_column.add_child(_label("FÚTBOL NOVA", 24, LIME))
 	welcome_column.add_child(_label("La instalación base incluye partidos amistosos locales, ayuda y configuración general. Los demás modos se instalan como módulos independientes.", 14, MUTED))
 
+	var club_identity := _make_panel()
+	content_box.add_child(club_identity)
+	var club_column := VBoxContainer.new()
+	club_column.add_theme_constant_override("separation", 6)
+	club_identity.add_child(club_column)
+	club_column.add_child(_label("NOVA C35  ·  C35", 21, LIME))
+	club_column.add_child(_label("ESTADIO DEL FÉNIX  ·  CASA DEL EQUIPO REPRESENTATIVO DE FÚTBOL NOVA", 13, WHITE))
+	club_column.add_child(_label("Primera División de Cuba — Fútbol Nova · objetivo de 20 clubes", 12, MUTED))
+
 	var friendly := _make_panel()
 	content_box.add_child(friendly)
 	var friendly_column := VBoxContainer.new()
@@ -339,7 +348,6 @@ func _show_help() -> void:
 	_update_header("AYUDA", "Guía del juego base Fútbol Nova.")
 	_add_info_card("QUÉ INCLUYE EL JUEGO BASE", "Partidos amistosos locales, ayuda y ajustes generales. Los modos de carrera, competiciones y juego online no forman parte de la instalación base.")
 	_add_info_card("CONTROLES EN ANDROID", "Usa el joystick táctil izquierdo para moverte. Los botones de acción permiten pasar, disparar y presionar. Mantén y desliza el control de habilidades para ejecutar gestos cuando estén disponibles.")
-	_add_info_card("CONTROLES EN PC", "W, A, S y D: movimiento. F: pase. ESPACIO: disparo. G: presión. ESC: abrir o regresar al menú.")
 	_add_info_card("PARTIDOS AMISTOSOS", "Desde Inicio puedes preparar un amistoso local. Antes del partido puedes elegir la duración de cada tiempo, el comportamiento del reloj y la prórroga. La tanda de penaltis sigue en desarrollo y todavía no se puede jugar.")
 	_add_info_card("MÓDULOS DESCARGABLES", "Online, Modo Leyenda, Modo Entrenador, ligas, copas, torneos de selecciones y otros contenidos se instalan por separado desde Configuración > Módulos.")
 	_add_info_card("INSTALACIÓN Y SEGURIDAD", "Descarga únicamente módulos publicados y compatibles con tu versión del juego. Cada paquete debe verificarse antes de instalarse.")
@@ -1850,6 +1858,7 @@ func _show_controller_content() -> void:
 	profile_label.name = "ControllerProfile"
 	copy.add_child(profile_label)
 	var mapping := _label("Perfil estándar: stick izquierdo = movimiento · A/Cruz = pase · B/Círculo = tiro · X/Cuadrado = habilidad · Y/Triángulo = presión.", 13, MUTED)
+	mapping.name = "ControllerMappingHints"
 	mapping.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(mapping)
 	_refresh_controller_labels()
@@ -1858,17 +1867,23 @@ func set_controller_status(value: Dictionary) -> void:
 	controller_status = value.duplicate(true)
 	_refresh_controller_labels()
 
+static func should_show_controller_hints(status: Dictionary) -> bool:
+	return bool(status.get("enabled", false)) and int(status.get("connected_count", 0)) > 0
+
 func _refresh_controller_labels() -> void:
 	if content_box == null:
 		return
 	var state := content_box.find_child("ControllerState", true, false) as Label
 	var profile_label := content_box.find_child("ControllerProfile", true, false) as Label
+	var mapping := content_box.find_child("ControllerMappingHints", true, false) as Label
 	if state == null or profile_label == null:
 		return
 	var active := bool(controller_status.get("enabled", false))
 	var count := _safe_int(controller_status.get("connected_count", 0))
 	state.text = ("MÓDULO ACTIVO" if active else "MÓDULO NO INSTALADO") + " · " + ("%d mando(s) conectado(s)" % count)
 	profile_label.text = "Perfil: " + str(controller_status.get("profile", "Mando estándar"))
+	if mapping != null:
+		mapping.visible = should_show_controller_hints(controller_status)
 
 func _focus_first_action(container: Node) -> void:
 	var buttons := container.find_children("*", "Button", true, false)
