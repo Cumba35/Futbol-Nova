@@ -659,7 +659,7 @@ func _update_actors(delta: float, make_decision: bool) -> void:
 		var actor_is_moving := distance_to_target > 0.08
 		actor_data.stamina = REALISM_MODULE.update_stamina(float(actor_data.get("stamina", 100.0)), actor_is_moving, delta, _realism_profile)
 		var fatigue_multiplier := REALISM_MODULE.movement_speed_multiplier(float(actor_data.stamina), _realism_profile)
-		var next_position := current.move_toward(horizontal_target, float(actor_data.speed) * fatigue_multiplier * delta)
+		var next_position := current.move_toward(horizontal_target, float(actor_data.get("speed", 4.0)) * fatigue_multiplier * delta)
 		# Separación cinemática ligera: evita que los modelos se superpongan
 		# sin introducir 21 cuerpos físicos costosos en el móvil.
 		next_position += _calculate_separation(index) * delta
@@ -697,7 +697,7 @@ func _calculate_separation(actor_index: int) -> Vector3:
 
 func _choose_target(actor_index: int, actor_data: Dictionary) -> Vector3:
 	var home_team := bool(actor_data.home_team)
-	var base: Vector3 = actor_data.home_position
+	var base: Vector3 = actor_data.get("home_position", Vector3.ZERO)
 	var ball_position := _ball.global_position
 	var tactical_shift := Vector3(clampf(ball_position.x * 0.14, -5.0, 5.0), 0.0, clampf(ball_position.z * 0.12, -7.0, 7.0))
 	var target := base + tactical_shift
