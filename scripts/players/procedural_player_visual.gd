@@ -61,7 +61,7 @@ func _process(delta: float) -> void:
 	if _body_root == null:
 		return
 	var parent_node := get_parent()
-	var current_position := parent_node.global_position if parent_node is Node3D else global_position
+	var current_position: Vector3 = parent_node.global_position if parent_node is Node3D else global_position
 	var speed := 0.0
 	if _has_previous_position:
 		speed = current_position.distance_to(_last_parent_position) / maxf(delta, 0.0001)
