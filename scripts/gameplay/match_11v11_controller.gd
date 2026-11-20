@@ -56,6 +56,8 @@ var _realism_profile: Dictionary = {}
 var _match_clock_state: Dictionary = {}
 var _home_team_id := "nova_home"
 var _away_team_id := "nova_away"
+var _controlled_player_id := ""
+var _last_touch_player_id := ""
 var _team_colors := {
 	"home": Color("#D92E3A"),
 	"away": Color("#E7E9EF")
@@ -201,6 +203,9 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 		return {"ok": false, "error": "Cada equipo debe aportar exactamente once identificadores de titulares."}
 	var home_lineup := build_lineup(home_team_id, true, home_player_ids)
 	var away_lineup := build_lineup(away_team_id, false, away_player_ids)
+	_controlled_player_id = str(home_lineup[9].get("player_id", ""))
+	_last_touch_player_id = ""
+	_player.set_meta("player_id", _controlled_player_id)
 	var player_records: Dictionary = match_settings.get("players_by_id", {})
 	for lineup in [home_lineup, away_lineup]:
 		for player_data in lineup:
@@ -236,6 +241,8 @@ func stop_match() -> void:
 			node.queue_free()
 	_actors.clear()
 	_match_clock_state.clear()
+	_controlled_player_id = ""
+	_last_touch_player_id = ""
 	_ball_possession_lockout = 0.0
 	_clear_ball_possession()
 	if is_instance_valid(_player):
@@ -368,15 +375,19 @@ func is_match_active() -> bool:
 func has_controlled_possession() -> bool:
 	return _possession_is_controlled and is_instance_valid(_possession_owner)
 
-func notify_ball_kicked(lockout_seconds: float = 0.18) -> void:
+func notify_ball_kicked(lockout_seconds: float = 0.18, player_id: String = "") -> void:
 	_ball_possession_lockout = maxf(_ball_possession_lockout, clampf(lockout_seconds, 0.0, 0.5))
+	_last_touch_player_id = player_id if not player_id.is_empty() else _controlled_player_id
+
+func get_last_touch_player_id() -> String:
+	return _last_touch_player_id
 
 func release_controlled_ball(direction: Vector3, power: float = 7.0, spin: Vector3 = Vector3.ZERO) -> bool:
 	if not has_controlled_possession() or not is_instance_valid(_ball):
 		return false
 	if direction.length_squared() < 0.001 or not direction.is_finite() or not spin.is_finite() or not is_finite(power):
 		return false
-	notify_ball_kicked()
+	notify_ball_kicked(0.18, _controlled_player_id)
 	_clear_ball_possession()
 	_ball_flight_spin = spin.limit_length(BALL_FLIGHT_MODEL.MAX_SPIN)
 	_ball.apply_central_impulse(direction.normalized() * clampf(power, 1.0, 14.0))
