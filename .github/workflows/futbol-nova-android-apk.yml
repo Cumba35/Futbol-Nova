@@ -173,6 +173,8 @@ jobs:
 
       - name: Core test — team and kit palette
         run: timeout --signal=TERM --kill-after=15s 60s godot --headless --path . --script res://tests/test_team_kit_palette.gd
+      - name: Core test — team and kit selection navigation
+        run: timeout --signal=TERM --kill-after=15s 60s godot --headless --path . --script res://tests/test_team_kit_selection.gd
 
       - name: Core test — Máximo Padilla player profile
         run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_maximo_padilla_profile.gd
