@@ -26,6 +26,7 @@ var score_away := 0
 var home_team_display_name := "LOCAL"
 var away_team_display_name := "VISITANTE"
 var controlled_player_display_name := "Anier Cumbá"
+var controlled_player_id := ""
 var score_label: Label
 var match_clock_label: Label
 var continue_period_button: Button
@@ -323,13 +324,13 @@ func _create_ball() -> void:
 	add_child(ball)
 
 func _get_controlled_player_scene_for_home_team() -> PackedScene:
-	match home_team_display_name:
-		"Litoral Barcelona":
-			controlled_player_display_name = "Máximo Padilla"
-			return MAXIMO_PLAYER_SCENE
-		"FC Río de Argenti":
+	match controlled_player_id:
+		"NOVA-PLAYER-0037":
 			controlled_player_display_name = "Raymond Valdez"
 			return RAYMOND_PLAYER_SCENE
+		"NOVA-PLAYER-0036":
+			controlled_player_display_name = "Máximo Padilla"
+			return MAXIMO_PLAYER_SCENE
 		_:
 			controlled_player_display_name = "Anier Cumbá"
 			return ANIER_PLAYER_SCENE
@@ -804,6 +805,7 @@ func _start_11v11_match(match_overrides: Dictionary = {}) -> void:
 	# Si se reemplaza después, el controlador conserva un CharacterBody3D liberado.
 	home_team_display_name = str(match_overrides.get("home_team_name", "Equipo local"))
 	away_team_display_name = str(match_overrides.get("away_team_name", "Equipo visitante"))
+	controlled_player_id = str(match_overrides.get("controlled_player_id", ""))
 	_switch_controlled_player_for_selected_club()
 	if player == null or not is_instance_valid(player):
 		gesture_hint_label.text = "No se pudo preparar el futbolista controlado."
