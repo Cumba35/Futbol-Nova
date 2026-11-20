@@ -114,3 +114,16 @@ Ejecución que contiene el código y las aserciones más recientes: https://gith
 ## Corrección de fixtures y pruebas de física — 20 noviembre 2026
 
 La primera ejecución que probó la cápsula falló en la prueba de posicionamiento porque el fixture consultaba `global_position` fuera del árbol de escena. Se corrigió añadiendo el controlador y el balón al árbol antes de comprobar el objetivo táctico. La prueba de tiro también recibió todos los campos esperados por el actor IA (`home_position`, `target`, `speed` y `stamina`) para evitar errores de diccionario durante los pasos físicos. El controlador usa valores por defecto seguros para `home_position` y `speed` cuando recibe datos incompletos. La siguiente ejecución debe confirmar estos arreglos junto con el collider `AnimatableBody3D`.
+
+
+## Corrección de plantillas y endurecimiento de inicio — 20-11-2026
+
+- La nota anterior que describía Nova C35 como 2/11 y FC Río de Argenti como 0/11 quedó superada por la importación original de plantillas. Las fichas actuales `data/nova_c35_club.json` y `data/fc_rio_de_argenti_club.json` registran 22 IDs cada una; la aceptación integrada comprueba que ambas aparecen completas y que el botón de inicio está habilitado.
+- Los clubes conservan el valor predeterminado C35 local vs FC Río de Argenti visitante. El partido tiene once titulares por equipo: 22 futbolistas activos, un jugador controlado y 21 actores IA.
+- La selección del jugador controlado ahora se centraliza y prueba: Anier Cumbá (`NOVA-PLAYER-0035`) cuando C35 es local; Raymond Valdez (`NOVA-PLAYER-0037`) cuando FC Río de Argenti es local. Para otros clubes se mantiene el fallback del once inicial.
+- Se corrigió una condición de estabilidad en `start_match()`: antes de esta actualización, el controlador detenía el partido activo y modificaba referencias internas antes de validar clubes, plantillas y jugador controlado. Ahora valida toda la solicitud primero y solo reemplaza el encuentro cuando la configuración es válida.
+- Se añadió `tests/test_match_start_atomic_validation.gd` y se incorporó al workflow Android. La prueba cubre club local/visitante repetido, once incompleto, ID de jugador controlado inválido y reinicio válido sin duplicar actores.
+- La nueva rama de trabajo es `work/friendly-match-stability-2026-11-20`, basada en `feature/friendly-runtime-research-2026-11-20`; la copia maestra se trabaja en `work/futbol-nova-friendly-match-stability-2026-11-20`. No se fusionó ninguna rama.
+- La ejecución `44676705137` consultada en el repositorio de distribución terminó `cancelled`; no valida los últimos cambios. La nueva ejecución disparada por esta rama debe terminar en éxito antes de declarar aprobada la corrección.
+- Las plantillas contienen perfiles ficticios marcados como tales y con estadísticas iniciales en cero; no deben presentarse como futbolistas reales ni como estadísticas históricas verificadas.
+- Pendiente: CI completa, inspección del artefacto APK ARM64, instalación y partido manual en Android; después continuar con atajadas reales del portero, despejes/rebotes controlados, faltas/reinicios y métricas de rendimiento.
