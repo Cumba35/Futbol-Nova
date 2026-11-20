@@ -7,12 +7,14 @@
 #include <algorithm>
 #include <utility>
 #include <time.h>
+#include <mutex>
 
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR,"FutbolNova",__VA_ARGS__)
 namespace {
 struct V3 { float x,y,z; };
 struct Vertex { float x,y,z; };
 struct Mesh { GLuint vao=0,vbo=0; GLsizei count=0; GLenum mode=GL_TRIANGLES; };
+std::mutex stateMutex;
 GLuint program=0; GLint mvpLoc=-1,colorLoc=-1;
 int screenW=1,screenH=1; bool paused=false;
 float stickX=0,stickY=0; bool shoot=false,pass=false,skill=false,pressure=false; int joystickPointer=-1,pressurePointer=-1;
@@ -386,9 +388,11 @@ void update(float dt){
  if(ballZ<-55.0f){ballZ=-55.0f;ballVZ=std::abs(ballVZ)*.45f;}
 }
 }
-extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeInit(JNIEnv*,jobject){homeScore=awayScore=0;matchSeconds=0;matchTime=0;matchPhase=0;homeDefendsNegative=true;controlledPlayer=9;ballReleaseTimer=0;stickX=stickY=0;shoot=pass=skill=pressure=false;joystickPointer=pressurePointer=-1;paused=false;makeProgram();initField();setupTeams();glEnable(GL_DEPTH_TEST);glClearColor(.015f,.045f,.075f,1);}
+extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeInit(JNIEnv*,jobject){
+ std::lock_guard<std::mutex> lock(stateMutex);homeScore=awayScore=0;matchSeconds=0;matchTime=0;matchPhase=0;homeDefendsNegative=true;controlledPlayer=9;ballReleaseTimer=0;stickX=stickY=0;shoot=pass=skill=pressure=false;joystickPointer=pressurePointer=-1;paused=false;makeProgram();initField();setupTeams();glEnable(GL_DEPTH_TEST);glClearColor(.015f,.045f,.075f,1);}
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeResize(JNIEnv*,jobject,jint w,jint h){screenW=std::max(1,(int)w);screenH=std::max(1,(int)h);glViewport(0,0,screenW,screenH);}
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeFrame(JNIEnv*,jobject){
+ std::lock_guard<std::mutex> lock(stateMutex);
  static double last=0; timespec ts{};clock_gettime(CLOCK_MONOTONIC,&ts);double now=ts.tv_sec+ts.tv_nsec*1e-9;float dt=last==0?0.016f:(float)std::clamp(now-last,0.001,0.04);last=now;
  if(!paused){
   update(dt);matchSeconds+=dt;
@@ -406,6 +410,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeFr
  draw(sphereMesh,vp,model(ballX,ballY,ballZ,.22f,.22f,.22f),.96f,.96f,.92f);
 }
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeTouch(JNIEnv*,jclass,jfloat x,jfloat y,jint action,jint pointerId,jint w,jint h){
+ std::lock_guard<std::mutex> lock(stateMutex);
  float nx=x/(float)std::max(1,w),ny=y/(float)std::max(1,h);
  bool joystickZone=nx<.38f&&ny>.55f;
  bool pressZone=nx>.78f&&ny>.86f;
@@ -431,6 +436,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeTo
 
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeSetPlayerProfile(
     JNIEnv*,jclass,jint slot,jfloat heightCm,jint overall,jfloat pace,jfloat dribbling,jfloat defending){
+ std::lock_guard<std::mutex> lock(stateMutex);
  if(slot<0||slot>=22)return;
  playerHeight[(size_t)slot]=std::clamp((float)heightCm,150.0f,205.0f);
  playerOverall[(size_t)slot]=std::clamp((int)overall,1,99);
@@ -440,6 +446,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeSe
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeSwitchPlayer(JNIEnv*,jclass){
+ std::lock_guard<std::mutex> lock(stateMutex);
  std::array<std::pair<float,int>,10> ranked{};
  for(int n=0;n<10;n++){int slot=n+1;float dx=players[(size_t)slot].x-ballX,dz=players[(size_t)slot].z-ballZ;ranked[(size_t)n]={dx*dx+dz*dz,slot};}
  std::sort(ranked.begin(),ranked.end(),[](const auto&a,const auto&b){return a.first<b.first;});
@@ -448,8 +455,10 @@ extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeSw
  playerX=players[(size_t)controlledPlayer].x;playerZ=players[(size_t)controlledPlayer].z;
  playerYaw=std::atan2(ballX-playerX,-(ballZ-playerZ));
 }
-extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeSetMatchDurationMinutes(JNIEnv*,jclass,jint minutes){halfDurationSeconds=(float)std::clamp((int)minutes,3,20)*60.0f;}
+extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeSetMatchDurationMinutes(JNIEnv*,jclass,jint minutes){
+ std::lock_guard<std::mutex> lock(stateMutex);halfDurationSeconds=(float)std::clamp((int)minutes,3,20)*60.0f;}
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeStartSecondHalf(JNIEnv*,jclass){
+ std::lock_guard<std::mutex> lock(stateMutex);
  if(matchPhase!=1)return;
  homeDefendsNegative=false;
  for(auto &player:players)player.z=-player.z;
@@ -458,9 +467,9 @@ extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeSt
  ballX=0;ballY=.22f;ballZ=0;ballVX=ballVY=ballVZ=0;ballReleaseTimer=0;keepers={};
  matchSeconds=0;matchPhase=2;paused=false;
 }
-extern "C" JNIEXPORT jint JNICALL Java_com_nova_futbolnova_MainActivity_nativeGetMatchPhase(JNIEnv*,jclass){return matchPhase;}
-extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativePause(JNIEnv*,jclass,jboolean value){paused=value;}
+extern "C" JNIEXPORT jint JNICALL Java_com_nova_futbolnova_MainActivity_nativeGetMatchPhase(JNIEnv*,jclass){std::lock_guard<std::mutex> lock(stateMutex);return matchPhase;}
+extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativePause(JNIEnv*,jclass,jboolean value){std::lock_guard<std::mutex> lock(stateMutex);paused=value;}
 
-extern "C" JNIEXPORT jint JNICALL Java_com_nova_futbolnova_MainActivity_nativeGetHomeScore(JNIEnv*,jclass){return homeScore;}
-extern "C" JNIEXPORT jint JNICALL Java_com_nova_futbolnova_MainActivity_nativeGetAwayScore(JNIEnv*,jclass){return awayScore;}
-extern "C" JNIEXPORT jfloat JNICALL Java_com_nova_futbolnova_MainActivity_nativeGetMatchSeconds(JNIEnv*,jclass){return matchSeconds;}
+extern "C" JNIEXPORT jint JNICALL Java_com_nova_futbolnova_MainActivity_nativeGetHomeScore(JNIEnv*,jclass){std::lock_guard<std::mutex> lock(stateMutex);return homeScore;}
+extern "C" JNIEXPORT jint JNICALL Java_com_nova_futbolnova_MainActivity_nativeGetAwayScore(JNIEnv*,jclass){std::lock_guard<std::mutex> lock(stateMutex);return awayScore;}
+extern "C" JNIEXPORT jfloat JNICALL Java_com_nova_futbolnova_MainActivity_nativeGetMatchSeconds(JNIEnv*,jclass){std::lock_guard<std::mutex> lock(stateMutex);return matchSeconds;}
