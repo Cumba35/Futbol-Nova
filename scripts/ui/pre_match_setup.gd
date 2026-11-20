@@ -25,8 +25,8 @@ const STARTING_POSITION_PRIORITY := [
 ]
 
 static func get_default_team_indices(team_ids: Array[String]) -> Dictionary:
-	var home_index := team_ids.find("FN-ESP-REAL-MADRID")
-	var away_index := team_ids.find("FN-ESP-BARCELONA")
+	var home_index := team_ids.find("FN-NOVA-C35")
+	var away_index := team_ids.find("FN-NOVA-RDA")
 	if home_index < 0 and not team_ids.is_empty():
 		home_index = 0
 	if away_index < 0 or away_index == home_index:
@@ -359,10 +359,36 @@ func _load_eligible_teams() -> void:
 		_summary.text = "El catálogo de clubes no está disponible. No se puede iniciar el amistoso."
 		return
 
+	# The first two owner-created clubs are always presented first in the friendly
+	# selectors, even while their complete matchday rosters are still being built.
+	# They remain display-only until their club/player records are imported and
+	# each side can field a validated starting eleven.
+	var original_file := FileAccess.open("res://data/original_clubs_2026.json", FileAccess.READ)
+	if original_file != null:
+		var original_catalog = JSON.parse_string(original_file.get_as_text())
+		if original_catalog is Dictionary:
+			var original_clubs: Array = original_catalog.get("clubs", [])
+			for original_index in range(mini(2, original_clubs.size())):
+				var original_club: Dictionary = original_clubs[original_index]
+				var original_id := str(original_club.get("runtime_club_id", ""))
+				if original_id.is_empty() or _team_ids.has(original_id):
+					continue
+				var original_name := str(original_club.get("name", original_id))
+				var roster_note := " • plantilla pendiente"
+				_home_teams.add_item(original_name + roster_note)
+				_away_teams.add_item(original_name + roster_note)
+				var original_item_index := _home_teams.item_count - 1
+				_home_teams.set_item_metadata(original_item_index, original_id)
+				_away_teams.set_item_metadata(original_item_index, original_id)
+				_team_ids.append(original_id)
+		original_file.close()
+
 	var ids: Array = registry.teams_by_id.keys()
 	ids.sort()
 	for raw_id in ids:
 		var team_id := str(raw_id)
+		if _team_ids.has(team_id):
+			continue
 		var team: Dictionary = registry.teams_by_id[team_id]
 		var roster: Array = _get_combined_team_roster(team_id)
 		if roster.is_empty():
@@ -410,6 +436,8 @@ func _refresh_validation() -> void:
 	_start_button.disabled = not valid
 	if home_id == away_id and not home_id.is_empty():
 		_summary.text = "El equipo local y el visitante deben ser diferentes."
+	elif home_id in ["FN-NOVA-C35", "FN-NOVA-RDA"] or away_id in ["FN-NOVA-C35", "FN-NOVA-RDA"]:
+		_summary.text = "Nova C35 y FC Río de Argenti están seleccionados, pero sus plantillas jugables aún no están completas. Se requieren al menos 11 jugadores verificados por equipo; no se crearán jugadores ficticios."
 	elif valid:
 		_summary.text = "Plantillas verificadas: %d jugadores locales y %d visitantes. Alineaciones iniciales: 11 por equipo." % [home_roster.size(), away_roster.size()]
 	else:
