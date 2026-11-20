@@ -189,3 +189,8 @@ La aceptación de controles táctiles encontró un fallo real del motor: despué
 - Se aplica a los golpes del jugador, despejes del portero y pases/despejes de la IA; se reinicia al iniciar o detener un partido.
 - La prueba de amistoso adquiere posesión real con el jugador controlado, pulsa PASE/TIRO táctiles y verifica velocidad, balón libre y ausencia de congelación inmediata.
 - La prueba también verifica el reposicionamiento de IA local/visitante y el movimiento del jugador con joystick virtual.
+
+
+## Selector de equipos y equipaciones con presentación deportiva — 20 noviembre 2026
+
+Se añade una pantalla dedicada inspirada en la presentación y navegación de FIFA 26, manteniendo recursos originales de Fútbol Nova. Dos paneles muestran local y visitante, escudo provisional/monograma, nombre, modelo 3D procedural y carrusel independiente de primera y segunda equipación. Los clubes se recorren con controles anterior/siguiente sin permitir duplicar el mismo equipo. La selección confirma IDs estables y los transmite al amistoso junto con `home_kit_id` y `away_kit_id`. El motor aplica los colores seleccionados a los futbolistas IA y una equipación diferenciada al portero. Los colores son una paleta procedural provisional; escudos definitivos, modelos humanos, patrones, patrocinadores autorizados y detección de conflictos cromáticos siguen pendientes. La tercera equipación no se expone hasta integrar correctamente la habilitación comercial por temporada.
