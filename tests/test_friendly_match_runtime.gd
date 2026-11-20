@@ -173,12 +173,12 @@ func _run_acceptance_test() -> void:
 			if str(game.controlled_player_display_name) != "Anier Cumbá":
 				failures.append("Nova C35 debe seleccionar a Anier Cumbá como jugador controlado.")
 			var raymond_actor_found := false
-			for actor_data in game.match_11v1_controller._actors:
+			for actor_data in game.match_11v11_controller._actors:
 				if str(actor_data.get("player_id", "")) == "NOVA-PLAYER-0037":
 					raymond_actor_found = true
 			if not raymond_actor_found:
 				failures.append("Raymond Valdez no llegó al once activo del FC Río de Argenti.")
-			game.match_11v1_controller.stop_match()
+			game.match_11v11_controller.stop_match()
 			game._open_pre_match_setup()
 			await process_frame
 			setup = game.pre_match_setup
