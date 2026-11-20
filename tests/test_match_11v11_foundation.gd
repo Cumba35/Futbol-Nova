@@ -38,6 +38,14 @@ func _run_tests() -> void:
 		{"id": "p_rw", "primary_position": "ED"}
 	]
 	var selected_eleven := PreMatchSetup.build_starting_eleven(sample_roster)
+	var c35_control_ids: Array[String] = ["NOVA-PLAYER-0035", "C35_02", "C35_03", "C35_04", "C35_05", "C35_06", "C35_07", "C35_08", "C35_09", "C35_10", "C35_11"]
+	var rda_control_ids: Array[String] = ["NOVA-PLAYER-0037", "RDA_02", "RDA_03", "RDA_04", "RDA_05", "RDA_06", "RDA_07", "RDA_08", "RDA_09", "RDA_10", "RDA_11"]
+	if PreMatchSetup.get_default_controlled_player_id("FN-NOVA-C35", c35_control_ids) != "NOVA-PLAYER-0035":
+		failures.append("El amistoso con Nova C35 como local no selecciona a Anier Cumbá para el control.")
+	if PreMatchSetup.get_default_controlled_player_id("FN-NOVA-RDA", rda_control_ids) != "NOVA-PLAYER-0037":
+		failures.append("El amistoso con FC Río de Argenti como local no selecciona a Raymond Valdez para el control.")
+	if PreMatchSetup.get_default_controlled_player_id("OTHER", rda_control_ids) != "RDA_10":
+		failures.append("Los demás clubes deben conservar el jugador de control predeterminado del once.")
 	if selected_eleven.size() != 11 or selected_eleven[0] != "p_gk" or selected_eleven[9] != "p_st":
 		failures.append("PreMatchSetup: no construyó un once inicial de 4-3-3 según las posiciones de los jugadores")
 	if Match11v11.build_lineup("club_home", true, selected_eleven).size() != 11:
