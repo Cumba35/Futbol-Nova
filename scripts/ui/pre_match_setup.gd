@@ -76,7 +76,7 @@ var _stadium_list: VBoxContainer
 var _stadium_preview: SubViewport
 var _stadium_preview_container: SubViewportContainer
 var _stadium_info: Label
-var _selected_stadium := "nova_central"
+var _selected_stadium := "estadio_del_fenix"
 var _half_length: OptionButton
 var _clock_mode: OptionButton
 var _extra_time: CheckBox
