@@ -134,3 +134,12 @@ El catálogo canónico actual sigue teniendo 16 clubes y 16 plantillas de 22 jug
 ### Validación
 
 Todos los cambios están en la rama `ui/stadium-selector-reference-layout`. CI Godot 4.4.1, prueba Android real, rendimiento/FPS, memoria y temperatura siguen pendientes. No fusionar ni publicar APK hasta superar las pruebas. Los modelos y la grada actuales son prototipos procedurales y deben sustituirse/expandirse con assets originales o licenciados cuando se apruebe el pipeline visual.
+
+
+## Actualización de capacidad y propiedad de los clubes — 20-11-2026
+
+- Especificación del propietario: **Estadio del Fénix tendrá capacidad de diseño de 105 000 espectadores**. Se actualizó `scripts/stadiums/stadium_builder.gd`, el perfil `data/nova_c35_club.json` y la prueba `tests/test_stadium_builder.gd` para exigir exactamente 105000.
+- La capacidad representa el aforo objetivo de diseño; la geometría y densidad de la multitud actual siguen siendo una representación procedural y no equivalen todavía a 105 000 modelos individuales ni a una validación de rendimiento.
+- El propietario creará los otros tres clubes originales de la Primera División. No se inventarán nombres, ciudades, escudos, colores, estadios ni plantillas. Quedan pendientes de recibir sus especificaciones.
+- La liga sigue sin estar completa: catálogo actual de 16 clubes; se requieren Nova C35 y tres clubes nuevos, además de cuatro plantillas completas de 22 jugadores y el calendario de 20 equipos.
+- Código, datos, prueba y documentación deben sincronizarse con `Cumba35/Nova-Workspace/proyectos/juegos/futbol-nova/`. Mantener los PR sin fusionar hasta que CI y validación Android pasen.
