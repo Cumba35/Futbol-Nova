@@ -64,3 +64,12 @@ Se ampliaron `tests/test_game_hub.gd`, `tests/test_legend_career.gd` y `tests/te
 - Los IDs de club y uniforme se transmiten al amistoso; el controlador aplica colores al equipo y uniforme diferenciado al portero.
 - La paleta está centralizada y cuenta con prueba automatizada incluida en GitHub Actions.
 - Pendientes: probar en Godot 4.4.1/Android, reemplazar modelos/monogramas temporales, añadir patrones originales, gesto de deslizamiento, OVR, detectar conflictos cromáticos y conectar la habilitación contractual de tercera equipación.
+
+
+## Dirección visual del juego base y Nova C35 — 20 noviembre 2026
+- El único estadio incluido en la instalación base pasa a ser Estadio del Fénix, sede de Nova C35. Otros estadios se reservan para paquetes opcionales.
+- La escena procedural incluye grada de cuatro lados y cuatro niveles, cubierta y soportes, iluminación, marcador C35, paneles LED, túnel, banquillos y multitud instanciada.
+- La pantalla previa al amistoso conserva la selección de equipos/equipaciones y muestra únicamente el estadio base.
+- La IA de partido utiliza un maniquí procedural articulado con torso, cabeza, brazos, piernas, medias, botas y movimiento de extremidades ligado al desplazamiento.
+- El perfil de Nova C35 está definido en `data/nova_c35_club.json`; identidad y colores iniciales son propuestas editables.
+- Pendiente: modelos humanos rigged, animaciones avanzadas, rostros/peinados, crowd reactivo y audio, y pruebas de rendimiento en Android.
