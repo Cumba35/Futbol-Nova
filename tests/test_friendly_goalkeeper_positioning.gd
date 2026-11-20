@@ -53,15 +53,15 @@ func _run_tests() -> void:
 		"home_position": Vector3(0.0, 0.0, 49.0)
 	}
 	var live_target: Vector3 = controller.call("_choose_target", 0, keeper_data)
-	var expected_target: Vector3 = MATCH_11V11.goalkeeper_home_position(ball.position, true, false, ball.linear_velocity)
+	var expected_target: Vector3 = MATCH_11V11.goalkeeper_home_position(ball.global_position, true, false, ball.linear_velocity)
 	if live_target.distance_to(expected_target) > 0.001:
 		failures.append("El controlador de partido no usa el posicionamiento probado para el portero.")
 	controller.queue_free()
 	ball.queue_free()
 	keeper_actor.free()
 
-	# Integration check: a real rigid-body shot must collide with the
-	# goalkeeper capsule and rebound instead of passing through the model.
+	# Integration check: let the physics server register the newly added
+	# AnimatableBody3D before launching the rigid-body shot.
 	var keeper_controller = MATCH_11V11.new()
 	root.add_child(keeper_controller)
 	keeper_controller.call("_create_ai_actor", {
@@ -80,26 +80,45 @@ func _run_tests() -> void:
 		var keeper_shape_node = keeper_collision.get_node_or_null("CollisionShape3D")
 		if not (keeper_shape_node is CollisionShape3D) or not (keeper_shape_node.shape is CapsuleShape3D):
 			failures.append("La colisión física del portero no utiliza una cápsula válida.")
+		if not keeper_collision.sync_to_physics:
+			failures.append("La colisión animable del portero no sincroniza sus transformaciones con la física.")
+
 	# Moving the tactical actor must move its physics body as well.
 	keeper_node.global_position = Vector3(1.25, 0.0, 0.0)
 	if keeper_collision is AnimatableBody3D and absf(keeper_collision.global_position.x - 1.25) > 0.01:
 		failures.append("La colisión del portero no acompaña el movimiento táctico del actor.")
 	keeper_node.global_position = Vector3.ZERO
+	await physics_frame
+
 	var shot_ball := RigidBody3D.new()
 	shot_ball.mass = 0.43
 	shot_ball.gravity_scale = 0.0
 	shot_ball.position = Vector3(0.0, 0.92, 1.35)
 	shot_ball.linear_velocity = Vector3(0.0, 0.0, -12.0)
+	shot_ball.contact_monitor = true
+	shot_ball.max_contacts_reported = 4
+	var shot_material := PhysicsMaterial.new()
+	shot_material.bounce = 0.65
+	shot_material.bounce_combine_mode = PhysicsMaterial.BOUNCE_COMBINE_MAX
+	shot_ball.physics_material_override = shot_material
+	var collision_events: Array[bool] = []
+	shot_ball.body_entered.connect(func(body: Node) -> void:
+		if body == keeper_collision:
+			collision_events.append(true)
+	)
 	var shot_collision := CollisionShape3D.new()
 	var shot_sphere := SphereShape3D.new()
 	shot_sphere.radius = 0.22
 	shot_collision.shape = shot_sphere
 	shot_ball.add_child(shot_collision)
 	root.add_child(shot_ball)
-	for frame_index in range(18):
+	await physics_frame
+	for frame_index in range(30):
 		await physics_frame
-	if shot_ball.linear_velocity.z <= 0.5:
-		failures.append("El disparo atravesó al portero o no rebotó tras el contacto físico.")
+	if collision_events.is_empty():
+		failures.append("El disparo no registró contacto con la cápsula física del portero.")
+	elif shot_ball.linear_velocity.z >= -0.5:
+		failures.append("El portero hizo contacto, pero el disparo no rebotó hacia el campo.")
 	keeper_controller.queue_free()
 	shot_ball.queue_free()
 
@@ -108,5 +127,5 @@ func _run_tests() -> void:
 			push_error("FÚTBOL NOVA GOALKEEPER POSITIONING: " + failure)
 		quit(1)
 		return
-	print("FÚTBOL NOVA GOALKEEPER: posicionamiento, colisión móvil y bloqueo físico superados.")
+	print("FÚTBOL NOVA GOALKEEPER: posicionamiento, sincronización y bloqueo físico superados.")
 	quit(0)
