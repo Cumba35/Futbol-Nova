@@ -63,11 +63,20 @@
   },
   "stadium": {
     "name": "Arena Nova Génesis",
-    "capacity": null,
-    "capacity_status": "not_set",
+    "capacity": 105000,
+    "capacity_status": "owner_specified_105000",
     "ownership": "unconfirmed",
     "design": "modern angular stadium with layered faceted roof and navy-white lighting",
-    "status": "design_proposal"
+    "status": "design_specification",
+    "id": "nova_genesis",
+    "club_id": "FN-NOVA-GEN",
+    "seating": "#14213D",
+    "accent": "#F5F7FA",
+    "roof": "#101A30",
+    "secondary_accent": "#D72638",
+    "tertiary_accent": "#218C52",
+    "kit_palette_status": "matched_to_owner_approved_home_kit_v2",
+    "description": "Gradas azul marino y blancas, cubierta azul marino, acentos rojos y verdes discretos conforme a la primera equipación aprobada."
   },
   "supporters": {
     "nickname": "La Nueva Era",
