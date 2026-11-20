@@ -1,0 +1,62 @@
+{
+  "id": "nova_genesis",
+  "name": "Nova Génesis",
+  "short_name": "NG",
+  "status": "owner_design_in_progress",
+  "created_on": "2026-11-20",
+  "identity": {
+    "primary_kit": {
+      "status": "proposal_01_saved_pending_owner_approval",
+      "reference_image_dropbox": "/Apps/Futbol Nova/Assets/Clubs/Nova Génesis/Kits/Proposals/nova_genesis_home_kit_proposal_01.png",
+      "palette": {
+        "white": "#E8E8EB",
+        "black": "#101116",
+        "gray": "#777B84",
+        "blue": "#075BFF"
+      },
+      "shirt": {
+        "base": "white/light gray",
+        "graphics": [
+          "irregular NOVA and NG lettering in varied sizes and styles",
+          "black and gray graffiti typography",
+          "blue diagonal brush strokes",
+          "fine dark diamond grid pattern",
+          "black distressed splatter textures"
+        ],
+        "crest": "Original NG shield with crown",
+        "team_text": "Nova Génesis",
+        "back_number": "10",
+        "slogan": "Un nuevo comienzo"
+      },
+      "shorts": {
+        "base": "white/light gray",
+        "graphics": [
+          "dark diamond grid",
+          "black distressed splatter",
+          "electric blue diagonal accents",
+          "repeated NG lettering",
+          "matching crowned NG crest"
+        ]
+      },
+      "source_reference": "Owner-uploaded white jersey with geometric diamond lines and teal/pink horizontal accents; reinterpretation includes scattered NOVA/NG lettering as requested.",
+      "usage": "Initial visual proposal for Nova Génesis home kit; not approved as final."
+    },
+    "away_kit": {
+      "status": "not_designed"
+    },
+    "goalkeeper_kit": {
+      "status": "not_designed"
+    }
+  },
+  "stadium": {
+    "status": "not_defined_by_owner"
+  },
+  "roster": {
+    "status": "not_defined_by_owner"
+  },
+  "notes": [
+    "Tercer equipo original de Fútbol Nova.",
+    "El propietario pidió letras desordenadas de varios tamaños y estilos, inspiradas en la camiseta principal de Nova C35.",
+    "La propuesta 01 se guarda como borrador visual; pendiente de aprobación o cambios del propietario."
+  ]
+}
