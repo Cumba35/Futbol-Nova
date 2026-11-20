@@ -143,3 +143,14 @@ Todos los cambios están en la rama `ui/stadium-selector-reference-layout`. CI G
 - El propietario creará los otros tres clubes originales de la Primera División. No se inventarán nombres, ciudades, escudos, colores, estadios ni plantillas. Quedan pendientes de recibir sus especificaciones.
 - La liga sigue sin estar completa: catálogo actual de 16 clubes; se requieren Nova C35 y tres clubes nuevos, además de cuatro plantillas completas de 22 jugadores y el calendario de 20 equipos.
 - Código, datos, prueba y documentación deben sincronizarse con `Cumba35/Nova-Workspace/proyectos/juegos/futbol-nova/`. Mantener los PR sin fusionar hasta que CI y validación Android pasen.
+
+
+## Cierre de sesión y bloqueo CI — 20-11-2026 18:21 UTC
+
+- Se consultó la ejecución **44791101613** (run 409), asociada al commit `e64f9512c63bbcb5252668cc09639d8f6b7a9c67`: terminó con **failure**.
+- El paso que detuvo la suite fue `Core test — controller hint visibility`; los tests posteriores quedaron omitidos. El APK se exportó durante el job, pero el paso de publicación del artefacto validado quedó omitido. No considerar este APK una compilación validada.
+- El log revela errores de análisis de GDScript que deben corregirse antes de continuar: `scripts/stadiums/stadium_builder.gd` no puede inferir los tipos de `stand_x` (línea 143), `stand_z` (152) y `shirt` (163); `scripts/players/procedural_player_visual.gd` no puede inferir `current_position` (línea 64). Como consecuencia fallan scripts dependientes, incluido `football_data_service.gd`; la prueba de visibilidad de mandos también informa que no existe `should_show_controller_hints` y agota su tiempo límite.
+- Próximo paso obligatorio: revisar el código y los tests implicados, tipar explícitamente las variables con los tipos Godot correctos y comprobar la API/función esperada de visibilidad de mandos; ejecutar las pruebas afectadas y el workflow completo en Godot 4.4.1.
+- Los jobs posteriores fueron omitidos por el fallo anterior; no inferir que las pruebas de estadio, jugador procedural, identidad C35 o selector visual pasan.
+- Se mantiene como dato vigente la capacidad de diseño de **105 000** del Estadio del Fénix. La mención anterior a 35 000 en la sección histórica de dirección visual queda sustituida por la actualización de capacidad documentada más abajo.
+- La rama de trabajo sigue siendo `ui/stadium-selector-reference-layout`; PR #6 de Fútbol Nova y PR #27 de Nova Workspace deben permanecer abiertos/en draft y sin fusionar. No publicar APK final ni declarar listo el amistoso.
