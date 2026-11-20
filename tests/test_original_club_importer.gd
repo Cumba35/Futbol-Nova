@@ -43,6 +43,11 @@ func _run() -> void:
 		if bool(player.get("fictional", false)):
 			assert(int(player.get("statistics", {}).get("career", {}).get("appearances", -1)) == 0, "Los jugadores ficticios deben iniciar sin estadísticas históricas.")
 	assert(registry.competitions_by_id.is_empty(), "Los clubes amistosos no deben añadirse a una competición de liga.")
+	var display_names := {}
+	for player in registry.players_by_id.values():
+		var display_name := str(player.get("display_name", ""))
+		assert(not display_name.is_empty() and not display_names.has(display_name), "Los nombres de los perfiles originales deben ser únicos.")
+		display_names[display_name] = true
 	var raymond_avatar := RAYMOND_SCENE.instantiate() as CharacterBody3D
 	assert(raymond_avatar != null, "Debe instanciarse el avatar controlable de Raymond.")
 	root.add_child(raymond_avatar)
