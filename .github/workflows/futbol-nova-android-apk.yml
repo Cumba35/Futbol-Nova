@@ -132,7 +132,7 @@ jobs:
       - name: Export arm64 debug APK after core match tests
         run: |
           mkdir -p build
-          godot --headless --path . --export-debug "Android" build/FutbolNova-debug.apk
+          godot --headless --path . --verbose --export-debug "Android" build/FutbolNova-debug.apk
           test -s build/FutbolNova-debug.apk
 
       - name: Upload test APK before extended regressions
