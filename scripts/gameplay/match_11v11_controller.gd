@@ -181,26 +181,20 @@ static func validate_lineups(home_lineup: Array, away_lineup: Array) -> bool:
 	return true
 
 func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, match_settings: Dictionary = {}) -> Dictionary:
-	if controlled_player == null or match_ball == null:
+	if not is_instance_valid(controlled_player) or not is_instance_valid(match_ball):
 		return {"ok": false, "error": "Falta el futbolista controlado o el balón."}
-	stop_match()
-	_ends_swapped = false
-	_realism_profile = REALISM_MODULE.load_profile()
-	_controlled_tackle_cooldown = 0.0
-	_ball_possession_lockout = 0.0
-	_player = controlled_player
-	_player.set_physics_process(true)
-	_ball = match_ball
-	_ball_flight_spin = Vector3.ZERO
-	_clear_ball_possession()
+
+	# Validate the complete request before touching the current live match.
+	# A bad selection must never stop a match that is already running.
 	var home_team_id := str(match_settings.get("home_team_id", "nova_home"))
 	var away_team_id := str(match_settings.get("away_team_id", "nova_away"))
 	var home_player_ids: Array = match_settings.get("home_player_ids", [])
 	var away_player_ids: Array = match_settings.get("away_player_ids", [])
-	if home_team_id == away_team_id:
+	if home_team_id.is_empty() or away_team_id.is_empty() or home_team_id == away_team_id:
 		return {"ok": false, "error": "El equipo local y el visitante deben ser diferentes."}
 	if (not home_player_ids.is_empty() and home_player_ids.size() != 11) or (not away_player_ids.is_empty() and away_player_ids.size() != 11):
 		return {"ok": false, "error": "Cada equipo debe aportar exactamente once identificadores de titulares."}
+
 	var home_lineup := build_lineup(home_team_id, true, home_player_ids)
 	var away_lineup := build_lineup(away_team_id, false, away_player_ids)
 	var player_records: Dictionary = match_settings.get("players_by_id", {})
@@ -211,6 +205,7 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 			player_data["player_data"] = record.duplicate(true) if record is Dictionary else {}
 	if not validate_lineups(home_lineup, away_lineup):
 		return {"ok": false, "error": "Las alineaciones 11 contra 11 no superaron la validación."}
+
 	var controlled_index := 9
 	var requested_controlled_id := str(match_settings.get("controlled_player_id", ""))
 	if not requested_controlled_id.is_empty():
@@ -221,7 +216,20 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 				break
 		if controlled_index < 0:
 			return {"ok": false, "error": "El futbolista seleccionado para controlar no está en el once inicial."}
-	_controlled_player_id = str(home_lineup[controlled_index].get("player_id", ""))
+	var next_controlled_player_id := str(home_lineup[controlled_index].get("player_id", ""))
+
+	# All input is valid. Only now replace the previous match state.
+	stop_match()
+	_ends_swapped = false
+	_realism_profile = REALISM_MODULE.load_profile()
+	_controlled_tackle_cooldown = 0.0
+	_ball_possession_lockout = 0.0
+	_player = controlled_player
+	_player.set_physics_process(true)
+	_ball = match_ball
+	_ball_flight_spin = Vector3.ZERO
+	_clear_ball_possession()
+	_controlled_player_id = next_controlled_player_id
 	_last_touch_player_id = ""
 	_player.set_meta("player_id", _controlled_player_id)
 	_home_team_id = home_team_id
