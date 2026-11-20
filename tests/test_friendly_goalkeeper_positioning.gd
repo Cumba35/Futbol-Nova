@@ -39,9 +39,11 @@ func _run_tests() -> void:
 
 	# Verify the live tactical target path uses the tested goalkeeper helper.
 	var controller = MATCH_11V11.new()
+	root.add_child(controller)
 	var ball = RigidBody3D.new()
 	ball.position = Vector3(0.0, 0.35, 40.0)
 	ball.linear_velocity = Vector3(4.0, 0.0, 6.0)
+	root.add_child(ball)
 	controller._ball = ball
 	var keeper_actor := Node3D.new()
 	var keeper_data := {
@@ -54,8 +56,8 @@ func _run_tests() -> void:
 	var expected_target: Vector3 = MATCH_11V11.goalkeeper_home_position(ball.position, true, false, ball.linear_velocity)
 	if live_target.distance_to(expected_target) > 0.001:
 		failures.append("El controlador de partido no usa el posicionamiento probado para el portero.")
-	controller.free()
-	ball.free()
+	controller.queue_free()
+	ball.queue_free()
 	keeper_actor.free()
 
 	# Integration check: a real rigid-body shot must collide with the
