@@ -65,6 +65,10 @@ func _run_tests() -> void:
 		"team_id": "home_test",
 		"home_team": true,
 		"role": "ST",
+		"home_position": home_position,
+		"target": home_position,
+		"speed": 4.5,
+		"stamina": 100.0,
 		"kick_cooldown": 0.0,
 		"tackle_cooldown": 0.0,
 		"player_data": {"attributes": {"shot": 90, "fin": 90}}
