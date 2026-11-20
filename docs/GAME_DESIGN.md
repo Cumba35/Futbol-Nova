@@ -505,3 +505,9 @@ Fútbol Nova debe poder jugarse íntegramente sin conexión a Internet. La exper
 - Si el activo está protegido, la situación es dudosa o no se puede verificar, se crearán escudos y uniformes originales que mantengan los colores tradicionales y la identidad cromática general del equipo, pero con composición, silueta, símbolos, tipografía y patrones suficientemente distintos. No se calcarán ni imitarán elementos distintivos hasta producir confusión con el original.
 - Todos los equipos tendrán una ficha de auditoría con activo, titular, registro/territorio, fuentes consultadas, evidencia, permiso, conclusión, estado y fecha de revisión. Los estados serán: pendiente, protección localizada, protección confirmada, licencia documentada, uso libre documentado o diseño original requerido.
 - No se publicarán ni empaquetarán activos con estado pendiente, dudoso o protegido sin licencia. Esta política no modifica las reglas deportivas ni autoriza a copiar bases de datos, fotografías o materiales de terceros.
+
+
+## Identidad de club y estadio base — 20 noviembre 2026
+El club representativo de Fútbol Nova será **Nova C35 (C35)** y su estadio local **Estadio del Fénix**. La instalación base solo incluirá ese estadio. La Primera División de Cuba — Fútbol Nova tendrá como objetivo 20 clubes y Nova C35 será uno de ellos. El catálogo actual aún tiene 16 clubes y 16 plantillas de 22; la ampliación debe completar cuatro clubes/plantillas sin declarar la liga lista antes de tiempo. El perfil inicial de Nova C35 se encuentra en `data/nova_c35_club.json`; sus colores y concepto de escudo son provisionales y editables.
+
+La referencia visual se amplía con FIFA 23 y FIFA 26 para presentación de jornada, pantallas, jugadores, aficionados, estadios y animaciones, siempre mediante diseño y recursos originales. La hoja de ruta está en `docs/FIFA23_FC26_VISUAL_DIRECTION_AND_BASE_GAME.md`.
