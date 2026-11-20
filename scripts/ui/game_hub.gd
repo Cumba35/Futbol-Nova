@@ -339,7 +339,6 @@ func _show_help() -> void:
 	_update_header("AYUDA", "Guía del juego base Fútbol Nova.")
 	_add_info_card("QUÉ INCLUYE EL JUEGO BASE", "Partidos amistosos locales, ayuda y ajustes generales. Los modos de carrera, competiciones y juego online no forman parte de la instalación base.")
 	_add_info_card("CONTROLES EN ANDROID", "Usa el joystick táctil izquierdo para moverte. Los botones de acción permiten pasar, disparar y presionar. Mantén y desliza el control de habilidades para ejecutar gestos cuando estén disponibles.")
-	_add_info_card("CONTROLES EN PC", "W, A, S y D: movimiento. F: pase. ESPACIO: disparo. G: presión. ESC: abrir o regresar al menú.")
 	_add_info_card("PARTIDOS AMISTOSOS", "Desde Inicio puedes preparar un amistoso local. Antes del partido puedes elegir la duración de cada tiempo, el comportamiento del reloj y la prórroga. La tanda de penaltis sigue en desarrollo y todavía no se puede jugar.")
 	_add_info_card("MÓDULOS DESCARGABLES", "Online, Modo Leyenda, Modo Entrenador, ligas, copas, torneos de selecciones y otros contenidos se instalan por separado desde Configuración > Módulos.")
 	_add_info_card("INSTALACIÓN Y SEGURIDAD", "Descarga únicamente módulos publicados y compatibles con tu versión del juego. Cada paquete debe verificarse antes de instalarse.")
