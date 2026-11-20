@@ -79,12 +79,35 @@
   },
   "roster": {
     "target_size": 22,
-    "status": "incomplete_pending_verified_player_records",
-    "known_player_ids": [],
-    "pending_player_resolution": [
-      "Raymond"
+    "status": "complete_22_verified_game_profiles",
+    "known_player_ids": [
+      "NOVA-PLAYER-0037",
+      "FN-P-RDA-2026-001",
+      "FN-P-RDA-2026-002",
+      "FN-P-RDA-2026-003",
+      "FN-P-RDA-2026-004",
+      "FN-P-RDA-2026-005",
+      "FN-P-RDA-2026-006",
+      "FN-P-RDA-2026-007",
+      "FN-P-RDA-2026-008",
+      "FN-P-RDA-2026-009",
+      "FN-P-RDA-2026-010",
+      "FN-P-RDA-2026-011",
+      "FN-P-RDA-2026-012",
+      "FN-P-RDA-2026-013",
+      "FN-P-RDA-2026-014",
+      "FN-P-RDA-2026-015",
+      "FN-P-RDA-2026-016",
+      "FN-P-RDA-2026-017",
+      "FN-P-RDA-2026-018",
+      "FN-P-RDA-2026-019",
+      "FN-P-RDA-2026-020",
+      "FN-P-RDA-2026-021"
     ],
-    "remaining_slots": 22
+    "remaining_slots": 0,
+    "fictional_profiles_generated": 21,
+    "career_statistics_initialized_to_zero": true,
+    "raymond_player_id": "NOVA-PLAYER-0037"
   },
   "assets": {
     "home_kit_reference": "Dropbox:/Apps/Futbol Nova/Assets/Clubs/RDA/Kits/rda_home_kit_reference.jpg"
