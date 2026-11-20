@@ -10,7 +10,7 @@ const PALETTE := [
 	Color("#171923"), Color("#e6b52d"), Color("#5b318b"), Color("#168d9d"),
 	Color("#f06b24"), Color("#6c283e")
 ]
-const KIT_LABELS := ["LOCAL", "VISITANTE", "PORTERO"]
+const KIT_LABELS := ["PRIMERA", "SEGUNDA", "PORTERO"]
 
 var teams: Array[Dictionary] = []
 var team_ids: Array[String] = []
@@ -346,7 +346,7 @@ func _confirm() -> void:
 	confirmed.emit({
 		"home_team_id": home_team_id,
 		"away_team_id": away_team_id,
-		"home_kit_id": KIT_LABELS[home_kit_index].to_lower(),
-		"away_kit_id": KIT_LABELS[away_kit_index].to_lower()
+		"home_kit_id": ["home", "away", "goalkeeper"][home_kit_index],
+		"away_kit_id": ["home", "away", "goalkeeper"][away_kit_index]
 	})
 	queue_free()
