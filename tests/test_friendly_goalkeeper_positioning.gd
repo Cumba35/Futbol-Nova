@@ -72,12 +72,17 @@ func _run_tests() -> void:
 	})
 	var keeper_node: Node3D = keeper_controller.get_node("keeper_physics_test")
 	var keeper_collision = keeper_node.get_node_or_null("GoalkeeperCollision")
-	if not (keeper_collision is StaticBody3D):
-		failures.append("El portero no tiene un cuerpo físico para bloquear disparos.")
+	if not (keeper_collision is AnimatableBody3D):
+		failures.append("El portero no tiene un cuerpo físico animable sincronizado con su movimiento.")
 	else:
 		var keeper_shape_node = keeper_collision.get_node_or_null("CollisionShape3D")
 		if not (keeper_shape_node is CollisionShape3D) or not (keeper_shape_node.shape is CapsuleShape3D):
 			failures.append("La colisión física del portero no utiliza una cápsula válida.")
+	# Moving the tactical actor must move its physics body as well.
+	keeper_node.global_position = Vector3(1.25, 0.0, 0.0)
+	if keeper_collision is AnimatableBody3D and absf(keeper_collision.global_position.x - 1.25) > 0.01:
+		failures.append("La colisión del portero no acompaña el movimiento táctico del actor.")
+	keeper_node.global_position = Vector3.ZERO
 	var shot_ball := RigidBody3D.new()
 	shot_ball.mass = 0.43
 	shot_ball.gravity_scale = 0.0
@@ -101,5 +106,5 @@ func _run_tests() -> void:
 			push_error("FÚTBOL NOVA GOALKEEPER POSITIONING: " + failure)
 		quit(1)
 		return
-	print("FÚTBOL NOVA GOALKEEPER: posicionamiento predictivo y bloqueo físico del balón superados.")
+	print("FÚTBOL NOVA GOALKEEPER: posicionamiento, colisión móvil y bloqueo físico superados.")
 	quit(0)
