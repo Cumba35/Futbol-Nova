@@ -622,13 +622,13 @@ func _create_ai_actor(player_data: Dictionary) -> void:
 	shorts.position.y = 0.48
 	shorts.material_override = _make_material(Color("#18202B") if is_home else Color("#253A68"))
 	actor.add_child(shorts)
-	add_child(actor)
-	# The goalkeeper uses an animatable physics body because its tactical actor
-	# moves every physics tick. This keeps collision motion synchronized instead
-	# of teleporting a StaticBody3D. Field players remain collider-free on mobile.
+	# Build the complete goalkeeper collider before adding the actor to the
+	# active scene tree. This guarantees the physics server sees the capsule
+	# on its first registration frame.
 	if str(player_data.role) == "GK":
 		var goalkeeper_body := AnimatableBody3D.new()
 		goalkeeper_body.name = "GoalkeeperCollision"
+		goalkeeper_body.sync_to_physics = true
 		goalkeeper_body.collision_layer = 1
 		goalkeeper_body.collision_mask = 1
 		var goalkeeper_material := PhysicsMaterial.new()
@@ -636,6 +636,7 @@ func _create_ai_actor(player_data: Dictionary) -> void:
 		goalkeeper_material.friction = 0.18
 		goalkeeper_body.physics_material_override = goalkeeper_material
 		var goalkeeper_shape := CollisionShape3D.new()
+		goalkeeper_shape.name = "CollisionShape3D"
 		var goalkeeper_capsule := CapsuleShape3D.new()
 		goalkeeper_capsule.radius = 0.42
 		goalkeeper_capsule.height = 1.85
@@ -643,6 +644,7 @@ func _create_ai_actor(player_data: Dictionary) -> void:
 		goalkeeper_shape.position.y = 0.92
 		goalkeeper_body.add_child(goalkeeper_shape)
 		actor.add_child(goalkeeper_body)
+	add_child(actor)
 	_actors.append({
 		"node": actor,
 		"player_id": str(player_data.player_id),
