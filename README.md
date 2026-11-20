@@ -69,3 +69,11 @@ La ejecución 334 (`44549563484`) superó las pruebas principales del amistoso l
 - [Diagnóstico de exportación Android CI 44551233214](docs/CI_44551233214_DIAGNOSIS.md)
 - La exportación Android ahora ejecuta Godot con `--verbose` para registrar el motivo exacto de cualquier error de configuración del preset.
 - La documentación nueva está sincronizada con la ruta maestra de Nova Workspace y sus SHA de contenido fueron verificados.
+
+
+## Prioridad de amistosos — 20-11-2026
+
+- Estado actual y resultados CI: [docs/DEVELOPMENT_STATUS_2026-11-20.md](docs/DEVELOPMENT_STATUS_2026-11-20.md)
+- Auditoría de mejoras y pruebas del amistoso: [docs/FRIENDLY_MODE_REFERENCE_AUDIT.md](docs/FRIENDLY_MODE_REFERENCE_AUDIT.md)
+- Hoja de ruta del motor de partido: [docs/MATCH_ENGINE_COMPLETION_ROADMAP.md](docs/MATCH_ENGINE_COMPLETION_ROADMAP.md)
+- Se añadió decisión de tiro para la IA y la prueba dedicada `tests/test_friendly_ai_shooting.gd`; su resultado debe confirmarse en GitHub Actions.
