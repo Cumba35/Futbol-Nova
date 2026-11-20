@@ -209,3 +209,12 @@ Pendiente: CI ARM64 del commit actual y pruebas de juego reales para comprobar q
 - Objetivo: evitar lecturas/escrituras concurrentes no sincronizadas en la simulación nativa. El render y la actualización del partido siguen en el hilo GL; el mutex no mueve operaciones gráficas al hilo UI.
 - Commit: `21825b316bbd6c1754e5bc83b7629894ab1259f3`. Archivo releído desde GitHub y comprobada la presencia del mutex y los bloqueos en frame, entrada táctil y getters.
 - Pendiente: CI para este commit, revisión de posibles pausas perceptibles por contención del mutex y prueba multitáctil real en Android. No considerar validado por revisión estática solamente.
+
+
+### Auditoría adicional: límites de porteros después del descanso — 2026-11-20
+
+La revisión estática del HEAD encontró una inconsistencia en `updateKeeper()`: el límite longitudinal del portero dependía solo del índice del equipo y no de `homeDefendsNegative`. Después del descanso, el bloque de movimiento intentaba llevar al portero al extremo contrario, pero el límite fijo lo devolvía al extremo inicial; la segunda restricción aplicada más abajo en `update()` lo dejaba pegado al borde de la zona permitida (Z = ±48.8) en vez de su línea de portería.
+
+**Corrección aplicada:** commit `af78036a4354b844b201f2f7156dcc5f91deb408`. El límite Z de cada portero ahora se calcula usando el sentido de defensa actual, tanto para el equipo local como para el visitante. Se conservan los límites laterales y la anticipación existente.
+
+**Verificación:** el archivo fue releído desde GitHub tras el commit y el nuevo cálculo quedó confirmado. La corrección aún necesita compilación CI del HEAD actualizado y prueba en Android de ambos porteros antes y después del descanso. No se declara validada solo por revisión estática.
