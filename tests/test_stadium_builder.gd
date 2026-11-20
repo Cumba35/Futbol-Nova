@@ -21,8 +21,8 @@ func _initialize() -> void:
 		failures.append("El estadio debe identificar a Nova C35 como club local.")
 	if not bool(stadium.get("base_game", false)):
 		failures.append("Estadio del Fénix debe marcarse como contenido base.")
-	if int(stadium.get("capacity", 0)) <= 0:
-		failures.append("Capacidad de estadio inválida.")
+	if int(stadium.get("capacity", 0)) != 105000:
+		failures.append("Estadio del Fénix debe tener capacidad de diseño de 105 000 espectadores.")
 	if str(stadium.get("version", "")).is_empty():
 		failures.append("Versión del estadio no disponible.")
 
