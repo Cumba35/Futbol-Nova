@@ -292,3 +292,8 @@ Siguiente paso: validar estas pruebas en Godot CI; después integrar una reacci�
 
 
 La validación automatizada se reforzó para comprobar la dirección física real del disparo y que el selector táctico de partido utilice la posición del portero limitada a los postes. La ejecución CI más reciente que contiene ambas comprobaciones es la 44676705137; está en cola y no se debe declarar aprobada hasta que finalice.
+
+
+## Siguiente mejora del portero — 20 noviembre 2026
+
+La posición del portero ahora anticipa el cruce lateral del balón en el plano de su propia portería a partir de su velocidad, con horizonte limitado a 1,25 s. La prueba automatizada cubre ambos equipos, cambio de lado, balón que se aleja y ruta de selección táctica integrada. La siguiente fase será reacción física: estirada, blocaje, rebote y despeje; no se debe confundir el posicionamiento predictivo con una atajada ya implementada.
