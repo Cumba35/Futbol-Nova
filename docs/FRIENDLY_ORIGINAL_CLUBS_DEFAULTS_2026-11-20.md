@@ -1,30 +1,53 @@
-# Amistoso: clubes originales por defecto
+# Amistoso predeterminado: Nova C35 vs FC Río de Argenti
 
-Fecha: 2026-11-20
+Fecha de revisión: 2026-11-20
 
-## Cambio
+## Selección inicial
 
-La pantalla de preparación del amistoso presenta, en el orden del catálogo `data/original_clubs_2026.json`, los dos primeros clubes originales como selección inicial:
+La pantalla de preparación del amistoso selecciona por defecto:
 
 1. Nova C35 (`FN-NOVA-C35`) — local.
 2. FC Río de Argenti (`FN-NOVA-RDA`) — visitante.
 
-Las opciones muestran el avance conocido de plantilla: C35 2/11 y RDA 0/11, de acuerdo con los registros verificados disponibles en el catálogo original. El selector sigue permitiendo escoger otros clubes.
+Los dos clubes tienen 22 identificadores de jugador registrados en sus fichas y una plantilla de 22 perfiles para el modo offline. El partido coloca once titulares por equipo: 22 futbolistas activos en el campo, uno controlado por el usuario y 21 actores de IA.
 
-## Protección de integridad
+La prueba de aceptación del amistoso comprueba que el botón de inicio esté habilitado, que el resumen indique plantillas completas y que el partido arranque con 11 jugadores locales, 11 visitantes y 21 actores IA.
 
-Estos dos clubes todavía no están registrados como equipos jugables completos en el registro principal. Por ello, el botón de inicio permanece bloqueado al seleccionarlos y la pantalla explica que se requieren once jugadores verificados por equipo. No se generan jugadores, estadísticas, identificadores ni perfiles ficticios para forzar el inicio.
+## Jugador controlado según el equipo local
 
-El test de aceptación verifica los valores predeterminados originales y el bloqueo seguro por plantillas incompletas. Después selecciona dos clubes de prueba con plantillas válidas para conservar la cobertura del motor de partido amistoso, sin alterar los nuevos valores predeterminados.
+La selección se determina explícitamente por el club local:
 
-## Pendiente para disputar este amistoso
+- Si Nova C35 es local, se controla a **Anier Cumbá**, ID `NOVA-PLAYER-0035`.
+- Si FC Río de Argenti es local, se controla a **Raymond Valdez**, ID `NOVA-PLAYER-0037`.
+- Para los demás clubes se conserva el jugador predeterminado del once inicial.
 
-- Importar los perfiles originales verificados de Nova C35 y FC Río de Argenti al catálogo jugable.
-- Completar al menos once jugadores reales/verificados por equipo (el objetivo de plantilla sigue siendo 22).
-- Resolver la identidad única del jugador Raymond antes de asignarlo a RDA.
-- Ejecutar la suite Godot y CI; no se declara la prueba aprobada hasta obtener resultado exitoso.
+La lógica está centralizada en `NovaPreMatchSetup.get_default_controlled_player_id()` y cubierta por `tests/test_match_11v11_foundation.gd`.
 
-## Archivos
+## Procedencia e integridad de los datos
 
+- Las fichas de clubes y plantillas identifican los perfiles creados para completar los clubes como ficticios mediante `fictional: true` y `identity_type: original_fictional_player`.
+- Los perfiles generados son contenido ficticio original del juego; no se presentan como futbolistas reales ni como estadísticas históricas verificadas.
+- Las estadísticas de carrera y temporada comienzan en cero.
+- Los IDs existentes de Anier, Máximo y Raymond se mantienen diferenciados. Raymond usa `NOVA-PLAYER-0037` en la plantilla de FC Río de Argenti.
+- No se inventan resultados, apariciones ni estadísticas de partidos anteriores.
+
+## Validación y límites
+
+La aceptación integrada existente comprueba selección de clubes, plantillas completas, 22 futbolistas activos, Anier como control para C35 local, Raymond presente en la plantilla visitante, controles táctiles, balón, goles, marcador, reloj, pausas, períodos y finalización.
+
+La nueva prueba `tests/test_match_start_atomic_validation.gd` verifica que una solicitud inválida (clubes iguales, once incompleto o ID de jugador controlado desconocido) no interrumpa un partido que ya está activo.
+
+Estas pruebas todavía necesitan una ejecución CI terminada con éxito y una prueba manual en Android. La APK debug no se considera validada solo por estar exportada.
+
+## Archivos relacionados
+
+- `data/nova_c35_club.json`
+- `data/fc_rio_de_argenti_club.json`
+- `data/players/nova_original_club_rosters_2026.json`
+- `scripts/data/original_club_importer.gd`
 - `scripts/ui/pre_match_setup.gd`
+- `scripts/main.gd`
+- `tests/test_original_club_importer.gd`
 - `tests/test_friendly_match_runtime.gd`
+- `tests/test_match_11v11_foundation.gd`
+- `tests/test_match_start_atomic_validation.gd`
