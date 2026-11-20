@@ -211,6 +211,12 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 		return {"ok": false, "error": "Las alineaciones 11 contra 11 no superaron la validación."}
 	_home_team_id = home_team_id
 	_away_team_id = away_team_id
+	var home_kit_id := str(match_settings.get("home_kit_id", "home"))
+	var away_kit_id := str(match_settings.get("away_kit_id", "home"))
+	_team_colors.home = KIT_PALETTE.shirt_color(home_team_id, home_kit_id)
+	_team_colors.away = KIT_PALETTE.shirt_color(away_team_id, away_kit_id)
+	_team_colors.home_goalkeeper = KIT_PALETTE.shirt_color(home_team_id, home_kit_id, true)
+	_team_colors.away_goalkeeper = KIT_PALETTE.shirt_color(away_team_id, away_kit_id, true)
 	_player.global_position = home_lineup[9].position
 	_player.rotation.y = 0.0
 	for index in range(home_lineup.size()):
@@ -577,6 +583,8 @@ func _create_ai_actor(player_data: Dictionary) -> void:
 	var pace := clampf(float(attributes.get("spd", 60)), 0.0, 100.0)
 	var actor_speed := 4.2 if str(player_data.role) == "GK" else clampf(4.0 + pace * 0.015, 4.0, 5.8)
 	var kit_color: Color = _team_colors.home if is_home else _team_colors.away
+	if str(player_data.role) == "GK":
+		kit_color = _team_colors.home_goalkeeper if is_home else _team_colors.away_goalkeeper
 	var body := MeshInstance3D.new()
 	var body_mesh := CapsuleMesh.new()
 	body_mesh.radius = PLAYER_RADIUS
