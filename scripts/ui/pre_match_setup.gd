@@ -10,6 +10,14 @@ const ACCENT := Color("#c8f45a")
 const TEXT_COLOR := Color("#f4f7ef")
 const MUTED := Color("#a8b7aa")
 const STADIUM_BUILDER = preload("res://scripts/stadiums/stadium_builder.gd")
+const MATCH_CLOCK_RULES = preload("res://scripts/gameplay/match_clock_rules.gd")
+const DEFAULT_HOME_TEAM_ID := "FN-NOVA-C35"
+const DEFAULT_AWAY_TEAM_ID := "FN-NOVA-RDA"
+const DEFAULT_STADIUM_ID := "nova_central"
+const DEFAULT_FORMATION_ID := "4-3-3"
+const MINIMUM_ROSTER_SIZE := 22
+const STARTING_LINEUP_SIZE := 11
+const DEFAULT_CONTROLLED_LINEUP_INDEX := 9
 const STARTING_POSITION_PRIORITY := [
 	["POR", "GK", "G"],
 	["LI", "CAI"],
@@ -25,8 +33,8 @@ const STARTING_POSITION_PRIORITY := [
 ]
 
 static func get_default_team_indices(team_ids: Array[String]) -> Dictionary:
-	var home_index := team_ids.find("FN-NOVA-C35")
-	var away_index := team_ids.find("FN-NOVA-RDA")
+	var home_index := team_ids.find(DEFAULT_HOME_TEAM_ID)
+	var away_index := team_ids.find(DEFAULT_AWAY_TEAM_ID)
 	if home_index < 0 and not team_ids.is_empty():
 		home_index = 0
 	if away_index < 0 or away_index == home_index:
@@ -37,11 +45,26 @@ static func get_default_team_indices(team_ids: Array[String]) -> Dictionary:
 				break
 	return {"home": home_index, "away": away_index}
 
+static func get_default_friendly_match_settings() -> Dictionary:
+	return {
+		"match_type": "friendly",
+		"home_team_id": DEFAULT_HOME_TEAM_ID,
+		"away_team_id": DEFAULT_AWAY_TEAM_ID,
+		"stadium_id": DEFAULT_STADIUM_ID,
+		"half_length_minutes": MATCH_CLOCK_RULES.DEFAULT_HALF_LENGTH_MINUTES,
+		"clock_mode": MATCH_CLOCK_RULES.DEFAULT_CLOCK_MODE,
+		"extra_time_enabled": false,
+		"penalties_enabled": false,
+		"formation_id": DEFAULT_FORMATION_ID,
+		"minimum_roster_size": MINIMUM_ROSTER_SIZE,
+		"starting_lineup_size": STARTING_LINEUP_SIZE
+	}
+
 static func get_default_controlled_player_id(home_team_id: String, home_player_ids: Array) -> String:
-	var fallback_id := str(home_player_ids[9]) if home_player_ids.size() > 9 else ""
-	if home_team_id == "FN-NOVA-C35" and home_player_ids.has("NOVA-PLAYER-0035"):
+	var fallback_id := str(home_player_ids[DEFAULT_CONTROLLED_LINEUP_INDEX]) if home_player_ids.size() > DEFAULT_CONTROLLED_LINEUP_INDEX else ""
+	if home_team_id == DEFAULT_HOME_TEAM_ID and home_player_ids.has("NOVA-PLAYER-0035"):
 		return "NOVA-PLAYER-0035"
-	if home_team_id == "FN-NOVA-RDA" and home_player_ids.has("NOVA-PLAYER-0037"):
+	if home_team_id == DEFAULT_AWAY_TEAM_ID and home_player_ids.has("NOVA-PLAYER-0037"):
 		return "NOVA-PLAYER-0037"
 	return fallback_id
 
@@ -246,8 +269,11 @@ func _build_interface() -> void:
 	for stadium in STADIUM_BUILDER.get_catalog():
 		_stadiums.add_item(str(stadium.get("name", "Estadio")))
 		_stadiums.set_item_metadata(_stadiums.item_count - 1, str(stadium.get("id", "")))
-	if _stadiums.item_count > 0:
-		_stadiums.select(0)
+	var default_match_settings := get_default_friendly_match_settings()
+	for index in range(_stadiums.item_count):
+		if str(_stadiums.get_item_metadata(index)) == str(default_match_settings.get("stadium_id", DEFAULT_STADIUM_ID)):
+			_stadiums.select(index)
+			break
 	column.add_child(_stadiums)
 
 	var match_options := GridContainer.new()
@@ -263,19 +289,28 @@ func _build_interface() -> void:
 	_half_length.add_item("10 min por tiempo", 10)
 	_half_length.add_item("15 min por tiempo", 15)
 	_half_length.add_item("20 min por tiempo", 20)
-	_half_length.select(1)
+	for index in range(_half_length.item_count):
+		if _half_length.get_item_id(index) == int(default_match_settings.get("half_length_minutes", MATCH_CLOCK_RULES.DEFAULT_HALF_LENGTH_MINUTES)):
+			_half_length.select(index)
+			break
 	match_options.add_child(_half_length)
 	_clock_mode = OptionButton.new()
 	_clock_mode.add_item("Reloj continuo", 0)
 	_clock_mode.add_item("Reloj detenido", 1)
-	_clock_mode.select(0)
+	var default_clock_id := 0 if str(default_match_settings.get("clock_mode", MATCH_CLOCK_RULES.DEFAULT_CLOCK_MODE)) == MATCH_CLOCK_RULES.CLOCK_CONTINUOUS else 1
+	for index in range(_clock_mode.item_count):
+		if _clock_mode.get_item_id(index) == default_clock_id:
+			_clock_mode.select(index)
+			break
 	match_options.add_child(_clock_mode)
 	_extra_time = CheckBox.new()
 	_extra_time.text = "Permitir prórroga"
+	_extra_time.button_pressed = bool(default_match_settings.get("extra_time_enabled", false))
 	match_options.add_child(_extra_time)
 	_penalties = CheckBox.new()
 	_penalties.text = "Tanda de penaltis (en desarrollo)"
 	_penalties.disabled = true
+	_penalties.button_pressed = bool(default_match_settings.get("penalties_enabled", false))
 	match_options.add_child(_penalties)
 
 	var actions := HBoxContainer.new()
@@ -380,7 +415,7 @@ func _load_eligible_teams() -> void:
 	for team_id in ordered_ids:
 		var team: Dictionary = registry.teams_by_id[team_id]
 		var roster: Array = _get_combined_team_roster(team_id)
-		if roster.size() < 22:
+		if roster.size() < MINIMUM_ROSTER_SIZE:
 			continue
 		var display_name := str(team.get("name", team.get("short_name", team_id))).strip_edges()
 		if display_name.is_empty():
@@ -425,8 +460,8 @@ func _refresh_validation() -> void:
 	if valid:
 		home_eleven = build_starting_eleven(home_roster)
 		away_eleven = build_starting_eleven(away_roster)
-	valid = valid and home_roster.size() >= 22 and away_roster.size() >= 22
-	valid = valid and home_eleven.size() == 11 and away_eleven.size() == 11
+	valid = valid and home_roster.size() >= MINIMUM_ROSTER_SIZE and away_roster.size() >= MINIMUM_ROSTER_SIZE
+	valid = valid and home_eleven.size() == STARTING_LINEUP_SIZE and away_eleven.size() == STARTING_LINEUP_SIZE
 	valid = valid and not _selected_stadium_id().is_empty()
 	_start_button.disabled = not valid
 	if home_id == away_id and not home_id.is_empty():
@@ -468,7 +503,7 @@ func _start_match() -> void:
 			var player_id := str(raw_player.get("id", "")).strip_edges()
 			if not player_id.is_empty():
 				players_by_id[player_id] = raw_player.duplicate(true)
-	if home_player_ids.size() != 11 or away_player_ids.size() != 11:
+	if home_player_ids.size() != STARTING_LINEUP_SIZE or away_player_ids.size() != STARTING_LINEUP_SIZE:
 		_summary.text = "La plantilla contiene un identificador de jugador inválido."
 		_start_button.disabled = true
 		return
