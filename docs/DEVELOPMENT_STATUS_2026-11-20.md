@@ -165,3 +165,11 @@ Todos los cambios están en la rama `ui/stadium-selector-reference-layout`. CI G
 - El modo Amistosos sigue siendo el objetivo de aceptación: partido local 11v11, controles táctiles, IA, porteros, goles, pausas, períodos y final. No se amplía el catálogo de Primera División ni se inventan los tres clubes que el propietario creará.
 - Referencias públicas revisadas: `awest813/League-Soccer` (Apache-2.0; C++/desktop, útil como referencia de arquitectura táctica, no como dependencia Godot móvil), `JoenTNT/godot_thumbstick_addon` (MIT; Godot 4.4/GL Compatibility, candidato conceptual para joystick pero no integrado sin pruebas multitáctiles) y `HubbleCommand/mobile_controls` (MIT; Godot 4.3, requiere adaptación de InputMap). No se copió código ni assets.
 - La ejecución CI `44792124409` estaba en curso antes de estos cambios; no cuenta como validación de los nuevos commits. La nueva sincronización debe disparar otra ejecución. No publicar APK ni declarar aprobado hasta que todas las pruebas terminen correctamente y se haga una prueba física en Android.
+
+
+## Seguimiento de CI tras la corrección tipada — 20-11-2026
+
+- Run 44792124409 (run 411), sobre el estado anterior a la corrección explícita de tipos, terminó en fallo en `Core test — controller hint visibility`; los pasos siguientes fueron omitidos. No hay logs accesibles en esta consulta para añadir un diagnóstico distinto al ya documentado.
+- Se tiparon explícitamente `stand_x`, `stand_z`, `shirt` y `current_position`; se amplió el test de visibilidad de mandos con estado ausente y conteo negativo.
+- Run 44792711004 (run 413) se encuentra en curso; su resultado debe verificarse antes de considerar resuelto el bloqueo.
+- Se añadió `docs/FRIENDLY_MODE_TEST_MATRIX.md` con pruebas automáticas y lista de validación física Android. La prueba en dispositivo sigue pendiente.
