@@ -1,8 +1,16 @@
 # Fútbol Nova — Arquitectura técnica
 
-## Motor y plataformas
+## Motor y plataformas — configuración vigente
 
-Propuesta inicial: Godot 4.x y GDScript, con renderizado 3D y física integrada. Primera validación en PC; los requisitos de Android se medirán antes de prometer soporte. No se fija aún una versión menor concreta del motor: se elegirá una versión estable compatible con los plugins y dispositivos objetivo.
+- Motor: **Godot 4.4.1** en CI; el proyecto declara características Godot 4.4 y GDScript.
+- Renderizado: **GL Compatibility** tanto en escritorio como en móvil; compresión/importación de texturas ETC2/ASTC habilitada en el proyecto.
+- Plataforma de distribución prioritaria: Android **ARM64-v8a**. El preset excluye armeabi-v7a, x86 y x86_64.
+- Nombre de paquete: `com.nova.futbolnova`; nombre visible: `Fútbol Nova`; versión exportada actual: `0.1.0`, código `1`.
+- Vista de referencia del proyecto: 1280 × 720, con escalado `canvas_items`; la interfaz debe adaptarse a las dimensiones reales del dispositivo.
+- Pantalla Android: modo inmersivo, admite pantallas pequeñas y mantiene la pantalla encendida durante el juego.
+- El preset declara `permissions/internet=false` y `permissions/access_network_state=false`; el amistoso base debe funcionar completamente offline.
+- La exportación APK debug y las pruebas usan plantillas compatibles con Godot 4.4.1. Una exportación terminada no equivale a validación de instalación ni de jugabilidad en un teléfono.
+- Estado de validación: el proyecto y la configuración de exportación están definidos; la aceptación final exige CI completa, inspección del APK ARM64 e instalación/partido manual en Android.
 
 ## Frontera entre juego base y módulos descargables
 
