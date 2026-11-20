@@ -28,3 +28,25 @@
 La existencia de un repositorio público no equivale a permiso de reutilización. La licencia del código no cubre automáticamente dependencias, escudos, uniformes, fotografías, música, nombres comerciales ni bases de datos. Si una licencia no está clara, se implementa una solución original inspirada únicamente en ideas generales.
 
 **Resultado:** esta ronda añade referencias y criterios de diseño; no se incorporó código externo ni se añadieron dependencias al juego.
+
+
+
+## Segunda ronda de investigación — 20-11-2026
+
+| Repositorio | Hallazgo relevante | Aplicación a Fútbol Nova | Licencia / límite |
+|---|---|---|---|
+| [devinarena/Pixel-Striker](https://github.com/devinarena/Pixel-Striker) | Juego móvil Godot; minijuegos de portero y penaltis donde el guardameta decide una estirada según la dirección del balón. | Referencia directa para una futura capa de reacción/estirada del portero y controles móviles; separar el minijuego de penaltis del amistoso 11v11. | MIT confirmada por GitHub. Proyecto pequeño y con última actividad antigua; no se copió código ni recursos. |
+| [namelesssyf/soccer-box-game](https://github.com/namelesssyf/soccer-box-game) | Godot 4, balón rígido, partidos locales, portero IA y pruebas automatizadas; orientado a fútbol arcade 3v3 y multijugador. | Revisar telemetría, control de balón y pruebas de física; no trasladar su combate/online al amistoso. | GitHub no declara licencia en los metadatos consultados; solo observación conceptual, no reutilizar código/assets. |
+| [modelence/open-soccer](https://github.com/modelence/open-soccer) | Partido CPU 11v11 con saques, córners, saques de banda, fuera de juego, control de jugador y práctica libre; motor web separado por dominio. | Referencia para lista de reglas y separación motor/HUD; convertir la lista en pruebas de aceptación para el modo amistoso. | GitHub no declara licencia en los metadatos consultados; no copiar código/assets. |
+| [ogulcanunverenpt-star/purpleshoe](https://github.com/ogulcanunverenpt-star/purpleshoe) | Godot 4.7, partido 11-a-side con 10 jugadores de campo y un portero por lado, IA de equipo y reinicios; además integra servicios online. | Comparar roles, selección de jugador, situaciones de reinicio y límites entre juego local/online. | Licencia no confirmada en los metadatos consultados; no copiar código/assets. Requiere Godot más nuevo y su backend no es necesario para el modo offline. |
+| [FlavioMili/Player12](https://github.com/FlavioMili/Player12) | Simulación C++23 con portero, reglas, tácticas, fatiga y estadísticas de partido. | Lista de sistemas a cubrir en futuras fases: tiros a puerta, atajadas, posesión y fatiga. | No es un proyecto Godot/Android; no portar motor ni dependencias. |
+
+### Cambios de diseño derivados de la investigación
+
+- Se mantiene Godot 4.4.1 y el motor GDScript existente; no se incorpora una dependencia externa para resolver IA de portero.
+- Se añadió seguimiento lateral del portero limitado al espacio entre postes y una predicción de cruce basada en velocidad del balón, con horizonte máximo de 1,25 s para evitar oscilaciones.
+- La prueba de posicionamiento verifica ambos equipos, cambio de lado, límite entre postes y anticipación solo cuando el balón viaja hacia la propia portería.
+- La futura estirada/blocaje/rebote se mantiene como tarea separada: el posicionamiento predictivo no equivale todavía a una atajada física.
+- Se reforzó la prueba de remate para verificar que el balón se impulsa físicamente hacia la portería rival.
+
+**Política de reutilización:** Pixel-Striker es MIT, pero no se copió código; en los demás repositorios se estudian únicamente ideas generales hasta confirmar licencia y dependencias. Ningún escudo, camiseta, imagen, sonido ni base de datos externa se incorpora en esta ronda.
