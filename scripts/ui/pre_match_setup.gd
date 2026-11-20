@@ -374,7 +374,9 @@ func _load_eligible_teams() -> void:
 				if original_id.is_empty() or _team_ids.has(original_id):
 					continue
 				var original_name := str(original_club.get("name", original_id))
-				var roster_note := " • plantilla pendiente"
+				var roster_data: Dictionary = original_club.get("roster", {})
+				var known_player_ids: Array = roster_data.get("known_player_ids", [])
+				var roster_note := " • plantilla %d/11" % mini(known_player_ids.size(), 11)
 				_home_teams.add_item(original_name + roster_note)
 				_away_teams.add_item(original_name + roster_note)
 				var original_item_index := _home_teams.item_count - 1
