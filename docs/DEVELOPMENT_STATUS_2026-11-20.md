@@ -154,3 +154,14 @@ Todos los cambios están en la rama `ui/stadium-selector-reference-layout`. CI G
 - Los jobs posteriores fueron omitidos por el fallo anterior; no inferir que las pruebas de estadio, jugador procedural, identidad C35 o selector visual pasan.
 - Se mantiene como dato vigente la capacidad de diseño de **105 000** del Estadio del Fénix. La mención anterior a 35 000 en la sección histórica de dirección visual queda sustituida por la actualización de capacidad documentada más abajo.
 - La rama de trabajo sigue siendo `ui/stadium-selector-reference-layout`; PR #6 de Fútbol Nova y PR #27 de Nova Workspace deben permanecer abiertos/en draft y sin fusionar. No publicar APK final ni declarar listo el amistoso.
+
+
+## Corrección de tipos y foco de pruebas — 20-11-2026
+
+- Se tipan explícitamente como `float` las coordenadas `stand_x` y `stand_z` de la multitud del estadio, y como `Color` el color `shirt`, evitando inferencias desde arrays/valores Variant en Godot 4.4.1.
+- Se tipa `current_position` como `Vector3` en el modelo procedural de futbolista para eliminar la inferencia ambigua de la expresión condicional.
+- La función estática `NovaGameHub.should_show_controller_hints()` ya existe en la rama actual y solo devuelve verdadero si el módulo está activo y hay al menos un mando conectado. La prueba ahora cubre también estado ausente y conteo negativo.
+- La capacidad de diseño de Estadio del Fénix continúa fijada en exactamente **105 000**; `test_stadium_builder.gd` ya lo exige.
+- El modo Amistosos sigue siendo el objetivo de aceptación: partido local 11v11, controles táctiles, IA, porteros, goles, pausas, períodos y final. No se amplía el catálogo de Primera División ni se inventan los tres clubes que el propietario creará.
+- Referencias públicas revisadas: `awest813/League-Soccer` (Apache-2.0; C++/desktop, útil como referencia de arquitectura táctica, no como dependencia Godot móvil), `JoenTNT/godot_thumbstick_addon` (MIT; Godot 4.4/GL Compatibility, candidato conceptual para joystick pero no integrado sin pruebas multitáctiles) y `HubbleCommand/mobile_controls` (MIT; Godot 4.3, requiere adaptación de InputMap). No se copió código ni assets.
+- La ejecución CI `44792124409` estaba en curso antes de estos cambios; no cuenta como validación de los nuevos commits. La nueva sincronización debe disparar otra ejecución. No publicar APK ni declarar aprobado hasta que todas las pruebas terminen correctamente y se haga una prueba física en Android.
