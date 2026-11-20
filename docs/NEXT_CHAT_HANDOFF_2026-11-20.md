@@ -49,3 +49,17 @@ Fecha de cierre: 20-11-2026 18:21 UTC.
 - Investigación: `docs/THIRD_PARTY_RESEARCH.md`
 
 En el siguiente chat, continuar directamente con la inspección/corrección de los errores de CI descritos arriba.
+
+## Continuación añadida — corrección de tipado y validación amistosos
+
+- Rama de trabajo: `ui/stadium-selector-reference-layout` en ambos repositorios.
+- PR abiertos/en borrador: Fútbol Nova #6 y Nova Workspace #27. No fusionar ni publicar.
+- Cambios de código preparados en esta iteración:
+  - `stadium_builder.gd`: tipos explícitos `float` para `stand_x`/`stand_z` y `Color` para `shirt`.
+  - `procedural_player_visual.gd`: `current_position: Vector3`.
+  - `test_controller_hint_visibility.gd`: casos de estado ausente y conteo de mandos negativo; se conserva la regla de ocultar indicadores sin mando conectado.
+- La función `should_show_controller_hints` está presente en `game_hub.gd` en el HEAD inspeccionado y aplica la condición módulo activo + al menos un mando conectado.
+- El test de estadio ya exige el aforo exacto de 105 000 espectadores.
+- No crear datos para los tres clubes originales del propietario hasta recibir sus nombres, colores, estadios e identidades. No generar plantillas ficticias en su nombre.
+- Siguiente prioridad: esperar CI posterior a los cambios; corregir cualquier error real; mantener el flujo de amistoso completo como principal objetivo de pruebas. Después validar en un Android físico (rendimiento, temperatura, memoria, controles y partido completo).
+- Investigación pública revisada de nuevo: `awest813/League-Soccer` Apache-2.0 (desktop C++), `JoenTNT/godot_thumbstick_addon` MIT (Godot 4.4/GL Compatibility) y `HubbleCommand/mobile_controls` MIT (Godot 4.3). Se usan solo como referencias; no se incorporó código ni recursos externos.
