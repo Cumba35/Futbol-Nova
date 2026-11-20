@@ -1,6 +1,7 @@
 extends SceneTree
 
 const PLAYER_PROFILE = preload("res://scripts/data/player_profile.gd")
+const ANIMATION_MODULE = preload("res://modules/nova_3d_animation/nova_3d_animation.gd")
 
 func _initialize() -> void:
 	call_deferred("_run")
@@ -40,6 +41,16 @@ func _run() -> void:
 	assert(int(raymond.get("height_cm", 0)) == 171 and int(raymond.get("weight_kg", 0)) == 63, "Medidas de Raymond incorrectas")
 	assert(raymond.get("skill_moves", []) is Array and raymond.skill_moves.size() >= 8, "Raymond debe incluir su repertorio técnico")
 	assert(str(raymond.get("goal_celebration", {}).get("id", "")) == "raymond_messi_inspired_skyward_point", "Debe existir la celebración especial de Raymond")
+	assert(str(raymond.get("nationality_id", "")) == "UNK", "No se debe inventar la nacionalidad de Raymond")
 	assert(int(raymond.get("statistics", {}).get("career", {}).get("appearances", -1)) == 0, "Las estadísticas de carrera deben empezar en cero")
+
+	var animation_module := ANIMATION_MODULE.new()
+	root.add_child(animation_module)
+	animation_module.set_player_animation_profile(raymond.get("animation_profile", {}))
+	assert(animation_module.play_player_skill("close_control_dribble"), "El módulo debe aceptar el regate de control cercano")
+	assert(str(animation_module.active_state) == "dribble", "El regate debe activar el estado dribble")
+	assert(animation_module.play_goal_celebration(raymond.get("goal_celebration", {})), "El módulo debe aceptar la celebración configurada")
+	assert(str(animation_module.active_state) == "celebration", "La celebración debe activar el estado celebration")
+	animation_module.queue_free()
 	print("FUTBOL_NOVA_ORIGINAL_CLUB_ROSTERS_TESTS: PASS")
 	quit(0)
