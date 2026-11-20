@@ -151,14 +151,37 @@ func _run_acceptance_test() -> void:
 				failures.append("La preparación debe mostrar los tres estadios locales disponibles.")
 			if setup._selected_stadium_id() != "nova_central":
 				failures.append("El estadio Nova Central debe ser la selección inicial.")
-			if setup._start_button.disabled:
-				failures.append("El botón Iniciar amistoso está bloqueado pese a existir dos clubes válidos.")
 			var selected_home_id: String = str(setup._selected_team_id(setup._home_teams))
 			var selected_away_id: String = str(setup._selected_team_id(setup._away_teams))
-			if selected_home_id != "FN-ESP-REAL-MADRID":
-				failures.append("El amistoso de muestra debe seleccionar Albor Madrid (referencia Real Madrid) a la izquierda.")
-			if selected_away_id != "FN-ESP-BARCELONA":
-				failures.append("El amistoso de muestra debe seleccionar Litoral Barcelona (referencia FC Barcelona) a la derecha.")
+			if selected_home_id != "FN-NOVA-C35":
+				failures.append("El amistoso debe mostrar Nova C35 como selección local inicial.")
+			if selected_away_id != "FN-NOVA-RDA":
+				failures.append("El amistoso debe mostrar FC Río de Argenti como selección visitante inicial.")
+			if not setup._start_button.disabled:
+				failures.append("El amistoso debe permanecer bloqueado mientras las plantillas originales no tengan once jugadores verificados.")
+			if not setup._summary.text.contains("plantillas jugables aún no están completas"):
+				failures.append("La pantalla no explica por qué todavía no se puede iniciar el amistoso de los clubes originales.")
+
+			# Keep the general match-engine acceptance path covered with two existing
+			# fully playable clubs; this does not change the new original-club defaults.
+			var playable_home_index := -1
+			var playable_away_index := -1
+			for option_index in range(setup._home_teams.item_count):
+				var option_id := str(setup._home_teams.get_item_metadata(option_index))
+				if option_id == "FN-ESP-REAL-MADRID":
+					playable_home_index = option_index
+				if option_id == "FN-ESP-BARCELONA":
+					playable_away_index = option_index
+			if playable_home_index < 0 or playable_away_index < 0:
+				failures.append("El catálogo amistoso dejó de mostrar los clubes de prueba jugables.")
+			else:
+				setup._home_teams.select(playable_home_index)
+				setup._away_teams.select(playable_away_index)
+				setup._on_team_selection_changed(0)
+				selected_home_id = str(setup._selected_team_id(setup._home_teams))
+				selected_away_id = str(setup._selected_team_id(setup._away_teams))
+				if setup._start_button.disabled:
+					failures.append("El botón Iniciar amistoso está bloqueado pese a seleccionar dos clubes con plantillas válidas.")
 			if setup._stadiums.item_count > 1:
 				setup._stadiums.select(1)
 			var expected_home_name := str(football_registry.teams_by_id.get(selected_home_id, {}).get("name", selected_home_id))
