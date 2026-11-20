@@ -264,3 +264,8 @@ No se ha integrado ni copiado código o assets de estos repositorios en esta fas
 - Cada mockup se entregará en el chat y se registrará con estado: propuesta, corregido, aprobado o sustituido.
 - Mockup, implementación y prueba son estados distintos.
 - Mantener consistencia con `GAME_DESIGN.md` y el estándar global `Nova-Nexus/library/game-creation-standards.md`.
+
+
+## Dirección FIFA 23 / FIFA 26 y Estadio del Fénix — 20-11-2026
+
+La referencia visual se amplía con FIFA 23 para la experiencia de jornada, gradas, paneles animados, tifos, césped, redes y cámaras; FIFA 26 aporta criterios de animación contextual, reacciones de portero, posicionamiento, presentación de estadios y accesibilidad. La adaptación original, el alcance del juego base, el diseño de Nova C35, la multitud procedural y el plan de jugadores/aficionados están detallados en `docs/FIFA23_FC26_VISUAL_DIRECTION_AND_BASE_GAME.md`. No se copian recursos ni interfaces de EA.
