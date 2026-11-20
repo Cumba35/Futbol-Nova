@@ -31,6 +31,7 @@ public final class MainActivity extends Activity {
     private int matchMinutes=3;
     private final Handler matchUiHandler=new Handler();
     private TextView scoreboard;
+    private Button skipGoalButton;
     private Runnable scoreRefresh;
 
     private static native void nativeTouch(float x,float y,int action,int pointerId,int width,int height);
@@ -39,6 +40,8 @@ public final class MainActivity extends Activity {
     private static native int nativeGetHomeScore();
     private static native int nativeGetAwayScore();
     private static native float nativeGetMatchSeconds();
+    private static native int nativeGetGoalSequencePhase();
+    private static native void nativeSkipGoalSequence();
     private static native void nativeSetMatchDurationMinutes(int minutes);
     private static native void nativeStartSecondHalf();
     private static native int nativeGetMatchPhase();
@@ -170,9 +173,14 @@ public final class MainActivity extends Activity {
         gameRoot.addView(game);
         scoreboard=text("",14,Color.WHITE,true);
         scoreboard.setGravity(Gravity.CENTER);scoreboard.setBackgroundColor(0x9907131C);FrameLayout.LayoutParams top=new FrameLayout.LayoutParams(-1,dp(42),Gravity.TOP);gameRoot.addView(scoreboard,top);
+        skipGoalButton=button("SALTAR",()->nativeSkipGoalSequence());
+        skipGoalButton.setVisibility(View.GONE);
+        FrameLayout.LayoutParams skipLp=new FrameLayout.LayoutParams(dp(132),dp(46),Gravity.TOP|Gravity.CENTER_HORIZONTAL);
+        skipLp.topMargin=dp(50);gameRoot.addView(skipGoalButton,skipLp);
         scoreRefresh=new Runnable(){@Override public void run(){
             if(!matchRunning||scoreboard==null)return;
             int phase=nativeGetMatchPhase();
+            if(skipGoalButton!=null)skipGoalButton.setVisibility(nativeGetGoalSequencePhase()!=0?View.VISIBLE:View.GONE);
             if(phase==1){matchUiHandler.removeCallbacks(this);showHalfTimeDialog();return;}
             if(phase==3){matchUiHandler.removeCallbacks(this);showFullTimeDialog();return;}
             int seconds=(int)nativeGetMatchSeconds();
@@ -208,7 +216,7 @@ public final class MainActivity extends Activity {
     private void returnToMenu(){
         matchRunning=false;
         if(scoreRefresh!=null)matchUiHandler.removeCallbacks(scoreRefresh);
-        scoreboard=null;nativePause(true);
+        scoreboard=null;skipGoalButton=null;nativePause(true);
         if(game!=null){game.onPause();game=null;}
         buildShell();showScreen("INICIO");
     }
