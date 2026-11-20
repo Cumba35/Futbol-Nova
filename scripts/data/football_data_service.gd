@@ -52,6 +52,7 @@ var first_division_roster_summary: Dictionary = {}
 var usa_import_summary: Dictionary = {}
 var base_league_import_summary: Dictionary = {}
 var base_roster_import_summary: Dictionary = {}
+var original_club_import_summary: Dictionary = {}
 var global_import_summary: Dictionary = {}
 var downloaded_import_summary: Dictionary = {}
 var downloaded_national_summary: Dictionary = {}
@@ -111,7 +112,7 @@ func initialize_catalog() -> bool:
 		initialization_failed = true
 		for error in base_roster_import_summary.get("errors", []):
 			initialization_errors.append("Plantillas base guardadas: " + str(error))
-	var original_club_import_summary: Dictionary = ORIGINAL_CLUB_IMPORTER.import_into_registry(registry)
+	original_club_import_summary = ORIGINAL_CLUB_IMPORTER.import_into_registry(registry)
 	if not bool(original_club_import_summary.get("ok", false)):
 		initialization_failed = true
 		for error in original_club_import_summary.get("errors", []):
@@ -244,6 +245,9 @@ func get_catalog_summary() -> Dictionary:
 		"first_division_players_imported": int(first_division_roster_summary.get("players_added", 0)),
 		"first_division_teams_loaded": int(first_division_roster_summary.get("teams_completed", 0)),
 		"roster_import_ok": bool(roster_import_summary.get("ok", false)),
+		"original_clubs_import_ok": bool(original_club_import_summary.get("ok", false)),
+		"original_clubs_added": int(original_club_import_summary.get("teams_added", 0)),
+		"original_players_added": int(original_club_import_summary.get("players_added", 0)),
 		"global_import_ok": bool(global_import_summary.get("ok", false)),
 		"global_clubs_added": int(global_import_summary.get("clubs_added", 0)),
 		"global_players_added": int(global_import_summary.get("players_added", 0)),
