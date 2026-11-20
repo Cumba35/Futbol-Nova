@@ -211,15 +211,25 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 			player_data["player_data"] = record.duplicate(true) if record is Dictionary else {}
 	if not validate_lineups(home_lineup, away_lineup):
 		return {"ok": false, "error": "Las alineaciones 11 contra 11 no superaron la validación."}
-	_controlled_player_id = str(home_lineup[9].get("player_id", ""))
+	var controlled_index := 9
+	var requested_controlled_id := str(match_settings.get("controlled_player_id", ""))
+	if not requested_controlled_id.is_empty():
+		controlled_index = -1
+		for index in range(home_lineup.size()):
+			if str(home_lineup[index].get("player_id", "")) == requested_controlled_id:
+				controlled_index = index
+				break
+		if controlled_index < 0:
+			return {"ok": false, "error": "El futbolista seleccionado para controlar no está en el once inicial."}
+	_controlled_player_id = str(home_lineup[controlled_index].get("player_id", ""))
 	_last_touch_player_id = ""
 	_player.set_meta("player_id", _controlled_player_id)
 	_home_team_id = home_team_id
 	_away_team_id = away_team_id
-	_player.global_position = home_lineup[9].position
+	_player.global_position = home_lineup[controlled_index].position
 	_player.rotation.y = 0.0
 	for index in range(home_lineup.size()):
-		if index == 9:
+		if index == controlled_index:
 			continue
 		_create_ai_actor(home_lineup[index])
 	for player_data in away_lineup:
@@ -229,7 +239,7 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 	_paused = false
 	_decision_clock = AI_DECISION_INTERVAL
 	match_started.emit(11, 11)
-	return {"ok": true, "home_players": 11, "away_players": 11, "controlled_player_id": home_lineup[9].player_id}
+	return {"ok": true, "home_players": 11, "away_players": 11, "controlled_player_id": _controlled_player_id}
 
 func stop_match() -> void:
 	_active = false
@@ -411,6 +421,7 @@ func get_match_summary() -> Dictionary:
 		"ends_swapped": _ends_swapped,
 		"home_team_id": _home_team_id,
 		"away_team_id": _away_team_id,
+		"controlled_player_id": _controlled_player_id,
 		"match_phase": str(_match_clock_state.get("phase", "not_started")),
 		"clock_remaining_seconds": MATCH_CLOCK_STATE.get_remaining_seconds(_match_clock_state) if not _match_clock_state.is_empty() else 0.0
 	}
