@@ -178,3 +178,17 @@ Esta revisión volvió a abrir los repositorios y leyó sus README y archivos de
 - Se añadió `tests/test_match_start_atomic_validation.gd` y el workflow lo ejecuta como prueba principal.
 - La elección del jugador controlado se centralizó en `NovaPreMatchSetup.get_default_controlled_player_id()`: Anier si C35 es local y Raymond si RDA es local. La prueba base verifica ambas rutas y el fallback para otros clubes.
 - No se incorporaron dependencias, código, assets ni servicios externos.
+
+
+### Actividad y mantenimiento observados — 20-11-2026
+
+Los metadatos de GitHub se consultaron de nuevo para no confundir licencia con mantenimiento:
+
+| Repositorio | Último push observado | Estado | Decisión |
+|---|---:|---|---|
+| `krimshi/godot-soccer` | 2025-07-23 | No archivado, MIT; actividad reciente limitada | Referencia 2D conceptual; no dependencia. |
+| `awest813/League-Soccer` | 2026-10-26 | No archivado, Apache-2.0; actividad reciente | Referencia arquitectónica; C++17/CMake no se integra al cliente Godot Android. |
+| `AKM-8byte/FreeKick` | 2026-10-30 | No archivado, MIT; actividad reciente | Comparación de física; conservar implementación propia. |
+| `richardschembri/GodotBasic3DFootball` | 2018-04-03 | No archivado; sin licencia declarada | Referencia histórica únicamente; no copiar. |
+
+La fecha de actualización de metadatos puede cambiar por actividad administrativa; el último push es la señal usada para esta comparación. No se importaron archivos, dependencias ni assets de ninguno de estos repositorios.
