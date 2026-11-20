@@ -140,7 +140,7 @@ static func _add_crowd(root: Node3D, config: Dictionary) -> void:
 	for side in [-1.0, 1.0]:
 		for tier in range(4):
 			var stand_y := 2.8 + float(tier) * 2.05
-			var stand_x := side * (34.4 + float(tier) * 1.9)
+			var stand_x: float = side * (34.4 + float(tier) * 1.9)
 			for row in range(4):
 				var y := stand_y + float(row) * 0.34
 				for seat in range(54):
@@ -149,7 +149,7 @@ static func _add_crowd(root: Node3D, config: Dictionary) -> void:
 	for end_side in [-1.0, 1.0]:
 		for tier in range(4):
 			var stand_y := 2.8 + float(tier) * 2.05
-			var stand_z := end_side * (53.4 + float(tier) * 1.9)
+			var stand_z: float = end_side * (53.4 + float(tier) * 1.9)
 			for row in range(4):
 				var y := stand_y + float(row) * 0.34
 				for seat in range(38):
@@ -160,7 +160,7 @@ static func _add_crowd(root: Node3D, config: Dictionary) -> void:
 	head_multi.instance_count = placements.size()
 	for index in range(placements.size()):
 		var base := placements[index]
-		var shirt := tier_colors[rng.randi_range(0, tier_colors.size() - 1)]
+		var shirt: Color = tier_colors[rng.randi_range(0, tier_colors.size() - 1)]
 		var body_transform := base
 		body_transform.origin.y += 0.28
 		body_multi.set_instance_transform(index, body_transform)
