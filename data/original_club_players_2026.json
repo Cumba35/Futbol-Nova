@@ -3066,7 +3066,37 @@
         "original_choreography": true,
         "asset_status": "procedural_sequence_specification_pending_animation_clip"
       },
-      "nationality_status": "not_specified_by_owner"
+      "nationality_status": "not_specified_by_owner",
+      "skill_profile": {
+        "schema_version": "2.0.0",
+        "mode": "legend",
+        "overall": 91,
+        "position_group": "forward",
+        "stored_by_level": {
+          "level_1": [],
+          "level_2": [],
+          "level_3": [
+            "FN-SK-L3-172",
+            "FN-SK-L3-177",
+            "FN-SK-L3-187"
+          ]
+        },
+        "equipped_by_level": {
+          "level_1": null,
+          "level_2": null,
+          "level_3": "FN-SK-L3-172"
+        },
+        "active_skill_ids": [
+          "FN-SK-L3-172",
+          "FN-SK-L3-177",
+          "FN-SK-L3-187"
+        ],
+        "secondary_skills_enabled": false,
+        "match_skill_uses": 0,
+        "match_skill_use_limit": 3,
+        "match_skill_activation_history": [],
+        "design_note": "Habilidades existentes del catálogo NOVA seleccionadas para un perfil de regate y giro de élite; no son reproducciones exactas de jugadas de futbolistas reales."
+      }
     },
     {
       "id": "NOVA-PLAYER-0058",
