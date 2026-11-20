@@ -102,3 +102,18 @@ Corregir cualquier nuevo bloqueo real de CI y conseguir el APK Android. Después
 - Referencias oficiales: [Godot 4.4 Android export](https://docs.godotengine.org/en/4.4/tutorials/export/exporting_for_android.html), [Godot 4.4 Android template contents](https://docs.godotengine.org/en/4.4/contributing/development/compiling/compiling_for_android.html) y [Godot 4.4 Android export options](https://docs.godotengine.org/en/4.4/classes/class_editorexportplatformandroid.html).
 - Estado: no hay APK confirmado todavía. El proyecto sigue sin validación en un dispositivo Android real.
 
+
+
+
+## Tiro de IA en el amistoso — 20 noviembre 2026
+
+La revisión directa del controlador reveló que los futbolistas de IA podían conservar posesión y pasar/despejar, pero no tenían una decisión explícita de remate a portería. Se añadió al controlador una selección ligera de tiro cuando el balón está en el tercio ofensivo y dentro de una distancia razonable de la portería rival. La dirección se calcula según el lado de ataque y se invierte correctamente tras el descanso; la potencia usa el atributo de tiro/finalización disponible del jugador. No se añadió motor externo ni dependencia nativa.
+
+Se creó `tests/test_friendly_ai_shooting.gd` para validar: oportunidades de ambos equipos, inversión tras cambio de lado, rechazo de tiros lejanos/altos/fuera del campo, dirección de remate y aplicación de impulso físico real cuando un delantero IA tiene posesión. El workflow ejecuta esta prueba como paso independiente después de la aceptación de amistoso en vivo.
+
+Referencias adicionales consultadas:
+- [krimshi/godot-soccer](https://github.com/krimshi/godot-soccer) — licencia MIT verificada; proyecto 2D, útil solo como comparación ligera de interacción jugador-balón.
+- [awest813/League-Soccer](https://github.com/awest813/League-Soccer) — licencia Apache-2.0 verificada; motor completo con IA táctica y simulación, pero su motor/alcance no justifica sustituir la base Godot móvil.
+- [Tobilion/footysim](https://github.com/Tobilion/footysim) — simulación 11v11 por agentes y pruebas headless; la API no declara licencia, por lo que solo se consideran ideas generales y no se copia código.
+
+**Límite:** la nueva decisión de tiro está implementada y añadida a CI; todavía debe superar la ejecución Godot de la nueva prueba y validarse visualmente en un dispositivo Android. No equivale a tener un sistema completo de porteros/atajas ni estadísticas de tiros.
