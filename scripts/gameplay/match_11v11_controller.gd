@@ -110,6 +110,24 @@ static func goalkeeper_clear_direction(home_team: bool, ball_x: float, ends_swap
 	var clear_side := -1.0 if ball_x >= 0.0 else 1.0
 	return Vector3(clear_side * 0.72, 0.42, attack_direction).normalized()
 
+static func should_ai_shoot(ball_position: Vector3, home_team: bool, ends_swapped: bool = false, max_distance: float = 21.0) -> bool:
+	if not ball_position.is_finite() or ball_position.y < 0.0 or ball_position.y > 2.2 or max_distance <= 0.0:
+		return false
+	var attack_direction := -1.0 if home_team else 1.0
+	if ends_swapped:
+		attack_direction *= -1.0
+	var goal_distance := Vector2(ball_position.x, attack_direction * FIELD_HALF_LENGTH - ball_position.z).length()
+	return is_ball_in_attacking_third(ball_position.z, home_team, 22.0, ends_swapped) and goal_distance <= max_distance and absf(ball_position.x) <= FIELD_HALF_WIDTH - 2.0
+
+static func ai_shot_direction(ball_position: Vector3, home_team: bool, ends_swapped: bool = false) -> Vector3:
+	var attack_direction := -1.0 if home_team else 1.0
+	if ends_swapped:
+		attack_direction *= -1.0
+	var target_x := clampf(-ball_position.x * 0.28, -2.4, 2.4)
+	var goal_position := Vector3(target_x, 0.0, attack_direction * FIELD_HALF_LENGTH)
+	var direction := (goal_position - ball_position + Vector3.UP * 0.16).normalized()
+	return direction if direction.is_finite() else Vector3.ZERO
+
 static func evaluate_tackle(attacker_position: Vector3, attacker_forward: Vector3, target_position: Vector3, target_forward: Vector3, reach: float = 1.7, facing_threshold: float = 0.15) -> Dictionary:
 	var separation := target_position - attacker_position
 	var distance := separation.length()
@@ -702,6 +720,20 @@ func _try_ai_ball_action(actor_index: int, actor_data: Dictionary) -> void:
 		_clear_ball_possession()
 		apply_ai_kick(_ball, clear_direction, 10.5)
 		actor_data.kick_cooldown = 1.8
+		_actors[actor_index] = actor_data
+		return
+	# En zona de remate, la IA prioriza finalizar la jugada en vez de seguir
+	# encadenando pases o despejes. La decisión respeta el lado de ataque actual.
+	if should_ai_shoot(_ball.global_position, home_team, _ends_swapped):
+		var player_record: Dictionary = actor_data.get("player_data", {})
+		var attributes: Dictionary = player_record.get("attributes", {})
+		var shot_rating := float(attributes.get("shot", attributes.get("fin", 60)))
+		var shot_force := clampf(10.5 + shot_rating * 0.045, 11.0, 15.0)
+		var shot_direction := ai_shot_direction(_ball.global_position, home_team, _ends_swapped)
+		notify_ball_kicked()
+		_clear_ball_possession()
+		apply_ai_kick(_ball, shot_direction, shot_force)
+		actor_data.kick_cooldown = 1.65
 		_actors[actor_index] = actor_data
 		return
 	var attack_sign := _attack_sign(home_team)
