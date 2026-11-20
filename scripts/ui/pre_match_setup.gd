@@ -37,6 +37,14 @@ static func get_default_team_indices(team_ids: Array[String]) -> Dictionary:
 				break
 	return {"home": home_index, "away": away_index}
 
+static func get_default_controlled_player_id(home_team_id: String, home_player_ids: Array) -> String:
+	var fallback_id := str(home_player_ids[9]) if home_player_ids.size() > 9 else ""
+	if home_team_id == "FN-NOVA-C35" and home_player_ids.has("NOVA-PLAYER-0035"):
+		return "NOVA-PLAYER-0035"
+	if home_team_id == "FN-NOVA-RDA" and home_player_ids.has("NOVA-PLAYER-0037"):
+		return "NOVA-PLAYER-0037"
+	return fallback_id
+
 static func build_starting_eleven(roster: Array) -> Array[String]:
 	var selected: Array[String] = []
 	var used_ids := {}
@@ -453,11 +461,7 @@ func _start_match() -> void:
 	var away_roster: Array = _get_combined_team_roster(away_id)
 	var home_player_ids := build_starting_eleven(home_roster)
 	var away_player_ids := build_starting_eleven(away_roster)
-	var controlled_player_id := str(home_player_ids[9]) if home_player_ids.size() > 9 else ""
-	if home_id == "FN-NOVA-C35" and home_player_ids.has("NOVA-PLAYER-0035"):
-		controlled_player_id = "NOVA-PLAYER-0035"
-	elif home_id == "FN-NOVA-RDA" and home_player_ids.has("NOVA-PLAYER-0037"):
-		controlled_player_id = "NOVA-PLAYER-0037"
+	var controlled_player_id := get_default_controlled_player_id(home_id, home_player_ids)
 	var players_by_id: Dictionary = {}
 	for raw_player in home_roster + away_roster:
 		if raw_player is Dictionary:
