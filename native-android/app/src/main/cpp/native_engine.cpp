@@ -196,7 +196,16 @@ void updateKeeper(int team,float dt){
  float dz=targetZ-players[(size_t)slot].z;
  players[(size_t)slot].z+=std::clamp(dz,-3.2f*dt,3.2f*dt);
  players[(size_t)slot].x=std::clamp(players[(size_t)slot].x,-3.15f,3.15f);
- players[(size_t)slot].z=std::clamp(players[(size_t)slot].z,team==0?-51.0f:48.8f,team==0?-48.8f:51.0f);
+ // The keeper's end changes at halftime; clamp against the current defended goal.
+ float minZ,maxZ;
+ if(team==0){
+  minZ=homeDefendsNegative?-51.0f:48.8f;
+  maxZ=homeDefendsNegative?-48.8f:51.0f;
+ }else{
+  minZ=homeDefendsNegative?48.8f:-51.0f;
+  maxZ=homeDefendsNegative?51.0f:-48.8f;
+ }
+ players[(size_t)slot].z=std::clamp(players[(size_t)slot].z,minZ,maxZ);
  if(state.diveTimer<=0.0f && ballComing && interceptTime>=0.0f &&
     interceptTime<.62f && ballY<2.15f &&
     std::abs((ballX+ballVX*interceptTime)-players[(size_t)slot].x)<1.65f){
