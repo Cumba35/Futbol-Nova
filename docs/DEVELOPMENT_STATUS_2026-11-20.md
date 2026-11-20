@@ -127,3 +127,12 @@ La primera ejecución que probó la cápsula falló en la prueba de posicionamie
 - La ejecución `44676705137` consultada en el repositorio de distribución terminó `cancelled`; no valida los últimos cambios. La nueva ejecución disparada por esta rama debe terminar en éxito antes de declarar aprobada la corrección.
 - Las plantillas contienen perfiles ficticios marcados como tales y con estadísticas iniciales en cero; no deben presentarse como futbolistas reales ni como estadísticas históricas verificadas.
 - Pendiente: CI completa, inspección del artefacto APK ARM64, instalación y partido manual en Android; después continuar con atajadas reales del portero, despejes/rebotes controlados, faltas/reinicios y métricas de rendimiento.
+
+
+### Seguimiento de GitHub Actions — actualización de ejecución — 20-11-2026
+
+- Run 475: [44838944703](https://github.com/Cumba35/Futbol-Nova/actions/runs/44838944703), commit `9330937a51b8e72eee2e93f3c1a9ebc47f0cf3fa`, sigue en curso. Superó importación, exportación APK, validaciones de catálogos, controles táctiles, modelo de vuelo y prueba base 11v11; al consultar, estaba ejecutando `test_friendly_match_runtime.gd`. Esta revisión contiene la corrección de validación atómica de `start_match()`, pero todavía no contiene la nueva prueba dedicada.
+- Run 479: [44839033925](https://github.com/Cumba35/Futbol-Nova/actions/runs/44839033925), commit `9febe0ca7878d5d4571f791ed9f90023c863c3e5`, está pendiente detrás de la ejecución activa. Incluye la selección de Anier/Raymond centralizada, sus aserciones en la prueba base y `test_match_start_atomic_validation.gd` en el workflow.
+- Runs 476–478 fueron cancelados al actualizar commits sucesivos; no se cuentan como pruebas aprobadas.
+- Aunque el paso de exportación APK ya pasó en run 475, la subida del artefacto está al final del workflow y depende de que terminen correctamente todas las pruebas. No se confirmó un APK nuevo descargable para esta revisión.
+- El siguiente resultado válido debe ser una ejecución completa de run 479 (o una posterior equivalente), seguida de inspección del artefacto, instalación y partido manual en Android.
