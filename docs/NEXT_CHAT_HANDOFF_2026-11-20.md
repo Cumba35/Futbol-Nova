@@ -63,3 +63,11 @@ En el siguiente chat, continuar directamente con la inspección/corrección de l
 - No crear datos para los tres clubes originales del propietario hasta recibir sus nombres, colores, estadios e identidades. No generar plantillas ficticias en su nombre.
 - Siguiente prioridad: esperar CI posterior a los cambios; corregir cualquier error real; mantener el flujo de amistoso completo como principal objetivo de pruebas. Después validar en un Android físico (rendimiento, temperatura, memoria, controles y partido completo).
 - Investigación pública revisada de nuevo: `awest813/League-Soccer` Apache-2.0 (desktop C++), `JoenTNT/godot_thumbstick_addon` MIT (Godot 4.4/GL Compatibility) y `HubbleCommand/mobile_controls` MIT (Godot 4.3). Se usan solo como referencias; no se incorporó código ni recursos externos.
+
+
+## Matriz de pruebas
+
+- Matriz detallada del modo Amistosos: `docs/FRIENDLY_MODE_TEST_MATRIX.md`.
+- CI run 44792124409 (run 411) terminó en fallo en `Core test — controller hint visibility`; las pruebas posteriores se omitieron.
+- CI run 44792711004 (run 413) está en curso para validar los cambios recientes; no se considera aprobada hasta que finalice.
+- Se mantienen los PR #6 y #27 abiertos/en borrador, sin fusión ni APK final publicada.
