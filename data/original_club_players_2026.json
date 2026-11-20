@@ -3073,29 +3073,31 @@
         "overall": 91,
         "position_group": "forward",
         "stored_by_level": {
-          "level_1": [],
-          "level_2": [],
+          "level_1": [
+            "FN-SK-L1-172"
+          ],
+          "level_2": [
+            "FN-SK-L2-003"
+          ],
           "level_3": [
-            "FN-SK-L3-172",
-            "FN-SK-L3-177",
             "FN-SK-L3-187"
           ]
         },
         "equipped_by_level": {
-          "level_1": null,
-          "level_2": null,
-          "level_3": "FN-SK-L3-172"
+          "level_1": "FN-SK-L1-172",
+          "level_2": "FN-SK-L2-003",
+          "level_3": "FN-SK-L3-187"
         },
         "active_skill_ids": [
-          "FN-SK-L3-172",
-          "FN-SK-L3-177",
+          "FN-SK-L1-172",
+          "FN-SK-L2-003",
           "FN-SK-L3-187"
         ],
         "secondary_skills_enabled": false,
         "match_skill_uses": 0,
         "match_skill_use_limit": 3,
         "match_skill_activation_history": [],
-        "design_note": "Habilidades existentes del catálogo NOVA seleccionadas para un perfil de regate y giro de élite; no son reproducciones exactas de jugadas de futbolistas reales."
+        "design_note": "Tres habilidades existentes del catálogo NOVA equipadas una por nivel, seleccionadas para un perfil de regate y giro de élite."
       }
     },
     {
