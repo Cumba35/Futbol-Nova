@@ -1,0 +1,42 @@
+{
+  "id": "sangre-galactica",
+  "name": "Sangre Galáctica",
+  "abbreviation": "SAG",
+  "sport": "football",
+  "identity": {
+    "primary_colors": [
+      "red",
+      "purple"
+    ],
+    "detail_colors": [
+      "yellow",
+      "white"
+    ],
+    "color_priority": "red and purple are dominant; yellow and white are accents"
+  },
+  "crest": {
+    "status": "pending_user_design"
+  },
+  "kits": {
+    "home": {
+      "status": "pending_user_design"
+    },
+    "away": {
+      "status": "pending_user_design"
+    },
+    "alternate": {
+      "status": "pending_user_design"
+    },
+    "goalkeeper": {
+      "status": "pending_user_design"
+    }
+  },
+  "stadium": {
+    "status": "pending_definition"
+  },
+  "visual_assets": {
+    "status": "not_created"
+  },
+  "status": "identity_colors_confirmed_visual_identity_pending",
+  "updated": "2026-11-20"
+}
