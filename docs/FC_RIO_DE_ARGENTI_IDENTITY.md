@@ -5,7 +5,8 @@
 - **Estado:** equipo original aprobado por el propietario.
 - **Fecha de registro:** 2026-11-20
 - **Uniforme principal:** aprobado por el propietario a partir de la propuesta visual generada el 2026-11-20.
-- **Archivo de referencia previsto:** `assets/clubs/rda/kits/rda_home_kit_reference.jpg`
+- **Imagen oficial respaldada en Dropbox:** `/Apps/Futbol Nova/Assets/Clubs/RDA/Kits/rda_home_kit_reference.jpg`.
+- **Ruta prevista para el binario en GitHub:** `assets/clubs/rda/kits/rda_home_kit_reference.jpg` (el JPG binario aún no está incorporado a GitHub).
 
 ## Uniforme principal aprobado
 
