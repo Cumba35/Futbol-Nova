@@ -5,6 +5,7 @@ const GAME_HUB = preload("res://scripts/ui/game_hub.gd")
 const OPTIONAL_MODULES_CATALOG = preload("res://scripts/ui/optional_modules_catalog.gd")
 const ANIER_PLAYER_SCENE = preload("res://scenes/players/anier_cumba.tscn")
 const MAXIMO_PLAYER_SCENE = preload("res://scenes/players/maximo_padilla.tscn")
+const RAYMOND_PLAYER_SCENE = preload("res://scenes/players/raymond_valdez.tscn")
 const CONTROLLER_MODULE = preload("res://scripts/input/controller_support_module.gd")
 const GRAPHICS_MODULE = preload("res://scripts/graphics/graphics_enhancements_module.gd")
 const MATCH_11V11_CONTROLLER = preload("res://scripts/gameplay/match_11v11_controller.gd")
@@ -24,6 +25,7 @@ var score_home := 0
 var score_away := 0
 var home_team_display_name := "LOCAL"
 var away_team_display_name := "VISITANTE"
+var controlled_player_display_name := "Anier Cumbá"
 var score_label: Label
 var match_clock_label: Label
 var continue_period_button: Button
@@ -320,34 +322,48 @@ func _create_ball() -> void:
 	ball.add_child(collision)
 	add_child(ball)
 
+func _get_controlled_player_scene_for_home_team() -> PackedScene:
+	match home_team_display_name:
+		"Litoral Barcelona":
+			controlled_player_display_name = "Máximo Padilla"
+			return MAXIMO_PLAYER_SCENE
+		"FC Río de Argenti":
+			controlled_player_display_name = "Raymond Valdez"
+			return RAYMOND_PLAYER_SCENE
+		_:
+			controlled_player_display_name = "Anier Cumbá"
+			return ANIER_PLAYER_SCENE
+
 func _create_player() -> void:
-	var selected_player_scene: PackedScene = MAXIMO_PLAYER_SCENE if home_team_display_name == "Litoral Barcelona" else ANIER_PLAYER_SCENE
-	var anier_player := selected_player_scene.instantiate() as CharacterBody3D
-	if anier_player == null:
+	var selected_player_scene := _get_controlled_player_scene_for_home_team()
+	var selected_player := selected_player_scene.instantiate() as CharacterBody3D
+	if selected_player == null:
 		push_error("No se pudo instanciar la escena 3D del jugador seleccionado.")
 		return
-
-	anier_player.name = "ControlledPlayer"
-	# La escena de Anier sitúa la cápsula de colisión a 0.855 m sobre el origen.
-	# Por eso el origen del personaje debe quedar a nivel del césped.
-	anier_player.position = Vector3(0, 0.0, 8.0)
-	anier_player.connect("skill_action_requested", _on_player_skill_action_requested)
-	anier_player.connect("pressure_action_requested", _on_player_pressure_action_requested)
-	player = anier_player
-	add_child(anier_player)
+	selected_player.name = "ControlledPlayer"
+	selected_player.position = Vector3(0, 0.0, 8.0)
+	selected_player.connect("skill_action_requested", _on_player_skill_action_requested)
+	selected_player.connect("pressure_action_requested", _on_player_pressure_action_requested)
+	player = selected_player
+	add_child(selected_player)
 
 func _switch_controlled_player_for_selected_club() -> void:
-	var should_use_maximo := home_team_display_name == "Litoral Barcelona"
-	var desired_script = load("res://scripts/players/maximo_padilla.gd") if should_use_maximo else load("res://scripts/players/anier_cumba.gd")
+	var selected_scene := _get_controlled_player_scene_for_home_team()
+	var desired_script = selected_scene.get_state().get_node_path(0) if false else null
+	var desired_instance := selected_scene.instantiate() as CharacterBody3D
+	if desired_instance == null:
+		push_error("No se pudo cargar el modelo 3D del futbolista seleccionado.")
+		return
+	var desired_script = desired_instance.get_script()
+	desired_instance.free()
 	if player != null and player.get_script() == desired_script:
 		return
 	var old_position := player.global_position if player != null else Vector3(0, 0, 8)
 	if player != null:
 		player.queue_free()
-	var scene: PackedScene = MAXIMO_PLAYER_SCENE if should_use_maximo else ANIER_PLAYER_SCENE
-	var replacement := scene.instantiate() as CharacterBody3D
+	var replacement := selected_scene.instantiate() as CharacterBody3D
 	if replacement == null:
-		push_error("No se pudo cargar el modelo 3D del futbolista seleccionado.")
+		push_error("No se pudo instanciar el avatar del futbolista seleccionado.")
 		return
 	replacement.name = "ControlledPlayer"
 	replacement.position = old_position
@@ -824,7 +840,7 @@ func _start_11v11_match(match_overrides: Dictionary = {}) -> void:
 		addons_button.visible = false
 	score_label.add_theme_font_size_override("font_size", 18)
 	score_label.text = "%s  0 - 0  %s" % [home_team_display_name, away_team_display_name]
-	gesture_hint_label.text = "Amistoso: %s vs %s. Controlas a %s." % [home_team_display_name, away_team_display_name, "Máximo Padilla" if home_team_display_name == "Litoral Barcelona" else "Anier Cumbá"]
+	gesture_hint_label.text = "Amistoso: %s vs %s. Controlas a %s." % [home_team_display_name, away_team_display_name, controlled_player_display_name]
 	print("Fútbol Nova: partido local 11v11 iniciado con reloj por períodos.")
 
 func _on_match_clock_updated(phase: String, _elapsed_seconds: float, remaining_seconds: float, _added_seconds: int) -> void:
