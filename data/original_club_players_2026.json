@@ -2879,8 +2879,8 @@
       "display_name": "Raymond Valdez",
       "full_name": "Raymond Valdez",
       "shirt_name": "VALDEZ",
-      "nationality_id": "CUB",
-      "nationality": "CUB",
+      "nationality_id": "UNK",
+      "nationality": "UNK",
       "club_id": "FN-NOVA-RDA",
       "club_name": "FC Río de Argenti",
       "shirt_number": 5,
@@ -3065,7 +3065,8 @@
         ],
         "original_choreography": true,
         "asset_status": "procedural_sequence_specification_pending_animation_clip"
-      }
+      },
+      "nationality_status": "not_specified_by_owner"
     },
     {
       "id": "NOVA-PLAYER-0058",
