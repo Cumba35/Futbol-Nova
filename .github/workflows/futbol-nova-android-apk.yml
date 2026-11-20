@@ -159,6 +159,8 @@ jobs:
       - name: Core test — live friendly match, goals and periods
         run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_friendly_match_runtime.gd
 
+      - name: Core test — original club roster importer and Raymond avatar
+        run: timeout --signal=TERM --kill-after=15s 120s godot --headless --path . --script res://tests/test_original_club_importer.gd
       - name: Core test — friendly AI shooting and goal direction
         run: timeout --signal=TERM --kill-after=15s 120s godot --headless --path . --script res://tests/test_friendly_ai_shooting.gd
 
