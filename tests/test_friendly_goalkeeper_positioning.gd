@@ -117,7 +117,7 @@ func _run_tests() -> void:
 		await physics_frame
 	if collision_events.is_empty():
 		failures.append("El disparo no registró contacto con la cápsula física del portero.")
-	elif shot_ball.linear_velocity.z >= -0.5:
+	elif shot_ball.linear_velocity.z <= 0.5:
 		failures.append("El portero hizo contacto, pero el disparo no rebotó hacia el campo.")
 	keeper_controller.queue_free()
 	shot_ball.queue_free()
