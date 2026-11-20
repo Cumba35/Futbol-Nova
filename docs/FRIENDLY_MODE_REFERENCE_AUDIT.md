@@ -138,3 +138,43 @@ La prueba de tiro verifica además el signo de la velocidad física del balón p
 ## Anticipación del portero según trayectoria — 20 noviembre 2026
 
 Se amplió `goalkeeper_home_position()` para recibir velocidad del balón. Solo proyecta el cruce lateral si el balón se mueve hacia la propia portería; limita el horizonte a 1,25 s y conserva el límite entre postes. `_choose_target()` pasa ahora la velocidad real del balón al helper. La prueba de portero comprueba anticipación local y visitante, que no anticipe si el balón se aleja y que el selector táctico llame al helper con la velocidad real.
+
+
+## Revisión adicional de repositorios públicos — 20-11-2026
+
+Esta revisión volvió a abrir los repositorios y leyó sus README y archivos de licencia, en vez de basarse únicamente en menciones anteriores.
+
+### Godot Soccer — referencia 2D ligera
+- Repositorio: https://github.com/krimshi/godot-soccer
+- README: describe un juego de fútbol 2D en Godot.
+- Licencia: MIT verificada en el archivo raíz `LICENSE`.
+- Uso posible: patrones generales de entrada y relación jugador-balón en un proyecto Godot pequeño.
+- Decisión: no se copia código ni assets. Su alcance 2D no sustituye la simulación 3D 11v11 de Fútbol Nova.
+
+### League-Soccer — motor de partido C++17
+- Repositorio: https://github.com/awest813/League-Soccer
+- README: declara motor 3D, 22 jugadores, IA táctica, física de balón, árbitro, estadísticas y pruebas; utiliza C++17 y CMake.
+- Licencia: Apache-2.0 verificada en el archivo raíz `LICENSE`.
+- Uso posible: comparación arquitectónica para separar simulación, IA, reglas, estadísticas y pruebas.
+- Decisión: no integrar el motor. La base de Fútbol Nova es Godot 4.4.1/GDScript y Android ARM64 offline; incorporar el stack C++/CMake aumentaría el riesgo de compilación, mantenimiento y tamaño sin necesidad demostrada.
+
+### FreeKick — física de balón en Godot
+- Repositorio: https://github.com/AKM-8byte/FreeKick
+- Documentación leída: `docs/BALL_PHYSICS_MODEL.md`; describe RigidBody3D, impulso aplicado al contacto y fuerzas de vuelo en el paso físico.
+- Licencia: MIT verificada en el archivo raíz `LICENSE`.
+- Uso posible: comparar el momento de aplicación del impulso y la integración física del balón.
+- Decisión: conservar el modelo propio `BallFlightModel`; no importar addon, código ni recursos. La referencia respalda mantener los impulsos en eventos de contacto y las fuerzas aerodinámicas en el ciclo físico, pero no se copia implementación.
+
+### GodotBasic3DFootball — ejemplo 3D
+- Repositorio: https://github.com/richardschembri/GodotBasic3DFootball
+- Uso posible: referencia educativa de escena 3D y colisiones.
+- Licencia: la consulta del archivo raíz `LICENSE` devolvió 404; no se ha acreditado una licencia reutilizable.
+- Decisión: solo lectura conceptual; no copiar código ni assets.
+
+## Cambios derivados de la auditoría de código NOVA
+
+- Se detectó que `start_match()` ejecutaba `stop_match()` y asignaba referencias de jugador/balón antes de validar la nueva solicitud. Una selección inválida podía detener un partido activo y dejar un estado parcial.
+- La validación completa ahora ocurre antes de reemplazar el partido. Solo una configuración válida detiene la sesión anterior y crea los 21 actores IA.
+- Se añadió `tests/test_match_start_atomic_validation.gd` y el workflow lo ejecuta como prueba principal.
+- La elección del jugador controlado se centralizó en `NovaPreMatchSetup.get_default_controlled_player_id()`: Anier si C35 es local y Raymond si RDA es local. La prueba base verifica ambas rutas y el fallback para otros clubes.
+- No se incorporaron dependencias, código, assets ni servicios externos.
