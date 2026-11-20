@@ -117,3 +117,15 @@ Referencias adicionales consultadas:
 - [Tobilion/footysim](https://github.com/Tobilion/footysim) — simulación 11v11 por agentes y pruebas headless; la API no declara licencia, por lo que solo se consideran ideas generales y no se copia código.
 
 **Límite:** la nueva decisión de tiro está implementada y añadida a CI; todavía debe superar la ejecución Godot de la nueva prueba y validarse visualmente en un dispositivo Android. No equivale a tener un sistema completo de porteros/atajas ni estadísticas de tiros.
+
+
+
+## Ajustes de trayectoria y portero — 20 noviembre 2026
+
+La revisión de la primera implementación detectó que el punto de mira del remate estaba a nivel del césped y, para un balón situado a 0,35 m, podía generar un vector hacia abajo. Se corrigió el punto de destino a 0,85 m de altura, conservando la orientación por portería y la elevación del tiro.
+
+También se detectó que el seguimiento lateral del portero podía llevarlo a ±5 m, fuera de la anchura útil de la portería. Se extrajo el cálculo a `goalkeeper_home_position()`, se limita el desplazamiento lateral a ±3,1 m (dejando margen para el radio de colisión) y se conservó el adelanto gradual cuando el balón entra en el tercio defensivo. El cálculo tiene en cuenta el equipo y el cambio de lado en el descanso.
+
+Prueba nueva `tests/test_friendly_goalkeeper_positioning.gd`: posición de ambos porteros, cambio de lado, seguimiento lateral, límite entre postes y permanencia sobre la línea cuando el balón está en medio campo. Se añadió como paso independiente del workflow. La prueba de remates ahora también verifica que el vector tenga elevación positiva y coordenadas finitas.
+
+**Estado:** código y pruebas incorporados a ambos repositorios; la ejecución CI de estas nuevas pruebas está pendiente. No se afirma que el portero ya haga estiradas o blocajes en partido: esta modificación mejora su posicionamiento táctico, no añade todavía animación ni colisión de atajada.
