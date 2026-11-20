@@ -10,7 +10,7 @@ La prueba de integración ahora:
 - espera un paso de física después de incorporar el cuerpo animable al árbol, para que el servidor de física registre el collider antes del disparo;
 - verifica explícitamente `AnimatableBody3D.sync_to_physics`;
 - activa el monitoreo de contactos del balón y comprueba una señal de contacto real con el guardameta;
-- configura el rebote del balón de prueba con combinación MAX, para que la aserción mida el contacto y la respuesta física sin depender del material por defecto de una esfera recién creada;
+- asigna un valor de rebote explícito al balón de prueba, usando solo propiedades disponibles en Godot 4.4.1;
 - amplía la ventana de simulación a 30 pasos físicos y diferencia entre ausencia de contacto y contacto sin rebote.
 
 Esta corrección mejora el diagnóstico: ya no confunde “no se registró contacto” con “hubo contacto pero no se produjo el rebote esperado”. Debe validarse en la siguiente ejecución Godot 4.4.1 CI.
