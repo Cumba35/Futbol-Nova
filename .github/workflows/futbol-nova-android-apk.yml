@@ -135,14 +135,6 @@ jobs:
           godot --headless --path . --verbose --export-debug "Android" build/FutbolNova-debug.apk
           test -s build/FutbolNova-debug.apk
 
-      - name: Upload test APK before extended regressions
-        uses: actions/upload-artifact@v4
-        with:
-          name: futbol-nova-android-debug
-          path: build/FutbolNova-debug.apk
-          if-no-files-found: error
-          retention-days: 14
-
       - name: Validate original club display names
         run: python tools/validate_club_identity_names.py
 
@@ -268,4 +260,12 @@ jobs:
 
       - name: Regression — validate_optional_modules.gd
         run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://scripts/tests/validate_optional_modules.gd
+
+      - name: Upload validated Android debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: futbol-nova-android-debug
+          path: build/FutbolNova-debug.apk
+          if-no-files-found: error
+          retention-days: 14
 
