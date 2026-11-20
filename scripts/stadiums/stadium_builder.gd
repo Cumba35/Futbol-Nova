@@ -6,6 +6,7 @@ const STADIUMS := [
 		"id": "nova_central",
 		"name": "Estadio Nova Central",
 		"capacity": 42000,
+		"version": "2026",
 		"seating": "#164e3a",
 		"accent": "#b9ec62",
 		"roof": "#142638"
@@ -14,6 +15,7 @@ const STADIUMS := [
 		"id": "bahia_arena",
 		"name": "Arena Bahía",
 		"capacity": 28500,
+		"version": "2026",
 		"seating": "#1c526c",
 		"accent": "#f0c66a",
 		"roof": "#172d3d"
@@ -22,6 +24,7 @@ const STADIUMS := [
 		"id": "aurora_park",
 		"name": "Parque Aurora",
 		"capacity": 19000,
+		"version": "2026",
 		"seating": "#514071",
 		"accent": "#c5ef70",
 		"roof": "#24243a"
