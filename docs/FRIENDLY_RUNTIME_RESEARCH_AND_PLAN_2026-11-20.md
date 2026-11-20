@@ -126,3 +126,11 @@ Referencias añadidas:
 - https://github.com/AhkunTa/soccer-online
 - https://github.com/aliyavuzz/Godotball
 - https://github.com/modelence/open-soccer
+
+
+## Corrección de estado CI — 2026-11-20 23:44 UTC
+
+- El run 44837958720 (commit 786e5f599e34dcac88919982440412eff287b043) terminó en failure en el paso de posicionamiento del portero. El log conserva el mensaje genérico de la aserción de cápsula; las pruebas posteriores y la publicación del APK se omitieron.
+- El run 44838667226 está ejecutándose con la revisión que incluye la aserción diagnóstica ampliada y la forma explícitamente habilitada. Su paso de test de portero aún no se ha ejecutado; todavía no se conoce el tipo exacto del fallo.
+- La revisión del collider no se da por resuelta. Esperar el resultado del run 44838667226 y actuar según el diagnóstico concreto.
+- El PR #10 sigue abierto y en draft. No se ha fusionado ni publicado APK validada.
