@@ -4,6 +4,8 @@ const PROFILE_PATH := "res://data/custom_players.json"
 const PLAYER_SCENE: PackedScene = preload("res://scenes/players/maximo_padilla.tscn")
 const PLAYER_SCRIPT = preload("res://scripts/players/maximo_padilla.gd")
 
+var _career_test_path := "user://maximo_profile_test_career.json"
+
 func _initialize() -> void:
 	# --script runs in an isolated SceneTree; register gameplay actions for the
 	# player controller so its physics callback cannot flood headless test logs.
@@ -16,8 +18,15 @@ func _initialize() -> void:
 
 func _test_watchdog() -> void:
 	await create_timer(45.0).timeout
+	_cleanup_career_test_files()
 	push_error("MAXIMO PADILLA PROFILE TEST: superó el límite interno de 45 segundos.")
 	quit(1)
+
+func _cleanup_career_test_files() -> void:
+	for suffix in ["", ".tmp", ".bak"]:
+		var path := _career_test_path + suffix
+		if FileAccess.file_exists(path):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 
 func _run() -> void:
 	print("MAXIMO_PROFILE_TEST: starting")
@@ -85,7 +94,11 @@ func _run() -> void:
 	print("MAXIMO_PROFILE_TEST: 3D scene validated")
 	instance.queue_free()
 	await process_frame
+	_cleanup_career_test_files()
 	var career_service = preload("res://scripts/legend/legend_career_service.gd").new()
+	career_service.persistence_path = _career_test_path
+	career_service.sync_to_database = false
+	root.add_child(career_service)
 	var career_result: Dictionary = career_service.start_career_from_catalog(found)
 	assert(career_result.get("ok", false), "Máximo debe poder iniciar una carrera desde el catálogo: %s" % str(career_result.get("error", career_result.get("errors", []))))
 	var career_player: Dictionary = career_result.get("career", {}).get("player", {})
@@ -94,6 +107,8 @@ func _run() -> void:
 	assert(str(career_player.get("shirt_name", "")) == "PADILLA", "El nombre de uniforme debe conservarse")
 	assert(str(career_result.get("career", {}).get("club_id", "")) == "FN-ESP-BARCELONA", "Debe conservarse el club elegido")
 	print("MAXIMO_PROFILE_TEST: career validated")
-	career_service.free()
+	career_service.queue_free()
+	await process_frame
+	_cleanup_career_test_files()
 	print("FUTBOL_NOVA_MAXIMO_PADILLA_PROFILE_TEST: PASS")
 	quit(0)
