@@ -72,3 +72,29 @@ Este documento registra investigación y decisiones; no certifica que el código
 ## Resultado de implementación — 2026-11-20
 
 La primera fase del plan quedó implementada en esta rama. Consultar `ORIGINAL_CLUBS_FRIENDLY_IMPLEMENTATION_2026-11-20.md` para el inventario exacto de cambios, los 44 perfiles, el avatar provisional de Raymond y los límites pendientes de validación. La integración registra Nova C35 y FC Río de Argenti en el catálogo global y habilita su amistoso 11v11. La ejecución real del workflow de Godot sigue pendiente; no se declara lista para fusionar hasta obtener CI verde.
+
+## Revisión adicional de alternativas y diagnóstico CI — 2026-11-20 23:40 UTC
+
+### Alternativas públicas revisadas en esta pasada
+
+- OpenComputerFutbolSimulator (https://github.com/antxiko/OpenComputerFutbolSimulator): licencia MIT confirmada en LICENSE; README declara Godot 4.6.2/GDScript, simulación 2D y flujo end-to-end con plantillas, calendario y visor. Referencia arquitectónica y de pruebas reproducibles. No se portó código porque NOVA usa Godot 4.4.1 y su motor 3D en tiempo real.
+- Godotball (https://github.com/aliyavuzz/Godotball): README describe Godot 4.4.1, GDExtension C++17, física del balón, árbitro y AI de 22 jugadores, y declara Apache-2.0. No se verificó un archivo LICENSE independiente ni la cadena completa de derechos de GameplayFootball; no copiar código ni binarios hasta auditar procedencia.
+- League-Soccer / fotbiler-football (https://github.com/erengaygusuz/fotbiler-football): README declara Apache-2.0; C++/CMake con física 3D, AI, reglas y pruebas headless. Historial amplio (536 commits visibles), pero no es integración directa para el runtime GDScript/Godot de NOVA. Solo se toman ideas de separación y pruebas, sin portar código.
+- Player12 (https://github.com/FlavioMili/Player12): README declara GPL-3.0 y simulación compartida de jugadores, balón, fatiga, presión y porteros; C++23/SDL3/SQLite no coincide con NOVA. Se descarta reutilizar código para no introducir obligaciones GPL incompatibles con la estrategia actual.
+- OpenFootManager (https://github.com/openfootmanager/openfootmanager): README declara GPLv3 y arquitectura Rust/Tauri/React/SQLite con simulación por eventos. Referencia conceptual para estados, persistencia y pruebas, no dependencia adecuada para el motor Godot.
+
+### Diagnóstico del workflow
+
+- En el run 44837677459 (commit 6aeb507) pasaron la prueba de partido 11v11, el amistoso end-to-end hasta el pitido final, el importador de clubes y el disparo de la IA.
+- Ese run falló en tests/test_friendly_goalkeeper_positioning.gd: detectó que CollisionShape3D del portero no exponía una cápsula válida. Las pruebas posteriores se omitieron por la parada del job; el APK se exportó al principio, pero no se publicó como artefacto validado porque el job terminó fallando.
+- Se habilitó explícitamente la CollisionShape3D del portero y se amplió la aserción para distinguir nodo ausente, forma nula, clase incorrecta y dimensiones insuficientes. La corrección debe validarse con CI; no se asume que resuelva el fallo.
+- El commit 786e5f599e34dcac88919982440412eff287b043 añadió diagnóstico de asignación de jugadores personalizados. El run 44837958720 se ejecuta para ese SHA; su resultado aún no certifica la corrección del portero.
+- No publicar APK ni declarar CI verde hasta que el run más reciente termine con todos los pasos, regresiones y subida de artefacto correctos.
+
+### Próximas verificaciones
+
+1. Ejecutar el test de portero y revisar el log detallado si vuelve a fallar.
+2. Verificar la colisión real con balón en movimiento y el desplazamiento sincronizado del cuerpo animable.
+3. Confirmar 22 plazas por equipo, que Raymond y jugadores personalizados no se duplican y que el control humano conserva la identidad correcta.
+4. Completar regresiones y smoke test Android; inspeccionar el artefacto APK solo tras CI verde.
+5. Replicar cada archivo confirmado en Cumba35/Nova-Workspace bajo proyectos/juegos/futbol-nova/ y releer ambos repositorios para comparar contenidos.
