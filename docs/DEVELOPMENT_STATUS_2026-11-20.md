@@ -136,3 +136,17 @@ La primera ejecución que probó la cápsula falló en la prueba de posicionamie
 - Runs 476–478 fueron cancelados al actualizar commits sucesivos; no se cuentan como pruebas aprobadas.
 - Aunque el paso de exportación APK ya pasó en run 475, la subida del artefacto está al final del workflow y depende de que terminen correctamente todas las pruebas. No se confirmó un APK nuevo descargable para esta revisión.
 - El siguiente resultado válido debe ser una ejecución completa de run 479 (o una posterior equivalente), seguida de inspección del artefacto, instalación y partido manual en Android.
+
+
+## Auditoría de configuraciones y centralización de defaults — 20-11-2026
+
+- Se revisaron las ramas de Fútbol Nova y Nova Workspace con sus árboles completos y las fuentes de configuración, documentación y pruebas.
+- Se creó `docs/CONFIGURATION_CATALOG_AND_RECONCILIATION_2026-11-20.md` con la configuración definida, valores runtime, funciones pendientes, ramas con funcionalidades no integradas y conflictos detectados.
+- Se centralizaron en `NovaPreMatchSetup` los IDs predeterminados C35/RDA, estadio, formación 4-3-3, mínimo de 22 jugadores, once de 11 y jugador controlado por equipo local.
+- El selector ahora inicializa estadio, duración y modo de reloj desde el mismo diccionario de defaults; la máquina de reloj usa los defaults compartidos de `NovaMatchClockRules`.
+- Se añadió `tests/test_match_configuration_defaults.gd` y el workflow lo ejecuta. Comprueba equipos, Anier/Raymond, estadio, 5 minutos, reloj continuo, prórroga/penaltis desactivados, 4-3-3, plantilla 22/11, tabla de duraciones y prórrogas.
+- Se corrigió `docs/PRE_MATCH_TEAM_SELECTION.md`: el valor predeterminado actual es Nova C35–FC Río de Argenti y el catálogo contiene siete estadios; se retiró la descripción antigua de tres estadios y la pareja Albor Madrid–Litoral Barcelona como predeterminada.
+- Se actualizó `docs/TECHNICAL_ARCHITECTURE.md` con Godot 4.4.1, Android ARM64-v8a, GL Compatibility, paquete y permisos offline verificados.
+- Se detectó un conflicto de distribución: los documentos de juego base establecen amistosos offline y módulos opcionales, pero `data/league_content_manifest.json` marca diez ligas como incluidas en el paquete base. Se dejó registrado sin cambiar el manifiesto automáticamente porque altera una decisión de distribución.
+- Se conservaron sin fusión las ramas con match-session/replay v3, estadísticas tácticas, carrera/progresión, logros y cosméticos; sus diferencias requieren integración controlada.
+- Pendiente: CI completa de esta rama, corrección de cualquier error de parseo detectado, sincronización en Nova Workspace y validación del APK/partido en Android.
