@@ -58,10 +58,48 @@ func _run_tests() -> void:
 	ball.free()
 	keeper_actor.free()
 
+	# Integration check: a real rigid-body shot must collide with the
+	# goalkeeper capsule and rebound instead of passing through the model.
+	var keeper_controller = MATCH_11V11.new()
+	root.add_child(keeper_controller)
+	keeper_controller.call("_create_ai_actor", {
+		"player_id": "keeper_physics_test",
+		"team_id": "home_test",
+		"role": "GK",
+		"home_team": true,
+		"position": Vector3.ZERO,
+		"player_data": {}
+	})
+	var keeper_node: Node3D = keeper_controller.get_node("keeper_physics_test")
+	var keeper_collision = keeper_node.get_node_or_null("GoalkeeperCollision")
+	if not (keeper_collision is StaticBody3D):
+		failures.append("El portero no tiene un cuerpo físico para bloquear disparos.")
+	else:
+		var keeper_shape_node = keeper_collision.get_node_or_null("CollisionShape3D")
+		if not (keeper_shape_node is CollisionShape3D) or not (keeper_shape_node.shape is CapsuleShape3D):
+			failures.append("La colisión física del portero no utiliza una cápsula válida.")
+	var shot_ball := RigidBody3D.new()
+	shot_ball.mass = 0.43
+	shot_ball.gravity_scale = 0.0
+	shot_ball.position = Vector3(0.0, 0.92, 1.35)
+	shot_ball.linear_velocity = Vector3(0.0, 0.0, -12.0)
+	var shot_collision := CollisionShape3D.new()
+	var shot_sphere := SphereShape3D.new()
+	shot_sphere.radius = 0.22
+	shot_collision.shape = shot_sphere
+	shot_ball.add_child(shot_collision)
+	root.add_child(shot_ball)
+	for frame_index in range(18):
+		await physics_frame
+	if shot_ball.linear_velocity.z <= 0.5:
+		failures.append("El disparo atravesó al portero o no rebotó tras el contacto físico.")
+	keeper_controller.queue_free()
+	shot_ball.queue_free()
+
 	if not failures.is_empty():
 		for failure in failures:
 			push_error("FÚTBOL NOVA GOALKEEPER POSITIONING: " + failure)
 		quit(1)
 		return
-	print("FÚTBOL NOVA GOALKEEPER POSITIONING: línea, seguimiento lateral, adelanto defensivo y cambio de lado superados.")
+	print("FÚTBOL NOVA GOALKEEPER: posicionamiento predictivo y bloqueo físico del balón superados.")
 	quit(0)
