@@ -10,7 +10,7 @@ Esta entrega transforma los dos clubes originales que antes aparecían solo como
 - Los perfiles ficticios llevan `fictional=true`, procedencia explícita y estadísticas de carrera/temporada inicializadas a cero.
 - Los dos clubes se registran como clubes originales de exhibición; no se incorporan a competiciones ni calendarios de liga.
 - El amistoso exige plantillas con al menos 22 jugadores, IDs únicos y once inicial válido. Se permiten futbolistas personalizados adicionales sin bloquear la selección.
-- Los selectores priorizan Nova C35 como local y FC Río de Argenti como visitante.
+- Los selectores priorizan Nova C35 como local y FC Río de Argenti como visitante. El motor controla a Anier Cumbá cuando C35 es local y a Raymond Valdez cuando RDA es local; el jugador controlado se retira de la lista de actores IA para evitar duplicarlo.
 - El estadio, duración por tiempo, modo de reloj y prórroga siguen usando la configuración existente del modo amistoso.
 
 ## Raymond Valdez
