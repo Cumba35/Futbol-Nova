@@ -303,6 +303,15 @@ func _show_home() -> void:
 	welcome_column.add_child(_label("FÚTBOL NOVA", 24, LIME))
 	welcome_column.add_child(_label("La instalación base incluye partidos amistosos locales, ayuda y configuración general. Los demás modos se instalan como módulos independientes.", 14, MUTED))
 
+	var club_identity := _make_panel()
+	content_box.add_child(club_identity)
+	var club_column := VBoxContainer.new()
+	club_column.add_theme_constant_override("separation", 6)
+	club_identity.add_child(club_column)
+	club_column.add_child(_label("NOVA C35  ·  C35", 21, LIME))
+	club_column.add_child(_label("ESTADIO DEL FÉNIX  ·  CASA DEL EQUIPO REPRESENTATIVO DE FÚTBOL NOVA", 13, WHITE))
+	club_column.add_child(_label("Primera División de Cuba — Fútbol Nova · objetivo de 20 clubes", 12, MUTED))
+
 	var friendly := _make_panel()
 	content_box.add_child(friendly)
 	var friendly_column := VBoxContainer.new()
