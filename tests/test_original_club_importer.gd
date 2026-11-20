@@ -37,6 +37,8 @@ func _run() -> void:
 	assert(int(raymond.get("estimated_overall", 0)) == 91 and int(raymond.get("potential", 0)) == 96)
 	assert(raymond.get("attribute_status") == "provisional_generated_pending_owner_review", "Los atributos provisionales de Raymond deben estar etiquetados.")
 	assert(int(raymond.get("statistics", {}).get("career", {}).get("appearances", -1)) == 0)
+	assert(int(raymond.get("statistics", {}).get("current_season", {}).get("appearances", -1)) == 0)
+	assert(str(raymond.get("date_of_birth", "")) == "2007-05-26")
 	for player in registry.players_by_id.values():
 		if bool(player.get("fictional", false)):
 			assert(int(player.get("statistics", {}).get("career", {}).get("appearances", -1)) == 0, "Los jugadores ficticios deben iniciar sin estadísticas históricas.")
