@@ -55,11 +55,19 @@
   },
   "stadium": {
     "name": "Estadio Río de Argenti",
-    "capacity": null,
-    "capacity_status": "not_set",
+    "capacity": 105000,
+    "capacity_status": "owner_specified_105000",
     "ownership": "unconfirmed",
     "design": "compact modern riverfront bowl with a continuous silver-blue roof ribbon",
-    "status": "design_proposal"
+    "status": "design_specification",
+    "id": "rio_de_argenti",
+    "club_id": "FN-NOVA-RDA",
+    "seating": "#176A91",
+    "accent": "#C7D3DE",
+    "roof": "#142A3B",
+    "secondary_accent": "#FFFFFF",
+    "kit_palette_status": "provisional_pending_visual_check_of_dropbox_home_reference",
+    "description": "Gradas azul río, acentos plateados y blancos, cubierta azul marino; paleta provisional basada en la ficha y pendiente de cotejo visual con la referencia local."
   },
   "supporters": {
     "nickname": "La Corriente",
