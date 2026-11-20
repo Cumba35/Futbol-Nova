@@ -328,7 +328,7 @@ func _build_stadium_selector(parent: VBoxContainer) -> void:
 	_stadium_preview.size = Vector2i(960, 480)
 	_stadium_preview.own_world_3d = true
 	_stadium_preview.transparent_bg = false
-	_stadium_preview.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	_stadium_preview.render_target_update_mode = SubViewport.UPDATE_ONCE
 	_stadium_preview_container = SubViewportContainer.new()
 	_stadium_preview_container.custom_minimum_size.y = 220.0
 	_stadium_preview_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -351,7 +351,6 @@ func _build_stadium_preview_scene() -> void:
 	var preview_root := Node3D.new()
 	preview_root.name = "StadiumPreview"
 	_stadium_preview.add_child(preview_root)
-	var config: Dictionary = STADIUM_BUILDER.get_stadium_config(_selected_stadium)
 	var stadium := STADIUM_BUILDER.build_stadium(_selected_stadium)
 	preview_root.add_child(stadium)
 	var pitch := MeshInstance3D.new()
@@ -421,6 +420,7 @@ func _add_stadium_card(stadium: Dictionary) -> void:
 	card.add_child(card_content)
 	var thumbnail := ColorRect.new()
 	thumbnail.custom_minimum_size.y = 48.0
+	thumbnail.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	thumbnail.color = Color(str(stadium.get("roof", "#18243a")))
 	card_content.add_child(thumbnail)
 	var pitch_strip := ColorRect.new()
@@ -597,9 +597,7 @@ func _refresh_validation() -> void:
 		_summary.text = "No se pudo validar una de las plantillas. El partido permanece bloqueado."
 
 func _selected_stadium_id() -> String:
-	if _stadiums == null or _stadiums.item_count == 0 or _stadiums.selected < 0:
-		return ""
-	return str(_stadiums.get_item_metadata(_stadiums.selected))
+	return _selected_stadium
 
 func _on_team_selection_changed(_index: int) -> void:
 	_refresh_validation()
