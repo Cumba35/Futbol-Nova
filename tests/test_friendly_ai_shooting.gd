@@ -74,6 +74,8 @@ func _run_tests() -> void:
 	await physics_frame
 	if ball.linear_velocity.length() < 1.0:
 		failures.append("La IA con posesión en zona de remate no aplicó un impulso real al balón.")
+	if ball.linear_velocity.z >= 0.0:
+		failures.append("El remate físico de la IA local no viajó hacia la portería rival.")
 	if controller._possession_owner != null:
 		failures.append("La IA conservó la posesión después de ejecutar el tiro.")
 
