@@ -24,7 +24,7 @@ Las referencias sirven para definir calidad, jerarquía, ritmo y comportamiento.
 
 El juego base incluye exclusivamente:
 - **Estadio del Fénix**, casa de Nova C35.
-- Capacidad provisional de diseño: 35 000 espectadores; pendiente de confirmación del propietario.
+- Capacidad de diseño: **105 000 espectadores**, especificada por el propietario del proyecto el 20-11-2026.
 - Gradas en cuatro lados y varios niveles, cubierta, soportes, torres de iluminación, marcador, paneles LED, túnel, banquillos, zona técnica y público instanciado.
 - Paleta del estadio: azul medianoche, cian Nova y detalles dorados.
 - El selector del amistoso solo muestra Estadio del Fénix. Otros estadios futuros se ofrecerán mediante paquetes opcionales descargables y no aparecerán en el juego base.
@@ -45,7 +45,7 @@ La primera implementación del constructor ya reemplaza el catálogo de tres est
 - Portero: dorado con detalles azul medianoche.
 - Tercera equipación bloqueada hasta contrato comercial y derechos aprobados.
 
-Los colores y el concepto del escudo son una propuesta provisional y editable. El perfil del club está guardado en `data/nova_c35_club.json`. El catálogo de Primera División actual contiene 16 clubes y 16 plantillas completas de 22 jugadores; por tanto, la inscripción completa en una liga de 20 equipos requiere incorporar tres clubes más y las cuatro plantillas que faltan (incluida la de C35). No se debe declarar terminada la liga de 20 mientras falten esos datos.
+Los colores y el concepto del escudo son una propuesta provisional y editable. El perfil del club está guardado en `data/nova_c35_club.json`. El catálogo de Primera División actual contiene 16 clubes y 16 plantillas completas de 22 jugadores; por tanto, la inscripción completa en una liga de 20 equipos requiere incorporar Nova C35 y tres clubes adicionales originales que serán creados por el propietario. Sus nombres, escudos, colores, ciudades, estadios y plantillas quedan reservados como pendientes de definición del propietario; no generar datos ficticios para esos clubes. No se debe declarar terminada la liga de 20 mientras falten esos datos.
 
 ## 4. Pantallas del juego
 
