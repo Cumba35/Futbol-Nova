@@ -13,6 +13,8 @@ func _initialize() -> void:
 		if stadium_id.is_empty() or seen_ids.has(stadium_id):
 			failures.append("StadiumBuilder: ID vacío o duplicado.")
 		seen_ids[stadium_id] = true
+		if str(stadium.get("version", "")).is_empty():
+			failures.append("StadiumBuilder: versión no disponible para " + stadium_id)
 		if int(stadium.get("capacity", 0)) <= 0:
 			failures.append("StadiumBuilder: capacidad inválida para " + stadium_id)
 		var instance: Node3D = STADIUM_BUILDER.build_stadium(stadium_id)
