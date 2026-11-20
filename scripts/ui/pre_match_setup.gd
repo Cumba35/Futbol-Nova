@@ -71,7 +71,11 @@ static func build_starting_eleven(roster: Array) -> Array[String]:
 var _home_teams: OptionButton
 var _away_teams: OptionButton
 var _summary: Label
-var _stadiums: OptionButton
+var _stadium_list: VBoxContainer
+var _stadium_preview: SubViewport
+var _stadium_preview_container: SubViewportContainer
+var _stadium_info: Label
+var _selected_stadium := "nova_central"
 var _half_length: OptionButton
 var _clock_mode: OptionButton
 var _extra_time: CheckBox
@@ -102,18 +106,18 @@ func _build_interface() -> void:
 	var panel := PanelContainer.new()
 	var viewport_size := get_viewport().get_visible_rect().size
 	var compact_layout := viewport_size.x < 560.0 or viewport_size.y < 480.0
-	panel.custom_minimum_size = Vector2(minf(620.0, maxf(300.0, viewport_size.x - 32.0)), minf(620.0, maxf(300.0, viewport_size.y - 32.0)))
+	panel.custom_minimum_size = Vector2(minf(1180.0, maxf(300.0, viewport_size.x - 24.0)), minf(680.0, maxf(300.0, viewport_size.y - 24.0)))
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var style := StyleBoxFlat.new()
 	style.bg_color = PANEL_COLOR
-	style.border_color = ACCENT
+	style.border_color = Color("#26304b")
 	style.set_border_width_all(2)
-	style.set_corner_radius_all(18)
-	style.content_margin_left = 22
-	style.content_margin_right = 22
-	style.content_margin_top = 18
-	style.content_margin_bottom = 18
+	style.set_corner_radius_all(8)
+	style.content_margin_left = 14
+	style.content_margin_right = 14
+	style.content_margin_top = 12
+	style.content_margin_bottom = 12
 	panel.add_theme_stylebox_override("panel", style)
 	center.add_child(panel)
 
@@ -227,20 +231,7 @@ func _build_interface() -> void:
 	_summary.add_theme_color_override("font_color", MUTED)
 	column.add_child(_summary)
 
-	var stadium_title := Label.new()
-	stadium_title.text = "ESTADIO"
-	stadium_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	stadium_title.add_theme_color_override("font_color", TEXT_COLOR)
-	column.add_child(stadium_title)
-	_stadiums = OptionButton.new()
-	_stadiums.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_stadiums.custom_minimum_size.y = 44
-	for stadium in STADIUM_BUILDER.get_catalog():
-		_stadiums.add_item(str(stadium.get("name", "Estadio")))
-		_stadiums.set_item_metadata(_stadiums.item_count - 1, str(stadium.get("id", "")))
-	if _stadiums.item_count > 0:
-		_stadiums.select(0)
-	column.add_child(_stadiums)
+	_build_stadium_selector(column)
 
 	var match_options := GridContainer.new()
 	match_options.columns = 2
@@ -285,6 +276,196 @@ func _build_interface() -> void:
 	_start_button.disabled = true
 	_start_button.pressed.connect(_start_match)
 	actions.add_child(_start_button)
+
+
+func _build_stadium_selector(parent: VBoxContainer) -> void:
+	var title := Label.new()
+	title.text = "SELECCIÓN DE ESTADIO"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 22)
+	title.add_theme_color_override("font_color", TEXT_COLOR)
+	parent.add_child(title)
+
+	var selector_row := HBoxContainer.new()
+	selector_row.custom_minimum_size.y = 286.0
+	selector_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	selector_row.add_theme_constant_override("separation", 12)
+	parent.add_child(selector_row)
+
+	var list_panel := PanelContainer.new()
+	list_panel.custom_minimum_size.x = 220.0
+	list_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var list_style := StyleBoxFlat.new()
+	list_style.bg_color = Color("#171c31")
+	list_style.set_content_margin_all(8)
+	list_panel.add_theme_stylebox_override("panel", list_style)
+	selector_row.add_child(list_panel)
+
+	var list_scroll := ScrollContainer.new()
+	list_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	list_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	list_panel.add_child(list_scroll)
+	_stadium_list = VBoxContainer.new()
+	_stadium_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_stadium_list.add_theme_constant_override("separation", 8)
+	list_scroll.add_child(_stadium_list)
+
+	var preview_panel := PanelContainer.new()
+	preview_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	preview_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var preview_style := StyleBoxFlat.new()
+	preview_style.bg_color = Color("#080d1c")
+	preview_style.set_border_width_all(1)
+	preview_style.border_color = Color("#39415a")
+	preview_panel.add_theme_stylebox_override("panel", preview_style)
+	selector_row.add_child(preview_panel)
+
+	var preview_column := VBoxContainer.new()
+	preview_column.add_theme_constant_override("separation", 4)
+	preview_panel.add_child(preview_column)
+	_stadium_preview = SubViewport.new()
+	_stadium_preview.name = "StadiumPreviewViewport"
+	_stadium_preview.size = Vector2i(960, 480)
+	_stadium_preview.own_world_3d = true
+	_stadium_preview.transparent_bg = false
+	_stadium_preview.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	_stadium_preview_container = SubViewportContainer.new()
+	_stadium_preview_container.custom_minimum_size.y = 220.0
+	_stadium_preview_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_stadium_preview_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_stadium_preview_container.stretch = true
+	_stadium_preview_container.add_child(_stadium_preview)
+	preview_column.add_child(_stadium_preview_container)
+	_stadium_info = Label.new()
+	_stadium_info.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_stadium_info.add_theme_font_size_override("font_size", 18)
+	_stadium_info.add_theme_color_override("font_color", TEXT_COLOR)
+	preview_column.add_child(_stadium_info)
+
+	_build_stadium_preview_scene()
+	for stadium in STADIUM_BUILDER.get_catalog():
+		_add_stadium_card(stadium)
+	_select_stadium(_selected_stadium)
+
+func _build_stadium_preview_scene() -> void:
+	var preview_root := Node3D.new()
+	preview_root.name = "StadiumPreview"
+	_stadium_preview.add_child(preview_root)
+	var config: Dictionary = STADIUM_BUILDER.get_stadium_config(_selected_stadium)
+	var stadium := STADIUM_BUILDER.build_stadium(_selected_stadium)
+	preview_root.add_child(stadium)
+	var pitch := MeshInstance3D.new()
+	var pitch_mesh := PlaneMesh.new()
+	pitch_mesh.size = Vector2(68.0, 105.0)
+	pitch.mesh = pitch_mesh
+	pitch.position.y = 0.04
+	var grass := StandardMaterial3D.new()
+	grass.albedo_color = Color("#277b3b")
+	grass.roughness = 1.0
+	pitch.material_override = grass
+	preview_root.add_child(pitch)
+	var center_mark := MeshInstance3D.new()
+	var center_mesh := TorusMesh.new()
+	center_mesh.inner_radius = 8.8
+	center_mesh.outer_radius = 9.0
+	center_mark.mesh = center_mesh
+	center_mark.position.y = 0.07
+	var line_material := StandardMaterial3D.new()
+	line_material.albedo_color = Color("#e8f0df")
+	center_mark.material_override = line_material
+	preview_root.add_child(center_mark)
+	var sun := DirectionalLight3D.new()
+	sun.rotation_degrees = Vector3(-52.0, -25.0, 0.0)
+	sun.light_energy = 1.35
+	preview_root.add_child(sun)
+	var environment := WorldEnvironment.new()
+	var world_environment := Environment.new()
+	world_environment.background_mode = Environment.BG_COLOR
+	world_environment.background_color = Color("#8bb7d5")
+	world_environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	world_environment.ambient_light_color = Color("#c5d4e4")
+	world_environment.ambient_light_energy = 0.75
+	environment.environment = world_environment
+	preview_root.add_child(environment)
+	var camera := Camera3D.new()
+	camera.position = Vector3(0.0, 58.0, 77.0)
+	camera.fov = 58.0
+	camera.look_at(Vector3(0.0, 0.0, 0.0), Vector3.UP)
+	camera.current = true
+	preview_root.add_child(camera)
+
+func _add_stadium_card(stadium: Dictionary) -> void:
+	var stadium_id := str(stadium.get("id", ""))
+	var card := Button.new()
+	card.name = "StadiumCard_" + stadium_id
+	card.custom_minimum_size = Vector2(188.0, 82.0)
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	card.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	card.text = ""
+	card.pressed.connect(_select_stadium.bind(stadium_id))
+	var card_style := StyleBoxFlat.new()
+	card_style.bg_color = Color("#25304a")
+	card_style.set_border_width_all(2)
+	card_style.border_color = Color("#414a63")
+	card_style.set_corner_radius_all(3)
+	card.add_theme_stylebox_override("normal", card_style)
+	var selected_style := card_style.duplicate()
+	selected_style.bg_color = Color("#f00050")
+	selected_style.border_color = Color("#ff477c")
+	card.add_theme_stylebox_override("hover", selected_style)
+	card.add_theme_stylebox_override("pressed", selected_style)
+	var card_content := VBoxContainer.new()
+	card_content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card_content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	card_content.add_theme_constant_override("separation", 2)
+	card.add_child(card_content)
+	var thumbnail := ColorRect.new()
+	thumbnail.custom_minimum_size.y = 48.0
+	thumbnail.color = Color(str(stadium.get("roof", "#18243a")))
+	card_content.add_child(thumbnail)
+	var pitch_strip := ColorRect.new()
+	pitch_strip.color = Color("#318c45")
+	pitch_strip.anchor_left = 0.08
+	pitch_strip.anchor_right = 0.92
+	pitch_strip.anchor_top = 0.56
+	pitch_strip.anchor_bottom = 0.92
+	thumbnail.add_child(pitch_strip)
+	var name_label := Label.new()
+	name_label.text = str(stadium.get("name", "Estadio"))
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_label.add_theme_font_size_override("font_size", 13)
+	name_label.add_theme_color_override("font_color", Color.WHITE)
+	card_content.add_child(name_label)
+	_stadium_list.add_child(card)
+
+func _select_stadium(stadium_id: String) -> void:
+	var config: Dictionary = STADIUM_BUILDER.get_stadium_config(stadium_id)
+	_selected_stadium = str(config.get("id", "nova_central"))
+	if _stadium_info != null:
+		_stadium_info.text = "%s    •    CAPACIDAD: %s    •    VERSIÓN: %s" % [
+			str(config.get("name", "Estadio")),
+			str(config.get("capacity", "—")),
+			str(config.get("version", "2026"))
+		]
+	if _stadium_preview != null:
+		var old_preview := _stadium_preview.get_node_or_null("StadiumPreview")
+		if old_preview != null:
+			old_preview.queue_free()
+		_build_stadium_preview_scene()
+	if _stadium_list != null:
+		for card in _stadium_list.get_children():
+			if card is Button:
+				var is_selected := card.name == "StadiumCard_" + _selected_stadium
+				var style := StyleBoxFlat.new()
+				style.bg_color = Color("#f00050") if is_selected else Color("#25304a")
+				style.border_color = Color("#ff477c") if is_selected else Color("#414a63")
+				style.set_border_width_all(3 if is_selected else 1)
+				style.set_corner_radius_all(3)
+				card.add_theme_stylebox_override("normal", style)
+				card.add_theme_stylebox_override("hover", style)
+				card.add_theme_stylebox_override("pressed", style)
+	if is_instance_valid(_start_button):
+		_refresh_validation()
 
 func _get_custom_roster_service() -> Node:
 	return get_node_or_null("/root/CustomPlayerRoster")
