@@ -1,0 +1,31 @@
+{
+  "id": "nova-genesis",
+  "name": "Nova Génesis",
+  "abbreviation": "GEN",
+  "sport": "football",
+  "kit": {
+    "base": "white",
+    "details": [
+      "navy geometric and textured panels",
+      "red and green accents",
+      "dense angular linework"
+    ],
+    "shorts": [
+      "white",
+      "navy"
+    ],
+    "shorts_note": "mixed white and original navy color"
+  },
+  "crest": {
+    "letters": "GEN",
+    "letter_style": "interlocked, irregular and deliberately disordered"
+  },
+  "visual_reference": "User-provided photo received 2026-11-20",
+  "assets": {
+    "reference_photo": "Dropbox:/Apps/Futbol Nova/Assets/Clubs/Nova Génesis/References/nova_genesis_reference_photo_2026-11-20.jpg (upload pending)",
+    "proposal_v1": "Dropbox:/Apps/Futbol Nova/Assets/Clubs/Nova Génesis/Kits/Proposals/nova_genesis_home_kit_proposal_01.png (existing; superseded because it uses NG and navy-only shorts)",
+    "proposal_v2": "a_polished_high_detail_sports_kit_and_crest_prese.png (generated in conversation; Dropbox/GitHub binary upload pending; approved design direction with GEN and mixed white/navy shorts)"
+  },
+  "status": "design proposal v2; not declared official until user approves",
+  "updated": "2026-11-20"
+}
