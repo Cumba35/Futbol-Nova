@@ -453,7 +453,7 @@ func _start_match() -> void:
 	var away_roster: Array = _get_combined_team_roster(away_id)
 	var home_player_ids := build_starting_eleven(home_roster)
 	var away_player_ids := build_starting_eleven(away_roster)
-	var controlled_player_id := str(home_player_ids[9])
+	var controlled_player_id := str(home_player_ids[9]) if home_player_ids.size() > 9 else ""
 	if home_id == "FN-NOVA-C35" and home_player_ids.has("NOVA-PLAYER-0035"):
 		controlled_player_id = "NOVA-PLAYER-0035"
 	elif home_id == "FN-NOVA-RDA" and home_player_ids.has("NOVA-PLAYER-0037"):
