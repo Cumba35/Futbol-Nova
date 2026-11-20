@@ -1,0 +1,95 @@
+{
+  "id": "nova-c35",
+  "runtime_club_id": "FN-NOVA-C35",
+  "name": "Nova C35",
+  "abbreviation": "C35",
+  "sport": "football",
+  "fictional": true,
+  "identity_status": "provisional_owner_review",
+  "identity": {
+    "concept": "club insignia built around the C35 monogram and a phoenix motif",
+    "primary_colors": [
+      "deep_navy",
+      "#00CFE8"
+    ],
+    "secondary_colors": [
+      "silver",
+      "white"
+    ],
+    "color_status": "provisional"
+  },
+  "crest": {
+    "concept": "angular shield; central interlocked C35 monogram; phoenix wings rising behind the lettering; restrained silver outline",
+    "status": "design_proposal_pending_visual_asset"
+  },
+  "kits": {
+    "home": {
+      "base": "deep_navy",
+      "details": [
+        "cyan diagonal energy band",
+        "silver micro-lines",
+        "C35 crest on left chest"
+      ],
+      "status": "design_proposal"
+    },
+    "away": {
+      "base": "white",
+      "details": [
+        "navy shoulders",
+        "cyan side panels",
+        "silver numbering"
+      ],
+      "status": "design_proposal"
+    },
+    "alternate": {
+      "base": "cyan",
+      "details": [
+        "navy geometric blocks",
+        "white numbering"
+      ],
+      "status": "design_proposal"
+    },
+    "goalkeeper": {
+      "base": "signal_yellow",
+      "details": [
+        "navy contrast panels",
+        "cyan trim"
+      ],
+      "status": "design_proposal"
+    }
+  },
+  "stadium": {
+    "name": "Estadio del Fénix",
+    "capacity": 105000,
+    "capacity_status": "owner_specified_105000",
+    "ownership": "club_home_venue_status_unconfirmed",
+    "design": "four-sided bowl with four continuous seating tiers; procedural crowd representation",
+    "status": "design_specification",
+    "id": "nova_c35",
+    "club_id": "FN-NOVA-C35",
+    "seating": "#101B35",
+    "accent": "#00CFE8",
+    "roof": "#0A1022",
+    "secondary_accent": "#BFC9D8",
+    "kit_palette_status": "matched_to_home_kit_proposal",
+    "description": "Gradas azul marino, sectores cian, cubierta azul noche y detalles plateados."
+  },
+  "supporters": {
+    "nickname": "La Marea C35",
+    "colors": [
+      "deep_navy",
+      "#00CFE8"
+    ],
+    "chants_and_flags": "provisional concepts; not recorded as owner-approved"
+  },
+  "roster": {
+    "target_size": 22,
+    "status": "incomplete_pending_verified_player_records",
+    "known_player_ids": [
+      "NOVA-PLAYER-0035",
+      "NOVA-PLAYER-0036"
+    ],
+    "remaining_slots": 20
+  },
+  "updated": "2026-11-20"
+}

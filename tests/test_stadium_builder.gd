@@ -6,8 +6,8 @@ func _initialize() -> void:
 	var failures := PackedStringArray()
 	var catalog: Array = STADIUM_BUILDER.get_catalog()
 	var seen_ids := {}
-	if catalog.size() != 3:
-		failures.append("StadiumBuilder: se esperaban tres estadios locales.")
+	if catalog.size() != 7:
+		failures.append("StadiumBuilder: se esperaban tres estadios base y cuatro estadios originales.")
 	for stadium in catalog:
 		var stadium_id := str(stadium.get("id", ""))
 		if stadium_id.is_empty() or seen_ids.has(stadium_id):
@@ -21,8 +21,21 @@ func _initialize() -> void:
 		else:
 			root.add_child(instance)
 			instance.queue_free()
-	var fallback: Dictionary = STADIUM_BUILDER.get_stadium_config("unknown")
-	if str(fallback.get("id", "")) != "nova_central":
+	var original_ids := ["nova_c35", "rio_de_argenti", "nova_genesis", "sangre_galactica"]
+	var expected_capacities := {
+		"nova_c35": 105000,
+		"rio_de_argenti": 105000,
+		"nova_genesis": 105000,
+		"sangre_galactica": 105000
+	}
+	for stadium_id in original_ids:
+		var config: Dictionary = STADIUM_BUILDER.get_stadium_config(stadium_id)
+		if int(config.get("capacity", 0)) != int(expected_capacities[stadium_id]):
+			failures.append("StadiumBuilder: capacidad original incorrecta para " + stadium_id)
+		for color_field in ["seating", "accent", "roof"]:
+			if not Color.html_is_valid(str(config.get(color_field, ""))):
+				failures.append("StadiumBuilder: color inválido " + color_field + " para " + stadium_id)
+	if str(STADIUM_BUILDER.get_stadium_config("unknown").get("id", "")) != "nova_central":
 		failures.append("StadiumBuilder: el ID desconocido debe usar el estadio base.")
 	if failures.is_empty():
 		print("FUTBOL_NOVA_STADIUM_BUILDER_TESTS: PASS")

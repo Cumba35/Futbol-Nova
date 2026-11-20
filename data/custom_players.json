@@ -6,8 +6,8 @@
       "name": "Anier Cumbá",
       "shirt_name": "CUMBÁ",
       "nationality": "CUB",
-      "club_id": "FN-ESP-REAL-MADRID",
-      "club_name": "Real Madrid",
+      "club_id": "FN-NOVA-C35",
+      "club_name": "Nova C35",
       "shirt_number": 35,
       "team_role": "captain",
       "position": "MCO",
@@ -69,12 +69,16 @@
           "goatee"
         ],
         "kit": {
-          "primary_color": "#E9E9E9",
-          "trim_color": "#171923",
+          "primary_color": "#111827",
+          "trim_color": "#00CFE8",
           "number": 35,
           "name": "CUMBÁ",
           "shirt_tucked": false,
-          "shirt_fit": "untucked_over_shorts"
+          "shirt_fit": "untucked_over_shorts",
+          "club_id": "FN-NOVA-C35",
+          "club_name": "Nova C35",
+          "shirt_number": 35,
+          "club_design_note": "Adaptado provisionalmente a la propuesta local Nova C35; conservar dorsal 35 y nombre CUMBÁ."
         },
         "accessories": {
           "boots": {
@@ -403,6 +407,17 @@
           "days_after_caribbean_champions_league_second_consecutive_title": 13,
           "context": "Fichaje narrativo de Anier Cumbá por el Real Madrid el 23 de junio de 2025, trece días después de conquistar su segundo título consecutivo de la Liga de Campeones del Caribe con Santiago de Cuba el 10 de junio de 2025.",
           "source_type": "owner_confirmed_game_canon"
+        },
+        {
+          "event_id": "NOVA-PLAYER-0035-TRANSFER-2026-11-20-NOVA-C35",
+          "event_type": "club_transfer",
+          "date": "2026-11-20",
+          "from_club": "Real Madrid",
+          "from_club_id": "FN-ESP-REAL-MADRID",
+          "to_club": "Nova C35",
+          "to_club_id": "FN-NOVA-C35",
+          "source_type": "owner_confirmed_game_canon",
+          "note": "Traspaso solicitado por el propietario para integrar el equipo original Nova C35; atributos, dorsal y estadísticas conservados."
         }
       ],
       "honours": [
@@ -481,8 +496,8 @@
       "birth_country": "CUB",
       "preferred_national_team": "CUB",
       "favorite_national_team": "ARG",
-      "club_id": "FN-ESP-BARCELONA",
-      "club_name": "Litoral Barcelona",
+      "club_id": "FN-NOVA-C35",
+      "club_name": "Nova C35",
       "favorite_club": "FC Barcelona",
       "position": "MCD",
       "secondary_positions": [
@@ -576,13 +591,15 @@
         "face_reference_status": "valid_optimized_jpeg_archived_procedural_3d_blockout_pending_visual_review",
         "appearance_reference_notes": "Usar la fotografía de referencia aportada por el propietario para construir el parecido 3D. No sustituirla por una imagen genérica.",
         "kit": {
-          "club_id": "FN-ESP-BARCELONA",
+          "club_id": "FN-NOVA-C35",
           "shirt_name": "PADILLA",
           "shirt_number": 30,
           "shirt_tucked": false,
-          "primary_style": "Barcelona-inspired blaugrana home kit",
+          "primary_style": "Nova C35 provisional home kit",
           "inner_shirt": "long_sleeve_compression",
-          "number": 30
+          "number": 30,
+          "club_name": "Nova C35",
+          "club_design_note": "Adaptar a la propuesta local Nova C35; conservar dorsal 30 y nombre PADILLA."
         },
         "accessories": {
           "socks": {
@@ -622,7 +639,19 @@
           "assists": 0
         }
       },
-      "career_history": [],
+      "career_history": [
+        {
+          "event_id": "NOVA-PLAYER-0036-TRANSFER-2026-11-20-NOVA-C35",
+          "event_type": "club_transfer",
+          "date": "2026-11-20",
+          "from_club": "Litoral Barcelona",
+          "from_club_id": "FN-ESP-BARCELONA",
+          "to_club": "Nova C35",
+          "to_club_id": "FN-NOVA-C35",
+          "source_type": "owner_confirmed_game_canon",
+          "note": "Traspaso solicitado por el propietario para integrar el equipo original Nova C35; atributos, dorsal y estadísticas conservados."
+        }
+      ],
       "honours": [],
       "competition_participations": [],
       "height_cm": 180,

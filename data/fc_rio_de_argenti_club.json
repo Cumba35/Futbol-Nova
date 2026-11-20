@@ -1,0 +1,93 @@
+{
+  "id": "fc-rio-de-argenti",
+  "runtime_club_id": "FN-NOVA-RDA",
+  "name": "FC Río de Argenti",
+  "abbreviation": "RDA",
+  "sport": "football",
+  "fictional": true,
+  "identity_status": "provisional_completion_using_existing_reference",
+  "identity": {
+    "concept": "river and silver identity; preserve the existing owner-provided home-kit reference as the visual source of truth",
+    "primary_colors": [
+      "silver",
+      "river_blue",
+      "deep_navy"
+    ],
+    "secondary_colors": [
+      "white"
+    ],
+    "color_status": "proposal_pending_reference_image_visual_check"
+  },
+  "crest": {
+    "concept": "classic shield with a flowing river across the centre, silver river line and RDA monogram; compact football detail",
+    "status": "design_proposal_pending_visual_asset"
+  },
+  "kits": {
+    "home": {
+      "reference": "Dropbox:/Apps/Futbol Nova/Assets/Clubs/RDA/Kits/rda_home_kit_reference.jpg",
+      "status": "existing_owner_reference_preserved"
+    },
+    "away": {
+      "base": "white",
+      "details": [
+        "silver river motif",
+        "river-blue shoulder and side accents",
+        "navy numbering"
+      ],
+      "status": "design_proposal"
+    },
+    "alternate": {
+      "base": "deep_navy",
+      "details": [
+        "silver diagonal river line",
+        "river-blue trim"
+      ],
+      "status": "design_proposal"
+    },
+    "goalkeeper": {
+      "base": "amber",
+      "details": [
+        "navy contrast panels",
+        "silver trim"
+      ],
+      "status": "design_proposal"
+    }
+  },
+  "stadium": {
+    "name": "Estadio Río de Argenti",
+    "capacity": 105000,
+    "capacity_status": "owner_specified_105000",
+    "ownership": "unconfirmed",
+    "design": "compact modern riverfront bowl with a continuous silver-blue roof ribbon",
+    "status": "design_specification",
+    "id": "rio_de_argenti",
+    "club_id": "FN-NOVA-RDA",
+    "seating": "#176A91",
+    "accent": "#C7D3DE",
+    "roof": "#142A3B",
+    "secondary_accent": "#FFFFFF",
+    "kit_palette_status": "provisional_pending_visual_check_of_dropbox_home_reference",
+    "description": "Gradas azul río, acentos plateados y blancos, cubierta azul marino; paleta provisional basada en la ficha y pendiente de cotejo visual con la referencia local."
+  },
+  "supporters": {
+    "nickname": "La Corriente",
+    "colors": [
+      "river_blue",
+      "silver"
+    ],
+    "chants_and_flags": "provisional concepts; not recorded as owner-approved"
+  },
+  "roster": {
+    "target_size": 22,
+    "status": "incomplete_pending_verified_player_records",
+    "known_player_ids": [],
+    "pending_player_resolution": [
+      "Raymond"
+    ],
+    "remaining_slots": 22
+  },
+  "assets": {
+    "home_kit_reference": "Dropbox:/Apps/Futbol Nova/Assets/Clubs/RDA/Kits/rda_home_kit_reference.jpg"
+  },
+  "updated": "2026-11-20"
+}
