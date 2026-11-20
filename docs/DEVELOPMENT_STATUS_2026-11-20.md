@@ -102,3 +102,10 @@ Ejecución que contiene el código y las aserciones más recientes: https://gith
 - El workflow ya no publica el APK antes de las regresiones: el artefacto Android se sube solo al final, si todas las pruebas anteriores terminan correctamente.
 - Estado: código y prueba guardados en el repositorio de distribución y en Nova Workspace. La nueva ejecución CI debe confirmar compilación, colisión y regresiones. No declarar aprobado ni subir esta compilación como APK final a Dropbox hasta que la ejecución termine correctamente.
 - Pendiente: estirada/animación, blocaje, rebote controlado, despeje tras atajada, y partido amistoso de extremo a extremo con goles reales y pitido final.
+
+
+## Ajuste de sincronización del portero móvil — 20 noviembre 2026
+
+- Corrección adicional: el collider del guardameta ahora es `AnimatableBody3D`, no `StaticBody3D`, porque el actor cambia de posición durante la simulación.
+- La prueba comprueba que la colisión sigue al actor y que el balón rebota tras el impacto.
+- Estado de validación: pendiente de la nueva ejecución CI tras esta corrección.
