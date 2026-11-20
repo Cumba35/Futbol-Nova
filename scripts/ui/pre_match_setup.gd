@@ -375,7 +375,11 @@ func _register_original_clubs(registry: Variant) -> void:
 				continue
 			var known_id := str(known_player.get("id", ""))
 			if known_id in ["NOVA-PLAYER-0035", "NOVA-PLAYER-0036"] and not registry.players_by_id.has(known_id):
-				registry.register_players([known_player])
+				var normalized_known: Dictionary = known_player.duplicate(true)
+				normalized_known["display_name"] = str(normalized_known.get("display_name", normalized_known.get("name", known_id)))
+				normalized_known["primary_position"] = str(normalized_known.get("primary_position", normalized_known.get("position", "")))
+				normalized_known["nationality_id"] = str(normalized_known.get("nationality_id", normalized_known.get("nationality", "CUB")))
+				registry.register_players([normalized_known])
 
 	for player in roster_catalog.get("players", []):
 		if not player is Dictionary:
