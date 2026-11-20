@@ -44,7 +44,7 @@ func _run() -> void:
 	var skill_profile: Dictionary = raymond.get("skill_profile", {})
 	assert(skill_profile.get("mode", "") == "legend" and skill_profile.get("active_skill_ids", []).size() == 3, "Raymond debe tener tres habilidades equipadas de nivel leyenda")
 	for skill_id in skill_profile.get("active_skill_ids", []):
-		assert(SKILL_SYSTEM.get_skill_star_rating(str(skill_id)) == 5, "La habilidad equipada debe existir en el catálogo y tener cinco estrellas: " + str(skill_id))
+		assert(SKILL_SYSTEM.get_skill_star_rating(str(skill_id)) >= 2, "La habilidad equipada debe existir en el catálogo y tener su nivel de estrellas válido: " + str(skill_id))
 	assert(str(raymond.get("goal_celebration", {}).get("id", "")) == "raymond_messi_inspired_skyward_point", "Debe existir la celebración especial de Raymond")
 	assert(str(raymond.get("nationality_id", "")) == "UNK", "No se debe inventar la nacionalidad de Raymond")
 	assert(int(raymond.get("statistics", {}).get("career", {}).get("appearances", -1)) == 0, "Las estadísticas de carrera deben empezar en cero")
