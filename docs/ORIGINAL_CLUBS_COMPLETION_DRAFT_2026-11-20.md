@@ -1,33 +1,22 @@
-# Fútbol Nova — manifiesto de clubes originales (2026-11-20)
+# Fútbol Nova — finalización de clubes originales (borrador editable)
 
-## Alcance
-Registro de las cuatro identidades originales del juego. Las propuestas nuevas quedan etiquetadas como provisionales para revisión del propietario. No se consideran assets gráficos binarios creados ni integrados hasta que sus archivos reales estén guardados y releídos desde GitHub/Dropbox.
+## Estadios: requisito del propietario (2026-11-20)
+Los cuatro estadios originales tienen capacidad de diseño de **105.000 espectadores**. Su paleta arquitectónica debe derivarse de la primera equipación (home kit) de su club:
+- Nova C35 — Estadio del Fénix: azul marino, cian, detalles plateados.
+- FC Río de Argenti — Estadio Río de Argenti: azul río, plata y blanco; paleta provisional hasta cotejar visualmente el JPG local de Dropbox.
+- Nova Génesis — Arena Nova Génesis: azul marino y blanco, con acentos rojos y verdes, conforme a la equipación local v2 aprobada.
+- Sangre Galáctica — Estadio Sangre de Estrellas: morado y rojo dominantes, con detalles amarillos y blancos.
 
-| Club | ID canónico | Estado visual | Estadio |
-|---|---|---|---|
-| Nova C35 (C35) | `nova-c35` / `FN-NOVA-C35` | Propuesta provisional | Estadio del Fénix, capacidad de diseño 105.000 |
-| FC Río de Argenti (RDA) | `fc-rio-de-argenti` / `FN-NOVA-RDA` | Referencia local existente; resto provisional | Estadio Río de Argenti, capacidad pendiente |
-| Nova Génesis (GEN) | `nova-genesis` / `FN-NOVA-GEN` | Local v2 aprobada; resto provisional | Arena Nova Génesis, capacidad pendiente |
-| Sangre Galáctica (SAG) | `sangre-galactica` / `FN-NOVA-SAG` | Colores confirmados; propuesta provisional | Estadio Sangre de Estrellas, capacidad pendiente |
+El catálogo de ejecución `scripts/stadiums/stadium_builder.gd` conserva los tres estadios base y añade estos cuatro estadios originales. La prueba `tests/test_stadium_builder.gd` comprueba el catálogo, la capacidad y que los colores sean válidos. La prueba debe ejecutarse en CI; el código guardado no equivale a prueba aprobada.
 
-## Decisiones confirmadas
-- Nova C35 es el club base de referencia. Estadio del Fénix conserva la capacidad de diseño de 105.000 registrada en la PR #6.
-- Nova Génesis: se conserva la identidad de local v2 aprobada el 20-11-2026 (GEN entrelazado, blanco/navy con acentos rojos y verdes; shorts blanco/navy).
-- Sangre Galáctica: rojo y morado dominantes; amarillo y blanco como acentos.
-- FC Río de Argenti conserva la referencia de uniforme local existente en Dropbox; no se sustituye ni se sobrescribe.
-
-## Propuestas editables
-Los escudos, uniformes visitantes/alternativos/porteros, nombres y diseños de estadios, y apodos/cánticos de afición propuestos en `data/original_clubs_2026.json` son borradores creativos, no aprobaciones finales. Las capacidades de los tres estadios distintos del Fénix quedan sin fijar.
+## Identidades y propuestas
+Las cuatro identidades, escudos conceptuales, equipaciones y aficiones siguen descritas en `data/original_clubs_2026.json` y sus fichas individuales. Lo que no fue aprobado explícitamente sigue marcado como propuesta editable.
 
 ## Plantillas y traspasos
-- Objetivo de estructura: 22 futbolistas por club.
-- Anier Cumbá (NOVA-PLAYER-0035) y Máximo Padilla (NOVA-PLAYER-0036) quedan asignados a Nova C35; sus atributos, dorsales y estadísticas se conservan.
-- Raymond está solicitado para FC Río de Argenti, pero su perfil único no se ha localizado en `data/custom_players.json`. No se cambia ningún otro registro ni se crea un duplicado. La asignación queda pendiente de resolver el ID correcto.
-- No se inventan estadísticas de carrera o temporada; empiezan en cero/no disponibles según el esquema hasta registrar partidos.
-- Los cuatro equipos todavía no tienen 22 perfiles individuales completos en este manifiesto. No declarar completa la liga de 20 equipos ni los cuatro planteles hasta importar/verificar los 88 perfiles.
+- Objetivo: 22 jugadores por club.
+- Anier Cumbá (NOVA-PLAYER-0035) y Máximo Padilla (NOVA-PLAYER-0036) están asignados a Nova C35, conservando dorsales, atributos y estadísticas.
+- Raymond continúa pendiente de identificar por ID único antes de moverlo a RDA.
+- No se inventan 88 perfiles ni estadísticas ficticias para declarar completos los planteles.
 
-## Estado de los archivos binarios
-Las referencias de imagen se conservan como referencias descriptivas. Este commit no incorpora archivos PNG/JPG nuevos al árbol de GitHub. La imagen aprobada GEN v2 sigue identificada como adjunto de Dropbox Paper; falta su incorporación binaria independiente al repositorio. La referencia RDA sigue en Dropbox.
-
-## Verificación requerida
-Validar IDs únicos, relaciones club/jugador, 22 plazas por equipo, esquema de datos, importación en el juego, renderizado de escudos/equipaciones y pruebas de selector/amistoso. La documentación de diseño no acredita pruebas de motor ni Android.
+## Recursos visuales
+No se han incorporado todavía nuevos binarios de escudos/uniformes al árbol GitHub. La referencia de local RDA sigue en Dropbox; su paleta del estadio está identificada como provisional hasta cotejar la imagen de referencia. GEN v2 sigue siendo la propuesta visual local aprobada.
