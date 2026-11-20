@@ -1,31 +1,37 @@
 # Fútbol Nova — manifiesto de activos de clubes (2026-11-20)
 
+## Regla común de estadios
+Los cuatro estadios originales deben tener capacidad de diseño de 105.000 espectadores y usar la paleta de la primera equipación del club. La implementación del catálogo está en `scripts/stadiums/stadium_builder.gd`.
+
+| Club | Estadio | Capacidad | Paleta de la primera equipación |
+|---|---|---:|---|
+| Nova C35 (C35) | Estadio del Fénix | 105.000 | Azul marino y cian; plata secundaria |
+| FC Río de Argenti (RDA) | Estadio Río de Argenti | 105.000 | Azul río, plata y blanco; provisional hasta inspeccionar visualmente el JPG original |
+| Nova Génesis (GEN) | Arena Nova Génesis | 105.000 | Azul marino y blanco, acentos rojos y verdes; local v2 aprobada |
+| Sangre Galáctica (SAG) | Estadio Sangre de Estrellas | 105.000 | Morado y rojo, detalles amarillos y blancos |
+
 ## Nova Génesis (GEN)
 - La identidad local v2 fue aprobada por el propietario el 20-11-2026: letras GEN entrelazadas e irregulares; camiseta blanca con paneles geométricos/texturizados navy, acentos rojos y verdes y shorts blanco/navy.
 - Foto original de referencia: https://paper-attachments.dropboxusercontent.com/attachment-426099076273329128066594_1795207204169_nova_genesis_reference_photo_2026-11-20.jpg
 - Propuesta v2 aprobada: https://paper-attachments.dropboxusercontent.com/attachment-361855441170696076943187_1795207271649_nova_genesis_home_kit_proposal_03_GEN.jpg
-- Propuesta v1 histórica: `/Apps/Futbol Nova/Assets/Clubs/Nova Génesis/Kits/Proposals/nova_genesis_home_kit_proposal_01.png`.
-- Manifest de Dropbox: https://www.dropbox.com/scl/fi/gwn7i5j05xo105upbb7xs/F-tbol-Nova-Manifiesto-de-activos-de-clubes-2026-11-20.paper?rlkey=gefiz998xnsx422z9pdlj6s31&dl=0
-- Los uniformes visitante/alternativo/portero y el estadio son propuestas provisionales.
+- Los binarios siguen sin estar incorporados como archivos independientes al repositorio.
 
 ## FC Río de Argenti (RDA)
-- Referencia local existente: `/Apps/Futbol Nova/Assets/Clubs/RDA/Kits/rda_home_kit_reference.jpg`; se conserva como fuente visual original.
-- Propuestas provisionales para escudo, visitante, alternativo, portero, estadio y afición descritas en `data/fc_rio_de_argenti_club.json`.
+- Referencia local existente: `/Apps/Futbol Nova/Assets/Clubs/RDA/Kits/rda_home_kit_reference.jpg`; no sobrescribir.
+- La paleta azul río/plata/blanco del estadio es provisional hasta verificar visualmente esa referencia.
 
 ## Nova C35 (C35)
-- Club base de referencia del juego.
-- Estadio del Fénix: capacidad de diseño exacta 105.000, ya registrada en la PR #6.
-- Propuestas provisionales de escudo C35/fénix, equipaciones, afición y detalles visuales en `data/nova_c35_club.json`.
+- Estadio del Fénix conserva el nombre y capacidad 105.000 registrados previamente.
+- Paleta derivada de la propuesta local azul marino/cian con plata secundaria.
 
 ## Sangre Galáctica (SAG)
 - Colores confirmados: rojo y morado dominantes; amarillo y blanco como detalles.
-- Propuestas provisionales de escudo, cuatro equipaciones, estadio y afición en `data/sangre_galactica_club.json`.
+- El estadio usa esa misma jerarquía cromática.
 
-## Plantillas y traspasos
-- Objetivo de 22 jugadores por club.
-- Anier Cumbá (NOVA-PLAYER-0035) y Máximo Padilla (NOVA-PLAYER-0036) asignados a Nova C35; atributos, dorsales y estadísticas preservados.
-- Raymond solicitado para RDA; perfil único no localizado en el catálogo de jugadores personalizados, por lo que su asignación está pendiente de identificar sin crear duplicados.
-- Las cuatro plantillas de 22 jugadores aún no están completas ni validadas.
+## Plantillas
+- Anier Cumbá y Máximo Padilla asignados a Nova C35 sin alterar sus atributos, dorsales o estadísticas.
+- Raymond sigue pendiente de ID único.
+- Las plantillas de 22 jugadores por equipo no están completas.
 
-## Estado de sincronización de imágenes
-Los metadatos y las propuestas descriptivas están versionados en GitHub. Los binarios JPG/PNG no se han incorporado como archivos independientes al árbol de GitHub. Las imágenes GEN permanecen incrustadas en Dropbox Paper y la referencia RDA permanece en Dropbox. No marcar la sincronización binaria como completa.
+## Verificación
+Se amplió `tests/test_stadium_builder.gd` para exigir los cuatro estadios originales y su capacidad. El resultado de CI posterior a este commit queda pendiente. Los assets gráficos binarios aún no están todos en GitHub.
