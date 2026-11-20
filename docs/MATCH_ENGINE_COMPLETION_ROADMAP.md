@@ -315,3 +315,8 @@ El workflow se modificó para publicar el artefacto APK únicamente después de 
 Se cambió el cuerpo de colisión del portero de `StaticBody3D` a `AnimatableBody3D`. El actor táctico se reposiciona desde `_physics_process`; un cuerpo estático no es adecuado para un obstáculo que se mueve continuamente. El cuerpo animable sincroniza sus cambios de transform con el motor de física. La prueba comprueba que el collider acompaña el movimiento del actor, además del impacto del balón.
 
 La ejecución anterior estaba en progreso cuando se corrigió este detalle; el último commit generará otra ejecución CI. La prueba física debe pasar antes de considerar validado el cambio.
+
+
+## Corrección de fixtures y pruebas de física — 20 noviembre 2026
+
+La primera ejecución que probó la cápsula falló en la prueba de posicionamiento porque el fixture consultaba `global_position` fuera del árbol de escena. Se corrigió añadiendo el controlador y el balón al árbol antes de comprobar el objetivo táctico. La prueba de tiro también recibió todos los campos esperados por el actor IA (`home_position`, `target`, `speed` y `stamina`) para evitar errores de diccionario durante los pasos físicos. El controlador usa valores por defecto seguros para `home_position` y `speed` cuando recibe datos incompletos. La siguiente ejecución debe confirmar estos arreglos junto con el collider `AnimatableBody3D`.
