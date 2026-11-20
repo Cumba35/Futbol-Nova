@@ -177,3 +177,26 @@ La revisión estática detectó que el bloque de retención de balón podía sob
 También se añadió una primera decisión para el futbolista IA más cercano cuando el usuario no tiene la posesión: llevar el balón si no encuentra pase, buscar un compañero de su equipo y disparar cuando se acerca a la portería rival. El comportamiento es heurístico y temporal; no equivale a una IA táctica completa ni a un sistema formal de posesión.
 
 Pendiente: CI ARM64 del commit actual y pruebas de juego reales para comprobar que el balón no se atasca, que los pases llegan a compañeros, que los rivales interceptan y que los tiros se dirigen hacia ambas porterías.
+
+
+## Corrección de reinicio tras gol y revisión de referencias públicas — 2026-11-19
+
+### Código
+- En `native-android/app/src/main/cpp/native_engine.cpp` se añadió `resetKickoffPositions()`.
+- Después de un gol de cualquiera de los equipos, ahora se reconstruyen las posiciones de los 22 futbolistas a partir de la formación base, se conserva el sentido de ataque vigente (incluido el segundo tiempo), se reubican ambos porteros, se sincroniza el futbolista controlado y se reinicia el balón y su ventana de liberación.
+- Esto corrige el estado inconsistente anterior en el que solo se recolocaban el jugador controlado y los porteros, dejando al resto del equipo en posiciones dispersas.
+- Commit: `b6c1b187617f7c55898a7b0316fb3c8d11152b7e`.
+- Verificación: se releyó el archivo desde la rama y se confirmó la función y sus dos llamadas (gol local y visitante). La compilación CI de este commit debe confirmarse por separado; todavía no hay prueba en teléfono.
+
+### Investigación de repositorios públicos
+- `awest813/League-Soccer` (C++17, OpenGL, partido completo, IA y estructura modular): útil como referencia arquitectónica para separar simulación, física, renderizado, datos y pruebas. No es una base directamente integrable: su README requiere SDL2, Boost, OpenAL y SQLite, y su soporte publicado se centra en escritorio; Fútbol Nova debe conservar Android NDK/OpenGL ES 3.0 y no incorporar ese conjunto de dependencias.
+- Licencia: el archivo LICENSE del repositorio contiene el texto Apache License 2.0, aunque el README muestra una insignia que dice Public Domain. Se considera el archivo LICENSE como referencia legal primaria y se registra la discrepancia; no se copió código ni recursos.
+- `TheAmgadX/Soccer-AI`: proyecto C++17/SDL2 con máquinas de estado separadas para equipo, jugadores de campo y portero, además de selección de jugador cercano al balón, jugador controlador y posiciones de apoyo. Es una buena referencia conceptual para evolucionar la IA NOVA desde reglas uniformes a estados/roles. El árbol consultado no incluye un archivo LICENSE; por tanto, no reutilizar ni copiar su código.
+- En ambos casos se revisaron documentación y estructura pública, no se incorporaron dependencias ni código externo.
+
+### Siguiente prioridad técnica
+1. Confirmar CI del commit `b6c1b187617f7c55898a7b0316fb3c8d11152b7e`.
+2. Añadir recuperación de posesión/robo y defensa activa sin romper el control táctil.
+3. Mejorar IA por roles: perseguidor único, cobertura, apoyos y repliegue.
+4. Completar saques y estados de partido, y añadir pruebas automáticas de las transiciones.
+5. Validar físicamente en Android antes de considerar Amistosos listo.
