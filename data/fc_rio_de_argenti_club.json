@@ -41,7 +41,9 @@
         "crest": "Original crowned FC shield",
         "team_text": "Río de Argenti"
       },
-      "design_notes": "Preserve the black, white, gray and red combination and all graphic motifs from the approved generated kit. The repeated FC lettering is gray; do not substitute racing cars."
+      "design_notes": "Preserve the black, white, gray and red combination and all graphic motifs from the approved generated kit. The repeated FC lettering is gray; do not substitute racing cars.",
+      "dropbox_reference": "/Apps/Futbol Nova/Assets/Clubs/RDA/Kits/rda_home_kit_reference.jpg",
+      "repository_binary_status": "JPG image is stored and verified in Dropbox; GitHub contains the club metadata and documentation, not the binary image."
     },
     "away_kit": {
       "status": "not_designed"
