@@ -601,6 +601,26 @@ func _create_ai_actor(player_data: Dictionary) -> void:
 	shorts.material_override = _make_material(Color("#18202B") if is_home else Color("#253A68"))
 	actor.add_child(shorts)
 	add_child(actor)
+	# The goalkeeper gets a lightweight physical capsule so shots can be
+	# blocked by the physics engine instead of passing through a visual-only
+	# Node3D. Other AI players remain collider-free for mobile performance.
+	if str(player_data.role) == "GK":
+		var goalkeeper_body := StaticBody3D.new()
+		goalkeeper_body.name = "GoalkeeperCollision"
+		goalkeeper_body.collision_layer = 1
+		goalkeeper_body.collision_mask = 1
+		var goalkeeper_material := PhysicsMaterial.new()
+		goalkeeper_material.bounce = 0.42
+		goalkeeper_material.friction = 0.18
+		goalkeeper_body.physics_material_override = goalkeeper_material
+		var goalkeeper_shape := CollisionShape3D.new()
+		var goalkeeper_capsule := CapsuleShape3D.new()
+		goalkeeper_capsule.radius = 0.42
+		goalkeeper_capsule.height = 1.85
+		goalkeeper_shape.shape = goalkeeper_capsule
+		goalkeeper_shape.position.y = 0.92
+		goalkeeper_body.add_child(goalkeeper_shape)
+		actor.add_child(goalkeeper_body)
 	_actors.append({
 		"node": actor,
 		"player_id": str(player_data.player_id),
