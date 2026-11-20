@@ -50,3 +50,22 @@ La existencia de un repositorio público no equivale a permiso de reutilización
 - Se reforzó la prueba de remate para verificar que el balón se impulsa físicamente hacia la portería rival.
 
 **Política de reutilización:** Pixel-Striker es MIT, pero no se copió código; en los demás repositorios se estudian únicamente ideas generales hasta confirmar licencia y dependencias. Ningún escudo, camiseta, imagen, sonido ni base de datos externa se incorpora en esta ronda.
+
+
+## Tercera ronda de investigación — 20-11-2026
+
+| Repositorio | Observación útil | Decisión para Fútbol Nova | Licencia / límites |
+|---|---|---|---|
+| [Tobilion/footysim](https://github.com/Tobilion/footysim) | Motor de simulación 11v11 headless con agentes, geometría, pases, intercepciones, tiros y métricas calculadas a partir del estado espacial. | Referencia para ampliar estadísticas y escenarios de aceptación de partido completo; no trasladar su motor Python al APK Godot. | API de GitHub devuelve `license: null`; no copiar código ni datos. |
+| [ageraustine/marl-football](https://github.com/ageraustine/marl-football) | Entorno multiagente 11-a-side configurable, simulación separada del render y pipeline de entrenamiento. | Referencia conceptual para mantener simulación y representación desacopladas y evaluar IA por escenarios. | No se verificó licencia compatible en esta revisión; solo estudio conceptual. |
+| [AKM-8byte/FreeKick](https://github.com/AKM-8byte/FreeKick) | Godot 4, física configurable de balón, IK procedural y replay; licencia MIT. | Referencia para física y presentación de futuras animaciones, manteniendo el motor propio y sin añadir addon ahora. | MIT confirmada; no se copió código ni assets. |
+| [devinarena/Pixel-Striker](https://github.com/devinarena/Pixel-Striker) | Juego móvil Godot con lógica de portero y penaltis; licencia MIT. | Referencia para futuras decisiones de reacción/estirada; no portar su minijuego al partido 11v11. | MIT confirmada; no se copió código ni assets. |
+| [namelesssyf/soccer-box-game](https://github.com/namelesssyf/soccer-box-game) | Godot 4, balón físico, partidos locales, IA y pruebas. | Referencia para escenarios de física y telemetría. | API devuelve `license: null`; no copiar. |
+| [modelence/open-soccer](https://github.com/modelence/open-soccer) | Partido CPU 11v11 en navegador con reinicios y reglas. | Checklist conceptual para ampliar reglas y pruebas de aceptación. | API devuelve `license: null`; no copiar. |
+| [ogulcanunverenpt-star/purpleshoe](https://github.com/ogulcanunverenpt-star/purpleshoe) | Godot 4, partido 11-a-side, IA y reinicios. | Comparar situaciones de partido, sin importar backend ni recursos. | API devuelve `license: null`; no copiar. |
+
+### Resultado aplicado
+
+La mejora de esta iteración es original: cada guardameta recibe un `StaticBody3D` con cápsula y material de rebote, para que los tiros puedan tener contacto físico con el cuerpo del portero. La prueba de posicionamiento ahora intenta validar un disparo real contra esa cápsula. No se importó código externo, addons, modelos ni recursos.
+
+La licencia MIT de un repositorio no concede derechos sobre recursos de terceros que pueda incluir; cualquier reutilización futura se revisará por archivo y dependencia. Los repositorios sin licencia declarada se usan solo como inspiración de ideas generales.
