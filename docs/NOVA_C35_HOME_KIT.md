@@ -3,8 +3,9 @@
 - **Fecha de aprobación:** 2026-11-20
 - **Club:** Nova C35 (C35)
 - **Estado:** uniforme principal aprobado por el propietario.
-- **Imagen de referencia prevista en el repositorio:** `assets/clubs/nova_c35/kits/nova_c35_home_kit_reference.jpg`
-- **Imagen de referencia generada:** `nova_c35_home_kit_reference.jpg` (JPG, versión optimizada para repositorio y copia de seguridad).
+- **Imagen de referencia respaldada en Dropbox:** `/Apps/Futbol Nova/Assets/Clubs/Nova C35/Kits/nova_c35_home_kit_reference.jpg` (JPG, 430.494 bytes).
+- **Ruta prevista para el binario en GitHub:** `assets/clubs/nova_c35/kits/nova_c35_home_kit_reference.jpg`.
+- **Estado GitHub:** el perfil JSON y esta especificación están sincronizados; el binario JPG aún no está incorporado al repositorio.
 
 ## Identidad visual
 
@@ -37,4 +38,4 @@ La equipación visitante y la de portero deben ser claramente diferenciables de 
 
 ## Estado del archivo gráfico
 
-La especificación y los metadatos del uniforme están guardados en GitHub. La imagen de referencia debe quedar en la ruta indicada arriba; la carga del binario en GitHub y el respaldo en Dropbox aún deben completarse y verificarse por separado.
+La imagen JPG se cargó en Dropbox y se verificó mediante la lectura del contenido de la carpeta de destino. La especificación y los metadatos del uniforme están guardados en GitHub y sincronizados con Nova Workspace. El binario JPG aún no se ha incorporado a GitHub; la ruta indicada arriba es la ruta prevista, no un archivo ya verificado en el repositorio.
