@@ -10,6 +10,7 @@ const ACCENT := Color("#c8f45a")
 const TEXT_COLOR := Color("#f4f7ef")
 const MUTED := Color("#a8b7aa")
 const STADIUM_BUILDER = preload("res://scripts/stadiums/stadium_builder.gd")
+const TEAM_KIT_SELECTION = preload("res://scripts/ui/team_kit_selection.gd")
 const STARTING_POSITION_PRIORITY := [
 	["POR", "GK", "G"],
 	["LI", "CAI"],
@@ -82,6 +83,9 @@ var _extra_time: CheckBox
 var _penalties: CheckBox
 var _start_button: Button
 var _team_ids: Array[String] = []
+var _home_kit_id := "home"
+var _away_kit_id := "away"
+var _team_kit_button: Button
 var _custom_players: OptionButton
 var _roster_status: Label
 
@@ -186,6 +190,14 @@ func _build_interface() -> void:
 	_away_teams.custom_minimum_size.y = 48
 	_away_teams.item_selected.connect(_on_team_selection_changed)
 	away_column.add_child(_away_teams)
+
+	_team_kit_button = Button.new()
+	_team_kit_button.text = "ELEGIR EQUIPOS Y UNIFORMES"
+	_team_kit_button.custom_minimum_size.y = 52
+	_team_kit_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_team_kit_button.add_theme_font_size_override("font_size", 18)
+	_team_kit_button.pressed.connect(_open_team_kit_selection)
+	column.add_child(_team_kit_button)
 
 	var custom_roster_title := Label.new()
 	custom_roster_title.text = "JUGADORES PERSONALIZADOS"
@@ -467,6 +479,31 @@ func _select_stadium(stadium_id: String) -> void:
 	if is_instance_valid(_start_button):
 		_refresh_validation()
 
+
+func _open_team_kit_selection() -> void:
+	var registry: Variant = _get_football_registry()
+	if registry == null:
+		return
+	var screen := TEAM_KIT_SELECTION.new()
+	screen.configure(registry.teams_by_id, _team_ids, _selected_team_id(_home_teams), _selected_team_id(_away_teams))
+	screen.confirmed.connect(_on_team_kit_selection_confirmed)
+	add_child(screen)
+
+func _on_team_kit_selection_confirmed(selection: Dictionary) -> void:
+	var home_id := str(selection.get("home_team_id", ""))
+	var away_id := str(selection.get("away_team_id", ""))
+	var home_index := _team_ids.find(home_id)
+	var away_index := _team_ids.find(away_id)
+	if home_index < 0 or away_index < 0 or home_index == away_index:
+		_summary.text = "La selección de equipos no es válida."
+		return
+	_home_teams.select(home_index)
+	_away_teams.select(away_index)
+	_home_kit_id = str(selection.get("home_kit_id", "home"))
+	_away_kit_id = str(selection.get("away_kit_id", "away"))
+	_team_kit_button.text = "UNIFORMES: LOCAL %s  •  VISITANTE %s" % [_home_kit_id.to_upper(), _away_kit_id.to_upper()]
+	_refresh_validation()
+
 func _get_custom_roster_service() -> Node:
 	return get_node_or_null("/root/CustomPlayerRoster")
 
@@ -639,6 +676,8 @@ func _start_match() -> void:
 		"away_player_ids": away_player_ids,
 		"players_by_id": players_by_id,
 		"stadium_id": _selected_stadium_id(),
+		"home_kit_id": _home_kit_id,
+		"away_kit_id": _away_kit_id,
 		"half_length_minutes": _half_length.get_selected_id(),
 		"clock_mode": "stopped" if _clock_mode.get_selected_id() == 1 else "continuous",
 		"extra_time_enabled": _extra_time.button_pressed,
