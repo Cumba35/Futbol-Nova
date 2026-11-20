@@ -87,3 +87,16 @@ La fase sigue pendiente de compilación CI del último commit y prueba en teléf
 ## Ajuste de física de posesión y comportamiento IA — 2026-11-19
 
 Se corrigió un defecto estático por el que el control de balón podía cancelar inmediatamente un pase o tiro. El motor conserva ahora una ventana corta de balón liberado y permite que la trayectoria avance. Los jugadores IA pueden intentar un pase, conducir el balón o tirar al acercarse al área. No se considera validado hasta CI y prueba física; faltan entradas/robos, marcaje táctico, decisiones de equipo y más reglas.
+
+
+## Secuencia 3D de gol con salto manual — 2026-11-20
+
+- Al marcar el equipo local o visitante, el motor conserva el marcador y activa una secuencia 3D sin reiniciar instantáneamente las posiciones.
+- Fase 1 (3,4 s): los diez jugadores de campo del equipo anotador convergen hacia la zona de celebración con brazos elevados y pequeños saltos; los diez jugadores de campo que recibieron el gol regresan caminando a sus posiciones de saque en torno al centro del campo. Los porteros permanecen en sus áreas.
+- Fase 2 (2,8 s): los jugadores de campo terminan de colocarse en sus posiciones de saque. Después se recolocan ambos porteros y el balón para el saque central.
+- El botón táctil «SALTAR» permanece disponible durante toda la secuencia. Al pulsarlo, el motor finaliza la animación inmediatamente y ejecuta el reinicio completo del saque.
+- La secuencia no pausa ni modifica el cronómetro del partido; depende del evento de gol y no del formato con que la interfaz presente el reloj. El control de salto funciona durante el juego normal en ambos sentidos de marcador.
+- Se mantiene la lógica de pausa: si el usuario pausa el partido, la animación también se detiene y puede saltarse al reanudar o desde el control visible.
+- Implementación en `native_engine.cpp` y `MainActivity.java`; commits: `e68c4190e3817deac6793ff9ddca2c5e0effc4a2` y `7b1401a7e327b1e515ad1461ab7b943fe8ecd11e`.
+- Verificación estática: se releen ambos archivos desde GitHub y se comprueba la activación tras gol local/visitante, la animación de celebración, el método JNI de salto, el botón Android y su visibilidad según el estado nativo.
+- Pendiente: compilación CI de estos commits y prueba física en Android. Debe comprobarse gol local, gol visitante, salto al inicio/mitad/final de la secuencia, reloj avanzando, pausa/reanudación y saque correcto.
