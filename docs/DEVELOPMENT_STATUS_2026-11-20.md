@@ -92,3 +92,13 @@ La ejecución más reciente que contiene estas aserciones es https://github.com/
 El portero ya no sigue únicamente la coordenada lateral actual del balón: cuando el balón viaja hacia su propia portería, el controlador proyecta su cruce con el plano de gol usando la velocidad física actual, con horizonte máximo de 1,25 segundos. Si el balón se aleja, no anticipa esa trayectoria. Se mantiene el límite lateral de ±3,1 m y el cambio de lado. La prueba dedicada comprueba local, visitante y selector táctico integrado.
 
 Ejecución que contiene el código y las aserciones más recientes: https://github.com/Cumba35/Futbol-Nova/actions/runs/44676823822 (pendiente/encolada al registrar esta actualización). La atajada, blocaje y animación de estirada siguen pendientes; este cambio es posicionamiento predictivo, no una atajada completa.
+
+
+## Actualización — bloqueo físico del guardameta (20-11-2026)
+
+- Añadido `StaticBody3D` y cápsula de colisión al actor GK; se mantiene a los jugadores de campo sin cuerpos físicos extra para reducir coste móvil.
+- La cápsula usa material con rebote para que un tiro pueda impactar y rebotar físicamente en el portero.
+- Ampliada `test_friendly_goalkeeper_positioning.gd` con un escenario de física que comprueba el contacto real entre un disparo `RigidBody3D` y la cápsula del guardameta.
+- El workflow ya no publica el APK antes de las regresiones: el artefacto Android se sube solo al final, si todas las pruebas anteriores terminan correctamente.
+- Estado: código y prueba guardados en el repositorio de distribución y en Nova Workspace. La nueva ejecución CI debe confirmar compilación, colisión y regresiones. No declarar aprobado ni subir esta compilación como APK final a Dropbox hasta que la ejecución termine correctamente.
+- Pendiente: estirada/animación, blocaje, rebote controlado, despeje tras atajada, y partido amistoso de extremo a extremo con goles reales y pitido final.
