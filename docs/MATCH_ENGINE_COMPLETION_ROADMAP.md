@@ -308,3 +308,10 @@ La prueba `tests/test_friendly_goalkeeper_positioning.gd` ahora incluye una comp
 **Alcance real:** esto añade bloqueo físico del cuerpo del portero; todavía no hay animación de estirada, manos/brazos con colisión, blocaje de balón, control de rebote dirigido ni despeje animado. La IA aún puede despejar cuando adquiere la posesión. No se debe anunciar como sistema completo de atajadas.
 
 El workflow se modificó para publicar el artefacto APK únicamente después de superar toda la batería de pruebas, evitando ofrecer como validada una compilación que todavía tiene regresiones pendientes. La validación de esta nueva cápsula queda pendiente de la ejecución CI generada por estos cambios.
+
+
+## Ajuste de sincronización del portero móvil — 20 noviembre 2026
+
+Se cambió el cuerpo de colisión del portero de `StaticBody3D` a `AnimatableBody3D`. El actor táctico se reposiciona desde `_physics_process`; un cuerpo estático no es adecuado para un obstáculo que se mueve continuamente. El cuerpo animable sincroniza sus cambios de transform con el motor de física. La prueba comprueba que el collider acompaña el movimiento del actor, además del impacto del balón.
+
+La ejecución anterior estaba en progreso cuando se corrigió este detalle; el último commit generará otra ejecución CI. La prueba física debe pasar antes de considerar validado el cambio.
