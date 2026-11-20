@@ -601,11 +601,11 @@ func _create_ai_actor(player_data: Dictionary) -> void:
 	shorts.material_override = _make_material(Color("#18202B") if is_home else Color("#253A68"))
 	actor.add_child(shorts)
 	add_child(actor)
-	# The goalkeeper gets a lightweight physical capsule so shots can be
-	# blocked by the physics engine instead of passing through a visual-only
-	# Node3D. Other AI players remain collider-free for mobile performance.
+	# The goalkeeper uses an animatable physics body because its tactical actor
+	# moves every physics tick. This keeps collision motion synchronized instead
+	# of teleporting a StaticBody3D. Field players remain collider-free on mobile.
 	if str(player_data.role) == "GK":
-		var goalkeeper_body := StaticBody3D.new()
+		var goalkeeper_body := AnimatableBody3D.new()
 		goalkeeper_body.name = "GoalkeeperCollision"
 		goalkeeper_body.collision_layer = 1
 		goalkeeper_body.collision_mask = 1
