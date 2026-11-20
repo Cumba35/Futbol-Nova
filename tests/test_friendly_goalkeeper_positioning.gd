@@ -99,7 +99,6 @@ func _run_tests() -> void:
 	shot_ball.max_contacts_reported = 4
 	var shot_material := PhysicsMaterial.new()
 	shot_material.bounce = 0.65
-	shot_material.bounce_combine_mode = PhysicsMaterial.BOUNCE_COMBINE_MAX
 	shot_ball.physics_material_override = shot_material
 	var collision_events: Array[bool] = []
 	shot_ball.body_entered.connect(func(body: Node) -> void:
