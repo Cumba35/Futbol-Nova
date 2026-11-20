@@ -20,6 +20,7 @@ int screenW=1,screenH=1; bool paused=false;
 float stickX=0,stickY=0; bool shoot=false,pass=false,skill=false,pressure=false; int joystickPointer=-1,pressurePointer=-1;
 float ballX=0,ballZ=.72f,ballY=.22f,ballVX=0,ballVY=0,ballVZ=0,ballReleaseTimer=0.0f;
 float playerX=0,playerZ=0.0f,playerYaw=3.1415926f,matchTime=0,matchSeconds=0; int homeScore=0,awayScore=0; int controlledPlayer=9; float halfDurationSeconds=180.0f; int matchPhase=0; bool homeDefendsNegative=true;
+int goalSequencePhase=0; bool goalScoringHome=true; float goalSequenceTimer=0.0f;
 Mesh fieldMesh{},lineMesh{},sphereMesh{},standMesh{},goalMesh{};
 std::array<V3,22> players{};
 std::array<float,22> playerHeight{};
@@ -99,6 +100,42 @@ void resetKickoffPositions(){
  ballX=0.0f;ballZ=0.0f;ballY=.22f;
  ballVX=ballVY=ballVZ=0.0f;ballReleaseTimer=0.0f;
 }
+
+void movePlayerToward(int slot,float tx,float tz,float speed,float dt){
+ V3 &p=players[(size_t)slot];float dx=tx-p.x,dz=tz-p.z,d=std::sqrt(dx*dx+dz*dz);
+ if(d>.001f){float step=std::min(d,speed*dt);p.x+=dx/d*step;p.z+=dz/d*step;}
+}
+V3 kickoffTarget(int slot){
+ const V3 formation[11]={{0,0,-45},{22,0,-30},{8,0,-32},{-8,0,-32},{-22,0,-30},{0,0,-10},{15,0,-8},{-15,0,-8},{22,0,18},{0,0,24},{-22,0,18}};
+ int local=slot%11;V3 p=slot<11?formation[local]:V3{formation[local].x,0,-formation[local].z};
+ if(!homeDefendsNegative)p.z=-p.z;
+ if(local==0)p.z=slot<11?(homeDefendsNegative?-49.5f:49.5f):(homeDefendsNegative?49.5f:-49.5f);
+ return p;
+}
+void beginGoalSequence(bool homeScored){
+ goalScoringHome=homeScored;goalSequencePhase=1;goalSequenceTimer=0.0f;
+ ballX=0.0f;ballY=.22f;ballZ=homeScored?(homeDefendsNegative?52.0f:-52.0f):(homeDefendsNegative?-52.0f:52.0f);
+ ballVX=ballVY=ballVZ=0.0f;ballReleaseTimer=0.0f;
+ stickX=stickY=0.0f;shoot=pass=skill=pressure=false;joystickPointer=pressurePointer=-1;
+}
+void updateGoalSequence(float dt){
+ goalSequenceTimer+=dt;
+ if(goalSequencePhase==1){
+  float scoringAttack=goalScoringHome?(homeDefendsNegative?1.0f:-1.0f):(homeDefendsNegative?-1.0f:1.0f);
+  for(int slot=1;slot<22;slot++){
+   if(slot==11)continue;
+   if((slot<11)==goalScoringHome){
+    int rank=(slot%11)-5;
+    movePlayerToward(slot,std::clamp(rank*1.05f,-5.0f,5.0f),scoringAttack*43.0f+std::abs(rank)*.22f,5.4f,dt);
+   }else{V3 target=kickoffTarget(slot);movePlayerToward(slot,target.x,target.z,5.8f,dt);}
+  }
+  if(goalSequenceTimer>=3.4f){goalSequencePhase=2;goalSequenceTimer=0.0f;}
+ }else if(goalSequencePhase==2){
+  for(int slot=1;slot<22;slot++){if(slot==11)continue;V3 target=kickoffTarget(slot);movePlayerToward(slot,target.x,target.z,9.0f,dt);}
+  if(goalSequenceTimer>=2.8f){goalSequencePhase=0;goalSequenceTimer=0.0f;resetKickoffPositions();}
+ }
+ playerX=players[(size_t)controlledPlayer].x;playerZ=players[(size_t)controlledPlayer].z;
+}
 void drawPlayer(const std::array<float,16>&vp,V3 p,bool home,float yaw,int slot){
  bool goalkeeper=(slot%11)==0;
  float r=goalkeeper?.92f:(home?.10f:.86f),g=goalkeeper?.72f:(home?.68f:.16f),b=goalkeeper?.12f:(home?.20f:.19f);
@@ -106,7 +143,9 @@ void drawPlayer(const std::array<float,16>&vp,V3 p,bool home,float yaw,int slot)
  if(goalkeeper){p.x+=keepers[(size_t)(slot/11)].diveX*(dive>0?.48f:0.0f);p.y+=dive>0?std::sin((.48f-dive)/.48f*3.14159f)*.30f:0.0f;}
  float h=std::clamp(playerHeight[slot]/175.0f,.92f,1.08f);
  float athletic=std::clamp(.96f+playerOverall[slot]/1750.0f,.98f,1.06f);
- float stride=std::sin(matchTime*7.2f+slot*1.31f)*.13f;
+ bool celebrating=goalSequencePhase==1&&((slot<11)==goalScoringHome)&&!goalkeeper;
+ p.y+=celebrating?std::abs(std::sin(matchTime*7.5f+slot*.31f))*.22f:0.0f;
+ float stride=std::sin(matchTime*7.2f+slot*1.31f)*(celebrating?.07f:.13f);
  float armSwing=std::sin(matchTime*7.2f+slot*1.31f+3.14159f)*.11f;
  // Jersey, shorts, head and a small contrasting chest stripe.
  draw(sphereMesh,vp,model(p.x,p.y+1.02f*h,p.z,.31f*athletic,.43f*h,.21f,yaw),r,g,b);
@@ -119,10 +158,11 @@ void drawPlayer(const std::array<float,16>&vp,V3 p,bool home,float yaw,int slot)
   draw(sphereMesh,vp,model(p.x+.39f,p.y+.91f*h,p.z,.105f,.095f,.11f,yaw),.94f,.94f,.90f);
  }
  // Sleeves follow the shirt color; forearms remain skin-toned.
- draw(sphereMesh,vp,model(p.x-.29f*athletic,p.y+1.17f*h,p.z+armSwing,.105f,.18f*h,.105f,yaw),r,g,b);
- draw(sphereMesh,vp,model(p.x+.29f*athletic,p.y+1.17f*h,p.z-armSwing,.105f,.18f*h,.105f,yaw),r,g,b);
- draw(sphereMesh,vp,model(p.x-.31f*athletic,p.y+.91f*h,p.z+armSwing*1.4f,.065f,.20f*h,.07f,yaw),.88f,.72f,.58f);
- draw(sphereMesh,vp,model(p.x+.31f*athletic,p.y+.91f*h,p.z-armSwing*1.4f,.065f,.20f*h,.07f,yaw),.88f,.72f,.58f);
+ float armY=celebrating?1.43f:1.17f,forearmY=celebrating?1.62f:.91f;
+ draw(sphereMesh,vp,model(p.x-.29f*athletic,p.y+armY*h,p.z+armSwing,.105f,.18f*h,.105f,yaw),r,g,b);
+ draw(sphereMesh,vp,model(p.x+.29f*athletic,p.y+armY*h,p.z-armSwing,.105f,.18f*h,.105f,yaw),r,g,b);
+ draw(sphereMesh,vp,model(p.x-.31f*athletic,p.y+forearmY*h,p.z+armSwing*1.4f,.065f,.20f*h,.07f,yaw),.88f,.72f,.58f);
+ draw(sphereMesh,vp,model(p.x+.31f*athletic,p.y+forearmY*h,p.z-armSwing*1.4f,.065f,.20f*h,.07f,yaw),.88f,.72f,.58f);
  // Animated legs, white socks and dark boots.
  draw(sphereMesh,vp,model(p.x-.12f,p.y+.40f*h,p.z+stride,.105f,.25f*h,.11f,yaw),.12f,.13f,.15f);
  draw(sphereMesh,vp,model(p.x+.12f,p.y+.40f*h,p.z-stride,.105f,.25f*h,.11f,yaw),.12f,.13f,.15f);
@@ -191,6 +231,7 @@ void collideGoalFrame(){
 }
 void update(float dt){
  matchTime+=dt;
+ if(goalSequencePhase!=0){updateGoalSequence(dt);return;}
  ballReleaseTimer=std::max(0.0f,ballReleaseTimer-dt);
  float controlledPace=std::clamp(playerPace[(size_t)controlledPlayer]/75.0f,.75f,1.30f);
  playerX=std::clamp(playerX+stickX*dt*8.0f*controlledPace,-32.0f,32.0f);
@@ -374,13 +415,8 @@ void update(float dt){
  bool crossedNegative=oldZ>-53.0f&&ballZ<=-53.0f&&std::abs(ballX)<3.44f&&ballY<2.22f;
  bool homeGoal=homeDefendsNegative?crossedPositive:crossedNegative;
  bool awayGoal=homeDefendsNegative?crossedNegative:crossedPositive;
- if(homeGoal){
-  homeScore++;
-  resetKickoffPositions();
- }else if(awayGoal){
-  awayScore++;
-  resetKickoffPositions();
- }
+ if(homeGoal){homeScore++;beginGoalSequence(true);}
+ else if(awayGoal){awayScore++;beginGoalSequence(false);}
  if(std::abs(ballX)>34){ballX=std::copysign(34.0f,ballX);ballVX*=-.55f;}
  if(ballZ>52.0f && ballZ<53.0f){ballZ=52.0f;ballVZ=-std::abs(ballVZ)*.55f;}
  if(ballZ<-52.0f && ballZ>-53.0f){ballZ=-52.0f;ballVZ=std::abs(ballVZ)*.55f;}
@@ -389,7 +425,7 @@ void update(float dt){
 }
 }
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeInit(JNIEnv*,jobject){
- std::lock_guard<std::mutex> lock(stateMutex);homeScore=awayScore=0;matchSeconds=0;matchTime=0;matchPhase=0;homeDefendsNegative=true;controlledPlayer=9;ballReleaseTimer=0;stickX=stickY=0;shoot=pass=skill=pressure=false;joystickPointer=pressurePointer=-1;paused=false;makeProgram();initField();setupTeams();glEnable(GL_DEPTH_TEST);glClearColor(.015f,.045f,.075f,1);}
+ std::lock_guard<std::mutex> lock(stateMutex);homeScore=awayScore=0;matchSeconds=0;matchTime=0;matchPhase=0;goalSequencePhase=0;goalSequenceTimer=0;homeDefendsNegative=true;controlledPlayer=9;ballReleaseTimer=0;stickX=stickY=0;shoot=pass=skill=pressure=false;joystickPointer=pressurePointer=-1;paused=false;makeProgram();initField();setupTeams();glEnable(GL_DEPTH_TEST);glClearColor(.015f,.045f,.075f,1);}
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeResize(JNIEnv*,jobject,jint w,jint h){screenW=std::max(1,(int)w);screenH=std::max(1,(int)h);glViewport(0,0,screenW,screenH);}
 extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeFrame(JNIEnv*,jobject){
  std::lock_guard<std::mutex> lock(stateMutex);
@@ -473,3 +509,5 @@ extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativePa
 extern "C" JNIEXPORT jint JNICALL Java_com_nova_futbolnova_MainActivity_nativeGetHomeScore(JNIEnv*,jclass){std::lock_guard<std::mutex> lock(stateMutex);return homeScore;}
 extern "C" JNIEXPORT jint JNICALL Java_com_nova_futbolnova_MainActivity_nativeGetAwayScore(JNIEnv*,jclass){std::lock_guard<std::mutex> lock(stateMutex);return awayScore;}
 extern "C" JNIEXPORT jfloat JNICALL Java_com_nova_futbolnova_MainActivity_nativeGetMatchSeconds(JNIEnv*,jclass){std::lock_guard<std::mutex> lock(stateMutex);return matchSeconds;}
+extern "C" JNIEXPORT jint JNICALL Java_com_nova_futbolnova_MainActivity_nativeGetGoalSequencePhase(JNIEnv*,jclass){std::lock_guard<std::mutex> lock(stateMutex);return goalSequencePhase;}
+extern "C" JNIEXPORT void JNICALL Java_com_nova_futbolnova_MainActivity_nativeSkipGoalSequence(JNIEnv*,jclass){std::lock_guard<std::mutex> lock(stateMutex);if(goalSequencePhase!=0){goalSequencePhase=0;goalSequenceTimer=0.0f;resetKickoffPositions();}}
