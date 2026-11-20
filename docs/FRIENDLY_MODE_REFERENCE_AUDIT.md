@@ -133,3 +133,8 @@ Prueba nueva `tests/test_friendly_goalkeeper_positioning.gd`: posición de ambos
 
 
 La prueba de tiro verifica además el signo de la velocidad física del balón para confirmar que el disparo local viaja hacia la portería rival. La prueba de portero llama al selector táctico real del controlador y compara su objetivo con el helper probado, evitando que la prueba cubra únicamente una función aislada.
+
+
+## Anticipación del portero según trayectoria — 20 noviembre 2026
+
+Se amplió `goalkeeper_home_position()` para recibir velocidad del balón. Solo proyecta el cruce lateral si el balón se mueve hacia la propia portería; limita el horizonte a 1,25 s y conserva el límite entre postes. `_choose_target()` pasa ahora la velocidad real del balón al helper. La prueba de portero comprueba anticipación local y visitante, que no anticipe si el balón se aleja y que el selector táctico llame al helper con la velocidad real.
