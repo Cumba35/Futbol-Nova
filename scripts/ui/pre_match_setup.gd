@@ -372,7 +372,7 @@ func _load_eligible_teams() -> void:
 	for team_id in ordered_ids:
 		var team: Dictionary = registry.teams_by_id[team_id]
 		var roster: Array = _get_combined_team_roster(team_id)
-		if roster.size() != 22:
+		if roster.size() < 22:
 			continue
 		var display_name := str(team.get("name", team.get("short_name", team_id))).strip_edges()
 		if display_name.is_empty():
@@ -414,7 +414,7 @@ func _refresh_validation() -> void:
 	var away_roster: Array = _get_combined_team_roster(away_id) if valid else []
 	var home_eleven := build_starting_eleven(home_roster) if valid else []
 	var away_eleven := build_starting_eleven(away_roster) if valid else []
-	valid = valid and home_roster.size() == 22 and away_roster.size() == 22
+	valid = valid and home_roster.size() >= 22 and away_roster.size() >= 22
 	valid = valid and home_eleven.size() == 11 and away_eleven.size() == 11
 	valid = valid and not _selected_stadium_id().is_empty()
 	_start_button.disabled = not valid
@@ -423,7 +423,7 @@ func _refresh_validation() -> void:
 	elif valid:
 		_summary.text = "Plantillas completas: 22 jugadores por club. Once inicial validado para ambos equipos."
 	else:
-		_summary.text = "Cada club debe tener 22 jugadores únicos y un once inicial válido. El partido permanece bloqueado."
+		_summary.text = "Cada club debe tener al menos 22 jugadores únicos y un once inicial válido. El partido permanece bloqueado."
 
 func _selected_stadium_id() -> String:
 	if _stadiums == null or _stadiums.item_count == 0 or _stadiums.selected < 0:
