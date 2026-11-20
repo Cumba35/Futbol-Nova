@@ -60,11 +60,20 @@
   },
   "stadium": {
     "name": "Estadio Sangre de Estrellas",
-    "capacity": null,
-    "capacity_status": "not_set",
+    "capacity": 105000,
+    "capacity_status": "owner_specified_105000",
     "ownership": "unconfirmed",
     "design": "night-match arena with a dark roof, red-violet lighting and a star-shaped central roof opening",
-    "status": "design_proposal"
+    "status": "design_specification",
+    "id": "sangre_galactica",
+    "club_id": "FN-NOVA-SAG",
+    "seating": "#4A155D",
+    "accent": "#D7193F",
+    "roof": "#260B36",
+    "secondary_accent": "#F4C542",
+    "tertiary_accent": "#FFFFFF",
+    "kit_palette_status": "matched_to_confirmed_home_kit_proposal",
+    "description": "Gradas moradas, acentos rojos, cubierta púrpura oscura y detalles amarillos y blancos."
   },
   "supporters": {
     "nickname": "La Órbita Roja",
