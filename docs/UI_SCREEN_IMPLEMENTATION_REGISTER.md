@@ -56,3 +56,11 @@ Se ampliaron `tests/test_game_hub.gd`, `tests/test_legend_career.gd` y `tests/te
 - Los datos de capacidad y versión proceden del catálogo local. La selección sigue entregándose como `stadium_id` al iniciar el partido y no modifica preferencias globales.
 - El botón de confirmación conserva la validación de plantillas de 11 jugadores.
 - Prueba de catálogo ampliada para exigir metadatos de versión. La validación visual/táctil y el rendimiento del SubViewport en Android siguen pendientes de CI y prueba en dispositivo.
+
+
+## Selector FIFA-inspired de equipos y uniformes — 20 noviembre 2026
+- Se añadió una pantalla dedicada de local vs visitante con navegación independiente de clubes y equipaciones.
+- Vista previa de cuerpo completo procedural en SubViewport 3D, monograma temporal y primera/segunda equipación.
+- Los IDs de club y uniforme se transmiten al amistoso; el controlador aplica colores al equipo y uniforme diferenciado al portero.
+- La paleta está centralizada y cuenta con prueba automatizada incluida en GitHub Actions.
+- Pendientes: probar en Godot 4.4.1/Android, reemplazar modelos/monogramas temporales, añadir patrones originales, gesto de deslizamiento, OVR, detectar conflictos cromáticos y conectar la habilitación contractual de tercera equipación.
