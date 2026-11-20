@@ -45,7 +45,7 @@ var match_11v11_controller: Node3D
 var match_camera: Camera3D
 var pre_match_setup
 var stadium_root: Node3D
-var current_stadium_id := "nova_central"
+var current_stadium_id := "estadio_del_fenix"
 var current_training_mode_id := ""
 
 func _ready() -> void:
