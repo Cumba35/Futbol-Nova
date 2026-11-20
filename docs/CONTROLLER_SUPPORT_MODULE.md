@@ -89,3 +89,6 @@ Fuentes técnicas:
 Las etiquetas/glifos de botones físicos (A/Cruz, B/Círculo, X/Cuadrado y Y/Triángulo) no se muestran en la interfaz cuando no hay un mando conectado. La pantalla de controles solo enseña esas indicaciones si el módulo opcional está activo y su registro de dispositivos conectados tiene al menos un mando. Al desconectar el último dispositivo, las indicaciones se ocultan inmediatamente; al conectar uno compatible vuelven a mostrarse. Esto no afecta el joystick ni los botones táctiles Android. La visibilidad se cubre con `tests/test_controller_hint_visibility.gd` en CI.
 
 La detección inicial y los cambios en caliente siguen `Input.get_connected_joypads()` y `Input.joy_connection_changed` de Godot. En Android el backend de mandos puede variar según dispositivo y firmware, por lo que la validación física sigue pendiente.
+
+
+La ayuda principal se mantiene centrada en Android: se retiró la tarjeta de instrucciones de teclado/PC. La compatibilidad con mando externo es opcional y sus indicaciones solo aparecen mientras haya un mando conectado.
