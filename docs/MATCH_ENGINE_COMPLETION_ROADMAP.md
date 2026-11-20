@@ -297,3 +297,14 @@ La validación automatizada se reforzó para comprobar la dirección física rea
 ## Siguiente mejora del portero — 20 noviembre 2026
 
 La posición del portero ahora anticipa el cruce lateral del balón en el plano de su propia portería a partir de su velocidad, con horizonte limitado a 1,25 s. La prueba automatizada cubre ambos equipos, cambio de lado, balón que se aleja y ruta de selección táctica integrada. La siguiente fase será reacción física: estirada, blocaje, rebote y despeje; no se debe confundir el posicionamiento predictivo con una atajada ya implementada.
+
+
+## Bloqueo físico de disparos por el portero — 20 noviembre 2026
+
+Se añadió al actor del guardameta un cuerpo `StaticBody3D` con cápsula de colisión y material físico con rebote. Los 20 jugadores de campo siguen sin cuerpos físicos individuales para mantener el coste de simulación bajo en Android; solo los dos porteros reciben esta colisión adicional. Un disparo que alcanza el cuerpo del portero puede ser bloqueado y rebotar mediante el motor de física, en vez de atravesar un modelo visual sin colisión.
+
+La prueba `tests/test_friendly_goalkeeper_positioning.gd` ahora incluye una comprobación de integración: crea un portero y un `RigidBody3D` con velocidad de disparo, espera pasos físicos y comprueba que el balón no atraviese al guardameta y que su velocidad se invierta tras el contacto.
+
+**Alcance real:** esto añade bloqueo físico del cuerpo del portero; todavía no hay animación de estirada, manos/brazos con colisión, blocaje de balón, control de rebote dirigido ni despeje animado. La IA aún puede despejar cuando adquiere la posesión. No se debe anunciar como sistema completo de atajadas.
+
+El workflow se modificó para publicar el artefacto APK únicamente después de superar toda la batería de pruebas, evitando ofrecer como validada una compilación que todavía tiene regresiones pendientes. La validación de esta nueva cápsula queda pendiente de la ejecución CI generada por estos cambios.
