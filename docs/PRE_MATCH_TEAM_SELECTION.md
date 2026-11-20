@@ -1,46 +1,57 @@
 # Fútbol Nova — selector de equipos y preparación del partido
 
-**Estado:** selector de clubes, equipos de muestra y selector funcional de tres estadios procedurales integrados el 18-11-2026. La validación Godot/Android sigue pendiente. Los modelos de futbolistas, OVR, escudos, equipaciones, vista previa de estadio/balón y catálogo de balones siguen pendientes.
-**Referencia:** captura aportada por el usuario de una pantalla de amistoso con dos futbolistas 3D, escudos, valoración OVR, estadio, accesos de equipación, balón, ajustes y botón de inicio.
+**Estado actual:** selector offline de clubes, validación de plantillas 22/22, once inicial 11/11, selección de estadio y opciones básicas de reloj/prórroga implementadas en la rama de trabajo. La validación completa en Godot y Android sigue pendiente.
 
-## Estado de implementación — 17 noviembre 2026
+**Configuración predeterminada vigente del amistoso:**
+- Local: **Nova C35** (`FN-NOVA-C35`).
+- Visitante: **FC Río de Argenti** (`FN-NOVA-RDA`).
+- Formación de referencia: **4-3-3**.
+- Plantilla exigida: 22 jugadores únicos por club.
+- Once inicial: 11 jugadores por equipo, sin IDs repetidos.
+- Jugador controlado: **Anier Cumbá** (`NOVA-PLAYER-0035`) cuando C35 es local; **Raymond Valdez** (`NOVA-PLAYER-0037`) cuando RDA es local. Para otros clubes se conserva el jugador de fallback del once inicial.
+- Estadio predeterminado: `nova_central` — Estadio Nova Central.
+- Duración: **5 minutos por tiempo**.
+- Reloj: **continuo**.
+- Prórroga: desactivada inicialmente.
+- Tanda de penaltis: desactivada y bloqueada mientras su motor siga en desarrollo.
 
-Implementado en la rama de trabajo:
-- Selección independiente de club local y visitante desde el catálogo offline.
-- Solo se ofrecen clubes cuya plantilla contiene al menos once jugadores resolubles.
-- El inicio se bloquea si los equipos coinciden o una plantilla no supera la validación.
-- Selección de once titulares sin IDs repetidos, priorizando las posiciones del sistema 4-3-3.
-- Configuración previa del amistoso para duración por tiempo, reloj continuo/detenido y prórroga.
-- La tanda de penaltis aparece identificada como «en desarrollo» y deshabilitada porque su motor de ejecución aún no existe.
-- El botón de repetir partido vuelve a abrir la preparación y no inicia un encuentro genérico.
+La antigua pareja de muestra Albor Madrid–Litoral Barcelona queda sustituida por Nova C35–FC Río de Argenti como configuración predeterminada del amistoso. Los clubes pueden cambiarse desde los selectores local/visitante, siempre que ambos sean distintos y tengan plantillas válidas.
 
-Pendiente de implementación y validación:
-- Modelos 3D representativos y valoración OVR de los equipos.
-- Escudos/banderas y vistas previas de equipaciones.
-- Selector de balón y vistas previas 3D de equipaciones y estadios; el selector de estadio ya dispone de tres entornos procedurales originales, pero todavía no hay vistas previas dentro de la pantalla.
-- Detección de conflictos de equipación y reglas visuales de porteros.
-- Persistencia de preferencias de amistosos.
-- Pruebas de interfaz en Godot, diferentes resoluciones y dispositivos Android.
+## Validación de plantillas y once inicial
 
-La selección de equipos y el once inicial no deben confundirse con una integración completa de perfiles, atributos, animaciones o apariencias: los actores del partido siguen usando la representación procedural del motor actual.
+- El catálogo offline muestra únicamente clubes con al menos 22 registros de futbolista resolubles.
+- La validación exige al menos 22 jugadores por club y un once inicial válido de once IDs únicos.
+- La selección de titulares prioriza las posiciones de un 4-3-3: portero, lateral izquierdo, dos centrales, lateral derecho, mediocentro defensivo, centrocampista, mediapunta/interior, extremo izquierdo, delantero centro y extremo derecho.
+- La selección utiliza posiciones y valoración general como criterios de orden; no duplica IDs.
+- El partido se bloquea si falta el catálogo, hay menos de 22 jugadores, no se pueden resolver once titulares o los dos equipos son iguales.
+- El inicio pasa los IDs estables y los perfiles de jugador al motor; no debe sustituirlos por IDs genéricos.
 
-## Selección predeterminada del amistoso de muestra — 18 noviembre 2026
+## Estadios disponibles
 
-- Equipo local (izquierda): `FN-ESP-REAL-MADRID`, nombre original del juego **Albor Madrid**, referencia deportiva interna: Real Madrid.
-- Equipo visitante (derecha): `FN-ESP-BARCELONA`, nombre original del juego **Litoral Barcelona**, referencia deportiva interna: FC Barcelona.
-- La selección usa IDs estables, no búsquedas por texto visible; si falta uno de los clubes, se conserva una pareja alternativa válida y distinta.
-- Los nombres, escudos, uniformes, modelos y demás elementos visuales deben seguir siendo originales de Fútbol Nova; las referencias no autorizan copiar marcas ni assets.
-- Se añadió una prueba unitaria de la selección predeterminada y de su fallback en `tests/test_shared_foundation.gd`. La prueba debe ejecutarse en Godot 4.4.1 antes de marcarla como validada.
+El catálogo actual de `scripts/stadiums/stadium_builder.gd` contiene siete estadios procedurales offline:
 
-## Selector de estadios — 18 noviembre 2026
+| ID | Nombre | Capacidad |
+|---|---|---:|
+| `nova_central` | Estadio Nova Central | 42.000 |
+| `bahia_arena` | Arena Bahía | 28.500 |
+| `aurora_park` | Parque Aurora | 19.000 |
+| `nova_c35` | Estadio del Fénix | 105.000 |
+| `rio_de_argenti` | Estadio Río de Argenti | 105.000 |
+| `nova_genesis` | Arena Nova Génesis | 105.000 |
+| `sangre_galactica` | Estadio Sangre de Estrellas | 105.000 |
 
-El selector de amistosos carga el catálogo offline de `scripts/stadiums/stadium_builder.gd` y transmite el ID del estadio al inicio del encuentro. El motor construye el entorno 3D correspondiente sin red:
+El selector utiliza `nova_central` como valor inicial y transmite el ID elegido al partido. Las capacidades y paletas de clubes originales deben considerarse configuraciones de diseño; las paletas que indiquen estado provisional requieren revisión visual. Cambiar el estadio no modifica clubes, plantillas ni datos de competición.
 
-- `nova_central` — Estadio Nova Central, capacidad registrada: 42.000.
-- `bahia_arena` — Arena Bahía, capacidad registrada: 28.500.
-- `aurora_park` — Parque Aurora, capacidad registrada: 19.000.
+## Opciones de partido
 
-Los tres usan geometría procedural original, gradas, cubiertas, postes de iluminación visual y marcador. Cambiar de estadio no altera clubes ni datos de competición. La prueba `tests/test_stadium_builder.gd` comprueba catálogo, IDs, capacidad y construcción; `tests/test_friendly_match_runtime.gd` comprueba que el estadio elegido llegue al partido. La vista previa del selector, colisiones de gradas, iluminación dinámica y diseños arquitectónicos más diferenciados quedan pendientes.
+- Duraciones disponibles por tiempo: 3, 5, 6, 8, 10, 15 y 20 minutos.
+- Reloj continuo o detenido.
+- Prórroga opcional, siempre sujeta a que el reglamento del contexto la permita.
+- La duración de cada período de prórroga depende de la duración reglamentaria elegida: 1, 2, 2, 3, 3, 5 o 7 minutos por tiempo de prórroga, respectivamente.
+- La tanda de penaltis permanece deshabilitada hasta que exista un motor funcional y validado.
+- Valores iniciales: 5 minutos, reloj continuo, sin prórroga y sin tanda de penaltis.
+
+Los valores iniciales están centralizados en `NovaPreMatchSetup.get_default_friendly_match_settings()` y las duraciones/reglas del reloj en `NovaMatchClockRules`. La prueba `tests/test_match_configuration_defaults.gd` protege esta configuración contra cambios accidentales.
 
 ## 1. Objetivo
 
