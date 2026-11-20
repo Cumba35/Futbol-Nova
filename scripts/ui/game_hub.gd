@@ -1850,6 +1850,7 @@ func _show_controller_content() -> void:
 	profile_label.name = "ControllerProfile"
 	copy.add_child(profile_label)
 	var mapping := _label("Perfil estándar: stick izquierdo = movimiento · A/Cruz = pase · B/Círculo = tiro · X/Cuadrado = habilidad · Y/Triángulo = presión.", 13, MUTED)
+	mapping.name = "ControllerMappingHints"
 	mapping.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(mapping)
 	_refresh_controller_labels()
@@ -1858,17 +1859,23 @@ func set_controller_status(value: Dictionary) -> void:
 	controller_status = value.duplicate(true)
 	_refresh_controller_labels()
 
+static func should_show_controller_hints(status: Dictionary) -> bool:
+	return bool(status.get("enabled", false)) and int(status.get("connected_count", 0)) > 0
+
 func _refresh_controller_labels() -> void:
 	if content_box == null:
 		return
 	var state := content_box.find_child("ControllerState", true, false) as Label
 	var profile_label := content_box.find_child("ControllerProfile", true, false) as Label
+	var mapping := content_box.find_child("ControllerMappingHints", true, false) as Label
 	if state == null or profile_label == null:
 		return
 	var active := bool(controller_status.get("enabled", false))
 	var count := _safe_int(controller_status.get("connected_count", 0))
 	state.text = ("MÓDULO ACTIVO" if active else "MÓDULO NO INSTALADO") + " · " + ("%d mando(s) conectado(s)" % count)
 	profile_label.text = "Perfil: " + str(controller_status.get("profile", "Mando estándar"))
+	if mapping != null:
+		mapping.visible = should_show_controller_hints(controller_status)
 
 func _focus_first_action(container: Node) -> void:
 	var buttons := container.find_children("*", "Button", true, false)
