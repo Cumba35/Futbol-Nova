@@ -147,6 +147,9 @@ jobs:
       - name: Core test — touch input cleanup on hidden overlay
         run: timeout --signal=TERM --kill-after=15s 60s godot --headless --path . --script res://tests/test_touch_controls.gd
 
+      - name: Core test — controller hint visibility
+        run: timeout --signal=TERM --kill-after=15s 60s godot --headless --path . --script res://tests/test_controller_hint_visibility.gd
+
       - name: Core test — hub and main screens
         run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_game_hub.gd
 
