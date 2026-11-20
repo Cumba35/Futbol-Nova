@@ -109,3 +109,8 @@ Ejecución que contiene el código y las aserciones más recientes: https://gith
 - Corrección adicional: el collider del guardameta ahora es `AnimatableBody3D`, no `StaticBody3D`, porque el actor cambia de posición durante la simulación.
 - La prueba comprueba que la colisión sigue al actor y que el balón rebota tras el impacto.
 - Estado de validación: pendiente de la nueva ejecución CI tras esta corrección.
+
+
+## Corrección de fixtures y pruebas de física — 20 noviembre 2026
+
+La primera ejecución que probó la cápsula falló en la prueba de posicionamiento porque el fixture consultaba `global_position` fuera del árbol de escena. Se corrigió añadiendo el controlador y el balón al árbol antes de comprobar el objetivo táctico. La prueba de tiro también recibió todos los campos esperados por el actor IA (`home_position`, `target`, `speed` y `stamina`) para evitar errores de diccionario durante los pasos físicos. El controlador usa valores por defecto seguros para `home_position` y `speed` cuando recibe datos incompletos. La siguiente ejecución debe confirmar estos arreglos junto con el collider `AnimatableBody3D`.
