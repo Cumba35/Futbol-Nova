@@ -110,17 +110,27 @@ static func goalkeeper_clear_direction(home_team: bool, ball_x: float, ends_swap
 	var clear_side := -1.0 if ball_x >= 0.0 else 1.0
 	return Vector3(clear_side * 0.72, 0.42, attack_direction).normalized()
 
-static func goalkeeper_home_position(ball_position: Vector3, home_team: bool, ends_swapped: bool = false) -> Vector3:
+static func goalkeeper_home_position(ball_position: Vector3, home_team: bool, ends_swapped: bool = false, ball_velocity: Vector3 = Vector3.ZERO) -> Vector3:
 	var attack_direction := -1.0 if home_team else 1.0
 	if ends_swapped:
 		attack_direction *= -1.0
 	var own_goal_z := -attack_direction * 49.0
+	if not ball_position.is_finite():
+		return Vector3(0.0, 0.0, own_goal_z)
+	var predicted_ball_x := ball_position.x
+	# If the ball is travelling toward this team's goal, move the keeper
+	# toward its projected crossing point instead of merely following its
+	# current lateral coordinate. Cap the look-ahead for stable mobile AI.
+	if ball_velocity.is_finite() and absf(ball_velocity.z) > 0.5 and ball_velocity.z * -attack_direction > 0.0:
+		var time_to_goal := (own_goal_z - ball_position.z) / ball_velocity.z
+		if time_to_goal > 0.0:
+			predicted_ball_x += ball_velocity.x * minf(time_to_goal, 1.25)
 	var step_out := 0.0
 	if is_ball_in_defensive_third(ball_position.z, home_team, 22.0, ends_swapped):
 		var depth := clampf((absf(ball_position.z) - 22.0) / 27.0, 0.0, 1.0)
 		step_out = depth * 5.5
 	# Keep the keeper inside the posts with room for the player collision radius.
-	var keeper_x := clampf(ball_position.x * 0.42, -3.1, 3.1)
+	var keeper_x := clampf(predicted_ball_x * 0.42, -3.1, 3.1)
 	return Vector3(keeper_x, 0.0, own_goal_z + attack_direction * step_out)
 
 static func should_ai_shoot(ball_position: Vector3, home_team: bool, ends_swapped: bool = false, max_distance: float = 21.0) -> bool:
@@ -672,7 +682,7 @@ func _choose_target(actor_index: int, actor_data: Dictionary) -> Vector3:
 	var tactical_shift := Vector3(clampf(ball_position.x * 0.14, -5.0, 5.0), 0.0, clampf(ball_position.z * 0.12, -7.0, 7.0))
 	var target := base + tactical_shift
 	if str(actor_data.role) == "GK":
-		return goalkeeper_home_position(ball_position, home_team, _ends_swapped)
+		return goalkeeper_home_position(ball_position, home_team, _ends_swapped, _ball.linear_velocity)
 	var nearest_index := _nearest_teammate_to_ball(home_team)
 	if nearest_index == actor_index and Vector2(ball_position.x, ball_position.z).distance_to(Vector2(base.x, base.z)) < 29.0:
 		var attack_sign := _attack_sign(home_team)
