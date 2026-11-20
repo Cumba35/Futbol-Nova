@@ -162,6 +162,29 @@ func _run_acceptance_test() -> void:
 			if not setup._summary.text.contains("Plantillas completas"):
 				failures.append("La pantalla no confirma que los dos clubes originales tienen plantillas completas.")
 
+			# Prove the new owner-created clubs can launch a real 11v11 match.
+			setup._start_match()
+			await process_frame
+			var original_match_summary: Dictionary = game.match_11v11_controller.get_match_summary()
+			if not bool(original_match_summary.get("active", false)):
+				failures.append("El amistoso Nova C35 vs FC Río de Argenti no pudo iniciarse.")
+			if str(original_match_summary.get("home_team_id", "")) != "FN-NOVA-C35" or str(original_match_summary.get("away_team_id", "")) != "FN-NOVA-RDA":
+				failures.append("El motor no recibió los IDs correctos de los clubes originales.")
+			if str(game.controlled_player_display_name) != "Anier Cumbá":
+				failures.append("Nova C35 debe seleccionar a Anier Cumbá como jugador controlado.")
+			var raymond_actor_found := false
+			for actor_data in game.match_11v1_controller._actors:
+				if str(actor_data.get("player_id", "")) == "NOVA-PLAYER-0037":
+					raymond_actor_found = true
+			if not raymond_actor_found:
+				failures.append("Raymond Valdez no llegó al once activo del FC Río de Argenti.")
+			game.match_11v1_controller.stop_match()
+			game._open_pre_match_setup()
+			await process_frame
+			setup = game.pre_match_setup
+			if setup == null or not is_instance_valid(setup):
+				failures.append("No se pudo volver a abrir la preparación después del amistoso original.")
+
 			# Keep the general match-engine acceptance path covered with two existing
 			# fully playable clubs; this does not change the new original-club defaults.
 			var playable_home_index := -1
