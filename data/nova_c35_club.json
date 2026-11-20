@@ -11,6 +11,7 @@
   "registration_status": "confirmed_by_project_owner_pending_20_team_league_expansion",
   "home_stadium_id": "estadio_del_fenix",
   "home_stadium_name": "Estadio del Fénix",
+  "home_stadium_capacity": 105000,
   "identity": {
     "identity_type": "original_fictional_club",
     "nickname": "El Fénix",
@@ -53,7 +54,7 @@
   },
   "notes": [
     "La identidad y la paleta visual son una propuesta inicial original de Fútbol Nova y pueden ajustarse.",
-    "La capacidad de 35 000 del Estadio del Fénix es un valor de diseño provisional, no un dato oficial.",
+    "La capacidad de diseño del Estadio del Fénix es de 105 000 espectadores, según especificación del propietario del proyecto.",
     "No se han generado futbolistas ficticios ni IDs de plantilla para Nova C35 todavía."
   ]
 }
