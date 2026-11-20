@@ -545,7 +545,7 @@ func _on_goal_body_entered(body: Node3D, _scoring_side: String) -> void:
 	else:
 		score_away += 1
 	match_11v11_controller.set_match_score(score_home, score_away)
-	if match_11v11_controller.get_last_touch_player_id() == "NOVA-PLAYER-0037" and player != null and player.has_method("play_goal_celebration"):
+	if scoring_home and match_11v1_controller.get_last_touch_player_id() == "NOVA-PLAYER-0037" and player != null and player.has_method("play_goal_celebration"):
 		player.call("play_goal_celebration")
 	score_label.text = "%s  %d - %d  %s" % [home_team_display_name, score_home, score_away, away_team_display_name]
 	_reset_ball()
