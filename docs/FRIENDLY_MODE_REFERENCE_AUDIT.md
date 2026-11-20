@@ -129,3 +129,7 @@ También se detectó que el seguimiento lateral del portero podía llevarlo a ±
 Prueba nueva `tests/test_friendly_goalkeeper_positioning.gd`: posición de ambos porteros, cambio de lado, seguimiento lateral, límite entre postes y permanencia sobre la línea cuando el balón está en medio campo. Se añadió como paso independiente del workflow. La prueba de remates ahora también verifica que el vector tenga elevación positiva y coordenadas finitas.
 
 **Estado:** código y pruebas incorporados a ambos repositorios; la ejecución CI de estas nuevas pruebas está pendiente. No se afirma que el portero ya haga estiradas o blocajes en partido: esta modificación mejora su posicionamiento táctico, no añade todavía animación ni colisión de atajada.
+
+
+
+La prueba de tiro verifica además el signo de la velocidad física del balón para confirmar que el disparo local viaja hacia la portería rival. La prueba de portero llama al selector táctico real del controlador y compara su objetivo con el helper probado, evitando que la prueba cubra únicamente una función aislada.
