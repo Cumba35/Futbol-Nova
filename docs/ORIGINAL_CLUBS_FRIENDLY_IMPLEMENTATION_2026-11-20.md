@@ -45,3 +45,10 @@ Se vinculó la ficha con la referencia visual aportada por el propietario en Dro
 ## Política de dependencias y licencias
 
 La implementación es nativa GDScript/Godot y no añade dependencias externas. La investigación previa de proyectos públicos se conserva en `FRIENDLY_RUNTIME_RESEARCH_AND_PLAN_2026-11-20.md`; no se copiaron código ni recursos de repositorios cuya licencia no estuviera verificada.
+
+
+## Enfoque de validación del amistoso — 2026-11-20
+
+La validación prioritaria es el flujo de amistoso completo: preparación, selección de equipos, 11 contra 11, jugador controlado, IA, controles táctiles, posesión, pases, tiros, porteros, goles, marcador, descanso, cambio de campo, tiempo reglamentario, prórroga, penaltis, pausa y limpieza al salir. También se comprueba que el amistoso no altere los retos de entrenamiento ni las estadísticas de competición.
+
+En la primera ejecución de CI, el test principal del amistoso llegó hasta el pitido final y pasó; el importador de clubes también pasó. La suite encontró después un fallo de aceptación en la comprobación de la cápsula del portero. Se reorganizó la creación del collider para construirlo antes de insertar el actor en el árbol, se hizo explícita la sincronización física y se añadieron datos de diagnóstico al test. La corrección queda pendiente de confirmar en una nueva ejecución de CI; no se considera validada hasta entonces.
