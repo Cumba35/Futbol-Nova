@@ -114,3 +114,23 @@ Ejecución que contiene el código y las aserciones más recientes: https://gith
 ## Corrección de fixtures y pruebas de física — 20 noviembre 2026
 
 La primera ejecución que probó la cápsula falló en la prueba de posicionamiento porque el fixture consultaba `global_position` fuera del árbol de escena. Se corrigió añadiendo el controlador y el balón al árbol antes de comprobar el objetivo táctico. La prueba de tiro también recibió todos los campos esperados por el actor IA (`home_position`, `target`, `speed` y `stamina`) para evitar errores de diccionario durante los pasos físicos. El controlador usa valores por defecto seguros para `home_position` y `speed` cuando recibe datos incompletos. La siguiente ejecución debe confirmar estos arreglos junto con el collider `AnimatableBody3D`.
+
+
+
+## Dirección visual FIFA 23 / FIFA 26, Nova C35 y Estadio del Fénix — 20-11-2026
+
+- El juego base ahora tiene un único estadio: **Estadio del Fénix**, con ID `estadio_del_fenix`, casa de Nova C35. La capacidad de 35 000 es una estimación de diseño pendiente de confirmación.
+- `scripts/stadiums/stadium_builder.gd` reemplaza los tres estadios locales por uno; añade graderías en cuatro lados y cuatro niveles, cubierta, soportes, paneles LED, marcador C35, túnel, banquillos, iluminación y multitud instanciada de 2 944 figuras con variación cromática y movimiento sutil por shader.
+- El flujo previo al amistoso y la escena principal seleccionan Estadio del Fénix por defecto.
+- Se creó `data/nova_c35_club.json` con ID estable `CUB-S1-017`, identidad original y paleta provisional azul medianoche/cian/dorado. La pantalla Inicio presenta Nova C35 y Estadio del Fénix; la pantalla de equipos muestra C35 cuando el catálogo disponga de su registro.
+- `scripts/players/procedural_player_visual.gd` añade silueta articulada procedural (torso, cabeza, brazos, piernas, medias, botas y manos/guantes) con locomoción básica por velocidad. Se integra en actores IA y en la vista previa 3D de equipos/uniformes. No es aún un modelo humano rigged ni captura de movimiento.
+- Pruebas nuevas/actualizadas: `test_stadium_builder.gd`, `test_procedural_player_visual.gd`, `test_nova_c35_identity.gd`, `test_team_kit_palette.gd`, `test_game_hub.gd`; workflow incluye la nueva prueba de modelo procedural.
+- Referencias revisadas: FIFA 23 Matchday Experience y fuentes oficiales FC 26; repositorios públicos League-Soccer (Apache-2.0, C++ desktop) y striker-3d (código sin licencia identificada; no copiar). No se importó código ni assets de terceros.
+
+### Bloqueo pendiente: Primera División de Cuba con 20 clubes
+
+El catálogo canónico actual sigue teniendo 16 clubes y 16 plantillas de 22 jugadores (352 jugadores). El perfil de Nova C35 define la meta de 20 clubes, pero no se ha modificado el catálogo operativo para evitar dejarlo inconsistente. Para cerrar la expansión se necesitan tres nombres/identidades adicionales y cuatro plantillas completas de 22 jugadores (incluida Nova C35). El formato de doble vuelta pasará a 38 jornadas cuando los 20 clubes estén completos. No declarar la liga de 20 equipos como integrada hasta validar clubes, plantillas, IDs y calendario.
+
+### Validación
+
+Todos los cambios están en la rama `ui/stadium-selector-reference-layout`. CI Godot 4.4.1, prueba Android real, rendimiento/FPS, memoria y temperatura siguen pendientes. No fusionar ni publicar APK hasta superar las pruebas. Los modelos y la grada actuales son prototipos procedurales y deben sustituirse/expandirse con assets originales o licenciados cuando se apruebe el pipeline visual.
