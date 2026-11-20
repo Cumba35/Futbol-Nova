@@ -97,14 +97,19 @@ static func build_stadium(stadium_id: String) -> Node3D:
 	var secondary_accent := StandardMaterial3D.new()
 	secondary_accent.albedo_color = Color(str(config.get("secondary_accent", config.accent)))
 	secondary_accent.roughness = 0.8
+	var tertiary_accent := StandardMaterial3D.new()
+	tertiary_accent.albedo_color = Color(str(config.get("tertiary_accent", config.get("secondary_accent", config.accent))))
+	tertiary_accent.roughness = 0.8
 
 	for side in [-1.0, 1.0]:
 		for tier in range(4):
 			var height := 1.6 + float(tier) * 2.1
 			var offset := 37.5 + float(tier) * 1.1
 			var tier_material: Material = seating if tier % 2 == 0 else accent
-			if tier == 3:
+			if tier == 2:
 				tier_material = secondary_accent
+			elif tier == 3:
+				tier_material = tertiary_accent
 			_add_box(root, "Stand_Long_%d_%d" % [int(side), tier], Vector3(3.4, 1.9, 110.0), Vector3(side * offset, height, 0.0), tier_material)
 			var end_offset := 58.5 + float(tier) * 1.1
 			_add_box(root, "Stand_End_%d_%d" % [int(side), tier], Vector3(76.0, 1.9, 3.4), Vector3(0.0, height, side * end_offset), tier_material)
