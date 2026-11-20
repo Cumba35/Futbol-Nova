@@ -322,7 +322,8 @@ func _build_player_preview(viewport: SubViewport, colors: Dictionary) -> void:
 	world.add_child(mannequin)
 
 	var camera := Camera3D.new()
-	camera.position = Vector3(0, 1.0, 4.5)
+	camera.position = Vector3(0, 1.0, 4.2)
+	camera.fov = 38.0
 	camera.look_at(Vector3(0, 0.95, 0), Vector3.UP)
 	camera.current = true
 	world.add_child(camera)
