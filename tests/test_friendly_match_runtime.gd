@@ -111,7 +111,7 @@ func _run_acceptance_test() -> void:
 					"origin": "user_created",
 					"full_name": "Prueba NOVA Plantilla",
 					"display_name": "Prueba NOVA Plantilla",
-					"primary_position": "MCO",
+					"primary_position": "DFC",
 					"nationality_id": "CUB",
 					"overall": 99,
 					"attributes": custom_attributes
@@ -126,8 +126,8 @@ func _run_acceptance_test() -> void:
 							setup._custom_players.select(option_index)
 							break
 					setup.call("_assign_custom_player_to_selected_team", true)
-					var assigned_roster: Array = setup.call("_get_combined_team_roster", "FN-ESP-REAL-MADRID")
-					var registry_roster: Array = football_registry.get_team_roster("FN-ESP-REAL-MADRID")
+					var assigned_roster: Array = setup.call("_get_combined_team_roster", "FN-NOVA-C35")
+					var registry_roster: Array = football_registry.get_team_roster("FN-NOVA-C35")
 					var registry_has_custom_player := false
 					for registry_player in registry_roster:
 						if str(registry_player.get("id", "")) == friendly_custom_player_id:
@@ -162,49 +162,18 @@ func _run_acceptance_test() -> void:
 			if not setup._summary.text.contains("Plantillas completas"):
 				failures.append("La pantalla no confirma que los dos clubes originales tienen plantillas completas.")
 
-			# Prove the new owner-created clubs can launch a real 11v11 match.
-			setup._start_match()
-			await process_frame
-			var original_match_summary: Dictionary = game.match_11v11_controller.get_match_summary()
-			if not bool(original_match_summary.get("active", false)):
-				failures.append("El amistoso Nova C35 vs FC Río de Argenti no pudo iniciarse.")
-			if str(original_match_summary.get("home_team_id", "")) != "FN-NOVA-C35" or str(original_match_summary.get("away_team_id", "")) != "FN-NOVA-RDA":
-				failures.append("El motor no recibió los IDs correctos de los clubes originales.")
-			if str(game.controlled_player_display_name) != "Anier Cumbá":
-				failures.append("Nova C35 debe seleccionar a Anier Cumbá como jugador controlado.")
-			var raymond_actor_found := false
-			for actor_data in game.match_11v11_controller._actors:
-				if str(actor_data.get("player_id", "")) == "NOVA-PLAYER-0037":
-					raymond_actor_found = true
-			if not raymond_actor_found:
-				failures.append("Raymond Valdez no llegó al once activo del FC Río de Argenti.")
-			game.match_11v11_controller.stop_match()
-			game._open_pre_match_setup()
-			await process_frame
-			setup = game.pre_match_setup
-			if setup == null or not is_instance_valid(setup):
-				failures.append("No se pudo volver a abrir la preparación después del amistoso original.")
-
-			# Keep the general match-engine acceptance path covered with two existing
-			# fully playable clubs; this does not change the new original-club defaults.
-			var playable_home_index := -1
-			var playable_away_index := -1
+			# Existing fully playable clubs must remain selectable, while the new original
+			# clubs stay as the default fixture for the live runtime acceptance path.
+			var madrid_available := false
+			var barcelona_available := false
 			for option_index in range(setup._home_teams.item_count):
 				var option_id := str(setup._home_teams.get_item_metadata(option_index))
 				if option_id == "FN-ESP-REAL-MADRID":
-					playable_home_index = option_index
+					madrid_available = true
 				if option_id == "FN-ESP-BARCELONA":
-					playable_away_index = option_index
-			if playable_home_index < 0 or playable_away_index < 0:
+					barcelona_available = true
+			if not madrid_available or not barcelona_available:
 				failures.append("El catálogo amistoso dejó de mostrar los clubes de prueba jugables.")
-			else:
-				setup._home_teams.select(playable_home_index)
-				setup._away_teams.select(playable_away_index)
-				setup._on_team_selection_changed(0)
-				selected_home_id = str(setup._selected_team_id(setup._home_teams))
-				selected_away_id = str(setup._selected_team_id(setup._away_teams))
-				if setup._start_button.disabled:
-					failures.append("El botón Iniciar amistoso está bloqueado pese a seleccionar dos clubes con plantillas válidas.")
 			if setup._stadiums.item_count > 1:
 				setup._stadiums.select(1)
 			var expected_home_name := str(football_registry.teams_by_id.get(selected_home_id, {}).get("name", selected_home_id))
@@ -226,8 +195,21 @@ func _run_acceptance_test() -> void:
 					failures.append("El equipo visitante no quedó con once jugadores en el campo.")
 				if int(summary.get("ai_players", 0)) != 21:
 					failures.append("El partido no creó los 21 futbolistas de IA además del jugador controlado.")
+				if str(summary.get("controlled_player_id", "")) != "NOVA-PLAYER-0035":
+					failures.append("El jugador controlado debe ser Anier Cumbá, no un perfil distinto duplicado.")
+				if str(game.controlled_player_display_name) != "Anier Cumbá":
+					failures.append("Nova C35 debe usar el avatar 3D de Anier Cumbá.")
 				var custom_actor_found := false
+				var raymond_actor_found := false
+				var maximo_actor_found := false
+				var duplicate_anier_actor_found := false
 				for actor_data in game.match_11v11_controller._actors:
+					if str(actor_data.get("player_id", "")) == "NOVA-PLAYER-0037":
+						raymond_actor_found = true
+					if str(actor_data.get("player_id", "")) == "NOVA-PLAYER-0036":
+						maximo_actor_found = true
+					if str(actor_data.get("player_id", "")) == "NOVA-PLAYER-0035":
+						duplicate_anier_actor_found = true
 					if str(actor_data.get("player_id", "")) == "NOVA-FRIENDLY-CUSTOM-ROSTER-TEST":
 						custom_actor_found = true
 						if str(actor_data.get("display_name", "")) != "Prueba NOVA Plantilla" or int(actor_data.get("overall", 0)) != 99:
@@ -236,6 +218,10 @@ func _run_acceptance_test() -> void:
 							failures.append("Los atributos de velocidad del futbolista personalizado no influyeron en el jugador del partido.")
 				if not custom_actor_found:
 					failures.append("El futbolista personalizado incorporado no llegó a la alineación activa del amistoso.")
+				if not raymond_actor_found or not maximo_actor_found:
+					failures.append("Raymond y Máximo deben aparecer una sola vez en sus equipos durante el amistoso.")
+				if duplicate_anier_actor_found:
+					failures.append("Anier no debe aparecer duplicado como IA cuando es el jugador controlado.")
 				if game.player == null or not is_instance_valid(game.player):
 					failures.append("El jugador controlado dejó de existir al iniciar el amistoso.")
 				elif game.match_11v11_controller._player != game.player:
