@@ -79,3 +79,8 @@ La ejecución 334 (`44549563484`) superó las pruebas principales del amistoso l
 - Se añadió decisión de tiro para la IA y la prueba dedicada `tests/test_friendly_ai_shooting.gd`; su resultado debe confirmarse en GitHub Actions.
 - Se corrigió la elevación del tiro y se limitó el posicionamiento lateral del portero; pruebas: `tests/test_friendly_goalkeeper_positioning.gd` y `tests/test_friendly_ai_shooting.gd`.
 - La ejecución más reciente con estas pruebas es [44676705137](https://github.com/Cumba35/Futbol-Nova/actions/runs/44676705137), pendiente de finalizar.
+
+
+## Identidad visual base — 20-11-2026
+
+El juego base incluye un solo estadio: **Estadio del Fénix**, casa de **Nova C35 (C35)**. La dirección visual basada en referencias de FIFA 23/FC 26, el diseño de jugadores y aficionados, y el plan de calidad Android están en [FIFA23_FC26_VISUAL_DIRECTION_AND_BASE_GAME.md](docs/FIFA23_FC26_VISUAL_DIRECTION_AND_BASE_GAME.md). El perfil inicial de C35 está en `data/nova_c35_club.json`. La Primera División cubana está pendiente de ampliarse de 16 a 20 clubes y completar las cuatro plantillas que faltan.
