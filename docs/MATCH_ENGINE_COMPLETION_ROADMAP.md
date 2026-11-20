@@ -288,3 +288,7 @@ No declarar terminada ninguna fase solo por pasar una prueba unitaria: se requie
 - Nuevas pruebas: `tests/test_friendly_ai_shooting.gd` y `tests/test_friendly_goalkeeper_positioning.gd`; ambas se agregaron al workflow de Android.
 
 Siguiente paso: validar estas pruebas en Godot CI; después integrar una reacción real del portero a la trayectoria del balón (atajada, blocaje, rebote y despeje), y comprobar que el balón pueda cruzar la línea para producir un gol en un partido completo.
+
+
+
+La validación automatizada se reforzó para comprobar la dirección física real del disparo y que el selector táctico de partido utilice la posición del portero limitada a los postes. La ejecución CI más reciente que contiene ambas comprobaciones es la 44676705137; está en cola y no se debe declarar aprobada hasta que finalice.
