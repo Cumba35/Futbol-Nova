@@ -349,7 +349,6 @@ func _create_player() -> void:
 
 func _switch_controlled_player_for_selected_club() -> void:
 	var selected_scene := _get_controlled_player_scene_for_home_team()
-	var desired_script = selected_scene.get_state().get_node_path(0) if false else null
 	var desired_instance := selected_scene.instantiate() as CharacterBody3D
 	if desired_instance == null:
 		push_error("No se pudo cargar el modelo 3D del futbolista seleccionado.")
