@@ -14,6 +14,7 @@ func _run() -> void:
 	assert(bool(result.get("ok", false)), "El importador debe completar los dos clubes: %s" % str(result.get("errors", [])))
 	assert(registry.teams_by_id.size() == 2, "Deben registrarse exactamente los dos clubes originales del amistoso.")
 	assert(registry.players_by_id.size() == 44, "Deben registrarse 44 perfiles: 41 ficticios y 3 perfiles confirmados.")
+	assert(registry.validate_team_rosters(22), "Todas las referencias de las dos plantillas deben resolver a perfiles registrados.")
 	for team_id in ["FN-NOVA-C35", "FN-NOVA-RDA"]:
 		assert(registry.teams_by_id.has(team_id), "Falta el club " + team_id)
 		var roster: Array = registry.get_team_roster(team_id)
@@ -34,6 +35,7 @@ func _run() -> void:
 	assert(int(raymond.get("shirt_number", 0)) == 5)
 	assert(int(raymond.get("height_cm", 0)) == 171 and int(raymond.get("weight_kg", 0)) == 63)
 	assert(int(raymond.get("estimated_overall", 0)) == 91 and int(raymond.get("potential", 0)) == 96)
+	assert(raymond.get("attribute_status") == "provisional_generated_pending_owner_review", "Los atributos provisionales de Raymond deben estar etiquetados.")
 	assert(int(raymond.get("statistics", {}).get("career", {}).get("appearances", -1)) == 0)
 	for player in registry.players_by_id.values():
 		if bool(player.get("fictional", false)):
