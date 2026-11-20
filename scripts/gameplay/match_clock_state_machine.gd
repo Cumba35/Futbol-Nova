@@ -5,10 +5,10 @@ class_name NovaMatchClockStateMachine
 const MatchClockRules = preload("res://scripts/gameplay/match_clock_rules.gd")
 
 static func create_state(settings: Dictionary = {}) -> Dictionary:
-	var half_minutes := int(settings.get("half_length_minutes", 5))
+	var half_minutes := int(settings.get("half_length_minutes", MatchClockRules.DEFAULT_HALF_LENGTH_MINUTES))
 	if not MatchClockRules.is_valid_half_length(half_minutes):
 		half_minutes = 5
-	var clock_mode := str(settings.get("clock_mode", MatchClockRules.CLOCK_CONTINUOUS))
+	var clock_mode := str(settings.get("clock_mode", MatchClockRules.DEFAULT_CLOCK_MODE))
 	if not [MatchClockRules.CLOCK_STOPPED, MatchClockRules.CLOCK_CONTINUOUS].has(clock_mode):
 		clock_mode = MatchClockRules.CLOCK_CONTINUOUS
 	var state := {
