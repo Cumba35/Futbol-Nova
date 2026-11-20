@@ -642,6 +642,7 @@ func _create_ai_actor(player_data: Dictionary) -> void:
 		goalkeeper_capsule.height = 1.85
 		goalkeeper_shape.shape = goalkeeper_capsule
 		goalkeeper_shape.position.y = 0.92
+		goalkeeper_shape.disabled = false
 		goalkeeper_body.add_child(goalkeeper_shape)
 		actor.add_child(goalkeeper_body)
 	add_child(actor)
