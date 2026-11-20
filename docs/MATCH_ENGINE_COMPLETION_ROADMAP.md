@@ -259,3 +259,21 @@ Las pruebas de reglas y runtime comprueban goles de ambos equipos hacia +Z/-Z de
 - `BallFlightModel` ahora valida vectores no finitos, limita coeficientes, masa, gravedad, delta y parámetros del lanzamiento, y rechaza gestos sin longitud.
 - Se añadió `tests/test_ball_flight_model.gd` para arrastre, Magnus, decaimiento de spin, integración, estabilidad con delta negativo y conversión de gesto a lanzamiento. GitHub Actions ejecuta esta prueba antes del resto de la batería.
 - Límite: el controlador de gesto `SetPieceSwipeController` aún no está conectado a una interfaz de balón parado en el partido; el modelo de vuelo ya está conectado al movimiento libre del balón y acepta spin por API, pero no se debe anunciar todavía que los tiros libres por gesto estén implementados.
+
+
+
+## Prioridad del modo amistoso — 20 noviembre 2026
+
+La prioridad de la siguiente iteración es hacer el amistoso jugable y fácil de probar, no ampliar ahora la carrera o el online. En la revisión del controlador se encontró que la IA de campo tenía pase/despeje, pero no una acción de remate. Se añadió selección de tiro en zona de finalización, con dirección según el equipo y cambio de lado, potencia influida por el atributo de tiro/finalización y una prueba de integración física.
+
+Prueba nueva: `tests/test_friendly_ai_shooting.gd`, ejecutada por el workflow después de `test_friendly_match_runtime.gd`. Criterios: remate local/visitante, remate tras cambio de lado, descarte de balones altos/lejanos/fuera del campo, orientación hacia la portería rival y liberación física del balón desde la posesión de IA.
+
+Orden de trabajo:
+1. Confirmar la prueba nueva de remates de IA y mantener la aceptación de partido completo.
+2. Mejorar porteros: lectura de trayectoria, atajada, blocaje, despeje, rebote y saque.
+3. Añadir prueba de partido de extremo a extremo con goles de IA y del usuario, sin forzar manualmente el marcador.
+4. Completar entradas/faltas/reinicios y asegurar que reloj, pausa y reinicios interactúan con la simulación.
+5. Verificar sesiones largas y rendimiento móvil; instalar APK en Android real.
+6. Mantener online, repeticiones y tácticas avanzadas fuera del alcance hasta que el amistoso local sea estable.
+
+No declarar terminada ninguna fase solo por pasar una prueba unitaria: se requiere la prueba runtime integrada y validación visual/manual en Android.
