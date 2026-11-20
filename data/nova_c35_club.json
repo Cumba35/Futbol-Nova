@@ -33,7 +33,10 @@
         "branding": "Escudo NOVA C35 y símbolo de corona NOVA originales.",
         "number_style": "Borde púrpura azulado; relleno degradado rojo-púrpura.",
         "source": "Imagen generada y aprobada por el propietario el 2026-11-20.",
-        "usage": "Uniforme principal y referencia base para diseñar los demás uniformes originales de Fútbol Nova."
+        "usage": "Uniforme principal y referencia base para diseñar los demás uniformes originales de Fútbol Nova.",
+        "reference_image_dropbox": "/Apps/Futbol Nova/Assets/Clubs/Nova C35/Kits/nova_c35_home_kit_reference.jpg",
+        "reference_image_repository": "assets/clubs/nova_c35/kits/nova_c35_home_kit_reference.jpg",
+        "repository_binary_status": "reference image binary is backed up in Dropbox; GitHub currently stores the approved kit metadata and documentation, not the JPG binary."
       },
       "away_kit": {
         "status": "to_be_designed_from_approved_home_kit",
