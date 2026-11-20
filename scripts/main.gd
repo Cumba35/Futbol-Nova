@@ -744,8 +744,12 @@ func _on_controller_disconnected(device_id: int) -> void:
 
 
 func _on_player_skill_action_requested() -> void:
-	if gesture_hint_label != null:
-		gesture_hint_label.text = "Solicitud de habilidad recibida. Sistema de técnicas en integración."
+	if player != null and player.has_method("play_skill_animation"):
+		player.call("play_skill_animation")
+		if gesture_hint_label != null:
+			gesture_hint_label.text = "Finta creativa NOVA: control cercano y cambio de ritmo."
+	elif gesture_hint_label != null:
+		gesture_hint_label.text = "Habilidad recibida. Este futbolista aún no tiene una animación especial asignada."
 
 func _on_player_pressure_action_requested() -> void:
 	if match_11v11_controller != null and match_11v11_controller.is_match_active():
