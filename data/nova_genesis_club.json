@@ -24,8 +24,15 @@
   "assets": {
     "reference_photo": "Dropbox:/Apps/Futbol Nova/Assets/Clubs/Nova Génesis/References/nova_genesis_reference_photo_2026-11-20.jpg (upload pending)",
     "proposal_v1": "Dropbox:/Apps/Futbol Nova/Assets/Clubs/Nova Génesis/Kits/Proposals/nova_genesis_home_kit_proposal_01.png (existing; superseded because it uses NG and navy-only shorts)",
-    "proposal_v2": "a_polished_high_detail_sports_kit_and_crest_prese.png (generated in conversation; Dropbox/GitHub binary upload pending; approved design direction with GEN and mixed white/navy shorts)"
+    "proposal_v2": "a_polished_high_detail_sports_kit_and_crest_prese.png (generated in conversation; Dropbox/GitHub binary upload pending; approved design direction with GEN and mixed white/navy shorts)",
+    "proposal_v2_status": "approved_by_user"
   },
-  "status": "design proposal v2; not declared official until user approves",
-  "updated": "2026-11-20"
+  "status": "visual_identity_approved",
+  "updated": "2026-11-20",
+  "approval": {
+    "status": "approved",
+    "approved_by": "user",
+    "approval_date": "2026-11-20",
+    "scope": "visual proposal v2: GEN crest lettering and home kit direction with mixed white/navy shorts"
+  }
 }
