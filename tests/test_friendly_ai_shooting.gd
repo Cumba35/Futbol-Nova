@@ -33,6 +33,10 @@ func _run_tests() -> void:
 		failures.append("El tiro visitante no se dirige hacia la portería rival con elevación.")
 	if swapped_direction.z <= 0.0:
 		failures.append("El tiro local no invierte su dirección tras cambiar de lado.")
+	if not home_direction.is_finite() or not away_direction.is_finite() or not swapped_direction.is_finite():
+		failures.append("El cálculo de dirección de tiro produjo valores no finitos.")
+	if home_direction.y <= 0.0 or away_direction.y <= 0.0:
+		failures.append("El remate no lleva elevación positiva hacia la portería.")
 
 	# Integration check: an AI striker with possession must release a real
 	# physics ball toward goal instead of endlessly passing/clearing it.
