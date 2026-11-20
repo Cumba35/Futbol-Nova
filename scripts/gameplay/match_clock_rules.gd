@@ -17,6 +17,8 @@ const EXTRA_TIME_BY_REGULAR_HALF := {
 
 const CLOCK_STOPPED := "stopped"
 const CLOCK_CONTINUOUS := "continuous"
+const DEFAULT_HALF_LENGTH_MINUTES := 5
+const DEFAULT_CLOCK_MODE := CLOCK_CONTINUOUS
 
 static func is_valid_half_length(minutes: int) -> bool:
 	return HALF_LENGTHS_MINUTES.has(minutes)
