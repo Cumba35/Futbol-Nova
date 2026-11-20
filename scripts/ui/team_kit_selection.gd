@@ -228,6 +228,20 @@ func _build_team_column(parent: BoxContainer, home: bool) -> void:
 	next_kit.pressed.connect(_cycle_kit.bind(home, 1))
 	kit_controls.add_child(next_kit)
 
+static func next_available_team_id(eligible_ids: Array[String], current_id: String, opposing_id: String, direction: int) -> String:
+	if eligible_ids.size() < 2:
+		return ""
+	var index := eligible_ids.find(current_id)
+	if index < 0:
+		index = 0
+	var step := -1 if direction < 0 else 1
+	for attempt in range(eligible_ids.size()):
+		index = posmod(index + step, eligible_ids.size())
+		var candidate := eligible_ids[index]
+		if candidate != opposing_id:
+			return candidate
+	return ""
+
 func _team(team_id: String) -> Dictionary:
 	for team in teams:
 		if str(team.get("id", "")) == team_id:
@@ -238,17 +252,15 @@ func _cycle_team(home: bool, direction: int) -> void:
 	if team_ids.size() < 2:
 		return
 	var current_id := home_team_id if home else away_team_id
-	var index := team_ids.find(current_id)
-	for attempt in range(team_ids.size()):
-		index = posmod(index + direction, team_ids.size())
-		var candidate := team_ids[index]
-		if (home and candidate != away_team_id) or (not home and candidate != home_team_id):
-			if home:
-				home_team_id = candidate
-			else:
-				away_team_id = candidate
-			_refresh_all()
-			return
+	var opposing_id := away_team_id if home else home_team_id
+	var candidate := next_available_team_id(team_ids, current_id, opposing_id, direction)
+	if candidate.is_empty():
+		return
+	if home:
+		home_team_id = candidate
+	else:
+		away_team_id = candidate
+	_refresh_all()
 
 func _cycle_kit(home: bool, direction: int) -> void:
 	if home:
