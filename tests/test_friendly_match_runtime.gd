@@ -157,10 +157,10 @@ func _run_acceptance_test() -> void:
 				failures.append("El amistoso debe mostrar Nova C35 como selección local inicial.")
 			if selected_away_id != "FN-NOVA-RDA":
 				failures.append("El amistoso debe mostrar FC Río de Argenti como selección visitante inicial.")
-			if not setup._start_button.disabled:
-				failures.append("El amistoso debe permanecer bloqueado mientras las plantillas originales no tengan once jugadores verificados.")
-			if not setup._summary.text.contains("plantillas jugables aún no están completas"):
-				failures.append("La pantalla no explica por qué todavía no se puede iniciar el amistoso de los clubes originales.")
+			if setup._start_button.disabled:
+				failures.append("El amistoso C35 vs RDA debe estar habilitado con las dos plantillas completas.")
+			if not setup._summary.text.contains("Plantillas completas"):
+				failures.append("La pantalla no confirma que los dos clubes originales tienen plantillas completas.")
 
 			# Keep the general match-engine acceptance path covered with two existing
 			# fully playable clubs; this does not change the new original-club defaults.
