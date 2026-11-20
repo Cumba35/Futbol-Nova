@@ -19,7 +19,7 @@ Datos confirmados incorporados: fecha de nacimiento 26/05/2007, edad 19, altura 
 
 Los valores individuales de atributos se han generado como propuesta provisional y están marcados `provisional_generated_pending_owner_review`; no se presentan como datos confirmados. La nacionalidad permanece `UNK` porque no se ha confirmado en la ficha disponible. Las estadísticas empiezan en cero.
 
-Se añadió una escena 3D procedural provisional, controlable y con colisión. No es todavía un parecido facial de alta fidelidad. La acción de habilidad dispara una finta original de control cercano/cambio de ritmo. La celebración original de señalar al cielo se activa cuando Raymond es el jugador controlado, su último toque registrado produce un gol de su equipo y el motor reconoce ese evento. No se copiaron animaciones ni capturas de movimiento de futbolistas reales.
+Se vinculó la ficha con la referencia visual aportada por el propietario en Dropbox y se añadió una escena 3D procedural provisional, controlable y con colisión. No es todavía un parecido facial de alta fidelidad. La acción de habilidad dispara una finta original de control cercano/cambio de ritmo. La celebración original de señalar al cielo se activa cuando Raymond es el jugador controlado, su último toque registrado produce un gol de su equipo y el motor reconoce ese evento. No se copiaron animaciones ni capturas de movimiento de futbolistas reales.
 
 ## Integración técnica
 
