@@ -453,6 +453,11 @@ func _start_match() -> void:
 	var away_roster: Array = _get_combined_team_roster(away_id)
 	var home_player_ids := build_starting_eleven(home_roster)
 	var away_player_ids := build_starting_eleven(away_roster)
+	var controlled_player_id := str(home_player_ids[9])
+	if home_id == "FN-NOVA-C35" and home_player_ids.has("NOVA-PLAYER-0035"):
+		controlled_player_id = "NOVA-PLAYER-0035"
+	elif home_id == "FN-NOVA-RDA" and home_player_ids.has("NOVA-PLAYER-0037"):
+		controlled_player_id = "NOVA-PLAYER-0037"
 	var players_by_id: Dictionary = {}
 	for raw_player in home_roster + away_roster:
 		if raw_player is Dictionary:
@@ -471,6 +476,7 @@ func _start_match() -> void:
 		"away_team_name": str(away_team.get("name", away_id)),
 		"home_player_ids": home_player_ids,
 		"away_player_ids": away_player_ids,
+		"controlled_player_id": controlled_player_id,
 		"players_by_id": players_by_id,
 		"stadium_id": _selected_stadium_id(),
 		"half_length_minutes": _half_length.get_selected_id(),
