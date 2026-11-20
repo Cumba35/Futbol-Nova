@@ -67,3 +67,8 @@ Fecha de consulta: 2026-11-20. La investigación se limita a patrones técnicos;
 - https://github.com/Tobilion/footysim
 
 Este documento registra investigación y decisiones; no certifica que el código del modo amistoso haya sido implementado ni probado.
+
+
+## Resultado de implementación — 2026-11-20
+
+La primera fase del plan quedó implementada en esta rama. Consultar `ORIGINAL_CLUBS_FRIENDLY_IMPLEMENTATION_2026-11-20.md` para el inventario exacto de cambios, los 44 perfiles, el avatar provisional de Raymond y los límites pendientes de validación. La integración registra Nova C35 y FC Río de Argenti en el catálogo global y habilita su amistoso 11v11. La ejecución real del workflow de Godot sigue pendiente; no se declara lista para fusionar hasta obtener CI verde.
