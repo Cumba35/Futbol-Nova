@@ -79,3 +79,15 @@ La ejecución 334 (`44549563484`) superó las pruebas principales del amistoso l
 - Se añadió decisión de tiro para la IA y la prueba dedicada `tests/test_friendly_ai_shooting.gd`; su resultado debe confirmarse en GitHub Actions.
 - Se corrigió la elevación del tiro y se limitó el posicionamiento lateral del portero; pruebas: `tests/test_friendly_goalkeeper_positioning.gd` y `tests/test_friendly_ai_shooting.gd`.
 - La ejecución más reciente con estas pruebas es [44676705137](https://github.com/Cumba35/Futbol-Nova/actions/runs/44676705137), pendiente de finalizar.
+
+
+## Actualización de validación — 20-11-2026
+
+La ejecución `44676705137` terminó cancelada; no debe leerse como prueba aprobada. El trabajo de estabilidad continúa en `work/friendly-match-stability-2026-11-20`, creada desde `feature/friendly-runtime-research-2026-11-20`.
+
+- Se validan las opciones de inicio antes de detener/reemplazar un partido activo.
+- Anier Cumbá es el jugador controlado cuando Nova C35 es local; Raymond Valdez cuando FC Río de Argenti es local.
+- Se añadieron pruebas de selección del jugador local y de rechazo atómico de configuraciones inválidas.
+- La documentación de plantillas ahora refleja 22 IDs por club y distingue los perfiles ficticios de datos históricos reales.
+- CI de esta rama: ejecución `44838944703` en curso y ejecución `44839033925` en cola al registrar esta actualización. La primera ya superó importación, exportación de prueba y pruebas base de entrada, balón y 11v11; todavía ejecutaba la aceptación integrada del amistoso. La segunda incluye las pruebas nuevas de selección e inicio atómico.
+- La copia maestra y sus documentos se sincronizaron en `Cumba35/Nova-Workspace/proyectos/juegos/futbol-nova/`. No se ha fusionado ninguna rama y el APK de esta iteración no está validado hasta completar CI e instalación real en Android.
