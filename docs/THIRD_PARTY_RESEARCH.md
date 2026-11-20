@@ -161,3 +161,22 @@ No se importó código ni assets. En Cornucobia, aunque el código principal dec
 - [Kazox61/GodotMobileControls](https://github.com/Kazox61/GodotMobileControls): metadatos y README/licencia no bastaron para confirmar derechos ni compatibilidad. No reutilizar.
 
 Decisión: el joystick de JoenTNT es el único candidato que merece una prueba aislada después de cerrar la CI actual; todavía no se incorpora ni se reemplaza la entrada existente. La UI de pausa, equipaciones y ajustes se seguirá desarrollando de forma nativa, respetando el renderer GL Compatibility, Godot 4.4.1, Android ARM64 y modo offline.
+
+
+
+## Referencias visuales FIFA 23 / FC 26 y repositorios públicos — 20-11-2026
+
+### Fuentes oficiales de diseño (solo referencia)
+- EA FIFA 23 Matchday Experience: gradas dinámicas, Crowd Cards, banderas/tifos, paneles animados, césped y redes 3D. https://www.ea.com/ea-play/news/pitch-notes-fifa-23-fut-deep-dive
+- EA FC 26 Gameplay: movimiento/animación contextual, posicionamiento IA y reacciones del portero. https://www.ea.com/games/ea-sports-fc/fc-26/features/fc-26-gameplay
+- EA FC 26 Stadiums: presentación arquitectónica y ambientación de estadios. https://www.ea.com/games/ea-sports-fc/fc-26/news/fc-26-all-new-stadiums-list
+- EA FC 26 Accessibility: opciones para sombras, indicadores y legibilidad. https://www.ea.com/able/resources/ea-sports-fc/fc-26
+
+### Repositorios públicos examinados
+| Repositorio | Licencia y mantenimiento revisados | Compatibilidad | Decisión |
+|---|---|---|---|
+| [khlsvr/League-Soccer](https://github.com/khlsvr/League-Soccer) | Apache-2.0 confirmada por metadatos de GitHub; última actualización observada 2026-08-01. | C++17/OpenGL/OpenAL, desktop; no es plug-in Godot ni build Android directo. | Referencia de separación de modelos de jugador, crowd/audio y presentación 3D. No portar código ni recursos al motor Godot 4.4.1. |
+| [kendrekaran/striker-3d](https://github.com/kendrekaran/striker-3d) | No se encontró licencia de código en la raíz/API del repositorio; asset `player.glb` tiene licencia Quaternius CC0 1.0 en `assets/LICENSE-quaternius.txt`. | Three.js/browser, 7v7; crowd por instancing y personaje rigged. | No copiar código. El asset CC0 podría evaluarse por separado si se descarga desde la fuente y se conserva su licencia; no se incorporó en esta iteración. |
+| [Wilberforcedev/FC2026-MOD-Apk](https://github.com/Wilberforcedev/FC2026-MOD-Apk) | La descripción pública declara Apache-2.0 para el proyecto; revisar el archivo LICENSE y licencias de cada asset en el commit antes de reutilizar. | Unity 6.3, mobile-first, no compatible con el proyecto Godot 4.4.1. | Referencia de diseño/estructura de datos ficticios; no integrar su motor ni recursos. |
+
+No se importó código, assets, audio ni dependencias de estas fuentes. Se implementó una multitud procedural propia mediante MultiMesh y un modelo de jugador procedural propio, manteniendo Godot 4.4.1, Android ARM64 y modo offline.
