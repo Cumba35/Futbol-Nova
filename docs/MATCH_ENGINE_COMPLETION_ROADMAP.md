@@ -277,3 +277,14 @@ Orden de trabajo:
 6. Mantener online, repeticiones y tácticas avanzadas fuera del alcance hasta que el amistoso local sea estable.
 
 No declarar terminada ninguna fase solo por pasar una prueba unitaria: se requiere la prueba runtime integrada y validación visual/manual en Android.
+
+
+
+## Actualización de porteros y remates — 20 noviembre 2026
+
+- Se corrigió el objetivo vertical del remate de IA para que el vector tenga elevación positiva al salir desde el balón sobre el césped.
+- Se extrajo `goalkeeper_home_position()` del selector táctico y se limitó la posición lateral a ±3,1 m para que el modelo no salga del marco de la portería.
+- Se conserva el adelanto gradual del portero en el tercio defensivo y se respeta el cambio de lado.
+- Nuevas pruebas: `tests/test_friendly_ai_shooting.gd` y `tests/test_friendly_goalkeeper_positioning.gd`; ambas se agregaron al workflow de Android.
+
+Siguiente paso: validar estas pruebas en Godot CI; después integrar una reacción real del portero a la trayectoria del balón (atajada, blocaje, rebote y despeje), y comprobar que el balón pueda cruzar la línea para producir un gol en un partido completo.
