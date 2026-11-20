@@ -24,7 +24,7 @@ Los dos futbolistas ya registrados en Nova C35 — Anier Cumbá (NOVA-PLAYER-003
 
 Perfil de juego original inspirado en rasgos generales asociados por el propietario a Messi y Neymar: control cercano, conducción, fintas corporales, cambios de ritmo/dirección, giros cortos, amagues, combinaciones rápidas y definición curva. No se incorporan clips, modelos, capturas ni movimientos extraídos de material protegido de esos jugadores.
 
-Habilidades técnicas de perfil: close control, body feint, rapid direction change, elastic-style feint, nutmeg attempt, cut inside, tight turn, quick wall pass y curved finish. Además, tiene tres habilidades leyenda equipadas del catálogo actual de Fútbol Nova: Regate corto legendaria (FN-SK-L3-172), Regate explosivo legendaria (FN-SK-L3-177) y Giro en el área legendaria (FN-SK-L3-187).
+Habilidades técnicas de perfil: close control, body feint, rapid direction change, elastic-style feint, nutmeg attempt, cut inside, tight turn, quick wall pass y curved finish. Además, tiene tres habilidades leyenda equipadas del catálogo actual de Fútbol Nova: Regate corto básica (FN-SK-L1-172), Regate explosivo (FN-SK-L2-003) y Giro en el área legendaria (FN-SK-L3-187), equipadas respectivamente en los niveles 1, 2 y 3.
 
 ### Celebración especial
 
