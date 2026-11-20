@@ -22,7 +22,7 @@ const STADIUMS := [
 	{
 		"id": BASE_STADIUM_ID,
 		"name": "Estadio del Fénix",
-		"capacity": 35000,
+		"capacity": 105000,
 		"version": "Base 1.0",
 		"seating": "#14213d",
 		"accent": "#27c9e8",
