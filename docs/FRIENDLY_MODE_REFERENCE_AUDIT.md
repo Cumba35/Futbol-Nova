@@ -117,3 +117,20 @@ Corregir cualquier nuevo bloqueo real de CI y conseguir el APK Android. Después
 - `TheAmgadX/Soccer-AI` — https://github.com/TheAmgadX/Soccer-AI. C++17 con máquinas de estado separadas para futbolistas, portero y táctica; usa SDL2 y es 2D. La raíz pública consultada no muestra un archivo LICENSE, así que no se copia ni incorpora código. Puede orientar la separación de estados y responsabilidades de IA.
 - `firstpixel/SoccerGame` — https://github.com/firstpixel/SoccerGame. Simulación 11v11 en navegador con IA de pase/regate/tiro, roles, atributos, formaciones y física simple del balón. Su stack HTML/Canvas no es integrable en el runtime C++17/OpenGL ES; la raíz consultada tampoco mostró LICENSE, así que solo queda como lectura conceptual.
 - Decisión: conservar el motor Android nativo y utilizar estas referencias únicamente para contrastar algoritmos. No se importaron dependencias ni recursos de terceros.
+
+
+## Investigación adicional: motor nativo Android y simulación reproducible — 2026-11-20
+
+### [blurz17/blurz-native-football-](https://github.com/blurz17/blurz-native-football-)
+- Repositorio público de fútbol 3D Android ARM64 con C++, JNI, OpenGL ES y SDL2; documenta cámara de tercera persona, controles multitáctiles, sincronización de render/física y pruebas de estabilidad.
+- **Licencia verificada en el archivo raíz `LICENSE`: GPL-3.0.** El repositorio también declara componentes y recursos de terceros en `THIRD_PARTY_NOTICES.md`; la licencia del proyecto no sustituye la revisión de cada dependencia o asset.
+- Relevancia: es una referencia muy cercana al objetivo Android nativo para estudiar gestión de punteros, separación de hilos, cámara, rendimiento móvil y organización de la capa JNI.
+- Decisión: no copiar ni incorporar código, bibliotecas, modelos, uniformes ni assets. La GPL-3.0 introduce obligaciones de distribución que no deben asumirse accidentalmente; se estudian únicamente patrones generales. Fútbol Nova mantiene su implementación C++17/OpenGL ES 3.0 sin añadir SDL2.
+
+### [santisiri/fobal-simulator](https://github.com/santisiri/fobal-simulator)
+- Simulación de fútbol con IA de pase/tiro/regate, física 3D del balón, rebotes en postes/travesaño, reglas, reinicios, cambios de lado, estadísticas, determinismo por semilla y pruebas headless.
+- La licencia de reutilización no quedó verificada en esta revisión; por tanto, no se copia código ni recursos.
+- Relevancia: usar como lista de comparación para escenarios de aceptación: tiros y atajadas, rebotes, saques, faltas, cambios de lado, determinismo y registro de eventos. No trasladar su runtime HTML/JavaScript al APK nativo.
+
+### Decisión técnica
+La mejora inmediata identificada al revisar el código propio fue corregir el límite longitudinal de los porteros tras el descanso; quedó guardada en el commit `af78036a4354b844b201f2f7156dcc5f91deb408` de `work/native-3d-engine`. Su compilación y prueba física siguen pendientes. Las referencias externas no se integran como dependencias.
