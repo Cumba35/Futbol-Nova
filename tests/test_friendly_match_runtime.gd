@@ -548,7 +548,7 @@ func _run_acceptance_test() -> void:
 		for index in range(cleanup_players.size() - 1, -1, -1):
 			if str(cleanup_players[index].get("id", "")) == "NOVA-FRIENDLY-CUSTOM-ROSTER-TEST":
 				cleanup_players.remove_at(index)
-		cleanup_assignments.erase("FN-ESP-REAL-MADRID")
+		cleanup_assignments.erase("FN-NOVA-C35")
 		custom_roster_cleanup.call("_save_roster")
 	if moments_service != null and not original_moments_state.is_empty():
 		moments_service.set("_state", original_moments_state)
