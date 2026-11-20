@@ -9,8 +9,8 @@ shader_type spatial;
 render_mode diffuse_burley, specular_disabled;
 varying vec3 instance_tint;
 void vertex() {
-	instance_tint = COLOR.rgb;
-	VERTEX.y += sin(TIME * 2.1 + UV.x * 9.0 + UV.y * 4.0) * 0.012;
+	instance_tint = INSTANCE_CUSTOM.rgb;
+	VERTEX.y += sin(TIME * 2.1 + INSTANCE_CUSTOM.a * 6.283 + UV.y * 4.0) * 0.012;
 }
 void fragment() {
 	ALBEDO = instance_tint;
@@ -122,11 +122,11 @@ static func _add_crowd(root: Node3D, config: Dictionary) -> void:
 
 	var body_multi := MultiMesh.new()
 	body_multi.transform_format = MultiMesh.TRANSFORM_3D
-	body_multi.use_colors = true
+	body_multi.use_custom_data = true
 	body_multi.mesh = body_mesh
 	var head_multi := MultiMesh.new()
 	head_multi.transform_format = MultiMesh.TRANSFORM_3D
-	head_multi.use_colors = true
+	head_multi.use_custom_data = true
 	head_multi.mesh = head_mesh
 
 	var placements: Array[Transform3D] = []
@@ -164,11 +164,12 @@ static func _add_crowd(root: Node3D, config: Dictionary) -> void:
 		var body_transform := base
 		body_transform.origin.y += 0.28
 		body_multi.set_instance_transform(index, body_transform)
-		body_multi.set_instance_color(index, shirt)
+		body_multi.set_instance_custom_data(index, Color(shirt.r, shirt.g, shirt.b, rng.randf()))
 		var head_transform := base
 		head_transform.origin.y += 0.78
 		head_multi.set_instance_transform(index, head_transform)
-		head_multi.set_instance_color(index, Color("#d6ad8b") if rng.randf() > 0.28 else Color("#f0d4b5"))
+		var skin := Color("#d6ad8b") if rng.randf() > 0.28 else Color("#f0d4b5")
+		head_multi.set_instance_custom_data(index, Color(skin.r, skin.g, skin.b, rng.randf()))
 
 	var bodies := MultiMeshInstance3D.new()
 	bodies.name = "CrowdBodies"
