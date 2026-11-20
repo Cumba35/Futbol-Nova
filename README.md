@@ -77,3 +77,5 @@ La ejecución 334 (`44549563484`) superó las pruebas principales del amistoso l
 - Auditoría de mejoras y pruebas del amistoso: [docs/FRIENDLY_MODE_REFERENCE_AUDIT.md](docs/FRIENDLY_MODE_REFERENCE_AUDIT.md)
 - Hoja de ruta del motor de partido: [docs/MATCH_ENGINE_COMPLETION_ROADMAP.md](docs/MATCH_ENGINE_COMPLETION_ROADMAP.md)
 - Se añadió decisión de tiro para la IA y la prueba dedicada `tests/test_friendly_ai_shooting.gd`; su resultado debe confirmarse en GitHub Actions.
+- Se corrigió la elevación del tiro y se limitó el posicionamiento lateral del portero; pruebas: `tests/test_friendly_goalkeeper_positioning.gd` y `tests/test_friendly_ai_shooting.gd`.
+- La ejecución más reciente con estas pruebas es [44676705137](https://github.com/Cumba35/Futbol-Nova/actions/runs/44676705137), pendiente de finalizar.
