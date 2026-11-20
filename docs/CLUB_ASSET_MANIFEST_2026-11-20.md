@@ -14,3 +14,8 @@
 
 ## Estado de sincronización
 Los metadatos de identidad y el manifiesto están guardados y verificados en las ramas de trabajo de GitHub. Las imágenes de GEN están archivadas en el documento de Dropbox mediante imágenes incrustadas. Los binarios de imagen no se han incorporado todavía como archivos independientes al árbol de GitHub; no marcar esa copia como completada.
+
+
+## Sangre Galáctica (SAG)
+- Identidad cromática confirmada por el usuario (20-11-2026): rojo y morado como colores principales; amarillo y blanco como detalles.
+- Escudo, equipaciones, estadio y recursos gráficos: pendientes de definición y creación.
