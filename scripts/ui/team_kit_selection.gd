@@ -6,11 +6,6 @@ signal cancelled
 
 const ACCENT := Color("#ff0755")
 const KIT_PALETTE = preload("res://scripts/ui/team_kit_palette.gd")
-const PALETTE := [
-	Color("#173c91"), Color("#b51f32"), Color("#08784c"), Color("#e0e0e0"),
-	Color("#171923"), Color("#e6b52d"), Color("#5b318b"), Color("#168d9d"),
-	Color("#f06b24"), Color("#6c283e")
-]
 const KIT_LABELS := ["PRIMERA", "SEGUNDA"]
 
 var teams: Array[Dictionary] = []
@@ -33,7 +28,9 @@ func configure(team_catalog: Dictionary, eligible_ids: Array[String], selected_h
 	team_ids = eligible_ids.duplicate()
 	for team_id in team_ids:
 		if team_catalog.has(team_id) and team_catalog[team_id] is Dictionary:
-			teams.append(team_catalog[team_id].duplicate(true))
+			var team: Dictionary = team_catalog[team_id].duplicate(true)
+			team["id"] = team_id
+			teams.append(team)
 	home_team_id = selected_home
 	away_team_id = selected_away
 
@@ -56,7 +53,9 @@ func _build_screen() -> void:
 	add_child(center)
 
 	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(1120, 650)
+	var viewport_size := get_viewport().get_visible_rect().size
+	var compact := viewport_size.x < 760.0
+	panel.custom_minimum_size = Vector2(minf(1120.0, maxf(300.0, viewport_size.x - 24.0)), minf(650.0, maxf(300.0, viewport_size.y - 24.0)))
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var panel_style := StyleBoxFlat.new()
@@ -85,7 +84,7 @@ func _build_screen() -> void:
 	subheading.add_theme_color_override("font_color", Color("#9ca8bc"))
 	root.add_child(subheading)
 
-	var columns := HBoxContainer.new()
+	var columns: BoxContainer = VBoxContainer.new() if compact else HBoxContainer.new()
 	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	columns.add_theme_constant_override("separation", 16)
 	root.add_child(columns)
@@ -119,7 +118,7 @@ func _build_screen() -> void:
 	confirm_button.pressed.connect(_confirm)
 	footer.add_child(confirm_button)
 
-func _build_team_column(parent: HBoxContainer, home: bool) -> void:
+func _build_team_column(parent: BoxContainer, home: bool) -> void:
 	var card := PanelContainer.new()
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	card.size_flags_vertical = Control.SIZE_EXPAND_FILL
