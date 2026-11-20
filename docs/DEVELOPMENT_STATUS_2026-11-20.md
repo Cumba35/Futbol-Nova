@@ -66,4 +66,14 @@ El código y los documentos del proyecto se guardan en `Cumba35/Futbol-Nova` y s
 
 ## Estado honesto
 
-La APK debug ya se exportó y el artefacto está publicado. El amistoso ha superado las pruebas runtime existentes en CI. La nueva decisión de tiro de IA está implementada, pero su prueba dedicada aún está pendiente. No hay validación manual en un teléfono real ni se declara terminado el modo amistoso.
+La APK debug ya se exportó y el artefacto está publicado. El amistoso ha superado las pruebas runtime existentes en CI. La decisión de tiro de IA, la corrección de su trayectoria y el posicionamiento lateral del portero están implementados; las dos nuevas pruebas dedicadas están añadidas a CI, pero aún esperan resultado. No hay validación manual en un teléfono real ni se declara terminado el modo amistoso.
+
+
+## Cambios posteriores y CI — 20 noviembre 2026
+
+- Controlador actualizado: decisión de remate de IA con destino elevado y posicionamiento del portero limitado al espacio entre postes.
+- Pruebas nuevas/actualizadas: `test_friendly_ai_shooting.gd` y `test_friendly_goalkeeper_positioning.gd`.
+- Workflow ampliado con una prueba independiente para el posicionamiento de porteros.
+- Ejecución que contiene las nuevas pruebas: https://github.com/Cumba35/Futbol-Nova/actions/runs/44676590754 (pendiente en el momento de esta actualización).
+- El código y las pruebas se guardan en `Cumba35/Futbol-Nova` y en `Cumba35/Nova-Workspace/proyectos/juegos/futbol-nova/`; los workflows siguen en el repositorio de distribución.
+- No hay todavía validación manual en teléfono Android. El APK de CI es una compilación debug de prueba.
