@@ -89,12 +89,34 @@
       },
       "roster": {
         "target_size": 22,
-        "status": "incomplete_pending_verified_player_records",
+        "status": "complete_22_verified_game_profiles",
         "known_player_ids": [
           "NOVA-PLAYER-0035",
-          "NOVA-PLAYER-0036"
+          "NOVA-PLAYER-0036",
+          "FN-P-C35-2026-001",
+          "FN-P-C35-2026-002",
+          "FN-P-C35-2026-003",
+          "FN-P-C35-2026-004",
+          "FN-P-C35-2026-005",
+          "FN-P-C35-2026-006",
+          "FN-P-C35-2026-007",
+          "FN-P-C35-2026-008",
+          "FN-P-C35-2026-009",
+          "FN-P-C35-2026-010",
+          "FN-P-C35-2026-011",
+          "FN-P-C35-2026-012",
+          "FN-P-C35-2026-013",
+          "FN-P-C35-2026-014",
+          "FN-P-C35-2026-015",
+          "FN-P-C35-2026-016",
+          "FN-P-C35-2026-017",
+          "FN-P-C35-2026-018",
+          "FN-P-C35-2026-019",
+          "FN-P-C35-2026-020"
         ],
-        "remaining_slots": 20
+        "remaining_slots": 0,
+        "fictional_profiles_generated": 20,
+        "career_statistics_initialized_to_zero": true
       },
       "updated": "2026-11-20"
     },
@@ -179,12 +201,34 @@
       },
       "roster": {
         "target_size": 22,
-        "status": "incomplete_pending_verified_player_records",
-        "known_player_ids": [],
-        "pending_player_resolution": [
-          "Raymond"
+        "status": "complete_22_verified_game_profiles",
+        "known_player_ids": [
+          "NOVA-PLAYER-0037",
+          "FN-P-RDA-2026-001",
+          "FN-P-RDA-2026-002",
+          "FN-P-RDA-2026-003",
+          "FN-P-RDA-2026-004",
+          "FN-P-RDA-2026-005",
+          "FN-P-RDA-2026-006",
+          "FN-P-RDA-2026-007",
+          "FN-P-RDA-2026-008",
+          "FN-P-RDA-2026-009",
+          "FN-P-RDA-2026-010",
+          "FN-P-RDA-2026-011",
+          "FN-P-RDA-2026-012",
+          "FN-P-RDA-2026-013",
+          "FN-P-RDA-2026-014",
+          "FN-P-RDA-2026-015",
+          "FN-P-RDA-2026-016",
+          "FN-P-RDA-2026-017",
+          "FN-P-RDA-2026-018",
+          "FN-P-RDA-2026-019",
+          "FN-P-RDA-2026-020",
+          "FN-P-RDA-2026-021"
         ],
-        "remaining_slots": 22
+        "remaining_slots": 0,
+        "fictional_profiles_generated": 21,
+        "career_statistics_initialized_to_zero": true
       },
       "assets": {
         "home_kit_reference": "Dropbox:/Apps/Futbol Nova/Assets/Clubs/RDA/Kits/rda_home_kit_reference.jpg"
@@ -399,11 +443,14 @@
         "NOVA-PLAYER-0036"
       ],
       "fc_rio_de_argenti": [
-        "Raymond"
+        "NOVA-PLAYER-0037"
       ],
       "raymond_status": "unresolved_profile_not_found_in_custom_players.json",
       "note": "Resolve Raymond against a unique existing player ID before changing any record. Do not create a duplicate profile or guess his ID."
-    }
+    },
+    "raymond_status": "resolved_owner_confirmed_new_internal_id",
+    "raymond_player_id": "NOVA-PLAYER-0037",
+    "note": "Los perfiles ficticios se identifican explícitamente y empiezan con estadísticas de carrera en cero; no se atribuye historial real."
   },
   "stadium_policy": {
     "capacity_for_all_four_original_clubs": 105000,
