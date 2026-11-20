@@ -1,0 +1,11 @@
+{
+  "id": "fc-rio-de-argenti",
+  "name": "FC Río de Argenti",
+  "abbreviation": "RDA",
+  "sport": "football",
+  "assets": {
+    "home_kit_reference": "Dropbox:/Apps/Futbol Nova/Assets/Clubs/RDA/Kits/rda_home_kit_reference.jpg"
+  },
+  "status": "existing reference asset located in Dropbox",
+  "updated": "2026-11-20"
+}
