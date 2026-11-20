@@ -200,3 +200,12 @@ Pendiente: CI ARM64 del commit actual y pruebas de juego reales para comprobar q
 3. Mejorar IA por roles: perseguidor único, cobertura, apoyos y repliegue.
 4. Completar saques y estados de partido, y añadir pruebas automáticas de las transiciones.
 5. Validar físicamente en Android antes de considerar Amistosos listo.
+
+
+## Sincronización del estado nativo entre Android y OpenGL — 2026-11-19
+
+- Auditoría del flujo de entrada encontró que los eventos táctiles, el cambio de futbolista, la pausa y las consultas del marcador podían ejecutarse desde el hilo UI mientras el renderizador OpenGL actualizaba el mismo estado C++.
+- Se añadió un mutex de estado y bloqueos breves en las entradas JNI que leen o modifican estado compartido, incluido el frame de simulación/renderizado, controles multitáctiles, cambio de futbolista, perfiles, duración, pausa, inicio del segundo tiempo y getters de fase/marcador/reloj.
+- Objetivo: evitar lecturas/escrituras concurrentes no sincronizadas en la simulación nativa. El render y la actualización del partido siguen en el hilo GL; el mutex no mueve operaciones gráficas al hilo UI.
+- Commit: `21825b316bbd6c1754e5bc83b7629894ab1259f3`. Archivo releído desde GitHub y comprobada la presencia del mutex y los bloqueos en frame, entrada táctil y getters.
+- Pendiente: CI para este commit, revisión de posibles pausas perceptibles por contención del mutex y prueba multitáctil real en Android. No considerar validado por revisión estática solamente.
