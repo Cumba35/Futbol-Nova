@@ -168,6 +168,8 @@ jobs:
       - name: Core test — friendly goalkeeper positioning
         run: timeout --signal=TERM --kill-after=15s 120s godot --headless --path . --script res://tests/test_friendly_goalkeeper_positioning.gd
 
+      - name: Core test — procedural player visual
+        run: timeout --signal=TERM --kill-after=15s 60s godot --headless --path . --script res://tests/test_procedural_player_visual.gd
       - name: Core test — physical goal frames and net containment
         run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_goal_frame_physics.gd
 
