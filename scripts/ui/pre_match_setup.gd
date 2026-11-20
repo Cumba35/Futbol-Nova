@@ -350,6 +350,67 @@ func _get_football_registry() -> Variant:
 	var football_data_service: Node = get_node_or_null("/root/FootballData")
 	return football_data_service.get("registry") if football_data_service != null else null
 
+func _register_original_clubs(registry: Variant) -> void:
+	if registry == null:
+		return
+	var roster_file := FileAccess.open("res://data/original_club_players_2026.json", FileAccess.READ)
+	if roster_file == null:
+		push_warning("No se pudo abrir el registro de plantillas originales.")
+		return
+	var roster_catalog = JSON.parse_string(roster_file.get_as_text())
+	roster_file.close()
+	if not roster_catalog is Dictionary:
+		push_warning("El registro de plantillas originales no tiene un formato válido.")
+		return
+
+	# Reuse the two owner-confirmed player records already present in the main
+	# custom-player catalog; generated players remain clearly marked as fictional.
+	var known_file := FileAccess.open("res://data/custom_players.json", FileAccess.READ)
+	var known_catalog = JSON.parse_string(known_file.get_as_text()) if known_file != null else {}
+	if known_file != null:
+		known_file.close()
+	if known_catalog is Dictionary:
+		for known_player in known_catalog.get("players", []):
+			if not known_player is Dictionary:
+				continue
+			var known_id := str(known_player.get("id", ""))
+			if known_id in ["NOVA-PLAYER-0035", "NOVA-PLAYER-0036"] and not registry.players_by_id.has(known_id):
+				var normalized_known: Dictionary = known_player.duplicate(true)
+				normalized_known["display_name"] = str(normalized_known.get("display_name", normalized_known.get("name", known_id)))
+				normalized_known["primary_position"] = str(normalized_known.get("primary_position", normalized_known.get("position", "")))
+				normalized_known["nationality_id"] = str(normalized_known.get("nationality_id", normalized_known.get("nationality", "CUB")))
+				registry.register_players([normalized_known])
+
+	for player in roster_catalog.get("players", []):
+		if not player is Dictionary:
+			continue
+		var player_id := str(player.get("id", ""))
+		if player_id.is_empty() or registry.players_by_id.has(player_id):
+			continue
+		registry.register_players([player])
+
+	for team_record in roster_catalog.get("teams", []):
+		if not team_record is Dictionary:
+			continue
+		var team_id := str(team_record.get("id", ""))
+		if team_id.is_empty() or registry.teams_by_id.has(team_id):
+			continue
+		var player_ids: Array = team_record.get("player_ids", [])
+		var complete := player_ids.size() == int(team_record.get("roster_target", 22))
+		for player_id in player_ids:
+			if not registry.players_by_id.has(str(player_id)):
+				complete = false
+		if not complete:
+			push_warning("Plantilla original incompleta o con referencias inválidas: " + team_id)
+			continue
+		registry.register_team({
+			"id": team_id,
+			"name": str(team_record.get("name", team_id)),
+			"short_name": str(team_record.get("name", team_id)),
+			"country_id": str(team_record.get("country_id", "CUB")),
+			"player_ids": player_ids.duplicate()
+		})
+
 func _load_eligible_teams() -> void:
 	_home_teams.clear()
 	_away_teams.clear()
@@ -359,10 +420,9 @@ func _load_eligible_teams() -> void:
 		_summary.text = "El catálogo de clubes no está disponible. No se puede iniciar el amistoso."
 		return
 
-	# The first two owner-created clubs are always presented first in the friendly
-	# selectors, even while their complete matchday rosters are still being built.
-	# They remain display-only until their club/player records are imported and
-	# each side can field a validated starting eleven.
+	_register_original_clubs(registry)
+	# The first two owner-created clubs are presented first and are now backed by
+	# validated club/player records from the original-club roster catalog.
 	var original_file := FileAccess.open("res://data/original_clubs_2026.json", FileAccess.READ)
 	if original_file != null:
 		var original_catalog = JSON.parse_string(original_file.get_as_text())
@@ -376,7 +436,15 @@ func _load_eligible_teams() -> void:
 				var original_name := str(original_club.get("name", original_id))
 				var roster_data: Dictionary = original_club.get("roster", {})
 				var known_player_ids: Array = roster_data.get("known_player_ids", [])
-				var roster_note := " • plantilla %d/11" % mini(known_player_ids.size(), 11)
+				var roster_data_file := FileAccess.open("res://data/original_club_players_2026.json", FileAccess.READ)
+				if roster_data_file != null:
+					var parsed_rosters = JSON.parse_string(roster_data_file.get_as_text())
+					roster_data_file.close()
+					if parsed_rosters is Dictionary:
+						for team_record in parsed_rosters.get("teams", []):
+							if str(team_record.get("id", "")) == original_id:
+								known_player_ids = team_record.get("player_ids", [])
+				var roster_note := " • plantilla %d/22" % mini(known_player_ids.size(), 22)
 				_home_teams.add_item(original_name + roster_note)
 				_away_teams.add_item(original_name + roster_note)
 				var original_item_index := _home_teams.item_count - 1
@@ -438,8 +506,8 @@ func _refresh_validation() -> void:
 	_start_button.disabled = not valid
 	if home_id == away_id and not home_id.is_empty():
 		_summary.text = "El equipo local y el visitante deben ser diferentes."
-	elif home_id in ["FN-NOVA-C35", "FN-NOVA-RDA"] or away_id in ["FN-NOVA-C35", "FN-NOVA-RDA"]:
-		_summary.text = "Nova C35 y FC Río de Argenti están seleccionados, pero sus plantillas jugables aún no están completas. Se requieren al menos 11 jugadores verificados por equipo; no se crearán jugadores ficticios."
+	elif (home_id in ["FN-NOVA-C35", "FN-NOVA-RDA"] and home_roster.size() != 22) or (away_id in ["FN-NOVA-C35", "FN-NOVA-RDA"] and away_roster.size() != 22):
+		_summary.text = "Las plantillas originales deben contener 22 jugadores registrados y un once inicial válido. Revisa el catálogo de jugadores."
 	elif valid:
 		_summary.text = "Plantillas verificadas: %d jugadores locales y %d visitantes. Alineaciones iniciales: 11 por equipo." % [home_roster.size(), away_roster.size()]
 	else:

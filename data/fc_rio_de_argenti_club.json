@@ -79,12 +79,32 @@
   },
   "roster": {
     "target_size": 22,
-    "status": "incomplete_pending_verified_player_records",
-    "known_player_ids": [],
-    "pending_player_resolution": [
-      "Raymond"
+    "status": "complete_generated_fictional_roster",
+    "known_player_ids": [
+      "NOVA-PLAYER-0037",
+      "NOVA-PLAYER-0058",
+      "NOVA-PLAYER-0059",
+      "NOVA-PLAYER-0060",
+      "NOVA-PLAYER-0061",
+      "NOVA-PLAYER-0062",
+      "NOVA-PLAYER-0063",
+      "NOVA-PLAYER-0064",
+      "NOVA-PLAYER-0065",
+      "NOVA-PLAYER-0066",
+      "NOVA-PLAYER-0067",
+      "NOVA-PLAYER-0068",
+      "NOVA-PLAYER-0069",
+      "NOVA-PLAYER-0070",
+      "NOVA-PLAYER-0071",
+      "NOVA-PLAYER-0072",
+      "NOVA-PLAYER-0073",
+      "NOVA-PLAYER-0074",
+      "NOVA-PLAYER-0075",
+      "NOVA-PLAYER-0076",
+      "NOVA-PLAYER-0077",
+      "NOVA-PLAYER-0078"
     ],
-    "remaining_slots": 22
+    "remaining_slots": 0
   },
   "assets": {
     "home_kit_reference": "Dropbox:/Apps/Futbol Nova/Assets/Clubs/RDA/Kits/rda_home_kit_reference.jpg"

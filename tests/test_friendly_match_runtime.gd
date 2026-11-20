@@ -126,8 +126,8 @@ func _run_acceptance_test() -> void:
 							setup._custom_players.select(option_index)
 							break
 					setup.call("_assign_custom_player_to_selected_team", true)
-					var assigned_roster: Array = setup.call("_get_combined_team_roster", "FN-ESP-REAL-MADRID")
-					var registry_roster: Array = football_registry.get_team_roster("FN-ESP-REAL-MADRID")
+					var assigned_roster: Array = setup.call("_get_combined_team_roster", "FN-NOVA-C35")
+					var registry_roster: Array = football_registry.get_team_roster("FN-NOVA-C35")
 					var registry_has_custom_player := false
 					for registry_player in registry_roster:
 						if str(registry_player.get("id", "")) == friendly_custom_player_id:
@@ -157,10 +157,14 @@ func _run_acceptance_test() -> void:
 				failures.append("El amistoso debe mostrar Nova C35 como selección local inicial.")
 			if selected_away_id != "FN-NOVA-RDA":
 				failures.append("El amistoso debe mostrar FC Río de Argenti como selección visitante inicial.")
-			if not setup._start_button.disabled:
-				failures.append("El amistoso debe permanecer bloqueado mientras las plantillas originales no tengan once jugadores verificados.")
-			if not setup._summary.text.contains("plantillas jugables aún no están completas"):
-				failures.append("La pantalla no explica por qué todavía no se puede iniciar el amistoso de los clubes originales.")
+			if setup._start_button.disabled:
+				failures.append("El amistoso debe habilitarse cuando C35 y RDA tienen plantillas completas.")
+			var c35_roster: Array = football_registry.get_team_roster("FN-NOVA-C35")
+			var rda_roster: Array = football_registry.get_team_roster("FN-NOVA-RDA")
+			if c35_roster.size() != 22 or rda_roster.size() != 22:
+				failures.append("Los clubes originales deben cargar 22 jugadores cada uno en el registro del partido.")
+			if setup.build_starting_eleven(c35_roster).size() != 11 or setup.build_starting_eleven(rda_roster).size() != 11:
+				failures.append("Los clubes originales deben generar un once inicial válido cada uno.")
 
 			# Keep the general match-engine acceptance path covered with two existing
 			# fully playable clubs; this does not change the new original-club defaults.
@@ -536,6 +540,7 @@ func _run_acceptance_test() -> void:
 		for index in range(cleanup_players.size() - 1, -1, -1):
 			if str(cleanup_players[index].get("id", "")) == "NOVA-FRIENDLY-CUSTOM-ROSTER-TEST":
 				cleanup_players.remove_at(index)
+		cleanup_assignments.erase("FN-NOVA-C35")
 		cleanup_assignments.erase("FN-ESP-REAL-MADRID")
 		custom_roster_cleanup.call("_save_roster")
 	if moments_service != null and not original_moments_state.is_empty():

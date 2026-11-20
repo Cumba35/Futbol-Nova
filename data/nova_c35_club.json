@@ -84,12 +84,32 @@
   },
   "roster": {
     "target_size": 22,
-    "status": "incomplete_pending_verified_player_records",
+    "status": "complete_generated_fictional_roster",
     "known_player_ids": [
       "NOVA-PLAYER-0035",
-      "NOVA-PLAYER-0036"
+      "NOVA-PLAYER-0036",
+      "NOVA-PLAYER-0038",
+      "NOVA-PLAYER-0039",
+      "NOVA-PLAYER-0040",
+      "NOVA-PLAYER-0041",
+      "NOVA-PLAYER-0042",
+      "NOVA-PLAYER-0043",
+      "NOVA-PLAYER-0044",
+      "NOVA-PLAYER-0045",
+      "NOVA-PLAYER-0046",
+      "NOVA-PLAYER-0047",
+      "NOVA-PLAYER-0048",
+      "NOVA-PLAYER-0049",
+      "NOVA-PLAYER-0050",
+      "NOVA-PLAYER-0051",
+      "NOVA-PLAYER-0052",
+      "NOVA-PLAYER-0053",
+      "NOVA-PLAYER-0054",
+      "NOVA-PLAYER-0055",
+      "NOVA-PLAYER-0056",
+      "NOVA-PLAYER-0057"
     ],
-    "remaining_slots": 20
+    "remaining_slots": 0
   },
   "updated": "2026-11-20"
 }
