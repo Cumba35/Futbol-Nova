@@ -162,7 +162,7 @@ Las elecciones cosméticas de un amistoso no deben alterar los datos permanentes
 11. Las opciones no soportadas o recursos ausentes aparecen deshabilitados con explicación.
 12. El botón de inicio no permite lanzar un partido con datos inválidos o selecciones incompatibles.
 
-**Límite actual:** el selector de equipos, el once inicial, las opciones básicas del amistoso y el selector de tres estadios procedurales ya están conectados al inicio del partido. Las vistas 3D de jugadores/estadios dentro de la preparación, OVR, escudos, equipaciones, balón, preferencias persistentes y la validación visual completa siguen pendientes. No se consideran terminados hasta superar CI Godot 4.4.1 y pruebas Android.
+**Límite actual:** el selector de equipos, el once inicial, las opciones básicas del amistoso y el selector de siete estadios procedurales ya están conectados al inicio del partido. Las vistas 3D de jugadores/estadios dentro de la preparación, OVR, escudos, equipaciones, balón, preferencias persistentes y la validación visual completa siguen pendientes. No se consideran terminados hasta superar CI Godot 4.4.1 y pruebas Android.
 
 
 ## Prioridad de validación: amistoso jugable y controles Android — 19 noviembre 2026
