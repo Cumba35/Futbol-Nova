@@ -35,3 +35,11 @@ Actualizar el flujo previo al amistoso con una pantalla de presentación deporti
 
 ## Estado
 Iteración inicial en desarrollo: pantalla y modelos procedurales temporales. Escudos reales, jugadores 3D definitivos, patrones licenciados, detección de conflictos de color y prueba en dispositivo Android quedan pendientes.
+
+
+
+## Integración de identidad Nova C35 y vista previa de jugador — 20-11-2026
+- La identidad inicial de Nova C35 se registra en `data/nova_c35_club.json` con colores originales azul medianoche/cian/dorado; el monograma mostrado es C35.
+- La vista previa del selector ya utiliza `scripts/players/procedural_player_visual.gd`, en lugar de cápsulas sueltas. El mismo script se utiliza para los actores IA del partido.
+- La silueta actual tiene articulaciones y locomoción procedural básica; sigue siendo un prototipo, no el modelo humano final ni una animación de captura.
+- Nova C35 se incorporará al catálogo de clubes seleccionables cuando se complete su plantilla de 22 jugadores y la expansión de Primera División a 20 equipos.
