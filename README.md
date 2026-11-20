@@ -1,5 +1,8 @@
 # Fútbol Nova
 
+- [Catálogo consolidado de configuración y reconciliación](docs/CONFIGURATION_CATALOG_AND_RECONCILIATION_2026-11-20.md)
+
+
 Repositorio independiente del videojuego **Fútbol Nova**. Contiene la copia del proyecto publicada anteriormente dentro de Cumba35/Web-Publica-Nova/futbol-nova.
 
 ## Desarrollo y compilación
