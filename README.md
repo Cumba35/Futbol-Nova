@@ -60,3 +60,12 @@ Se corrigió el aislamiento headless de la prueba de Máximo Padilla: la física
 ## Actualización de mantenimiento — 19-11-2026
 
 La ejecución 334 (`44549563484`) superó las pruebas principales del amistoso local 11v11 y la escena Android, pero no pudo exportar el APK porque Godot no tenía configuradas sus rutas globales de Android SDK y Java. Se corrigió el workflow para generar `~/.config/godot/editor_settings-4.4.tres` con ambas rutas y el keystore temporal. La corrección está en el commit `fb024313eb48571695cc912e12da9eee00e28751` de Futbol-Nova. La ejecución 335 (`44551233214`) está en curso; no declarar APK disponible hasta verificar exportación, artefacto ARM64 e instalación real. Diagnóstico completo: `docs/CI_44549563484_DIAGNOSIS.md`.
+
+
+## Seguimiento de desarrollo — 19-11-2026
+
+- [Estado de desarrollo y prioridades](docs/DEVELOPMENT_STATUS_2026-11-19.md)
+- [Investigación complementaria de repositorios públicos](docs/PUBLIC_GITHUB_RESEARCH_2026-11-19.md)
+- [Diagnóstico de exportación Android CI 44551233214](docs/CI_44551233214_DIAGNOSIS.md)
+- La exportación Android ahora ejecuta Godot con `--verbose` para registrar el motivo exacto de cualquier error de configuración del preset.
+- La documentación nueva está sincronizada con la ruta maestra de Nova Workspace y sus SHA de contenido fueron verificados.
