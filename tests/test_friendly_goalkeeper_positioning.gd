@@ -25,13 +25,23 @@ func _run_tests() -> void:
 		failures.append("El portero no ajusta lateralmente su posición a la trayectoria del balón.")
 	if absf(extreme_keeper.x) > 3.1:
 		failures.append("El portero puede salir del espacio protegido por los postes.")
+	var anticipating_keeper := MATCH_11V11.goalkeeper_home_position(Vector3(0.0, 0.35, 40.0), true, false, Vector3(4.0, 0.0, 6.0))
+	var retreating_keeper := MATCH_11V11.goalkeeper_home_position(Vector3(0.0, 0.35, 40.0), true, false, Vector3(4.0, 0.0, -6.0))
+	var away_anticipating_keeper := MATCH_11V11.goalkeeper_home_position(Vector3(0.0, 0.35, -40.0), false, false, Vector3(4.0, 0.0, -6.0))
+	if anticipating_keeper.x <= 1.5:
+		failures.append("El portero local no anticipa el cruce lateral del balón que se acerca a su portería.")
+	if absf(retreating_keeper.x) > 0.01:
+		failures.append("El portero se desplaza hacia una trayectoria que se aleja de su portería.")
+	if away_anticipating_keeper.x <= 1.5:
+		failures.append("El portero visitante no anticipa la trayectoria del balón hacia su portería.")
 	if not home_keeper.is_finite() or not away_keeper.is_finite() or not swapped_home_keeper.is_finite():
 		failures.append("El cálculo de posición del portero produjo coordenadas no finitas.")
 
 	# Verify the live tactical target path uses the tested goalkeeper helper.
 	var controller = MATCH_11V11.new()
 	var ball = RigidBody3D.new()
-	ball.position = Vector3(4.0, 0.35, 40.0)
+	ball.position = Vector3(0.0, 0.35, 40.0)
+	ball.linear_velocity = Vector3(4.0, 0.0, 6.0)
 	controller._ball = ball
 	var keeper_actor := Node3D.new()
 	var keeper_data := {
@@ -41,7 +51,7 @@ func _run_tests() -> void:
 		"home_position": Vector3(0.0, 0.0, 49.0)
 	}
 	var live_target: Vector3 = controller.call("_choose_target", 0, keeper_data)
-	var expected_target: Vector3 = MATCH_11V11.goalkeeper_home_position(ball.position, true, false)
+	var expected_target: Vector3 = MATCH_11V11.goalkeeper_home_position(ball.position, true, false, ball.linear_velocity)
 	if live_target.distance_to(expected_target) > 0.001:
 		failures.append("El controlador de partido no usa el posicionamiento probado para el portero.")
 	controller.free()
