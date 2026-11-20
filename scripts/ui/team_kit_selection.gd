@@ -5,12 +5,13 @@ signal confirmed(selection: Dictionary)
 signal cancelled
 
 const ACCENT := Color("#ff0755")
+const KIT_PALETTE = preload("res://scripts/ui/team_kit_palette.gd")
 const PALETTE := [
 	Color("#173c91"), Color("#b51f32"), Color("#08784c"), Color("#e0e0e0"),
 	Color("#171923"), Color("#e6b52d"), Color("#5b318b"), Color("#168d9d"),
 	Color("#f06b24"), Color("#6c283e")
 ]
-const KIT_LABELS := ["PRIMERA", "SEGUNDA", "PORTERO"]
+const KIT_LABELS := ["PRIMERA", "SEGUNDA"]
 
 var teams: Array[Dictionary] = []
 var team_ids: Array[String] = []
@@ -258,19 +259,13 @@ func _cycle_kit(home: bool, direction: int) -> void:
 	_refresh_all()
 
 func _team_base_color(team_id: String) -> Color:
-	var index := posmod(abs(team_id.hash()), PALETTE.size())
-	return PALETTE[index]
+	return KIT_PALETTE.primary_color(team_id)
 
 func _kit_colors(team_id: String, kit_index: int) -> Dictionary:
-	var base := _team_base_color(team_id)
-	match kit_index:
-		0:
-			return {"shirt": base, "shorts": base.darkened(0.25), "socks": base}
-		1:
-			return {"shirt": Color("#f0f1f4"), "shorts": Color("#202737"), "socks": Color("#f0f1f4")}
-		2:
-			return {"shirt": Color("#e6b52d"), "shorts": Color("#222a38"), "socks": Color("#e6b52d")}
-	return {"shirt": base, "shorts": base.darkened(0.25), "socks": base}
+	var kit_id := "away" if kit_index == 1 else "home"
+	var shirt: Color = KIT_PALETTE.shirt_color(team_id, kit_id)
+	var shorts: Color = KIT_PALETTE.shorts_color(team_id, kit_id)
+	return {"shirt": shirt, "shorts": shorts, "socks": shirt}
 
 func _refresh_all() -> void:
 	var home := _team(home_team_id)
@@ -346,7 +341,7 @@ func _confirm() -> void:
 	confirmed.emit({
 		"home_team_id": home_team_id,
 		"away_team_id": away_team_id,
-		"home_kit_id": ["home", "away", "goalkeeper"][home_kit_index],
-		"away_kit_id": ["home", "away", "goalkeeper"][away_kit_index]
+		"home_kit_id": "away" if home_kit_index == 1 else "home",
+		"away_kit_id": "away" if away_kit_index == 1 else "home"
 	})
 	queue_free()
