@@ -80,6 +80,23 @@ void setupTeams(){
  for(int i=0;i<11;i++){players[i]=formation[i];players[11+i]={formation[i].x,0,-formation[i].z};}
  players[0]={0,0,-49.5f}; players[11]={0,0,49.5f}; keepers={};
 }
+void resetKickoffPositions(){
+ const V3 formation[11]={{0,0,-45},{22,0,-30},{8,0,-32},{-8,0,-32},{-22,0,-30},{0,0,-10},{15,0,-8},{-15,0,-8},{22,0,18},{0,0,24},{-22,0,18}};
+ for(int i=0;i<11;i++){
+  V3 home=formation[i],away={formation[i].x,0,-formation[i].z};
+  if(!homeDefendsNegative){home.z=-home.z;away.z=-away.z;}
+  players[(size_t)i]=home;
+  players[(size_t)(11+i)]=away;
+ }
+ players[0]={0,0,homeDefendsNegative?-49.5f:49.5f};
+ players[11]={0,0,homeDefendsNegative?49.5f:-49.5f};
+ keepers={};
+ playerX=players[(size_t)controlledPlayer].x;
+ playerZ=players[(size_t)controlledPlayer].z;
+ playerYaw=homeDefendsNegative?3.1415926f:0.0f;
+ ballX=0.0f;ballZ=0.0f;ballY=.22f;
+ ballVX=ballVY=ballVZ=0.0f;ballReleaseTimer=0.0f;
+}
 void drawPlayer(const std::array<float,16>&vp,V3 p,bool home,float yaw,int slot){
  bool goalkeeper=(slot%11)==0;
  float r=goalkeeper?.92f:(home?.10f:.86f),g=goalkeeper?.72f:(home?.68f:.16f),b=goalkeeper?.12f:(home?.20f:.19f);
@@ -356,11 +373,11 @@ void update(float dt){
  bool homeGoal=homeDefendsNegative?crossedPositive:crossedNegative;
  bool awayGoal=homeDefendsNegative?crossedNegative:crossedPositive;
  if(homeGoal){
-  homeScore++;playerX=0;playerZ=0;players[(size_t)controlledPlayer]={0,0,0};players[0]={0,0,homeDefendsNegative?-49.5f:49.5f};players[11]={0,0,homeDefendsNegative?49.5f:-49.5f};
-  ballX=0;ballZ=.72f;ballY=.22f;ballVX=ballVY=ballVZ=0;ballReleaseTimer=0;keepers={};
+  homeScore++;
+  resetKickoffPositions();
  }else if(awayGoal){
-  awayScore++;playerX=0;playerZ=0;players[(size_t)controlledPlayer]={0,0,0};players[0]={0,0,homeDefendsNegative?-49.5f:49.5f};players[11]={0,0,homeDefendsNegative?49.5f:-49.5f};
-  ballX=0;ballZ=.72f;ballY=.22f;ballVX=ballVY=ballVZ=0;keepers={};
+  awayScore++;
+  resetKickoffPositions();
  }
  if(std::abs(ballX)>34){ballX=std::copysign(34.0f,ballX);ballVX*=-.55f;}
  if(ballZ>52.0f && ballZ<53.0f){ballZ=52.0f;ballVZ=-std::abs(ballVZ)*.55f;}
