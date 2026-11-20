@@ -18,7 +18,7 @@ func _run() -> void:
 		assert(not player_id.is_empty() and not players_by_id.has(player_id), "Los IDs deben ser únicos")
 		assert(PLAYER_PROFILE.is_valid(player), "Perfil inválido: " + player_id + " -> " + str(PLAYER_PROFILE.validate(player)))
 		players_by_id[player_id] = player
-	assert(players_by_id.size() == 40, "Deben existir 40 fichas generadas: 20 por club, además de los dos perfiles ya existentes")
+	assert(players_by_id.size() == 42, "Deben existir 42 fichas nuevas, incluido Raymond y los dos últimos refuerzos de RDA")
 
 	var all_ids := {}
 	for team in catalog.get("teams", []):
