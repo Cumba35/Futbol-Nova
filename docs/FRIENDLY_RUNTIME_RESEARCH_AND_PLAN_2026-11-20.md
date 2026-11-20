@@ -98,3 +98,31 @@ La primera fase del plan quedó implementada en esta rama. Consultar `ORIGINAL_C
 3. Confirmar 22 plazas por equipo, que Raymond y jugadores personalizados no se duplican y que el control humano conserva la identidad correcta.
 4. Completar regresiones y smoke test Android; inspeccionar el artefacto APK solo tras CI verde.
 5. Replicar cada archivo confirmado en Cumba35/Nova-Workspace bajo proyectos/juegos/futbol-nova/ y releer ambos repositorios para comparar contenidos.
+
+
+## Auditoría ampliada de alternativas públicas — 2026-11-20
+
+Se realizó una segunda búsqueda centrada en juegos Godot de fútbol, física de balón, IA de jugadores y flujo de partido. El proyecto NOVA declara Godot 4.4 y renderer GL Compatibility en `project.godot`; las propuestas se comparan con esa base y con el objetivo de Android/arm64.
+
+| Repositorio | Licencia y mantenimiento observados | Compatibilidad / utilidad | Decisión |
+|---|---|---|---|
+| [krimshi/godot-soccer](https://github.com/krimshi/godot-soccer) | LICENSE leído directamente: MIT. Historial público pequeño (7 commits en la consulta). | Juego 2D sencillo en Godot; puede servir para contrastar manejo de balón y organización de escenas, pero no es un motor 3D 11v11 ni evidencia de soporte Android probado. | Fuente legalmente reutilizable bajo MIT si una pieza concreta supera revisión técnica; conservar copyright/licencia. No portar el juego entero. |
+| [pdimitrop/Armistice](https://github.com/pdimitrop/Armistice) | MIT visible en GitHub. 2 commits observados; sin suite de pruebas ni CI declarados. | Godot 4.7 .NET, Forward+, Jolt; requiere un paquete de recursos externo de aproximadamente 12 GB. NOVA está en Godot 4.4, GDScript y GL Compatibility; la versión, renderer y peso lo hacen inadecuado para integrar ahora. | Referencia visual/arquitectónica solamente. No introducir .NET, Forward+ ni el paquete masivo de assets en la rama Android. |
+| [AhkunTa/soccer-online](https://github.com/AhkunTa/soccer-online) | 176 commits observados, pero no se encontró LICENSE en la raíz consultada; el README lo describe como fork de nicolasbize/soccer-course. | Godot 4.6, GDScript, 6 contra 6, estados de jugador/balón/partido, IA por roles y red ENet. Arquitectura interesante, pero versión posterior y formato distinto al 11v11 de NOVA. | No copiar código ni recursos mientras no se verifique licencia del fork y de su upstream. Estudiar conceptos de estados e IA solamente. |
+| [aliyavuzz/Godotball](https://github.com/aliyavuzz/Godotball) | README declara Apache-2.0, pero no se verificó un archivo LICENSE en la raíz y se basa en GameplayFootball; falta auditar los avisos/licencias de upstream, submódulos y recursos. 16 commits observados. | Godot 4.4.1, GDExtension C++17, SCons, Jolt y sistema básico 22 jugadores. La versión está próxima a NOVA, pero introducir C++/GDExtension aumenta el coste de compilación Android y mantenimiento. | No integrar binarios ni código hasta completar auditoría de licencia y benchmark Android. Mantener como referencia de subsistemas y criterios de rendimiento. |
+| [modelence/open-soccer](https://github.com/modelence/open-soccer) | 127 commits observados; no se encontró LICENSE en la raíz y aparece una solicitud pública de aclaración de licencia/permiso para un derivado comercial. | Motor 11v11 en TypeScript/Canvas con reglas, IA, controles y división de motor/renderizado; no es Godot y requeriría reescritura. | No copiar código, assets ni datos. Estudiar la separación entre simulación, física, render y reglas como patrón conceptual. |
+
+### Conclusión técnica de la auditoría
+
+- La opción de menor riesgo para el modo amistoso actual es continuar con el controlador GDScript ya integrado y reforzar pruebas de comportamiento, no reemplazar el motor por un framework completo.
+- El único candidato adicional con licencia MIT comprobada directamente y tecnología Godot/GDScript es `krimshi/godot-soccer`, pero su alcance 2D y mantenimiento reducido no justifican una dependencia nueva.
+- `Godotball` es el candidato más cercano a la versión de Godot y al 11v11, pero antes de reutilizar cualquier parte se exige verificar licencia real de cada componente heredado y medir coste/beneficio de GDExtension en Android.
+- Se descarta integrar por ahora motores Godot 4.6/4.7, proyectos Forward+/.NET o motores web/Canvas en el runtime Android de NOVA.
+- No se copió código, escenas, modelos, texturas, audio ni datos de estos repositorios. Esta investigación solo aporta criterios y decisiones; cualquier incorporación futura requiere revisión de archivo, licencia, procedencia, seguridad, compatibilidad y pruebas aisladas.
+
+Referencias añadidas:
+- https://github.com/krimshi/godot-soccer
+- https://github.com/pdimitrop/Armistice
+- https://github.com/AhkunTa/soccer-online
+- https://github.com/aliyavuzz/Godotball
+- https://github.com/modelence/open-soccer
