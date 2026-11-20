@@ -1,38 +1,93 @@
 {
   "id": "nova-genesis",
+  "runtime_club_id": "FN-NOVA-GEN",
   "name": "Nova Génesis",
   "abbreviation": "GEN",
   "sport": "football",
-  "kit": {
-    "base": "white",
-    "details": [
-      "navy geometric and textured panels",
-      "red and green accents",
-      "dense angular linework"
-    ],
-    "shorts": [
+  "fictional": true,
+  "identity_status": "home_visual_identity_approved_other_assets_provisional",
+  "identity": {
+    "primary_colors": [
       "white",
       "navy"
     ],
-    "shorts_note": "mixed white and original navy color"
+    "secondary_colors": [
+      "red",
+      "green"
+    ],
+    "style": "dense angular geometry and textured panels"
   },
   "crest": {
     "letters": "GEN",
-    "letter_style": "interlocked, irregular and deliberately disordered"
+    "letter_style": "interlocked, irregular and deliberately disordered",
+    "status": "approved_in_visual_proposal_v2"
   },
-  "visual_reference": "User-provided photo received 2026-11-20",
+  "kits": {
+    "home": {
+      "base": "white",
+      "details": [
+        "navy geometric and textured panels",
+        "red and green accents",
+        "dense angular linework"
+      ],
+      "shorts": [
+        "white",
+        "navy"
+      ],
+      "status": "approved_visual_direction_v2"
+    },
+    "away": {
+      "base": "navy",
+      "details": [
+        "white angular shoulder panels",
+        "red and green fine accents"
+      ],
+      "status": "design_proposal"
+    },
+    "alternate": {
+      "base": "red",
+      "details": [
+        "navy geometric blocks",
+        "white and green trim"
+      ],
+      "status": "design_proposal"
+    },
+    "goalkeeper": {
+      "base": "electric_green",
+      "details": [
+        "navy angular panels",
+        "white numbering"
+      ],
+      "status": "design_proposal"
+    }
+  },
+  "stadium": {
+    "name": "Arena Nova Génesis",
+    "capacity": null,
+    "capacity_status": "not_set",
+    "ownership": "unconfirmed",
+    "design": "modern angular stadium with layered faceted roof and navy-white lighting",
+    "status": "design_proposal"
+  },
+  "supporters": {
+    "nickname": "La Nueva Era",
+    "colors": [
+      "navy",
+      "white",
+      "red",
+      "green"
+    ],
+    "chants_and_flags": "provisional concepts; not recorded as owner-approved"
+  },
+  "roster": {
+    "target_size": 22,
+    "status": "incomplete_pending_verified_player_records",
+    "known_player_ids": [],
+    "remaining_slots": 22
+  },
   "assets": {
-    "reference_photo": "Dropbox:/Apps/Futbol Nova/Assets/Clubs/Nova Génesis/References/nova_genesis_reference_photo_2026-11-20.jpg (upload pending)",
-    "proposal_v1": "Dropbox:/Apps/Futbol Nova/Assets/Clubs/Nova Génesis/Kits/Proposals/nova_genesis_home_kit_proposal_01.png (existing; superseded because it uses NG and navy-only shorts)",
-    "proposal_v2": "a_polished_high_detail_sports_kit_and_crest_prese.png (generated in conversation; Dropbox/GitHub binary upload pending; approved design direction with GEN and mixed white/navy shorts)",
-    "proposal_v2_status": "approved_by_user"
+    "reference_photo": "Dropbox:/Apps/Futbol Nova/Assets/Clubs/Nova Génesis/References/nova_genesis_reference_photo_2026-11-20.jpg",
+    "approved_home_proposal": "Dropbox Paper attachment: nova_genesis_home_kit_proposal_03_GEN.jpg"
   },
-  "status": "visual_identity_approved",
-  "updated": "2026-11-20",
-  "approval": {
-    "status": "approved",
-    "approved_by": "user",
-    "approval_date": "2026-11-20",
-    "scope": "visual proposal v2: GEN crest lettering and home kit direction with mixed white/navy shorts"
-  }
+  "updated": "2026-11-20"
 }
