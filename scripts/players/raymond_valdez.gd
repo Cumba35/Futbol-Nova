@@ -18,9 +18,13 @@ func _build_collision() -> void:
 	collision.position.y = 0.91
 	add_child(collision)
 
+var _visual_root: Node3D
+var _skill_tween: Tween
+
 func _build_visual() -> void:
 	var visual := Node3D.new()
 	visual.name = "RaymondProceduralPlaceholder"
+	_visual_root = visual
 	add_child(visual)
 	var navy := _material(Color("#142A3B"))
 	var river_blue := _material(Color("#176A91"))
@@ -76,3 +80,25 @@ func _add_box(parent: Node3D, node_name: String, at: Vector3, dimensions: Vector
 	mesh_instance.position = at
 	mesh_instance.material_override = material
 	parent.add_child(mesh_instance)
+
+## Original NOVA close-control feint: a short body feint and counter-turn.
+## This is an original procedural animation, not a copied athlete motion capture.
+func play_skill_animation() -> void:
+	if not is_instance_valid(_visual_root):
+		return
+	if _skill_tween != null and _skill_tween.is_running():
+		_skill_tween.kill()
+	_skill_tween = create_tween()
+	_skill_tween.tween_property(_visual_root, "rotation:y", deg_to_rad(18.0), 0.10)
+	_skill_tween.tween_property(_visual_root, "rotation:y", deg_to_rad(-14.0), 0.12)
+	_skill_tween.tween_property(_visual_root, "rotation:y", 0.0, 0.10)
+
+## Original calm point-to-sky celebration; called by match event attribution when available.
+func play_goal_celebration() -> void:
+	if not is_instance_valid(_visual_root):
+		return
+	if _skill_tween != null and _skill_tween.is_running():
+		_skill_tween.kill()
+	_skill_tween = create_tween()
+	_skill_tween.tween_property(_visual_root, "rotation:x", deg_to_rad(-7.0), 0.18)
+	_skill_tween.tween_property(_visual_root, "rotation:x", 0.0, 0.28)
