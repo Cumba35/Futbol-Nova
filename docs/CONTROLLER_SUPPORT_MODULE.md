@@ -83,3 +83,9 @@ Fuentes técnicas:
 - Dos mandos distintos pueden mapearse y remapearse.
 - La desconexión no deja acciones atascadas.
 - Pruebas físicas Android y pruebas Godot automatizadas pasan.
+
+## Visibilidad de indicaciones de botones — 20 noviembre 2026
+
+Las etiquetas/glifos de botones físicos (A/Cruz, B/Círculo, X/Cuadrado y Y/Triángulo) no se muestran en la interfaz cuando no hay un mando conectado. La pantalla de controles solo enseña esas indicaciones si el módulo opcional está activo y su registro de dispositivos conectados tiene al menos un mando. Al desconectar el último dispositivo, las indicaciones se ocultan inmediatamente; al conectar uno compatible vuelven a mostrarse. Esto no afecta el joystick ni los botones táctiles Android. La visibilidad se cubre con `tests/test_controller_hint_visibility.gd` en CI.
+
+La detección inicial y los cambios en caliente siguen `Input.get_connected_joypads()` y `Input.joy_connection_changed` de Godot. En Android el backend de mandos puede variar según dispositivo y firmware, por lo que la validación física sigue pendiente.
