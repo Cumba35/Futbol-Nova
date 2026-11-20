@@ -7,7 +7,7 @@ Se completan las plantillas de los dos primeros clubes originales usados por def
 - Nova C35: 22 plazas.
 - FC Río de Argenti: 22 plazas.
 
-Los dos futbolistas ya registrados en Nova C35 — Anier Cumbá (NOVA-PLAYER-0035) y Máximo Padilla (NOVA-PLAYER-0036) — se conservan. Se añadieron 20 perfiles ficticios generados para completar C35. En RDA se añadieron 20 perfiles, incluido Raymond Valdez.
+Los dos futbolistas ya registrados en Nova C35 — Anier Cumbá (NOVA-PLAYER-0035) y Máximo Padilla (NOVA-PLAYER-0036) — se conservan. Se añadieron 20 perfiles ficticios generados para completar C35. En RDA se añadieron 22 perfiles, incluido Raymond Valdez.
 
 ## Raymond Valdez
 
@@ -34,7 +34,7 @@ Secuencia de diseño original: frenar tras el gol, girar hacia cámara/gradas, e
 
 ## Integración técnica
 
-- `data/original_club_players_2026.json`: 40 perfiles nuevos y referencias a 44 plazas totales entre ambos clubes.
+- `data/original_club_players_2026.json`: 42 perfiles nuevos y referencias a 44 plazas totales entre ambos clubes.
 - `data/original_clubs_2026.json`, `data/nova_c35_club.json`, `data/fc_rio_de_argenti_club.json`: estados de plantilla y listas de IDs.
 - `scripts/ui/pre_match_setup.gd`: registra las plantillas originales en el registro de partido y permite validar el amistoso con ambos equipos.
 - `modules/nova_3d_animation/nova_3d_animation.gd`: añade señales y métodos para solicitar habilidades y secuencias de celebración por perfil.
