@@ -6,6 +6,7 @@ signal cancelled
 
 const ACCENT := Color("#ff0755")
 const KIT_PALETTE = preload("res://scripts/ui/team_kit_palette.gd")
+const PLAYER_VISUAL = preload("res://scripts/players/procedural_player_visual.gd")
 const KIT_LABELS := ["PRIMERA", "SEGUNDA"]
 
 var teams: Array[Dictionary] = []
@@ -285,8 +286,8 @@ func _refresh_all() -> void:
 		return
 	_home_name.text = str(home.get("display_name", home.get("name", home_team_id)))
 	_away_name.text = str(away.get("display_name", away.get("name", away_team_id)))
-	_home_crest.text = str(_home_name.text.substr(0, 1)).to_upper()
-	_away_crest.text = str(_away_name.text.substr(0, 1)).to_upper()
+	_home_crest.text = "C35" if home_team_id == "CUB-S1-017" else str(_home_name.text.substr(0, 1)).to_upper()
+	_away_crest.text = "C35" if away_team_id == "CUB-S1-017" else str(_away_name.text.substr(0, 1)).to_upper()
 	_home_kit_name.text = KIT_LABELS[home_kit_index]
 	_away_kit_name.text = KIT_LABELS[away_kit_index]
 	_build_player_preview(_home_preview, _kit_colors(home_team_id, home_kit_index))
@@ -315,20 +316,14 @@ func _build_player_preview(viewport: SubViewport, colors: Dictionary) -> void:
 	fill.light_energy = 0.7
 	world.add_child(fill)
 
-	var mannequin := Node3D.new()
-	mannequin.position.y = -0.8
+	var mannequin := PLAYER_VISUAL.new()
+	mannequin.name = "PlayerPreview"
+	mannequin.configure(colors.shirt, colors.shorts, Color("#b9825e"), false, 35)
 	world.add_child(mannequin)
-	_add_capsule(mannequin, Vector3(0, 1.55, 0), 0.22, 0.42, Color("#c99a78"))
-	_add_capsule(mannequin, Vector3(0, 0.93, 0), 0.36, 0.9, colors.shirt)
-	_add_capsule(mannequin, Vector3(-0.49, 0.92, 0), 0.12, 0.65, colors.shirt, Vector3(0, 0, -18))
-	_add_capsule(mannequin, Vector3(0.49, 0.92, 0), 0.12, 0.65, colors.shirt, Vector3(0, 0, 18))
-	_add_capsule(mannequin, Vector3(-0.18, 0.22, 0), 0.16, 0.58, colors.shorts)
-	_add_capsule(mannequin, Vector3(0.18, 0.22, 0), 0.16, 0.58, colors.shorts)
-	_add_capsule(mannequin, Vector3(-0.18, -0.3, 0), 0.105, 0.58, colors.socks)
-	_add_capsule(mannequin, Vector3(0.18, -0.3, 0), 0.105, 0.58, colors.socks)
+
 	var camera := Camera3D.new()
-	camera.position = Vector3(0, 0.9, 4.8)
-	camera.look_at(Vector3(0, 0.65, 0), Vector3.UP)
+	camera.position = Vector3(0, 1.0, 4.5)
+	camera.look_at(Vector3(0, 0.95, 0), Vector3.UP)
 	camera.current = true
 	world.add_child(camera)
 
