@@ -822,7 +822,9 @@
             "worn": true,
             "model_reference": "owner_confirmed_visual_reference_pending_asset_review"
           }
-        }
+        },
+        "portrait_reference": "Dropbox:/Nova/Workspace/Recursos gráficos/Ficha de Jugador - Raymond Valdez.png",
+        "portrait_reference_status": "owner_supplied_reference_pending_3d_review"
       }
     }
   ],
