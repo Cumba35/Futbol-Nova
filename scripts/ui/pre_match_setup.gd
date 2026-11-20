@@ -412,8 +412,8 @@ func _refresh_validation() -> void:
 	valid = valid and registry != null
 	var home_roster: Array = _get_combined_team_roster(home_id) if valid else []
 	var away_roster: Array = _get_combined_team_roster(away_id) if valid else []
-	var home_eleven: Array[String] = []
-	var away_eleven: Array[String] = []
+	var home_eleven: Array = []
+	var away_eleven: Array = []
 	if valid:
 		home_eleven = build_starting_eleven(home_roster)
 		away_eleven = build_starting_eleven(away_roster)
