@@ -3,6 +3,7 @@ extends SceneTree
 const REGISTRY_SCRIPT = preload("res://scripts/data/football_data_registry.gd")
 const ORIGINAL_CLUB_IMPORTER = preload("res://scripts/data/original_club_importer.gd")
 const PRE_MATCH_SETUP = preload("res://scripts/ui/pre_match_setup.gd")
+const RAYMOND_SCENE = preload("res://scenes/players/raymond_valdez.tscn")
 
 func _initialize() -> void:
 	call_deferred("_run")
@@ -38,5 +39,16 @@ func _run() -> void:
 		if bool(player.get("fictional", false)):
 			assert(int(player.get("statistics", {}).get("career", {}).get("appearances", -1)) == 0, "Los jugadores ficticios deben iniciar sin estadísticas históricas.")
 	assert(registry.competitions_by_id.is_empty(), "Los clubes amistosos no deben añadirse a una competición de liga.")
+	var raymond_avatar := RAYMOND_SCENE.instantiate() as CharacterBody3D
+	assert(raymond_avatar != null, "Debe instanciarse el avatar controlable de Raymond.")
+	root.add_child(raymond_avatar)
+	await process_frame
+	assert(raymond_avatar.get_node_or_null("CollisionShape3D") is CollisionShape3D, "Raymond necesita colisión física.")
+	assert(raymond_avatar.get_node_or_null("RaymondProceduralPlaceholder") is Node3D, "Debe existir un modelo visual procedural provisional.")
+	assert(raymond_avatar.has_method("play_skill_animation") and raymond_avatar.has_method("play_goal_celebration"), "Raymond debe exponer las animaciones originales de habilidad y celebración.")
+	raymond_avatar.call("play_skill_animation")
+	raymond_avatar.call("play_goal_celebration")
+	raymond_avatar.queue_free()
+	await process_frame
 	print("FUTBOL_NOVA_ORIGINAL_CLUB_IMPORTER_TEST: PASS")
 	quit(0)
