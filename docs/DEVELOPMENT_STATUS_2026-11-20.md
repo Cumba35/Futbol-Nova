@@ -12,8 +12,8 @@ Prioridad máxima: modo Amistosos local 11v11, offline y Android ARM64. No ampli
 - Godot 4.4.1 exportó correctamente `FutbolNova-debug.apk`.
 - El artefacto `futbol-nova-android-debug` fue publicado (29,665,557 bytes en la consulta del 20-11-2026).
 - Pasaron las pruebas de acciones de entrada, limpieza táctil, hub, vuelo del balón, base 11v11 y amistoso runtime con goles/períodos.
-- La prueba de marcos de portería/red también fue superada en el estado observado después de la primera consulta.
-- La última consulta del job mostraba la regresión de política de recursos NOVA en ejecución. No hay conclusión final registrada todavía: no declarar toda la suite aprobada.
+- También pasaron la prueba de marcos de portería/red, catálogo/geometría de estadios, perfil de Máximo Padilla, acceso y política de recursos NOVA, smoke test Android y regresiones de alcance masculino y perfil de Anier Cumbá.
+- La última consulta del job mostraba `Regression — test_player_statistics_consistency.gd` en ejecución. No hay conclusión final registrada todavía: no declarar toda la suite aprobada.
 
 ## Mejora de jugabilidad aplicada
 
