@@ -126,6 +126,9 @@ func _run_acceptance_test() -> void:
 							setup._custom_players.select(option_index)
 							break
 					setup.call("_assign_custom_player_to_selected_team", true)
+					var assigned_team_id := str(custom_roster_service.call("get_assigned_team_id", friendly_custom_player_id))
+					var assigned_custom_players: Array = custom_roster_service.call("get_players_for_team", "FN-NOVA-C35")
+					print("FRIENDLY_TEST: custom assignment status=%s assigned_team=%s service_players=%d selected=%s" % [str(setup._roster_status.text), assigned_team_id, assigned_custom_players.size(), str(setup.call("_selected_custom_player_id"))])
 					var assigned_roster: Array = setup.call("_get_combined_team_roster", "FN-NOVA-C35")
 					var registry_roster: Array = football_registry.get_team_roster("FN-NOVA-C35")
 					var registry_has_custom_player := false
