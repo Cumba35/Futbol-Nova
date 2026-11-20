@@ -1,42 +1,86 @@
 {
   "id": "sangre-galactica",
+  "runtime_club_id": "FN-NOVA-SAG",
   "name": "Sangre Galáctica",
   "abbreviation": "SAG",
   "sport": "football",
+  "fictional": true,
+  "identity_status": "provisional_completion_based_on_confirmed_colors",
   "identity": {
     "primary_colors": [
       "red",
       "purple"
     ],
-    "detail_colors": [
+    "secondary_colors": [
       "yellow",
       "white"
     ],
-    "color_priority": "red and purple are dominant; yellow and white are accents"
+    "color_priority": "red and purple dominate; yellow and white are accents"
   },
   "crest": {
-    "status": "pending_user_design"
+    "concept": "dark-purple shield with a red stellar core, orbiting red-violet streaks, a small gold star and white SAG lettering",
+    "status": "design_proposal_pending_visual_asset"
   },
   "kits": {
     "home": {
-      "status": "pending_user_design"
+      "base": "deep_purple",
+      "details": [
+        "red diagonal central slash",
+        "thin gold star accents",
+        "white numbers"
+      ],
+      "status": "design_proposal"
     },
     "away": {
-      "status": "pending_user_design"
+      "base": "white",
+      "details": [
+        "purple shoulders",
+        "red side gradient",
+        "gold crest details"
+      ],
+      "status": "design_proposal"
     },
     "alternate": {
-      "status": "pending_user_design"
+      "base": "red",
+      "details": [
+        "purple starfield texture",
+        "white numbering",
+        "gold trim"
+      ],
+      "status": "design_proposal"
     },
     "goalkeeper": {
-      "status": "pending_user_design"
+      "base": "gold",
+      "details": [
+        "deep-purple panels",
+        "red sleeve details"
+      ],
+      "status": "design_proposal"
     }
   },
   "stadium": {
-    "status": "pending_definition"
+    "name": "Estadio Sangre de Estrellas",
+    "capacity": null,
+    "capacity_status": "not_set",
+    "ownership": "unconfirmed",
+    "design": "night-match arena with a dark roof, red-violet lighting and a star-shaped central roof opening",
+    "status": "design_proposal"
   },
-  "visual_assets": {
-    "status": "not_created"
+  "supporters": {
+    "nickname": "La Órbita Roja",
+    "colors": [
+      "red",
+      "purple",
+      "yellow",
+      "white"
+    ],
+    "chants_and_flags": "provisional concepts; not recorded as owner-approved"
   },
-  "status": "identity_colors_confirmed_visual_identity_pending",
+  "roster": {
+    "target_size": 22,
+    "status": "incomplete_pending_verified_player_records",
+    "known_player_ids": [],
+    "remaining_slots": 22
+  },
   "updated": "2026-11-20"
 }
