@@ -52,5 +52,5 @@ func _kick_ball(force: float) -> void:
 		if match_controller.release_controlled_ball(direction, force, flight_spin):
 			return
 	if match_controller != null and match_controller.has_method("notify_ball_kicked"):
-		match_controller.notify_ball_kicked()
+		match_controller.notify_ball_kicked(0.18, str(get_meta("player_id", "")))
 	ball.apply_central_impulse(direction * force)

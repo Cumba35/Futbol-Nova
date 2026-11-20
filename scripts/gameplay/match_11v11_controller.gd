@@ -56,6 +56,8 @@ var _realism_profile: Dictionary = {}
 var _match_clock_state: Dictionary = {}
 var _home_team_id := "nova_home"
 var _away_team_id := "nova_away"
+var _controlled_player_id := ""
+var _last_touch_player_id := ""
 var _team_colors := {
 	"home": Color("#D92E3A"),
 	"away": Color("#E7E9EF")
@@ -209,12 +211,25 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 			player_data["player_data"] = record.duplicate(true) if record is Dictionary else {}
 	if not validate_lineups(home_lineup, away_lineup):
 		return {"ok": false, "error": "Las alineaciones 11 contra 11 no superaron la validación."}
+	var controlled_index := 9
+	var requested_controlled_id := str(match_settings.get("controlled_player_id", ""))
+	if not requested_controlled_id.is_empty():
+		controlled_index = -1
+		for index in range(home_lineup.size()):
+			if str(home_lineup[index].get("player_id", "")) == requested_controlled_id:
+				controlled_index = index
+				break
+		if controlled_index < 0:
+			return {"ok": false, "error": "El futbolista seleccionado para controlar no está en el once inicial."}
+	_controlled_player_id = str(home_lineup[controlled_index].get("player_id", ""))
+	_last_touch_player_id = ""
+	_player.set_meta("player_id", _controlled_player_id)
 	_home_team_id = home_team_id
 	_away_team_id = away_team_id
-	_player.global_position = home_lineup[9].position
+	_player.global_position = home_lineup[controlled_index].position
 	_player.rotation.y = 0.0
 	for index in range(home_lineup.size()):
-		if index == 9:
+		if index == controlled_index:
 			continue
 		_create_ai_actor(home_lineup[index])
 	for player_data in away_lineup:
@@ -224,7 +239,7 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 	_paused = false
 	_decision_clock = AI_DECISION_INTERVAL
 	match_started.emit(11, 11)
-	return {"ok": true, "home_players": 11, "away_players": 11, "controlled_player_id": home_lineup[9].player_id}
+	return {"ok": true, "home_players": 11, "away_players": 11, "controlled_player_id": _controlled_player_id}
 
 func stop_match() -> void:
 	_active = false
@@ -236,6 +251,8 @@ func stop_match() -> void:
 			node.queue_free()
 	_actors.clear()
 	_match_clock_state.clear()
+	_controlled_player_id = ""
+	_last_touch_player_id = ""
 	_ball_possession_lockout = 0.0
 	_clear_ball_possession()
 	if is_instance_valid(_player):
@@ -368,15 +385,19 @@ func is_match_active() -> bool:
 func has_controlled_possession() -> bool:
 	return _possession_is_controlled and is_instance_valid(_possession_owner)
 
-func notify_ball_kicked(lockout_seconds: float = 0.18) -> void:
+func notify_ball_kicked(lockout_seconds: float = 0.18, player_id: String = "") -> void:
 	_ball_possession_lockout = maxf(_ball_possession_lockout, clampf(lockout_seconds, 0.0, 0.5))
+	_last_touch_player_id = player_id if not player_id.is_empty() else _controlled_player_id
+
+func get_last_touch_player_id() -> String:
+	return _last_touch_player_id
 
 func release_controlled_ball(direction: Vector3, power: float = 7.0, spin: Vector3 = Vector3.ZERO) -> bool:
 	if not has_controlled_possession() or not is_instance_valid(_ball):
 		return false
 	if direction.length_squared() < 0.001 or not direction.is_finite() or not spin.is_finite() or not is_finite(power):
 		return false
-	notify_ball_kicked()
+	notify_ball_kicked(0.18, _controlled_player_id)
 	_clear_ball_possession()
 	_ball_flight_spin = spin.limit_length(BALL_FLIGHT_MODEL.MAX_SPIN)
 	_ball.apply_central_impulse(direction.normalized() * clampf(power, 1.0, 14.0))
@@ -400,6 +421,7 @@ func get_match_summary() -> Dictionary:
 		"ends_swapped": _ends_swapped,
 		"home_team_id": _home_team_id,
 		"away_team_id": _away_team_id,
+		"controlled_player_id": _controlled_player_id,
 		"match_phase": str(_match_clock_state.get("phase", "not_started")),
 		"clock_remaining_seconds": MATCH_CLOCK_STATE.get_remaining_seconds(_match_clock_state) if not _match_clock_state.is_empty() else 0.0
 	}
@@ -600,13 +622,13 @@ func _create_ai_actor(player_data: Dictionary) -> void:
 	shorts.position.y = 0.48
 	shorts.material_override = _make_material(Color("#18202B") if is_home else Color("#253A68"))
 	actor.add_child(shorts)
-	add_child(actor)
-	# The goalkeeper uses an animatable physics body because its tactical actor
-	# moves every physics tick. This keeps collision motion synchronized instead
-	# of teleporting a StaticBody3D. Field players remain collider-free on mobile.
+	# Build the complete goalkeeper collider before adding the actor to the
+	# active scene tree. This guarantees the physics server sees the capsule
+	# on its first registration frame.
 	if str(player_data.role) == "GK":
 		var goalkeeper_body := AnimatableBody3D.new()
 		goalkeeper_body.name = "GoalkeeperCollision"
+		goalkeeper_body.sync_to_physics = true
 		goalkeeper_body.collision_layer = 1
 		goalkeeper_body.collision_mask = 1
 		var goalkeeper_material := PhysicsMaterial.new()
@@ -614,13 +636,16 @@ func _create_ai_actor(player_data: Dictionary) -> void:
 		goalkeeper_material.friction = 0.18
 		goalkeeper_body.physics_material_override = goalkeeper_material
 		var goalkeeper_shape := CollisionShape3D.new()
+		goalkeeper_shape.name = "CollisionShape3D"
 		var goalkeeper_capsule := CapsuleShape3D.new()
 		goalkeeper_capsule.radius = 0.42
 		goalkeeper_capsule.height = 1.85
 		goalkeeper_shape.shape = goalkeeper_capsule
 		goalkeeper_shape.position.y = 0.92
+		goalkeeper_shape.disabled = false
 		goalkeeper_body.add_child(goalkeeper_shape)
 		actor.add_child(goalkeeper_body)
+	add_child(actor)
 	_actors.append({
 		"node": actor,
 		"player_id": str(player_data.player_id),

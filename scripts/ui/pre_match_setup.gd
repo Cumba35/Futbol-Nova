@@ -25,8 +25,8 @@ const STARTING_POSITION_PRIORITY := [
 ]
 
 static func get_default_team_indices(team_ids: Array[String]) -> Dictionary:
-	var home_index := team_ids.find("FN-ESP-REAL-MADRID")
-	var away_index := team_ids.find("FN-ESP-BARCELONA")
+	var home_index := team_ids.find("FN-NOVA-C35")
+	var away_index := team_ids.find("FN-NOVA-RDA")
 	if home_index < 0 and not team_ids.is_empty():
 		home_index = 0
 	if away_index < 0 or away_index == home_index:
@@ -357,26 +357,33 @@ func _load_eligible_teams() -> void:
 	var registry: Variant = _get_football_registry()
 	if registry == null:
 		_summary.text = "El catálogo de clubes no está disponible. No se puede iniciar el amistoso."
+		_start_button.disabled = true
 		return
-
 	var ids: Array = registry.teams_by_id.keys()
 	ids.sort()
+	var ordered_ids: Array[String] = []
+	for preferred_id in ["FN-NOVA-C35", "FN-NOVA-RDA"]:
+		if registry.teams_by_id.has(preferred_id):
+			ordered_ids.append(preferred_id)
 	for raw_id in ids:
 		var team_id := str(raw_id)
+		if not ordered_ids.has(team_id):
+			ordered_ids.append(team_id)
+	for team_id in ordered_ids:
 		var team: Dictionary = registry.teams_by_id[team_id]
 		var roster: Array = _get_combined_team_roster(team_id)
-		if roster.is_empty():
+		if roster.size() < 22:
 			continue
 		var display_name := str(team.get("name", team.get("short_name", team_id))).strip_edges()
 		if display_name.is_empty():
 			display_name = team_id
-		_home_teams.add_item(display_name)
-		_away_teams.add_item(display_name)
+		var roster_note := " • plantilla %d/22" % roster.size()
+		_home_teams.add_item(display_name + roster_note)
+		_away_teams.add_item(display_name + roster_note)
 		var item_index := _home_teams.item_count - 1
 		_home_teams.set_item_metadata(item_index, team_id)
 		_away_teams.set_item_metadata(item_index, team_id)
 		_team_ids.append(team_id)
-
 	if _team_ids.size() >= 2:
 		var defaults := get_default_team_indices(_team_ids)
 		var home_index := int(defaults.get("home", -1))
@@ -389,7 +396,7 @@ func _load_eligible_teams() -> void:
 			_summary.text = "No se pudieron asignar dos clubes diferentes para el amistoso."
 			_start_button.disabled = true
 	else:
-		_summary.text = "Se necesitan al menos dos clubes con once jugadores válidos."
+		_summary.text = "Se necesitan al menos dos clubes con plantillas completas de 22 jugadores."
 		_start_button.disabled = true
 
 func _selected_team_id(selector: OptionButton) -> String:
@@ -405,15 +412,21 @@ func _refresh_validation() -> void:
 	valid = valid and registry != null
 	var home_roster: Array = _get_combined_team_roster(home_id) if valid else []
 	var away_roster: Array = _get_combined_team_roster(away_id) if valid else []
-	valid = valid and home_roster.size() >= 11 and away_roster.size() >= 11
+	var home_eleven: Array = []
+	var away_eleven: Array = []
+	if valid:
+		home_eleven = build_starting_eleven(home_roster)
+		away_eleven = build_starting_eleven(away_roster)
+	valid = valid and home_roster.size() >= 22 and away_roster.size() >= 22
+	valid = valid and home_eleven.size() == 11 and away_eleven.size() == 11
 	valid = valid and not _selected_stadium_id().is_empty()
 	_start_button.disabled = not valid
 	if home_id == away_id and not home_id.is_empty():
 		_summary.text = "El equipo local y el visitante deben ser diferentes."
 	elif valid:
-		_summary.text = "Plantillas verificadas: %d jugadores locales y %d visitantes. Alineaciones iniciales: 11 por equipo." % [home_roster.size(), away_roster.size()]
+		_summary.text = "Plantillas completas: 22 jugadores por club. Once inicial validado para ambos equipos."
 	else:
-		_summary.text = "No se pudo validar una de las plantillas. El partido permanece bloqueado."
+		_summary.text = "Cada club debe tener al menos 22 jugadores únicos y un once inicial válido. El partido permanece bloqueado."
 
 func _selected_stadium_id() -> String:
 	if _stadiums == null or _stadiums.item_count == 0 or _stadiums.selected < 0:
@@ -440,6 +453,11 @@ func _start_match() -> void:
 	var away_roster: Array = _get_combined_team_roster(away_id)
 	var home_player_ids := build_starting_eleven(home_roster)
 	var away_player_ids := build_starting_eleven(away_roster)
+	var controlled_player_id := str(home_player_ids[9]) if home_player_ids.size() > 9 else ""
+	if home_id == "FN-NOVA-C35" and home_player_ids.has("NOVA-PLAYER-0035"):
+		controlled_player_id = "NOVA-PLAYER-0035"
+	elif home_id == "FN-NOVA-RDA" and home_player_ids.has("NOVA-PLAYER-0037"):
+		controlled_player_id = "NOVA-PLAYER-0037"
 	var players_by_id: Dictionary = {}
 	for raw_player in home_roster + away_roster:
 		if raw_player is Dictionary:
@@ -458,6 +476,7 @@ func _start_match() -> void:
 		"away_team_name": str(away_team.get("name", away_id)),
 		"home_player_ids": home_player_ids,
 		"away_player_ids": away_player_ids,
+		"controlled_player_id": controlled_player_id,
 		"players_by_id": players_by_id,
 		"stadium_id": _selected_stadium_id(),
 		"half_length_minutes": _half_length.get_selected_id(),

@@ -1,0 +1,95 @@
+{
+  "id": "sangre-galactica",
+  "runtime_club_id": "FN-NOVA-SAG",
+  "name": "Sangre Galáctica",
+  "abbreviation": "SAG",
+  "sport": "football",
+  "fictional": true,
+  "identity_status": "provisional_completion_based_on_confirmed_colors",
+  "identity": {
+    "primary_colors": [
+      "red",
+      "purple"
+    ],
+    "secondary_colors": [
+      "yellow",
+      "white"
+    ],
+    "color_priority": "red and purple dominate; yellow and white are accents"
+  },
+  "crest": {
+    "concept": "dark-purple shield with a red stellar core, orbiting red-violet streaks, a small gold star and white SAG lettering",
+    "status": "design_proposal_pending_visual_asset"
+  },
+  "kits": {
+    "home": {
+      "base": "deep_purple",
+      "details": [
+        "red diagonal central slash",
+        "thin gold star accents",
+        "white numbers"
+      ],
+      "status": "design_proposal"
+    },
+    "away": {
+      "base": "white",
+      "details": [
+        "purple shoulders",
+        "red side gradient",
+        "gold crest details"
+      ],
+      "status": "design_proposal"
+    },
+    "alternate": {
+      "base": "red",
+      "details": [
+        "purple starfield texture",
+        "white numbering",
+        "gold trim"
+      ],
+      "status": "design_proposal"
+    },
+    "goalkeeper": {
+      "base": "gold",
+      "details": [
+        "deep-purple panels",
+        "red sleeve details"
+      ],
+      "status": "design_proposal"
+    }
+  },
+  "stadium": {
+    "name": "Estadio Sangre de Estrellas",
+    "capacity": 105000,
+    "capacity_status": "owner_specified_105000",
+    "ownership": "unconfirmed",
+    "design": "night-match arena with a dark roof, red-violet lighting and a star-shaped central roof opening",
+    "status": "design_specification",
+    "id": "sangre_galactica",
+    "club_id": "FN-NOVA-SAG",
+    "seating": "#4A155D",
+    "accent": "#D7193F",
+    "roof": "#260B36",
+    "secondary_accent": "#F4C542",
+    "tertiary_accent": "#FFFFFF",
+    "kit_palette_status": "matched_to_confirmed_home_kit_proposal",
+    "description": "Gradas moradas, acentos rojos, cubierta púrpura oscura y detalles amarillos y blancos."
+  },
+  "supporters": {
+    "nickname": "La Órbita Roja",
+    "colors": [
+      "red",
+      "purple",
+      "yellow",
+      "white"
+    ],
+    "chants_and_flags": "provisional concepts; not recorded as owner-approved"
+  },
+  "roster": {
+    "target_size": 22,
+    "status": "incomplete_pending_verified_player_records",
+    "known_player_ids": [],
+    "remaining_slots": 22
+  },
+  "updated": "2026-11-20"
+}

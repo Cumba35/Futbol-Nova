@@ -15,6 +15,7 @@ const CUBA_ROSTER_IMPORTER = preload("res://scripts/data/cuba_roster_importer.gd
 const USA_LEAGUE_IMPORTER = preload("res://scripts/data/usa_league_importer.gd")
 const BASE_LEAGUE_IMPORTER = preload("res://scripts/data/base_league_importer.gd")
 const BASE_ROSTER_IMPORTER = preload("res://scripts/data/base_league_roster_importer.gd")
+const ORIGINAL_CLUB_IMPORTER = preload("res://scripts/data/original_club_importer.gd")
 const SCHEDULER = preload("res://scripts/simulation/round_robin_scheduler.gd")
 const PRE_MATCH_SETUP = preload("res://scripts/ui/pre_match_setup.gd")
 const STANDINGS = preload("res://scripts/simulation/league_standings.gd")
@@ -51,6 +52,7 @@ var first_division_roster_summary: Dictionary = {}
 var usa_import_summary: Dictionary = {}
 var base_league_import_summary: Dictionary = {}
 var base_roster_import_summary: Dictionary = {}
+var original_club_import_summary: Dictionary = {}
 var global_import_summary: Dictionary = {}
 var downloaded_import_summary: Dictionary = {}
 var downloaded_national_summary: Dictionary = {}
@@ -110,6 +112,11 @@ func initialize_catalog() -> bool:
 		initialization_failed = true
 		for error in base_roster_import_summary.get("errors", []):
 			initialization_errors.append("Plantillas base guardadas: " + str(error))
+	original_club_import_summary = ORIGINAL_CLUB_IMPORTER.import_into_registry(registry)
+	if not bool(original_club_import_summary.get("ok", false)):
+		initialization_failed = true
+		for error in original_club_import_summary.get("errors", []):
+			initialization_errors.append("Clubes originales: " + str(error))
 	if not registry.validate_team_rosters(22):
 		initialization_failed = true
 		for error in registry.last_errors:
@@ -120,12 +127,12 @@ func initialize_catalog() -> bool:
 		if team_roster.size() != 22 or starting_eleven.size() != 11:
 			initialization_failed = true
 			initialization_errors.append("Club no apto para jugar: %s (plantilla %d/22, once inicial %d/11)." % [str(team_id), team_roster.size(), starting_eleven.size()])
-	if registry.teams_by_id.size() != 725:
+	if registry.teams_by_id.size() != 727:
 		initialization_failed = true
-		initialization_errors.append("Se esperaban 725 clubes base; encontrados " + str(registry.teams_by_id.size()))
-	if registry.players_by_id.size() != 15950:
+		initialization_errors.append("Se esperaban 727 clubes (725 base + 2 originales); encontrados " + str(registry.teams_by_id.size()))
+	if registry.players_by_id.size() != 15994:
 		initialization_failed = true
-		initialization_errors.append("Se esperaban 15.950 perfiles de jugadores base; encontrados " + str(registry.players_by_id.size()))
+		initialization_errors.append("Se esperaban 15.994 perfiles (15.950 base + 44 originales); encontrados " + str(registry.players_by_id.size()))
 	var installed_packages: Dictionary = ContentPackages.get_installed_packages()
 	downloaded_import_summary = DOWNLOADED_LEAGUE_IMPORTER.import_installed_packages(registry, installed_packages)
 	downloaded_national_summary = DOWNLOADED_NATIONAL_IMPORTER.load_installed_packages(installed_packages)
@@ -238,6 +245,9 @@ func get_catalog_summary() -> Dictionary:
 		"first_division_players_imported": int(first_division_roster_summary.get("players_added", 0)),
 		"first_division_teams_loaded": int(first_division_roster_summary.get("teams_completed", 0)),
 		"roster_import_ok": bool(roster_import_summary.get("ok", false)),
+		"original_clubs_import_ok": bool(original_club_import_summary.get("ok", false)),
+		"original_clubs_added": int(original_club_import_summary.get("teams_added", 0)),
+		"original_players_added": int(original_club_import_summary.get("players_added", 0)),
 		"global_import_ok": bool(global_import_summary.get("ok", false)),
 		"global_clubs_added": int(global_import_summary.get("clubs_added", 0)),
 		"global_players_added": int(global_import_summary.get("players_added", 0)),

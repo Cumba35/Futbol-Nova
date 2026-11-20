@@ -78,8 +78,17 @@ func _run_tests() -> void:
 		failures.append("El portero no tiene un cuerpo físico animable sincronizado con su movimiento.")
 	else:
 		var keeper_shape_node = keeper_collision.get_node_or_null("CollisionShape3D")
-		if not (keeper_shape_node is CollisionShape3D) or not (keeper_shape_node.shape is CapsuleShape3D):
-			failures.append("La colisión física del portero no utiliza una cápsula válida.")
+		if not (keeper_shape_node is CollisionShape3D):
+			var shape_node_class := keeper_shape_node.get_class() if keeper_shape_node != null else "null"
+			failures.append("El cuerpo físico del portero no contiene CollisionShape3D (nodo=%s, hijos=%s)." % [shape_node_class, str(keeper_collision.get_children().map(func(child): return child.name))])
+		elif keeper_shape_node.shape == null:
+			failures.append("La colisión física del portero existe, pero no tiene una forma asignada.")
+		elif not (keeper_shape_node.shape is CapsuleShape3D):
+			failures.append("La colisión física del portero debe ser CapsuleShape3D; se encontró %s." % keeper_shape_node.shape.get_class())
+		else:
+			var capsule: CapsuleShape3D = keeper_shape_node.shape
+			if capsule.radius < 0.30 or capsule.height < 1.50:
+				failures.append("La cápsula del portero tiene dimensiones demasiado pequeñas para bloquear el balón.")
 		if not keeper_collision.sync_to_physics:
 			failures.append("La colisión animable del portero no sincroniza sus transformaciones con la física.")
 
