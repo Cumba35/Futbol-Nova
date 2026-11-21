@@ -395,7 +395,10 @@ func has_controlled_possession() -> bool:
 
 func notify_ball_kicked(lockout_seconds: float = 0.18, player_id: String = "") -> void:
 	_ball_possession_lockout = maxf(_ball_possession_lockout, clampf(lockout_seconds, 0.0, 0.5))
-	_last_touch_player_id = player_id if not player_id.is_empty() else _controlled_player_id
+	# Never attribute an AI action to the human-controlled player. Callers that
+	# know the kicker must provide its real ID; an omitted ID preserves last touch.
+	if not player_id.is_empty():
+		_last_touch_player_id = player_id
 
 func get_last_touch_player_id() -> String:
 	return _last_touch_player_id
@@ -785,7 +788,7 @@ func _try_ai_ball_action(actor_index: int, actor_data: Dictionary) -> void:
 			return
 		# Atajada/despeje básico: el portero desvía hacia una zona lateral y segura.
 		var clear_direction := goalkeeper_clear_direction(home_team, _ball.global_position.x, _ends_swapped)
-		notify_ball_kicked()
+		notify_ball_kicked(0.18, str(actor_data.get("player_id", "")))
 		_clear_ball_possession()
 		apply_ai_kick(_ball, clear_direction, 10.5)
 		actor_data.kick_cooldown = 1.8
@@ -799,7 +802,7 @@ func _try_ai_ball_action(actor_index: int, actor_data: Dictionary) -> void:
 		var shot_rating := float(attributes.get("shot", attributes.get("fin", 60)))
 		var shot_force := clampf(10.5 + shot_rating * 0.045, 11.0, 15.0)
 		var shot_direction := ai_shot_direction(_ball.global_position, home_team, _ends_swapped)
-		notify_ball_kicked()
+		notify_ball_kicked(0.18, str(actor_data.get("player_id", "")))
 		_clear_ball_possession()
 		apply_ai_kick(_ball, shot_direction, shot_force)
 		actor_data.kick_cooldown = 1.65
@@ -818,7 +821,7 @@ func _try_ai_ball_action(actor_index: int, actor_data: Dictionary) -> void:
 		# Sin línea de pase clara: progresión/ despeje hacia campo rival.
 		impulse_direction = Vector3(-_ball.global_position.x * 0.035, 0.10, attack_sign).normalized()
 		force = 8.8 if attacking_third else 4.6
-	notify_ball_kicked()
+	notify_ball_kicked(0.18, str(actor_data.get("player_id", "")))
 	_clear_ball_possession()
 	apply_ai_kick(_ball, impulse_direction, force)
 	actor_data.kick_cooldown = 1.25
