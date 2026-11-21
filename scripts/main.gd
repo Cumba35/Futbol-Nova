@@ -767,10 +767,10 @@ func _switch_to_next_home_player() -> Dictionary:
 	controlled_player_id = str(result.get("player_id", ""))
 	controlled_player_display_name = str(result.get("display_name", controlled_player_id))
 	if player != null:
-		if not player.skill_action_requested.is_connected(_on_player_skill_action_requested):
-			player.skill_action_requested.connect(_on_player_skill_action_requested)
-		if not player.pressure_action_requested.is_connected(_on_player_pressure_action_requested):
-			player.pressure_action_requested.connect(_on_player_pressure_action_requested)
+		if not player.is_connected("skill_action_requested", _on_player_skill_action_requested):
+			player.connect("skill_action_requested", _on_player_skill_action_requested)
+		if not player.is_connected("pressure_action_requested", _on_player_pressure_action_requested):
+			player.connect("pressure_action_requested", _on_player_pressure_action_requested)
 	if gesture_hint_label != null:
 		gesture_hint_label.text = "Ahora controlas a %s · %s" % [controlled_player_display_name, controlled_player_id]
 	return result
