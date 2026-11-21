@@ -7,10 +7,10 @@ const MatchClockRules = preload("res://scripts/gameplay/match_clock_rules.gd")
 static func create_state(settings: Dictionary = {}) -> Dictionary:
 	var half_minutes := int(settings.get("half_length_minutes", MatchClockRules.DEFAULT_HALF_LENGTH_MINUTES))
 	if not MatchClockRules.is_valid_half_length(half_minutes):
-		half_minutes = 5
+		half_minutes = MatchClockRules.DEFAULT_HALF_LENGTH_MINUTES
 	var clock_mode := str(settings.get("clock_mode", MatchClockRules.DEFAULT_CLOCK_MODE))
 	if not [MatchClockRules.CLOCK_STOPPED, MatchClockRules.CLOCK_CONTINUOUS].has(clock_mode):
-		clock_mode = MatchClockRules.CLOCK_CONTINUOUS
+		clock_mode = MatchClockRules.DEFAULT_CLOCK_MODE
 	var state := {
 		"active": true,
 		"phase": "first_half",
@@ -49,7 +49,7 @@ static func tick(state: Dictionary, delta: float) -> Dictionary:
 	if not bool(updated.get("added_time_decided", false)) and elapsed >= duration:
 		var added := MatchClockRules.calculate_added_time_seconds(
 			str(updated.get("clock_mode", MatchClockRules.CLOCK_CONTINUOUS)),
-			int(updated.get("half_length_minutes", 5)),
+			int(updated.get("half_length_minutes", MatchClockRules.DEFAULT_HALF_LENGTH_MINUTES)),
 			float(updated.get("lost_seconds", 0.0)),
 			int(updated.get("period_index", 0))
 		)
