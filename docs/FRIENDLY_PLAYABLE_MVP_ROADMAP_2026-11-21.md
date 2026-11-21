@@ -182,3 +182,10 @@ Esta actualización prevalece sobre los estados de workflows anteriores anotados
 - Se corrigieron en `tests/test_shared_foundation.gd` expectativas obsoletas del catálogo (727 equipos, 15.994 jugadores y 727 plantillas completas) y se amplió el diagnóstico para exponer `initialization_errors` y el resumen completo si el catálogo sigue sin inicializar.
 - Cambio guardado y releído en la rama de trabajo; espejo actualizado y comparado byte por byte en Nova Workspace. Pendiente ejecutar CI sobre este commit y corregir el error real de inicialización si persiste.
 - No se fusiona PR ni se publica APK hasta obtener CI verde y validar el artefacto.
+
+
+## Corrección de ciclo de vida de prueba — 2026-11-21
+- La ejecución 44913399293 confirmó que la prueba de `test_shared_foundation.gd` consultaba el servicio durante `SceneTree._initialize`, antes de que los nodos añadidos al árbol recibieran `_ready`; por eso la base de datos aparecía cerrada y el resumen del catálogo vacío, con `initialization_errors` vacío.
+- La prueba ahora crea una base de datos aislada por ejecución, abre explícitamente la base de datos, inyecta dependencias y llama a `initialize_catalog()` de forma explícita, sin depender de callbacks `_ready` diferidos. Al finalizar libera nodos y archivos temporales.
+- Se guardó el cambio en la rama de trabajo y se verificó por relectura; espejo Nova Workspace sincronizado y comparado exactamente.
+- Pendiente: nueva CI con este cambio; no dar por aprobada la regresión ni APK hasta que el workflow termine sin fallos.
