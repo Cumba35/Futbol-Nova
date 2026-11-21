@@ -214,3 +214,27 @@ Los reinicios ya se colocan en el campo y asignan el equipo correcto, pero aún 
 - Los archivos de código y prueba se releyeron desde ambas ramas. Los SHA de contenido coinciden exactamente entre distribución y Workspace: main `a0df194a3a02d8fba38d1bbaf750c18b5acbeab8`; prueba `8899ef1667b5a29fc157152afc11f678aa3e9280`.
 - Validación CI: pendiente/no confirmada. La consulta de estados del commit no devolvió checks; no se afirma que Godot haya ejecutado la prueba ni que el APK de esta rama esté validado.
 - No se fusionó ninguna rama ni se publicó una versión final.
+
+
+
+## Requisito confirmado: modalidad de control en amistosos — 21-11-2026
+
+**Regla de producto obligatoria para los partidos amistosos:**
+
+1. La modalidad predeterminada controla a los **11 jugadores del equipo del usuario**. El usuario puede cambiar cuál futbolista controla durante el partido; los otros diez siguen participando con la IA mientras no estén seleccionados.
+2. En los **ajustes del partido**, antes de iniciar el amistoso, debe existir una opción explícita para elegir **«Controlar a los 11 jugadores»** o **«Controlar un solo jugador»**.
+3. «Controlar a los 11 jugadores» debe venir seleccionado por defecto en cada nuevo amistoso, salvo que las reglas de configuración ya existentes definan una preferencia persistente del usuario; no cambiar silenciosamente el valor predeterminado.
+4. «Controlar un solo jugador» limita el control directo al futbolista seleccionado para ese partido. Los otros diez compañeros y los once rivales continúan bajo la IA; el usuario no debe poder cambiar el control directo a otro compañero durante esa modalidad.
+5. La elección pertenece a los ajustes del partido y debe respetarse durante todo el encuentro, incluidas pausas, goles, reinicios y cambios de período. No debe alterar las plantillas, posiciones, atributos ni la IA de los equipos.
+6. En la prueba de referencia, mantener Nova C35 contra FC Río de Argenti y Anier como jugador seleccionable/controlable.
+
+**Criterios de aceptación y pruebas pendientes:**
+
+- Un amistoso nuevo arranca en «Controlar a los 11 jugadores» sin exigir que el usuario cambie ajustes.
+- En esa modalidad, el control/selección de futbolista permite jugar con los once compañeros durante el mismo partido.
+- Si se selecciona «Controlar un solo jugador», únicamente el futbolista elegido recibe control directo; los demás jugadores siguen moviéndose y jugando mediante IA.
+- La modalidad elegida se conserva después de goles, pausas, reinicios y cambio de período.
+- La opción aparece en los ajustes previos al partido y queda visible en el resumen/configuración del amistoso.
+- Añadir pruebas automatizadas para el valor predeterminado, ambas modalidades, bloqueo del cambio de jugador en modo individual y persistencia durante los estados del partido.
+
+**Estado:** requisito confirmado y registrado para la siguiente fase; todavía no se declara implementado ni probado. Debe implementarse respetando las reglas y controles ya existentes, sin reemplazar el modo 11 jugadores como predeterminado.
