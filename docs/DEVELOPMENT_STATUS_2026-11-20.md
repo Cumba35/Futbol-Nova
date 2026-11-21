@@ -189,3 +189,11 @@ La primera ejecución que probó la cápsula falló en la prueba de posicionamie
 - Ajuste preventivo adicional del test de configuración: el fixture de IDs de clubes ahora también declara explícitamente `Array[String]`, acorde con la firma tipada de `get_default_team_indices()`.
 - Run 491 `44841498185` fue cancelado al entrar un commit consecutivo; no ejecutó validación completa. Run 492 [`44841677455`](https://github.com/Cumba35/Futbol-Nova/actions/runs/44841677455) está pendiente sobre el commit `a9cade2b1f175b318c7092caaa4de30fc29d0131`, que contiene ambas anotaciones de tipo.
 - Run 490 sigue ejecutándose sobre un snapshot anterior al arreglo de parseo; no se usará como prueba del test corregido.
+
+
+### Resultado de run 490 y validación del fixture corregido — 21-11-2026
+
+- Run 490 `44841303999` terminó con fallo únicamente en `Core test — friendly match configuration defaults`; su snapshot contenía el fixture sin tipo explícito. Las pruebas previas de input, táctiles, Game Hub, balón, fundamento 11v11 y validación atómica pasaron.
+- El test se corrigió en el commit `a9cade2b1f175b318c7092caaa4de30fc29d0131`: tanto la lista de posiciones como los IDs de equipos tienen tipos explícitos compatibles con las firmas GDScript.
+- Run 492 [`44841677455`](https://github.com/Cumba35/Futbol-Nova/actions/runs/44841677455) está ejecutándose sobre ese commit. Al último chequeo había completado checkout, subida del ZIP de código fuente y Java 17; estaba configurando el Android SDK. Aún no se había ejecutado el nuevo test ni completado el resto de pruebas.
+- No se considera aprobada la configuración hasta que run 492 termine con éxito y el APK se genere/suba. Si vuelve a fallar, se corregirá el siguiente error observado.
