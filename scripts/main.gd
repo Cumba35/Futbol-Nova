@@ -101,6 +101,7 @@ func _setup_input() -> void:
 	_bind_key("pass_ball", KEY_F)
 	_bind_key("shoot_ball", KEY_SPACE)
 	_bind_key("pressure_action", KEY_G)
+	_bind_key("switch_player", KEY_TAB)
 	if not InputMap.has_action("skill_action"):
 		InputMap.add_action("skill_action")
 	if not InputMap.has_action("pressure_action"):
@@ -753,6 +754,27 @@ func _on_controller_disconnected(device_id: int) -> void:
 		game_hub.set_controller_status(controller_module.get_status())
 
 
+
+func _switch_to_next_home_player() -> Dictionary:
+	if match_11v11_controller == null or not match_11v11_controller.is_match_active():
+		return {"ok": false, "error": "Inicia un amistoso para cambiar de jugador."}
+	var result: Dictionary = match_11v11_controller.switch_to_next_home_player()
+	if not bool(result.get("ok", false)):
+		if gesture_hint_label != null:
+			gesture_hint_label.text = str(result.get("error", "No se pudo cambiar de jugador."))
+		return result
+	player = result.get("player") as CharacterBody3D
+	controlled_player_id = str(result.get("player_id", ""))
+	controlled_player_display_name = str(result.get("display_name", controlled_player_id))
+	if player != null:
+		if not player.skill_action_requested.is_connected(_on_player_skill_action_requested):
+			player.skill_action_requested.connect(_on_player_skill_action_requested)
+		if not player.pressure_action_requested.is_connected(_on_player_pressure_action_requested):
+			player.pressure_action_requested.connect(_on_player_pressure_action_requested)
+	if gesture_hint_label != null:
+		gesture_hint_label.text = "Ahora controlas a %s · %s" % [controlled_player_display_name, controlled_player_id]
+	return result
+
 func _on_player_skill_action_requested() -> void:
 	if player != null and player.has_method("play_skill_animation"):
 		player.call("play_skill_animation")
@@ -962,7 +984,10 @@ func _match_phase_label(phase: String) -> String:
 		_:
 			return "PARTIDO"
 
+
 func _process(delta: float) -> void:
+	if match_11v11_controller != null and match_11v11_controller.is_match_active() and Input.is_action_just_pressed("switch_player"):
+		_switch_to_next_home_player()
 	if match_11v11_controller == null or not match_11v11_controller.is_match_active() or match_camera == null or ball == null:
 		return
 	var target := ball.global_position
