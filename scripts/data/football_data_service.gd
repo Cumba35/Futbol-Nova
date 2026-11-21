@@ -441,9 +441,18 @@ func build_copa_calendar(season_id: String = "season_1") -> Dictionary:
 	# must be built exclusively from the 52 clubs in Cuba's three divisions.
 	for team_id in registry.teams_by_id:
 		var team: Dictionary = registry.teams_by_id[team_id]
-		if str(team.get("country_id", team.get("country_code", ""))) != "CUB":
+		var team_id_text := str(team_id)
+		var country_id := str(team.get("country_id", ""))
+		if country_id.is_empty():
+			country_id = str(team.get("country_code", ""))
+		# Cuban importer IDs (CUB-S1/S2/S3-...) are the canonical fallback;
+		# some imported records may carry an empty country field.
+		if not team_id_text.begins_with("CUB-") and country_id != "CUB":
 			continue
-		records.append({"id": str(team_id), "division_level": int(team.get("division_level", team.get("competition_level", 99)))})
+		var division_level := int(team.get("division_level", 0))
+		if division_level <= 0:
+			division_level = int(team.get("competition_level", 99))
+		records.append({"id": team_id_text, "division_level": division_level})
 	if records.size() != 52:
 		return {
 			"ok": false,
