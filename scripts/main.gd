@@ -53,6 +53,7 @@ var current_training_mode_id := ""
 var _previous_friendly_ball_position := Vector3.ZERO
 var _has_previous_friendly_ball_position := false
 var _friendly_restart_cooldown := 0.0
+var match_overrides_cache: Dictionary = {}
 
 func _ready() -> void:
 	var loading_screen := LOADING_SCREEN.new()
@@ -335,44 +336,81 @@ func _get_controlled_player_scene_for_home_team() -> PackedScene:
 		"NOVA-PLAYER-0036":
 			controlled_player_display_name = "Máximo Padilla"
 			return MAXIMO_PLAYER_SCENE
-		_:
+		"NOVA-PLAYER-0035":
 			controlled_player_display_name = "Anier Cumbá"
 			return ANIER_PLAYER_SCENE
+		_:
+			return null
 
-func _create_player() -> void:
-	var selected_player_scene := _get_controlled_player_scene_for_home_team()
-	var selected_player := selected_player_scene.instantiate() as CharacterBody3D
-	if selected_player == null:
-		push_error("No se pudo instanciar la escena 3D del jugador seleccionado.")
-		return
-	selected_player.name = "ControlledPlayer"
-	selected_player.position = Vector3(0, 0.0, 8.0)
-	selected_player.connect("skill_action_requested", _on_player_skill_action_requested)
-	selected_player.connect("pressure_action_requested", _on_player_pressure_action_requested)
-	player = selected_player
-	add_child(selected_player)
+func _create_generic_controlled_player() -> CharacterBody3D:
+	var generic := CharacterBody3D.new()
+	generic.name = "ControlledPlayer"
+	generic.set_script(load("res://scripts/player_controller.gd"))
+	var collision := CollisionShape3D.new()
+	var capsule := CapsuleShape3D.new()
+	capsule.radius = 0.24
+	capsule.height = 1.75
+	collision.shape = capsule
+	collision.position.y = 0.875
+	generic.add_child(collision)
+	var body := MeshInstance3D.new()
+	var body_mesh := CapsuleMesh.new()
+	body_mesh.radius = 0.24
+	body_mesh.height = 1.75
+	body.mesh = body_mesh
+	body.position.y = 0.875
+	var kit := StandardMaterial3D.new()
+	kit.albedo_color = Color("#D92E3A")
+	body.material_override = kit
+	generic.add_child(body)
+	var head := MeshInstance3D.new()
+	var head_mesh := SphereMesh.new()
+	head_mesh.radius = 0.15
+	head_mesh.height = 0.30
+	head.mesh = head_mesh
+	head.position.y = 1.62
+	var skin := StandardMaterial3D.new()
+	skin.albedo_color = Color("#805039")
+	head.material_override = skin
+	generic.add_child(head)
+	var shorts := MeshInstance3D.new()
+	var shorts_mesh := BoxMesh.new()
+	shorts_mesh.size = Vector3(0.43, 0.22, 0.29)
+	shorts.mesh = shorts_mesh
+	shorts.position.y = 0.48
+	var shorts_material := StandardMaterial3D.new()
+	shorts_material.albedo_color = Color("#18202B")
+	shorts.material_override = shorts_material
+	generic.add_child(shorts)
+	return generic
 
 func _switch_controlled_player_for_selected_club() -> void:
 	var selected_scene := _get_controlled_player_scene_for_home_team()
-	var desired_instance := selected_scene.instantiate() as CharacterBody3D
-	if desired_instance == null:
-		push_error("No se pudo cargar el modelo 3D del futbolista seleccionado.")
+	var current_id := str(player.get_meta("player_id", "")) if player != null and player.has_meta("player_id") else ""
+	if current_id == controlled_player_id and is_instance_valid(player):
 		return
-	var desired_script = desired_instance.get_script()
-	desired_instance.free()
-	if player != null and player.get_script() == desired_script:
-		return
-	var old_position := player.global_position if player != null else Vector3(0, 0, 8)
-	if player != null:
-		player.queue_free()
-	var replacement := selected_scene.instantiate() as CharacterBody3D
+	var old_position := player.global_position if is_instance_valid(player) else Vector3(0, 0, 8)
+	var replacement: CharacterBody3D
+	if selected_scene != null:
+		replacement = selected_scene.instantiate() as CharacterBody3D
+	else:
+		replacement = _create_generic_controlled_player()
+		var football_data: Dictionary = {}
+		if pre_match_setup != null and match_overrides_cache is Dictionary:
+			football_data = match_overrides_cache.get("players_by_id", {}).get(controlled_player_id, {})
+		controlled_player_display_name = str(football_data.get("display_name", football_data.get("full_name", controlled_player_id)))
 	if replacement == null:
 		push_error("No se pudo instanciar el avatar del futbolista seleccionado.")
 		return
 	replacement.name = "ControlledPlayer"
 	replacement.position = old_position
-	replacement.connect("skill_action_requested", _on_player_skill_action_requested)
-	replacement.connect("pressure_action_requested", _on_player_pressure_action_requested)
+	replacement.set_meta("player_id", controlled_player_id)
+	if not replacement.is_connected("skill_action_requested", _on_player_skill_action_requested):
+		replacement.connect("skill_action_requested", _on_player_skill_action_requested)
+	if not replacement.is_connected("pressure_action_requested", _on_player_pressure_action_requested):
+		replacement.connect("pressure_action_requested", _on_player_pressure_action_requested)
+	if is_instance_valid(player):
+		player.queue_free()
 	player = replacement
 	add_child(replacement)
 
@@ -911,6 +949,7 @@ func _start_11v11_match(match_overrides: Dictionary = {}) -> void:
 	match_settings.merge(match_overrides, true)
 	# Seleccionar el modelo definitivo antes de entregar la referencia al motor.
 	# Si se reemplaza después, el controlador conserva un CharacterBody3D liberado.
+	match_overrides_cache = match_overrides.duplicate(true)
 	home_team_display_name = str(match_overrides.get("home_team_name", "Equipo local"))
 	away_team_display_name = str(match_overrides.get("away_team_name", "Equipo visitante"))
 	controlled_player_id = str(match_overrides.get("controlled_player_id", ""))
