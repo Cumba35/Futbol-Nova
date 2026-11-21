@@ -14,6 +14,7 @@ const TOUCH_CONTROLS = preload("res://scripts/input/touch_controls.gd")
 const LOADING_SCREEN = preload("res://scripts/ui/loading_screen.gd")
 const PRE_MATCH_SETUP = preload("res://scripts/ui/pre_match_setup.gd")
 const STADIUM_BUILDER = preload("res://scripts/stadiums/stadium_builder.gd")
+const FOOTBALLER_VISUAL_BUILDER = preload("res://scripts/visuals/footballer_visual_builder.gd")
 
 const FIELD_WIDTH := 68.0
 const FIELD_LENGTH := 105.0
@@ -375,35 +376,8 @@ func _create_generic_controlled_player() -> CharacterBody3D:
 	collision.shape = capsule
 	collision.position.y = 0.875
 	generic.add_child(collision)
-	var body := MeshInstance3D.new()
-	var body_mesh := CapsuleMesh.new()
-	body_mesh.radius = 0.24
-	body_mesh.height = 1.75
-	body.mesh = body_mesh
-	body.position.y = 0.875
-	var kit := StandardMaterial3D.new()
-	kit.albedo_color = Color("#D92E3A")
-	body.material_override = kit
-	generic.add_child(body)
-	var head := MeshInstance3D.new()
-	var head_mesh := SphereMesh.new()
-	head_mesh.radius = 0.15
-	head_mesh.height = 0.30
-	head.mesh = head_mesh
-	head.position.y = 1.62
-	var skin := StandardMaterial3D.new()
-	skin.albedo_color = Color("#805039")
-	head.material_override = skin
-	generic.add_child(head)
-	var shorts := MeshInstance3D.new()
-	var shorts_mesh := BoxMesh.new()
-	shorts_mesh.size = Vector3(0.43, 0.22, 0.29)
-	shorts.mesh = shorts_mesh
-	shorts.position.y = 0.48
-	var shorts_material := StandardMaterial3D.new()
-	shorts_material.albedo_color = Color("#18202B")
-	shorts.material_override = shorts_material
-	generic.add_child(shorts)
+	var player_visual := FOOTBALLER_VISUAL_BUILDER.create_visual({"player_id": controlled_player_id, "role": "CM"}, true)
+	generic.add_child(player_visual)
 	return generic
 
 func _switch_controlled_player_for_selected_club() -> void:
