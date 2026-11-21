@@ -28,7 +28,7 @@ func _run() -> void:
 
 	var glove_count := 0
 	for child in goalkeeper.get_children():
-		if child.name == "GoalkeeperGlove":
+		if str(child.name).ends_with("GoalkeeperGlove"):
 			glove_count += 1
 	if glove_count != 2:
 		failures.append("El portero no recibió sus dos guantes 3D.")
