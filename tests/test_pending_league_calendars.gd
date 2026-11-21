@@ -85,6 +85,7 @@ func _run() -> void:
 	if failures.is_empty():
 		print("PENDING LEAGUE CALENDARS: PASS — MLS, USL Championship, USL League One y Liga Profesional Argentina.")
 		quit(0)
+		return
 	for failure in failures:
 		push_error(failure)
 	quit(1)
