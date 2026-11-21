@@ -170,7 +170,7 @@ func initialize_catalog() -> bool:
 				if not saved_group.is_empty() and saved_group.get("fixtures", []) is Array and saved_group.get("standings", {}) is Dictionary:
 					fixtures_by_stage[str(group_id)] = saved_group.fixtures.duplicate(true)
 					standings_by_stage[str(group_id)] = saved_group.standings.duplicate(true)
-	var catalog_saved := _football_database.save_catalog_snapshot(registry.export_catalog_snapshot())
+	var catalog_saved: bool = bool(_football_database.save_catalog_snapshot(registry.export_catalog_snapshot()))
 	if not catalog_saved:
 		initialization_failed = true
 		initialization_errors.append("Base de datos: " + _football_database.last_error)
@@ -389,7 +389,7 @@ func apply_match_result(stage_id: String, result: Dictionary) -> bool:
 			standings_by_stage[stage_id] = standings_snapshot
 			fixtures_by_stage[stage_id] = fixtures_snapshot
 			return false
-	var committed := _football_database.commit_match_and_competition_state(stage_id, result_season_id, result, fixtures_by_stage[stage_id], standings_by_stage[stage_id])
+	var committed: bool = bool(_football_database.commit_match_and_competition_state(stage_id, result_season_id, result, fixtures_by_stage[stage_id], standings_by_stage[stage_id]))
 	if not committed:
 		registry.players_by_id = previous_players
 		if bool(statistics_result.get("ok", false)):
