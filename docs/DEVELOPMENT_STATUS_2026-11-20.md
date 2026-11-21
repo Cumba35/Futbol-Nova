@@ -150,3 +150,11 @@ La primera ejecución que probó la cápsula falló en la prueba de posicionamie
 - Se detectó un conflicto de distribución: los documentos de juego base establecen amistosos offline y módulos opcionales, pero `data/league_content_manifest.json` marca diez ligas como incluidas en el paquete base. Se dejó registrado sin cambiar el manifiesto automáticamente porque altera una decisión de distribución.
 - Se conservaron sin fusión las ramas con match-session/replay v3, estadísticas tácticas, carrera/progresión, logros y cosméticos; sus diferencias requieren integración controlada.
 - Pendiente: CI completa de esta rama, corrección de cualquier error de parseo detectado, sincronización en Nova Workspace y validación del APK/partido en Android.
+
+
+### Estado de CI de la auditoría de configuración — 20-11-2026
+
+- Run 482: [44840459560](https://github.com/Cumba35/Futbol-Nova/actions/runs/44840459560), commit `3e75dd8d6a1959f74f2b7d3bce86492db45ba8e1`. Sigue en curso. Ya pasaron exportación APK ARM64, validación de nombres/datos, controles de entrada y táctiles, Game Hub, física del balón, fundamento 11v11, inicio atómico, amistoso integrado, importación de clubes/Raymond y disparos IA. La prueba de posicionamiento de porteros estaba en curso al consultar; las pruebas posteriores y subida final del APK aún estaban pendientes.
+- Run 486: `44840509188`, commit `56a151471be058e687e8b99a2eea59e864f5ecb1`, cancelado al encolar una revisión posterior; no cuenta como aprobado.
+- Run 487: [44840858252](https://github.com/Cumba35/Futbol-Nova/actions/runs/44840858252), commit `7f295e73c5338b55bc7a2328988feb3bbc7e2c7c`, pendiente en cola. Incluye la centralización final de los defaults, el nuevo test `test_match_configuration_defaults.gd` y el workflow actualizado.
+- Ninguna de estas ejecuciones permite declarar validada la configuración nueva hasta que run 487 (o una ejecución posterior del mismo HEAD) termine correctamente. La APK no se declara validada hasta que se publique el artefacto y se instale en Android.
