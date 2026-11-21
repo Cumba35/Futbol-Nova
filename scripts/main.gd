@@ -342,6 +342,30 @@ func _get_controlled_player_scene_for_home_team() -> PackedScene:
 		_:
 			return null
 
+func _create_player() -> void:
+	# The initial avatar is only a safe scene placeholder. The friendly setup
+	# replaces it with the selected roster member before the match starts.
+	if controlled_player_id.is_empty():
+		controlled_player_id = "NOVA-PLAYER-0035"
+	var selected_scene := _get_controlled_player_scene_for_home_team()
+	var selected_player: CharacterBody3D
+	if selected_scene != null:
+		selected_player = selected_scene.instantiate() as CharacterBody3D
+	else:
+		selected_player = _create_generic_controlled_player()
+	if selected_player == null:
+		push_error("No se pudo instanciar el avatar 3D inicial.")
+		return
+	selected_player.name = "ControlledPlayer"
+	selected_player.position = Vector3(0.0, 0.0, 8.0)
+	selected_player.set_meta("player_id", controlled_player_id)
+	if selected_player.has_signal("skill_action_requested"):
+		selected_player.connect("skill_action_requested", _on_player_skill_action_requested)
+	if selected_player.has_signal("pressure_action_requested"):
+		selected_player.connect("pressure_action_requested", _on_player_pressure_action_requested)
+	player = selected_player
+	add_child(selected_player)
+
 func _create_generic_controlled_player() -> CharacterBody3D:
 	var generic := CharacterBody3D.new()
 	generic.name = "ControlledPlayer"
