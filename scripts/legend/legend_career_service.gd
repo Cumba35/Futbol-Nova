@@ -571,7 +571,7 @@ func load_career() -> bool:
 		var file := FileAccess.open(persistence_path, FileAccess.READ)
 		if file != null:
 			parsed = JSON.parse_string(file.get_as_text())
-	var football_database := get_node_or_null("/root/FootballDatabase") if sync_to_database else null
+	var football_database := _get_root_service("FootballDatabase") if sync_to_database else null
 	if not parsed is Dictionary and football_database != null:
 		var backup_record: Dictionary = football_database.get_career_record("legend_active")
 		if not backup_record.is_empty():
