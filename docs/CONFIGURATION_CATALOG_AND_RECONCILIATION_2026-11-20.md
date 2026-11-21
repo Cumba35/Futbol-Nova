@@ -523,7 +523,7 @@ La duración de 90 minutos es el reglamento de competición; el amistoso de prue
 ### Copa y Supercopa de Cuba
 
 - Copa: todos los clubes elegibles de Primera, Segunda y Tercera; eliminatorias a partido único salvo semifinales a doble partido; el club de división inferior recibe al superior; si son de la misma división, se sortea localía; final única en sede neutral.
-- Rondas previstas: preliminar si es necesaria, dieciseisavos si el cuadro lo requiere, treintaidosavos, octavos, cuartos, semifinales a doble partido y final.
+- Rondas previstas: preliminar si es necesaria, ronda de 64 equipos si el cuadro lo requiere, ronda de 32 equipos, ronda de 16 equipos, cuartos, semifinales a doble partido y final.
 - Empates: prórroga y penaltis en eliminatorias a partido único y final.
 - Los participantes de la Supercopa entran en la Copa en treintaidosavos si el tamaño del cuadro lo permite.
 - Sorteos tempranos por proximidad geográfica y después sorteo abierto.
