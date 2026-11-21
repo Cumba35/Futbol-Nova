@@ -57,8 +57,8 @@ func _run() -> void:
 	if not _check(player.shirt_number == 35): return
 	if not _check(player.team_role == "captain"): return
 	if not _check(player.preferred_foot == "right"): return
-	if not _check(player.club_name == "Real Madrid", "Anier's owner-confirmed current club is Real Madrid"): return
-	if not _check(player.club_id == "FN-ESP-REAL-MADRID", "Anier must retain the canonical Real Madrid club ID"): return
+	if not _check(player.club_name == "Nova C35", "Anier's current Fútbol Nova club must be Nova C35"): return
+	if not _check(player.club_id == "FN-NOVA-C35", "Anier must retain the canonical Nova C35 club ID"): return
 	if not _check(player.favorite_club == "Real Madrid", "The representative club keeps its real-world reference separate"): return
 	if not _check(player.overall == 92, "Anier's confirmed overall must be 92"): return
 	if not _check(player.potential == 97, "Anier potential must be 97"): return
