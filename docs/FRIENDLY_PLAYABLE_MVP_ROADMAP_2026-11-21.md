@@ -3,7 +3,7 @@
 **Fecha:** 2026-11-21  
 **Rama de trabajo:** `work/friendly-match-completion-2026-11-20`  
 **Partido de aceptación fijo:** Nova C35 vs FC Río de Argenti  
-**Jugador de prueba:** Anier Cumbá (`NOVA-PLAYER-0035`)  
+**Control:** equipo completo Nova C35; no existe futbolista principal ni protagonista fijo. Anier Cumbá (`NOVA-PLAYER-0035`) es un integrante normal de la plantilla.  
 **Motor:** Godot 4.4.1, GDScript, objetivo Android ARM64.
 
 ## Objetivo
@@ -15,16 +15,18 @@ Entregar primero un amistoso local completo que pueda iniciarse, jugarse y final
 | Subsistema | Lo que existe | Trabajo necesario antes de marcarlo completo |
 |---|---|---|
 | Inicio de amistoso | Selector de equipos, alineaciones 11v11 y validación de catálogo | Validar la sesión real de principio a fin en Android |
-| Control humano | Cambio manual entre los once jugadores locales, con ID y nodo visual conservados | Pendiente de validación Godot/CI y prueba táctil en Android; modo de un jugador y cambio asistido aún pendientes |
+| Control del equipo | Cambio manual entre los once jugadores locales, con ID y nodo visual conservados | El control no debe estar asociado permanentemente a Anier ni a otro futbolista; pendiente de validación Godot/CI y prueba táctil Android |
 | IA | Movimiento táctico, persecución del balón, pases, tiros y tackles básicos | Roles, apoyos, presión, decisiones de pase/tiro y comportamiento sin balón más robustos |
 | Porteros | Posicionamiento predictivo y `AnimatableBody3D` con cápsula | Reacción a disparos, desplazamiento lateral explosivo, blocaje/desvío, recuperación y estadísticas de atajadas |
 | Reglas | Reloj, goles, pausas, cambio de campo y algunos reinicios | Árbitro/estado de reinicios unificado, faltas, tiros libres, penaltis reglamentarios y límites de balón |
 | Estadísticas | `NovaPlayerStatisticsService` para carrera/temporada | Resumen exclusivo del amistoso; no escribir estadísticas de liga/carrera en amistosos de prueba |
 | Validación | Pruebas de importación, alineación, IA, portero y runtime | Prueba de control/cambio, atajadas reales, faltas/reinicios, resumen estadístico y ciclo completo en dispositivo |
 
-### Hallazgo crítico de control
+### Requisito de control de equipo (decisión del propietario — 2026-11-21)
 
-`NovaMatch11v11Controller.start_match()` crea un jugador humano y 21 actores IA. El modo de control de los once no está implementado todavía. La opción de un solo jugador debe conservar la selección fija (Anier por defecto cuando C35 es local). El modo de once debe permitir cambiar de futbolista sin duplicar nodos, perder la posesión, alterar el ID del último toque ni romper la IA del jugador que queda sin control.
+El amistoso se juega manejando al equipo completo. No hay futbolista principal, protagonista ni personaje fijo. Los once integrantes de Nova C35 tienen la misma importancia, incluido Anier Cumbá. El usuario puede tomar el control de cualquiera de los once y cambiarlo durante el partido; los otros diez continúan con IA. El jugador activo es solo el foco momentáneo de los controles, no un protagonista ni un rol permanente.
+
+`NovaMatch11v11Controller.start_match()` mantiene actualmente un actor humano y 21 actores IA, por lo que el cambio cíclico es una base para controlar al equipo. Sin embargo, el arranque actual y la prueba todavía fijan Anier como control inicial: eso contradice esta decisión y debe corregirse. Ningún flujo ni test puede exigir que Anier sea el jugador inicial, darle prioridad o tratarlo como personaje central. La selección inicial debe ser neutral/dinámica y todos los IDs locales deben poder controlarse.
 
 **Requisito de arquitectura:** no simular un cambio de jugador teletransportando el avatar de Anier y dejando su identidad visual asociada a otro ID. La identidad, el modelo, el estado de movimiento, la posesión y el ID de estadísticas deben cambiar de forma atómica. Si el modelo no puede intercambiarse correctamente, no habilitar la opción hasta resolverlo.
 
@@ -34,20 +36,20 @@ Entregar primero un amistoso local completo que pueda iniciarse, jugarse y final
 - [ ] Completar el workflow actual; registrar el resultado de cada prueba.
 - [ ] Corregir cualquier regresión con prueba que reproduzca el fallo.
 - [ ] Exportar APK ARM64 y comprobar instalación/arranque en Android.
-- [ ] Confirmar C35 local, RDA visitante y Anier seleccionado por defecto.
+- [ ] Confirmar C35 local, RDA visitante y selección neutral/dinámica del primer jugador controlado; Anier no debe ser obligatorio.
 - [ ] No fusionar PR #10 ni publicar APK sin autorización.
 
 ### P1 — Control de equipo (prioridad máxima)
-- [ ] Ajuste de amistoso: `Controlar los 11 jugadores` (predeterminado).
-- [ ] Ajuste alternativo: `Controlar un solo jugador`.
-- [x] En modo 11: cambio manual cíclico con botón táctil `CAMBIO` y tecla `TAB`.
+- [x] El amistoso se diseña para controlar al equipo completo; no hay modo de protagonista ni futbolista principal.
+- [ ] El arranque debe seleccionar el control inicial de forma neutral/dinámica, sin fijar Anier ni otro jugador como protagonista.
+- [x] Cambio manual cíclico por los once jugadores locales con botón táctil `CAMBIO` y tecla `TAB` (implementación inicial pendiente de validación).
 - [ ] Validar la promoción/reutilización de actores, animaciones y colisiones en Godot 4.4.1 y Android.
 - [ ] Cambio asistido opcional al defender, sin cambiar de forma inesperada al jugador cuando el usuario usa cambio manual.
 - [x] Mantener control humano solo en un futbolista a la vez; los otros diez vuelven a IA inmediatamente (implementación inicial pendiente de CI).
 - [ ] Conservar ID, dorsal, modelo/visual, atributos, stamina, posición y equipo al cambiar.
 - [ ] No permitir seleccionar jugadores del rival.
 - [ ] Probar cambio con balón, sin balón, durante pase, tiro, pausa, gol y reinicio.
-- [ ] Modo de un jugador: el jugador controlado nunca cambia automáticamente.
+- [ ] El cambio manual no debe alterar la identidad, la posesión ni las acciones pendientes del jugador activo; cualquier asistencia automática debe ser opcional y no convertir a un futbolista en protagonista.
 
 ### P2 — IA para los 21 no controlados
 - [ ] Roles de 4-3-3, líneas y distancias de apoyo.
@@ -118,3 +120,12 @@ La auditoría inicial confirmó que el cambio entre once no existía. Se ha aña
 - Commits de implementación: `f03952ca37066e81d64c75d7a67d9d5e16704cd0`, `ba7f37fa0a0983d56b2b2bf4ece424e785a4a64e`, `8f8fd368cc25c834a90bf38b32479f1fe1a66fda`, `63c9f298025caeb3c3bd8e7d95b602c201858129`, `1c4b4bce97e7ff8e5b0b7b5ab938112532de423a` y `1e768a3c0beb706ac89c3c0eaf22eae0eb8900f1`.
 - Los cuatro archivos de código/prueba afectados se espejaron en Nova Workspace y se releyeron con igualdad exacta de SHA de blob.
 - El workflow 535 está pendiente al registrar esta actualización. Los runs 530–534 fueron cancelados por pushes sucesivos; el run 528 anterior sigue en ejecución. No se declara aprobado el cambio hasta que un workflow que incluya el último commit termine correctamente.
+
+
+## Corrección de diseño del propietario — 2026-11-21 09:36 UTC
+
+- El amistoso se juega manejando al equipo completo. No existe futbolista principal ni protagonista.
+- Anier Cumbá es un jugador normal de Nova C35, con la misma importancia que los otros diez.
+- El usuario puede controlar sucesivamente a cualquiera de los once; el jugador activo es solo el destinatario temporal de los controles y los demás diez quedan bajo IA.
+- Se detectó que `main.gd` y `test_friendly_match_runtime.gd` todavía establecen Anier como control inicial y lo exigen en la aceptación. Esto debe eliminarse antes de considerar correcta la implementación. La neutralidad del jugador inicial y la igualdad de los once pasan a ser criterios explícitos.
+- Esta corrección de diseño no significa que el cambio manual esté validado: el workflow 537 seguía en ejecución y el workflow 528 terminó fallando.
