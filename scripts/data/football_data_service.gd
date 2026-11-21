@@ -437,9 +437,20 @@ func build_copa_calendar(season_id: String = "season_1") -> Dictionary:
 	var records: Array = []
 	if registry == null:
 		return {"ok": false, "rounds": [], "errors": ["Catálogo deportivo no inicializado"]}
+	# The registry also contains hundreds of non-Cuban clubs. The national cup
+	# must be built exclusively from the 52 clubs in Cuba's three divisions.
 	for team_id in registry.teams_by_id:
 		var team: Dictionary = registry.teams_by_id[team_id]
-		records.append({"id": str(team_id), "division_level": int(team.get("competition_level", 99))})
+		if str(team.get("country_id", team.get("country_code", ""))) != "CUB":
+			continue
+		records.append({"id": str(team_id), "division_level": int(team.get("division_level", team.get("competition_level", 99)))})
+	if records.size() != 52:
+		return {
+			"ok": false,
+			"team_count": records.size(),
+			"rounds": [],
+			"errors": ["Se esperaban 52 clubes cubanos elegibles para la Copa de Cuba; encontrados " + str(records.size())]
+		}
 	var result: Dictionary = CALENDAR_BUILDER.build_copa_de_cuba(records, "copa_de_cuba_nova", season_id)
 	if bool(result.get("ok", false)):
 		var presentation: Array = []
