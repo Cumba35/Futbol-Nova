@@ -5,6 +5,8 @@ signal match_11v11_requested
 signal catalog_requested
 signal pause_resume_requested
 signal pause_exit_requested
+signal match_control_mode_requested(mode: String)
+signal match_control_player_requested(player_id: String)
 
 const PANEL := Color("#101b32")
 const PANEL_ALT := Color("#1b2d4d")
@@ -1662,6 +1664,8 @@ func _open_settings_category(category: String) -> void:
 			_show_accessibility_settings()
 		"Información":
 			_add_info_card("FÚTBOL NOVA", "Juego de fútbol masculino. Versión de desarrollo. Algunas funciones aún están en construcción.")
+		"Juego":
+			_show_match_control_settings()
 		"Datos":
 			_add_info_card("DATOS Y GUARDADOS", "La base local ya guarda catálogos, resultados, temporadas y carreras. Incluye migraciones, copias de seguridad y recuperación. La validación automática de Godot está pendiente de que GitHub Actions asigne un ejecutor.")
 		"Módulos":
@@ -1675,6 +1679,63 @@ func _open_settings_category(category: String) -> void:
 	back.pressed.connect(_show_settings)
 	content_box.add_child(back)
 	status_label.text = "Submenú: " + category
+
+
+func _show_match_control_settings() -> void:
+	_add_info_card("CONTROL DEL AMISTOSO", "Configura cómo quieres manejar a Nova C35. En ambas modalidades puedes cambiar de futbolista durante el partido; los compañeros que no controlas siguen bajo la IA.")
+	var preferences: Node = get_node_or_null("/root/NovaPreferences")
+	var saved: Dictionary = preferences.call("get_match_control_preferences") if preferences != null else {"mode": "team", "player_id": ""}
+	var mode_option := OptionButton.new()
+	mode_option.name = "MatchControlModeOption"
+	mode_option.add_item("Control de equipo (11 jugadores)", 0)
+	mode_option.add_item("Control de un jugador", 1)
+	mode_option.select(1 if str(saved.get("mode", "team")) == "single" else 0)
+	mode_option.item_selected.connect(func(index: int):
+		var mode := "single" if index == 1 else "team"
+		if preferences != null:
+			preferences.call("set_match_control_preferences", mode)
+		match_control_mode_requested.emit(mode)
+		status_label.text = "Modo de control guardado."
+	)
+	content_box.add_child(mode_option)
+	var players_label := _label("FUTBOLISTA INICIAL / JUGADOR A CONTROLAR", 14, WHITE)
+	content_box.add_child(players_label)
+	var player_option := OptionButton.new()
+	player_option.name = "MatchControlPlayerOption"
+	player_option.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var options: Array = match_controller.call("get_home_player_options") if match_controller != null and match_controller.has_method("get_home_player_options") else []
+	if options.is_empty():
+		player_option.add_item("Selecciona el jugador al preparar el amistoso")
+		player_option.set_item_disabled(0, true)
+	else:
+		var selected_id := str(saved.get("player_id", ""))
+		for option in options:
+			player_option.add_item(str(option.get("display_name", option.get("player_id", ""))))
+			player_option.set_item_metadata(player_option.item_count - 1, str(option.get("player_id", "")))
+			if str(option.get("player_id", "")) == selected_id:
+				player_option.select(player_option.item_count - 1)
+		if player_option.selected < 0:
+			player_option.select(0)
+	player_option.item_selected.connect(func(index: int):
+		var player_id := str(player_option.get_item_metadata(index))
+		if player_id.is_empty():
+			return
+		if preferences != null:
+			preferences.call("set_match_control_preferences", str(saved.get("mode", "team")), player_id)
+		match_control_player_requested.emit(player_id)
+		status_label.text = "Ahora controlas a " + player_option.get_item_text(index) + "."
+	)
+	content_box.add_child(player_option)
+	var switch_button := _nav_button("VOLVER AL CONTROL DE EQUIPO")
+	switch_button.custom_minimum_size.y = 48
+	switch_button.pressed.connect(func():
+		if preferences != null:
+			preferences.call("set_match_control_preferences", "team")
+		match_control_mode_requested.emit("team")
+		status_label.text = "Control de equipo activado. Usa CAMBIO para alternar entre los once."
+	)
+	content_box.add_child(switch_button)
+
 
 func _show_accessibility_settings() -> void:
 	_add_info_card("TAMAÑO DE TEXTO", "Ajusta el tamaño del texto de los menús para mejorar la lectura. El valor se guarda en este dispositivo y se aplica al abrir cada pantalla.")
