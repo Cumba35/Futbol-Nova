@@ -192,3 +192,16 @@ Los metadatos de GitHub se consultaron de nuevo para no confundir licencia con m
 | `richardschembri/GodotBasic3DFootball` | 2018-04-03 | No archivado; sin licencia declarada | Referencia histórica únicamente; no copiar. |
 
 La fecha de actualización de metadatos puede cambiar por actividad administrativa; el último push es la señal usada para esta comparación. No se importaron archivos, dependencias ni assets de ninguno de estos repositorios.
+
+
+## Seguimiento de referencias públicas — 21-11-2026
+
+- `awest813/League-Soccer` (https://github.com/awest813/League-Soccer): Apache-2.0 confirmada en la raíz. Su README documenta motor 3D, 22 jugadores, IA táctica, física de balón, árbitro, faltas, reinicios, estadísticas y pruebas headless. Se mantiene como referencia de arquitectura; su base C++17/SDL/OpenGL/SQLite no se integra en el proyecto Godot/GDScript Android.
+- `krimshi/godot-soccer` (https://github.com/krimshi/godot-soccer): MIT confirmada; juego 2D pequeño en Godot. Solo comparación de interacción y patrones ligeros.
+- `Tobilion/footysim` (https://github.com/Tobilion/footysim): simulación 11v11 por agentes, determinista, con eventos y pruebas. No se encontró una licencia verificable en la revisión; no copiar ni incorporar código.
+
+Decisión: no añadir dependencias ni assets. Mantener el motor actual y usar las referencias para diseñar pruebas de reglas, estadísticas y transiciones de estado. Revalidar licencia y versión antes de cualquier futura reutilización.
+
+## Hallazgo del controlador — atribución de último toque
+
+La IA llamaba `notify_ball_kicked()` sin identificar al actor, y el método sustituía el último toque por el ID del jugador controlado. Se corrigió enviando el ID del futbolista IA en los tres caminos (portero, remate y pase/despeje), y se añadió una aserción de regresión en `tests/test_friendly_ai_shooting.gd`. La ejecución CI 44843892726 fue cancelada antes de crear jobs; la corrección aún requiere validación automatizada.
