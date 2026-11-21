@@ -127,8 +127,13 @@ func _test_data_service(failures: PackedStringArray) -> void:
 		content_packages.name = "ContentPackages"
 		root.add_child(content_packages)
 	var service = DataService.new()
+	service.configure_runtime_services(football_database, content_packages)
 	root.add_child(service)
 	var summary: Dictionary = service.get_catalog_summary()
+	if not bool(summary.get("initialized", false)) or service.registry == null:
+		failures.append("DataService: no inicializó el catálogo offline con dependencias inyectadas")
+		service.queue_free()
+		return
 	if not bool(summary.get("initialized", false)):
 		failures.append("DataService: no inicializó el catálogo offline")
 	if not bool(summary.get("rules_loaded", false)):
