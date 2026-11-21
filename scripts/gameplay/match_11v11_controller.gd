@@ -18,6 +18,7 @@ signal match_finished(phase: String)
 const REALISM_MODULE = preload("res://scripts/modules/realism_module.gd")
 const MATCH_CLOCK_STATE = preload("res://scripts/gameplay/match_clock_state_machine.gd")
 const BALL_FLIGHT_MODEL = preload("res://scripts/ball_flight_model.gd")
+const FOOTBALLER_VISUAL_BUILDER = preload("res://scripts/visuals/footballer_visual_builder.gd")
 
 const FIELD_HALF_WIDTH := 34.0
 const FIELD_HALF_LENGTH := 52.5
@@ -774,30 +775,8 @@ func _create_ai_actor(player_data: Dictionary) -> void:
 	var attributes: Dictionary = player_record.get("attributes", {})
 	var pace := clampf(float(attributes.get("spd", 60)), 0.0, 100.0)
 	var actor_speed := 4.2 if str(player_data.role) == "GK" else clampf(4.0 + pace * 0.015, 4.0, 5.8)
-	var kit_color: Color = _team_colors.home if is_home else _team_colors.away
-	var body := MeshInstance3D.new()
-	var body_mesh := CapsuleMesh.new()
-	body_mesh.radius = PLAYER_RADIUS
-	body_mesh.height = PLAYER_HEIGHT
-	body.mesh = body_mesh
-	body.position.y = PLAYER_HEIGHT * 0.5
-	body.material_override = _make_material(kit_color)
-	actor.add_child(body)
-	var head := MeshInstance3D.new()
-	var head_mesh := SphereMesh.new()
-	head_mesh.radius = 0.15
-	head_mesh.height = 0.30
-	head.mesh = head_mesh
-	head.position.y = PLAYER_HEIGHT + 0.12
-	head.material_override = _make_material(Color("#805039"))
-	actor.add_child(head)
-	var shorts := MeshInstance3D.new()
-	var shorts_mesh := BoxMesh.new()
-	shorts_mesh.size = Vector3(0.43, 0.22, 0.29)
-	shorts.mesh = shorts_mesh
-	shorts.position.y = 0.48
-	shorts.material_override = _make_material(Color("#18202B") if is_home else Color("#253A68"))
-	actor.add_child(shorts)
+	var footballer_visual := FOOTBALLER_VISUAL_BUILDER.create_visual(player_data, is_home)
+	actor.add_child(footballer_visual)
 	# Build the complete goalkeeper collider before adding the actor to the
 	# active scene tree. This guarantees the physics server sees the capsule
 	# on its first registration frame.
@@ -836,7 +815,8 @@ func _create_ai_actor(player_data: Dictionary) -> void:
 		"player_data": player_record.duplicate(true),
 		"stamina": 100.0,
 		"kick_cooldown": 0.0,
-		"tackle_cooldown": 0.0
+		"tackle_cooldown": 0.0,
+		"walk_phase": float(abs(str(player_data.player_id).hash()) % 1000) / 1000.0 * TAU
 	})
 
 func _update_actors(delta: float, make_decision: bool) -> void:
@@ -870,7 +850,27 @@ func _update_actors(delta: float, make_decision: bool) -> void:
 		var direction := horizontal_target - current
 		if direction.length_squared() > 0.02:
 			actor.rotation.y = atan2(-direction.x, -direction.z)
+		actor_data.walk_phase = float(actor_data.get("walk_phase", 0.0)) + delta * (4.5 + float(actor_data.get("speed", 4.0)) * 0.45)
+		_animate_footballer_visual(actor, float(actor_data.walk_phase), clampf(distance_to_target / 1.2, 0.0, 1.0))
 		_actors[index] = actor_data
+
+func _animate_footballer_visual(actor: Node3D, phase: float, intensity: float) -> void:
+	var visual := actor.get_node_or_null("FootballerVisual") as Node3D
+	if visual == null:
+		return
+	var swing := sin(phase) * 0.62 * intensity
+	var left_leg := visual.get_node_or_null("LeftLegPivot") as Node3D
+	var right_leg := visual.get_node_or_null("RightLegPivot") as Node3D
+	var left_arm := visual.get_node_or_null("LeftArmPivot") as Node3D
+	var right_arm := visual.get_node_or_null("RightArmPivot") as Node3D
+	if left_leg != null:
+		left_leg.rotation.x = swing
+	if right_leg != null:
+		right_leg.rotation.x = -swing
+	if left_arm != null:
+		left_arm.rotation.x = -swing * 0.72
+	if right_arm != null:
+		right_arm.rotation.x = swing * 0.72
 
 func _calculate_separation(actor_index: int) -> Vector3:
 	var source: Node3D = _actors[actor_index].node
