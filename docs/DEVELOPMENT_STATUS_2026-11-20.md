@@ -320,3 +320,6 @@ Los reinicios ya se colocan en el campo y asignan el equipo correcto, pero aún 
 - Se añadió avatar genérico para jugadores locales sin escena 3D individual, evitando sustituir su identidad visual por el avatar de Anier.
 - Se corrigió la prueba de ciclo para recorrer once cambios y regresar al jugador inicial; la prueba de falta usa el jugador actualmente controlado.
 - No declarar validado hasta que el workflow Godot 4.4.1 termine en verde. El último workflow observado antes de estos commits falló en el test de amistoso por expectativas incorrectas del ciclo y por emitir una falta para un jugador que ya no era el controlado.
+
+- Diferencia funcional de modalidades: `team` permite alternar al vuelo con CAMBIO/TAB; `single` mantiene al futbolista elegido y bloquea el ciclo automático. Si el usuario quiere cambiarlo, abre pausa > Configuración > Juego y selecciona otro; desde ahí también puede volver a Control de equipo.
+- El último futbolista activo se guarda como preferencia local cuando se cambia mediante CAMBIO/TAB o el selector de pausa.
