@@ -436,29 +436,50 @@ func update_board_objectives(objectives: Array, match_data: Dictionary) -> Array
 func build_copa_calendar(season_id: String = "season_1") -> Dictionary:
 	var records: Array = []
 	if registry == null:
-		return {"ok": false, "rounds": [], "errors": ["Catálogo deportivo no inicializado"]}
-	# The registry also contains hundreds of non-Cuban clubs. The national cup
-	# must be built exclusively from the 52 clubs in Cuba's three divisions.
-	for team_id in registry.teams_by_id:
-		var team: Dictionary = registry.teams_by_id[team_id]
-		var team_id_text := str(team_id)
-		var country_id := str(team.get("country_id", ""))
-		if country_id.is_empty():
-			country_id = str(team.get("country_code", ""))
-		# Cuban importer IDs (CUB-S1/S2/S3-...) are the canonical fallback;
-		# some imported records may carry an empty country field.
-		if not team_id_text.begins_with("CUB-") and country_id != "CUB":
-			continue
-		var division_level := int(team.get("division_level", 0))
-		if division_level <= 0:
-			division_level = int(team.get("competition_level", 99))
-		records.append({"id": team_id_text, "division_level": division_level})
+		return {"ok": false, "team_count": 0, "rounds": [], "errors": ["Catálogo deportivo no inicializado"]}
+	# La Copa nacional se compone de los participantes de las tres competiciones
+	# oficiales cubanas. No se debe inferir la elegibilidad por nacionalidad o
+	# prefijo: eso incluiría clubes cubanos de amistosos/creados por el usuario.
+	var official_competition_ids := [
+		"cuba_primera_division_nova",
+		"cuba_segunda_division_nova",
+		"cuba_tercera_division_nova"
+	]
+	var included_team_ids: Dictionary = {}
+	for competition_id in official_competition_ids:
+		if not registry.competitions_by_id.has(competition_id):
+			return {
+				"ok": false,
+				"team_count": records.size(),
+				"rounds": [],
+				"errors": ["Falta competición cubana oficial: " + competition_id]
+			}
+		var competition: Dictionary = registry.competitions_by_id[competition_id]
+		var division_level := int(competition.get("level", 0))
+		for team_id_value in competition.get("team_ids", []):
+			var team_id := str(team_id_value)
+			if included_team_ids.has(team_id):
+				return {
+					"ok": false,
+					"team_count": records.size(),
+					"rounds": [],
+					"errors": ["Club repetido entre competiciones cubanas: " + team_id]
+				}
+			if not registry.teams_by_id.has(team_id):
+				return {
+					"ok": false,
+					"team_count": records.size(),
+					"rounds": [],
+					"errors": ["Club inexistente en el registro cubano: " + team_id]
+				}
+			included_team_ids[team_id] = true
+			records.append({"id": team_id, "division_level": division_level})
 	if records.size() != 52:
 		return {
 			"ok": false,
 			"team_count": records.size(),
 			"rounds": [],
-			"errors": ["Se esperaban 52 clubes cubanos elegibles para la Copa de Cuba; encontrados " + str(records.size())]
+			"errors": ["Las tres competiciones oficiales cubanas deben aportar 52 clubes; encontrados " + str(records.size())]
 		}
 	var result: Dictionary = CALENDAR_BUILDER.build_copa_de_cuba(records, "copa_de_cuba_nova", season_id)
 	if bool(result.get("ok", false)):
