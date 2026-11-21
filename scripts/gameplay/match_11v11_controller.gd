@@ -57,6 +57,8 @@ var _match_clock_state: Dictionary = {}
 var _home_team_id := "nova_home"
 var _away_team_id := "nova_away"
 var _controlled_player_id := ""
+var _controlled_player_data: Dictionary = {}
+var _home_player_order: Array[String] = []
 var _last_touch_player_id := ""
 var _last_touch_home_team := true
 # -1 means no restart restriction, 0 means away team, 1 means home team.
@@ -233,6 +235,10 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 	_ball_flight_spin = Vector3.ZERO
 	_clear_ball_possession()
 	_controlled_player_id = next_controlled_player_id
+	_controlled_player_data = home_lineup[controlled_index].duplicate(true)
+	_home_player_order.clear()
+	for home_player_data in home_lineup:
+		_home_player_order.append(str(home_player_data.get("player_id", "")))
 	_last_touch_player_id = ""
 	_player.set_meta("player_id", _controlled_player_id)
 	_home_team_id = home_team_id
@@ -252,6 +258,83 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 	match_started.emit(11, 11)
 	return {"ok": true, "home_players": 11, "away_players": 11, "controlled_player_id": _controlled_player_id}
 
+func switch_to_next_home_player() -> Dictionary:
+	if not _active or _paused or not is_instance_valid(_player) or _home_player_order.size() != 11:
+		return {"ok": false, "error": "El cambio de jugador no está disponible ahora."}
+	var current_index := _home_player_order.find(_controlled_player_id)
+	if current_index < 0:
+		return {"ok": false, "error": "El jugador controlado no pertenece al once local."}
+	for offset in range(1, _home_player_order.size()):
+		var target_id := _home_player_order[(current_index + offset) % _home_player_order.size()]
+		for actor_index in range(_actors.size()):
+			var target_data: Dictionary = _actors[actor_index]
+			if not bool(target_data.get("home_team", false)) or str(target_data.get("player_id", "")) != target_id:
+				continue
+			var previous_player := _player
+			var previous_data := _controlled_player_data.duplicate(true)
+			var previous_record: Dictionary = previous_data.get("player_data", {})
+			var previous_attributes: Dictionary = previous_record.get("attributes", {})
+			previous_data["node"] = previous_player
+			previous_data["team_id"] = _home_team_id
+			previous_data["home_team"] = true
+			previous_data["home_position"] = previous_data.get("position", previous_player.global_position)
+			previous_data["target"] = previous_player.global_position
+			previous_data["speed"] = clampf(4.0 + float(previous_attributes.get("spd", 60)) * 0.015, 4.0, 5.8)
+			previous_data["display_name"] = str(previous_record.get("display_name", previous_record.get("full_name", _controlled_player_id)))
+			previous_data["overall"] = int(previous_record.get("overall", 0))
+			previous_data["stamina"] = float(previous_data.get("stamina", 100.0))
+			previous_data["kick_cooldown"] = 0.0
+			previous_data["tackle_cooldown"] = 0.0
+			previous_data["player_velocity"] = previous_player.velocity
+			previous_player.set_physics_process(false)
+			previous_player.collision_layer = 0
+			previous_player.collision_mask = 0
+			_actors.append(previous_data)
+			var selected_node: Node3D = target_data.get("node")
+			_actors.remove_at(actor_index)
+			if selected_node is CharacterBody3D:
+				_player = selected_node as CharacterBody3D
+				_player.set_physics_process(true)
+				_player.collision_layer = 1
+				_player.collision_mask = 1
+			else:
+				_player = _promote_ai_actor_to_controlled(selected_node, target_data)
+			if not is_instance_valid(_player):
+				return {"ok": false, "error": "No se pudo preparar el modelo del jugador seleccionado."}
+			if _possession_owner == selected_node:
+				_possession_owner = _player
+			_controlled_player_id = target_id
+			_controlled_player_data = target_data.duplicate(true)
+			_controlled_player_data["node"] = _player
+			_player.name = "ControlledPlayer"
+			_player.set_meta("player_id", _controlled_player_id)
+			_possession_is_controlled = _possession_owner == _player
+			return {"ok": true, "player": _player, "player_id": _controlled_player_id, "display_name": str(target_data.get("display_name", target_id))}
+	return {"ok": false, "error": "No se encontró otro jugador local disponible para controlar."}
+
+func _promote_ai_actor_to_controlled(actor: Node3D, actor_data: Dictionary) -> CharacterBody3D:
+	if not is_instance_valid(actor):
+		return null
+	var replacement := CharacterBody3D.new()
+	replacement.name = "ControlledPlayer"
+	replacement.set_script(load("res://scripts/player_controller.gd"))
+	replacement.global_transform = actor.global_transform
+	replacement.set_meta("player_id", str(actor_data.get("player_id", "")))
+	var children := actor.get_children()
+	for child in children:
+		child.reparent(replacement, true)
+	var collision := CollisionShape3D.new()
+	collision.name = "PlayerBodyCollision"
+	var capsule := CapsuleShape3D.new()
+	capsule.radius = PLAYER_RADIUS
+	capsule.height = PLAYER_HEIGHT
+	collision.shape = capsule
+	collision.position.y = PLAYER_HEIGHT * 0.5
+	replacement.add_child(collision)
+	add_child(replacement)
+	actor.queue_free()
+	return replacement
+
 func stop_match() -> void:
 	_active = false
 	_paused = false
@@ -263,6 +346,8 @@ func stop_match() -> void:
 	_actors.clear()
 	_match_clock_state.clear()
 	_controlled_player_id = ""
+	_controlled_player_data.clear()
+	_home_player_order.clear()
 	_last_touch_player_id = ""
 	_last_touch_home_team = true
 	_restart_team_home = -1
@@ -445,6 +530,8 @@ func get_match_summary() -> Dictionary:
 		"home_team_id": _home_team_id,
 		"away_team_id": _away_team_id,
 		"controlled_player_id": _controlled_player_id,
+		"controlled_player_name": str(_controlled_player_data.get("display_name", _controlled_player_id)),
+		"home_player_order": _home_player_order.duplicate(),
 		"restart_team": "home" if _restart_team_home == 1 else ("away" if _restart_team_home == 0 else ""),
 		"match_phase": str(_match_clock_state.get("phase", "not_started")),
 		"clock_remaining_seconds": MATCH_CLOCK_STATE.get_remaining_seconds(_match_clock_state) if not _match_clock_state.is_empty() else 0.0
