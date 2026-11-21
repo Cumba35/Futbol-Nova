@@ -453,3 +453,11 @@ No se importaron código, assets ni dependencias de estos proyectos.
 - Se corrigió la documentación técnica para reflejar Godot 4.4.1 y el objetivo Android ARM64.
 - Se añadió `tests/test_match_configuration_defaults.gd` al workflow Android.
 - Pendiente: ejecutar la nueva CI completa, resolver el conflicto de distribución de las diez ligas sin alterar silenciosamente la política del usuario, y validar el APK/partido en Android.
+
+
+### Diferencia preservada entre la copia de distribución y Workspace
+
+- `project.godot` de Workspace no tenía inicialmente `textures/vram_compression/import_etc2_astc=true`; se sincronizó para igualar el ajuste de importación comprimida del proyecto de distribución.
+- `docs/ANDROID_GODOT_EDITOR.md` de Workspace no contenía el aviso actualizado de que el flujo vigente es ChatGPT + GitHub y que no se debe instalar el editor Android para este proyecto; se sincronizó el aviso.
+- Se añadió `docs/REPOSITORY_ORIGIN.md` al espejo Workspace para conservar la procedencia y la política de no sobrescritura automática.
+- Se conserva intencionalmente una diferencia en `modules/nova_3d_animation/nova_3d_animation.gd`: Workspace tiene señales y métodos adicionales para perfiles de animación, habilidades y celebraciones; la rama de distribución aún no. No se reemplazó la versión Workspace ni se copió la extensión al juego distribuible porque no se encontró un catálogo de perfiles ni una conexión runtime/prueba que justifique activarla. Queda como integración pendiente, no como configuración perdida.
