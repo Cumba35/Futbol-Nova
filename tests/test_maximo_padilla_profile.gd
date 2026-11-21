@@ -86,14 +86,24 @@ func _run() -> void:
 	instance.queue_free()
 	await process_frame
 	var career_service = preload("res://scripts/legend/legend_career_service.gd").new()
+	career_service.persistence_path = "user://maximo_padilla_profile_test_career.json"
+	career_service.sync_to_database = false
+	root.add_child(career_service)
 	var career_result: Dictionary = career_service.start_career_from_catalog(found)
 	assert(career_result.get("ok", false), "Máximo debe poder iniciar una carrera desde el catálogo: %s" % str(career_result.get("error", career_result.get("errors", []))))
 	var career_player: Dictionary = career_result.get("career", {}).get("player", {})
 	assert(int(career_player.get("age", 0)) == 29, "La edad declarada debe conservarse")
 	assert(str(career_player.get("birth_date", "")) == "", "No debe inventarse una fecha de nacimiento")
 	assert(str(career_player.get("shirt_name", "")) == "PADILLA", "El nombre de uniforme debe conservarse")
-	assert(str(career_result.get("career", {}).get("club_id", "")) == "FN-ESP-BARCELONA", "Debe conservarse el club elegido")
+	assert(str(career_result.get("career", {}).get("club_id", "")) == "FN-NOVA-C35", "Debe conservarse el club actual elegido en el catálogo: Nova C35")
+	assert(str(career_result.get("career", {}).get("club_name", "")) == "Nova C35", "Debe conservarse el nombre del club actual")
 	print("MAXIMO_PROFILE_TEST: career validated")
 	career_service.free()
+	var test_save_path := ProjectSettings.globalize_path("user://maximo_padilla_profile_test_career.json")
+	if FileAccess.file_exists(test_save_path):
+		DirAccess.remove_absolute(test_save_path)
+	var test_temp_path := test_save_path + ".tmp"
+	if FileAccess.file_exists(test_temp_path):
+		DirAccess.remove_absolute(test_temp_path)
 	print("FUTBOL_NOVA_MAXIMO_PADILLA_PROFILE_TEST: PASS")
 	quit(0)
