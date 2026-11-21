@@ -298,3 +298,15 @@ Los reinicios ya se colocan en el campo y asignan el equipo correcto, pero aún 
 - La exportación APK de ese run no se considera validada: el workflow falló antes de completar las pruebas y omitió la subida del artefacto validado.
 - Próximo paso: comprobar el nuevo workflow generado por la corrección. Si el hub pasa, continuar con las pruebas 11v11, control/rotación de jugadores, IA, goles, porteros, tiempos y smoke test Android. No declarar CI verde ni APK validada hasta que termine toda la suite.
 - Nota de ramas: la PR #10 sigue abierta y en draft, pero GitHub informa como head `feature/friendly-runtime-research-2026-11-20`; la rama de trabajo solicitada es `work/friendly-match-completion-2026-11-20`. Ambas ramas están divergidas (48 commits exclusivos en work, 3 exclusivos en feature según la comparación actual). No se fusionó ni se cambió la PR; hay que reconciliar esta relación antes de atribuir los commits nuevos a la PR #10.
+
+
+## Control manual de los once en amistosos — 21-11-2026
+
+- Se implementó un primer ciclo manual de control de los once futbolistas locales en `scripts/gameplay/match_11v11_controller.gd`. La secuencia sigue el orden original del once y evita seleccionar jugadores visitantes.
+- El nodo CharacterBody3D que deja de estar controlado se conserva como actor IA, con su modelo, ID, posición y metadatos. El actor genérico seleccionado se promueve a CharacterBody3D transfiriendo sus hijos visuales y su transformación; el último toque del balón no se altera por el mero cambio.
+- Se conectó el cambio a la tecla TAB y al nuevo botón táctil CAMBIO. `main.gd` actualiza la referencia al nodo controlado y conecta sus señales de habilidad/presión.
+- Se añadió prueba de runtime para recorrer los once IDs y comprobar 11 jugadores por lado, 21 actores IA, identidad en el nodo, referencia del controlador y conservación del último toque.
+- Archivos cambiados y espejados con SHA idéntico en Nova Workspace: `scripts/gameplay/match_11v11_controller.gd`, `scripts/main.gd`, `scripts/input/touch_controls.gd`, `tests/test_friendly_match_runtime.gd` y `docs/FRIENDLY_PLAYABLE_MVP_ROADMAP_2026-11-21.md`.
+- La implementación todavía no está validada por CI. Los workflows 530–534 se cancelaron por pushes sucesivos; el workflow 535 quedó pendiente y la actualización de documentación generará otro run. Se debe esperar un workflow que incluya el último commit y revisar todos los pasos antes de marcarlo como terminado.
+- Próxima revisión técnica: comprobar compilación Godot 4.4.1, ciclo de cambio con posesión/no posesión, promoción y retorno a los modelos originales, controles táctiles, pausa/reanudación y exportación/smoke test Android. No fusionar PR #10 ni publicar APK.
+- La PR #10 permanece abierta en draft, pero su head actual es `feature/friendly-runtime-research-2026-11-20`, no la rama de trabajo `work/friendly-match-completion-2026-11-20`. La comparación indica ramas divergidas (48 commits exclusivos en work y 3 en feature); no se ha alterado la PR. Resolver esta discrepancia de integración antes de presentar estos commits como parte de PR #10.
