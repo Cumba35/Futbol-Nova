@@ -158,3 +158,13 @@ La primera ejecución que probó la cápsula falló en la prueba de posicionamie
 - Run 486: `44840509188`, commit `56a151471be058e687e8b99a2eea59e864f5ecb1`, cancelado al encolar una revisión posterior; no cuenta como aprobado.
 - Run 487: [44840858252](https://github.com/Cumba35/Futbol-Nova/actions/runs/44840858252), commit `7f295e73c5338b55bc7a2328988feb3bbc7e2c7c`, pendiente en cola. Incluye la centralización final de los defaults, el nuevo test `test_match_configuration_defaults.gd` y el workflow actualizado.
 - Ninguna de estas ejecuciones permite declarar validada la configuración nueva hasta que run 487 (o una ejecución posterior del mismo HEAD) termine correctamente. La APK no se declara validada hasta que se publique el artefacto y se instale en Android.
+
+
+### Corrección de coherencia de plantilla y prueba de Máximo Padilla — 21-11-2026
+
+- Run 482 terminó fallando en `tests/test_maximo_padilla_profile.gd`, no en las pruebas del amistoso. El test aún esperaba que Máximo perteneciera a Litoral Barcelona, aunque `data/custom_players.json` y el historial de carrera ya registraban el traspaso confirmado a Nova C35 (`FN-NOVA-C35`) el 20-11-2026.
+- Se retiró `NOVA-PLAYER-0036` de `FN-ESP-BARCELONA` en `data/spain_clubs_2026_27.json`; permanece en la plantilla de Nova C35 en `data/players/nova_original_club_rosters_2026.json`.
+- El test ahora comprueba la pertenencia actual a Nova C35 y que no permanezca en Barcelona. También desactiva la sincronización global de base de datos y usa un archivo de guardado temporal con limpieza, evitando llamar `get_node_or_null("/root/FootballDatabase")` desde un servicio fuera del SceneTree y evitando tocar el guardado real de carrera.
+- El modelo procedural de Máximo ahora utiliza la paleta provisional azul marino/cian de Nova C35 en lugar de la equipación blaugrana anterior. Su club favorito FC Barcelona se conserva como preferencia, separado del club actual.
+- Se actualizó `docs/MAXIMO_PADILLA_PLAYER.md` y se sincronizaron datos, test, modelo y documentación en Workspace.
+- Run 487 sigue validando el commit anterior a esta corrección; la nueva actualización de código debe generar una ejecución posterior para validar este arreglo junto con el test de configuración.
