@@ -230,6 +230,18 @@ func _run_acceptance_test() -> void:
 				elif game.match_11v11_controller._player != game.player:
 					failures.append("El motor conserva una referencia antigua en vez del futbolista controlado actual.")
 
+				# A committed foul must stop the clock, place the ball at the incident,
+				# and award a free kick to the opposing team.
+				var foul_position: Vector3 = game.player.global_position
+				game.match_11v11_controller.foul_committed.emit("NOVA-PLAYER-0035", selected_home_id, "serious")
+				var foul_summary: Dictionary = game.match_11v11_controller.get_match_summary()
+				if str(foul_summary.get("restart_team", "")) != "away":
+					failures.append("La falta local no concedió el tiro libre al equipo visitante.")
+				if game.ball.global_position.distance_to(Vector3(foul_position.x, 0.35, foul_position.z)) > 0.02:
+					failures.append("El balón no se colocó en el lugar de la falta.")
+			if not bool(game.match_11v11_controller.get_clock_summary().get("interruptions", {}).get("foul_restart", false)):
+				failures.append("El reloj no se detuvo durante la preparación del tiro libre.")
+
 				# Verify both sides' live AI react to the ball, not merely spawn 21
 				# decorative actors at their formation positions.
 				if game.match_11v11_controller._actors.size() >= 21:
