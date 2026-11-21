@@ -156,7 +156,7 @@ func _run_acceptance_test() -> void:
 				failures.append("El estadio Nova Central debe ser la selección inicial.")
 			var selected_home_id: String = str(setup._selected_team_id(setup._home_teams))
 			var selected_away_id: String = str(setup._selected_team_id(setup._away_teams))
-			var expected_controlled_player_id := setup._selected_controlled_player_id()
+			var expected_controlled_player_id: String = str(setup._selected_controlled_player_id())
 			var expected_controlled_player_name := setup._controlled_player.get_item_text(setup._controlled_player.selected) if setup._controlled_player.selected >= 0 else expected_controlled_player_id
 			if selected_home_id != "FN-NOVA-C35":
 				failures.append("El amistoso debe mostrar Nova C35 como selección local inicial.")
