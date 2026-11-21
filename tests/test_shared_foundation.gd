@@ -116,23 +116,29 @@ func _test_cuba_catalog_import(failures: PackedStringArray) -> void:
 		failures.append("Cuba importer: se esperaban 3 competiciones y se cargaron " + str(result.get("competition_count", 0)))
 
 func _test_data_service(failures: PackedStringArray) -> void:
-	var football_database: Node = root.get_node_or_null("FootballDatabase")
-	if football_database == null:
-		football_database = load("res://scripts/data/football_database_service.gd").new()
-		football_database.name = "FootballDatabase"
-		root.add_child(football_database)
-	var content_packages: Node = root.get_node_or_null("ContentPackages")
-	if content_packages == null:
-		content_packages = load("res://scripts/data/content_package_manager.gd").new()
-		content_packages.name = "ContentPackages"
-		root.add_child(content_packages)
+	# SceneTree._initialize runs before child _ready callbacks. Initialize injected
+	# services explicitly so this regression tests the real catalog, not empty defaults.
+	var football_database: Node = load("res://scripts/data/football_database_service.gd").new()
+	var test_database_path := "user://shared_foundation_test_%d.json" % Time.get_ticks_usec()
+	football_database.database_path = test_database_path
+	football_database.temp_path = test_database_path + ".tmp"
+	football_database.backup_path = test_database_path + ".bak"
+	if not football_database.open_database():
+		failures.append("DataService: no se pudo abrir la base de datos aislada: " + str(football_database.last_error))
+		football_database.free()
+		return
+	var content_packages: Node = load("res://scripts/data/content_package_manager.gd").new()
 	var service = DataService.new()
 	service.configure_runtime_services(football_database, content_packages)
-	root.add_child(service)
+	var initialized_ok: bool = service.initialize_catalog()
 	var summary: Dictionary = service.get_catalog_summary()
+	if not initialized_ok:
+		failures.append("DataService: initialize_catalog devolvió false: " + str(service.initialization_errors) + " | resumen: " + str(summary))
 	if not bool(summary.get("initialized", false)) or service.registry == null:
 		failures.append("DataService: no inicializó el catálogo offline con dependencias inyectadas. Errores: " + str(service.initialization_errors) + " | resumen: " + str(summary))
-		service.queue_free()
+		service.free()
+		content_packages.free()
+		football_database.free()
 		return
 	if not bool(summary.get("initialized", false)):
 		failures.append("DataService: no inicializó el catálogo offline")
@@ -265,7 +271,12 @@ func _test_data_service(failures: PackedStringArray) -> void:
 		for row in service.get_standings(round_stage):
 			if int(row.get("played", 0)) != 1:
 				failures.append("DataService: la jornada simulada no actualizó a todos los participantes.")
-	service.queue_free()
+	service.free()
+	content_packages.free()
+	football_database.free()
+	for path_to_remove in [test_database_path, test_database_path + ".tmp", test_database_path + ".bak"]:
+		if FileAccess.file_exists(path_to_remove):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(path_to_remove))
 
 func _test_competition_rules(failures: PackedStringArray) -> void:
 	var table := [
