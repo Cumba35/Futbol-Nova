@@ -490,3 +490,8 @@ Los parámetros están definidos en JSON/documentación; el reconocimiento secue
 `docs/CONTEXTUAL_GAME_SETTINGS.md` define que las preferencias globales, los ajustes por modo, los ajustes por competición y los ajustes por encuentro deben mantenerse separados. Los cambios que exijan reinicio se aplican al siguiente encuentro; restaurar valores requiere confirmación; salir sin guardar debe poder descartarlos. No se han fijado valores para dificultad IA, competitividad, perfil de atributos, velocidad de juego o asistencias que aún no estén implementadas.
 
 `docs/SAVE_SYSTEM.md` define cinco espacios por modo (1 autoguardado, 2–5 manuales), veinte espacios para los cuatro grupos previstos, copia solo entre espacios manuales del mismo modo, confirmación al sobrescribir/borrar, formato versionado y recuperación segura. El documento no define nuevos desencadenantes de autoguardado: deben conservarse los ya establecidos en el proyecto y no inventarse otros.
+
+
+### Verificación de espejo al cierre de esta revisión
+
+Se compararon los árboles de ambos repositorios para 207 rutas relevantes (configuración del proyecto, datos, módulos, documentos, preferencias, controles, estadios, reloj, preparación de amistoso, prueba de defaults, prueba de Máximo y su modelo). Todas están presentes en el espejo Workspace. Sus SHA coinciden salvo una diferencia intencional y documentada: `modules/nova_3d_animation/nova_3d_animation.gd`, que conserva funciones extra en Workspace para perfiles de animación, habilidades y celebraciones. No se detectaron otras diferencias en ese conjunto.
