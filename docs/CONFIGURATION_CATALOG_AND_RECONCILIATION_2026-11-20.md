@@ -461,3 +461,32 @@ No se importaron código, assets ni dependencias de estos proyectos.
 - `docs/ANDROID_GODOT_EDITOR.md` de Workspace no contenía el aviso actualizado de que el flujo vigente es ChatGPT + GitHub y que no se debe instalar el editor Android para este proyecto; se sincronizó el aviso.
 - Se añadió `docs/REPOSITORY_ORIGIN.md` al espejo Workspace para conservar la procedencia y la política de no sobrescritura automática.
 - Se conserva intencionalmente una diferencia en `modules/nova_3d_animation/nova_3d_animation.gd`: Workspace tiene señales y métodos adicionales para perfiles de animación, habilidades y celebraciones; la rama de distribución aún no. No se reemplazó la versión Workspace ni se copió la extensión al juego distribuible porque no se encontró un catálogo de perfiles ni una conexión runtime/prueba que justifique activarla. Queda como integración pendiente, no como configuración perdida.
+
+
+### Contrato exacto de gestos táctiles
+
+Fuentes: `data/skills/common_gesture_techniques.json`, `docs/IN_GAME_CONTROLS_GUIDE.md` y `docs/TOUCH_CONTROLS_AND_SKILLS.md`.
+
+- Botón de técnica: secuencias direccionales ordenadas; el orden importa.
+- Cambio mínimo de dirección: 55°.
+- Duración de cada dirección: 70–420 ms.
+- Ventana total de gesto: 850 ms.
+- Cancelar por interrupción táctil o pérdida de posesión.
+- Ejecutar solo al completar la secuencia; no convertir una secuencia incompleta en una acción de una sola dirección.
+- Croqueta: arriba → derecha.
+- Finta de cuerpo: arriba → izquierda.
+- Arrastre atrás y salida: abajo → derecha.
+- Giro de protección: abajo → izquierda.
+- Amago de disparo: derecha → arriba.
+- Botón de tiro: mantener para cargar; izquierda/derecha pide recorte y tiro posterior; arriba pide tiro picado.
+- Botón de pase: mantener para pase raso cargado; arriba pase elevado; izquierda/derecha recorte y pase; abajo pase de tacón.
+- Botón de presión: toque para presión normal; mantener y deslizar arriba durante 1 segundo solicita ayuda del compañero cercano.
+- Gesto circular cerrado alrededor del botón de técnica solicita una habilidad avanzada aleatoria que esté equipada, elegible y sin enfriamiento; máximo tres activaciones por jugador y partido.
+
+Los parámetros están definidos en JSON/documentación; el reconocimiento secuencial completo, carga progresiva y conexión con animaciones y físicas continúan pendientes.
+
+### Persistencia contextual
+
+`docs/CONTEXTUAL_GAME_SETTINGS.md` define que las preferencias globales, los ajustes por modo, los ajustes por competición y los ajustes por encuentro deben mantenerse separados. Los cambios que exijan reinicio se aplican al siguiente encuentro; restaurar valores requiere confirmación; salir sin guardar debe poder descartarlos. No se han fijado valores para dificultad IA, competitividad, perfil de atributos, velocidad de juego o asistencias que aún no estén implementadas.
+
+`docs/SAVE_SYSTEM.md` define cinco espacios por modo (1 autoguardado, 2–5 manuales), veinte espacios para los cuatro grupos previstos, copia solo entre espacios manuales del mismo modo, confirmación al sobrescribir/borrar, formato versionado y recuperación segura. El documento no define nuevos desencadenantes de autoguardado: deben conservarse los ya establecidos en el proyecto y no inventarse otros.
