@@ -23,11 +23,11 @@ func _build_visual() -> void:
 	visual_root.name = "MaximoPadillaVisual3D"
 	add_child(visual_root)
 	visual_root.scale = Vector3.ONE * (player_height_m / 1.71)
-	# Cuerpo y equipación blaugrana de diseño inspirado en Barcelona.
-	_add_capsule("torso", Vector3(0, 1.12, 0), Vector3(0.37, 0.48, 0.22), Color("#A51E3B"))
-	_add_capsule("shirt_blue_panel", Vector3(0.13, 1.12, -0.012), Vector3(0.13, 0.46, 0.224), Color("#173B79"))
+	# Equipación provisional original de Nova C35: azul marino y panel cian.
+	_add_capsule("torso", Vector3(0, 1.12, 0), Vector3(0.37, 0.48, 0.22), Color("#101B35"))
+	_add_capsule("shirt_cyan_panel", Vector3(0.13, 1.12, -0.012), Vector3(0.13, 0.46, 0.224), Color("#00CFE8"))
 	_add_capsule("shirt_untucked_hem", Vector3(0, 0.91, -0.012), Vector3(0.355, 0.12, 0.225), Color("#A51E3B"))
-	_add_capsule("shorts", Vector3(0, 0.82, 0), Vector3(0.34, 0.23, 0.22), Color("#172B55"))
+	_add_capsule("shorts", Vector3(0, 0.82, 0), Vector3(0.34, 0.23, 0.22), Color("#0A1022"))
 	_add_capsule("neck", Vector3(0, 1.43, 0), Vector3(0.105, 0.13, 0.105), Color("#75452F"))
 	_add_sphere("head", Vector3(0, 1.515, 0), Vector3(0.17, 0.15, 0.155), Color("#75452F"))
 	_add_sphere("short_hair", Vector3(0, 1.665, 0.008), Vector3(0.17, 0.045, 0.155), Color("#171412"))
