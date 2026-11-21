@@ -59,8 +59,12 @@ var downloaded_national_summary: Dictionary = {}
 var national_teams_by_id: Dictionary = {}
 var national_players_by_id: Dictionary = {}
 var national_associations: Array = []
+var _football_database: Node
+var _content_packages: Node
 
 func _ready() -> void:
+	_football_database = get_node_or_null("/root/FootballDatabase")
+	_content_packages = get_node_or_null("/root/ContentPackages")
 	initialize_catalog()
 
 func initialize_catalog() -> bool:
@@ -133,7 +137,7 @@ func initialize_catalog() -> bool:
 	if registry.players_by_id.size() != 15994:
 		initialization_failed = true
 		initialization_errors.append("Se esperaban 15.994 perfiles (15.950 base + 44 originales); encontrados " + str(registry.players_by_id.size()))
-	var installed_packages: Dictionary = ContentPackages.get_installed_packages()
+	var installed_packages: Dictionary = _content_packages.get_installed_packages()
 	downloaded_import_summary = DOWNLOADED_LEAGUE_IMPORTER.import_installed_packages(registry, installed_packages)
 	downloaded_national_summary = DOWNLOADED_NATIONAL_IMPORTER.load_installed_packages(installed_packages)
 	national_teams_by_id = downloaded_national_summary.get("national_teams_by_id", {}).duplicate(true)
@@ -156,20 +160,20 @@ func initialize_catalog() -> bool:
 			_build_group_stages(str(competition_id), competition, format_id == "two_groups_double_round_robin")
 		else:
 			_build_stage(str(competition_id), str(competition_id), competition.team_ids, true)
-		var saved_stage: Dictionary = FootballDatabase.get_competition_state(str(competition_id))
+		var saved_stage: Dictionary = _football_database.get_competition_state(str(competition_id))
 		if not saved_stage.is_empty() and saved_stage.get("fixtures", []) is Array and saved_stage.get("standings", {}) is Dictionary:
 			fixtures_by_stage[str(competition_id)] = saved_stage.fixtures.duplicate(true)
 			standings_by_stage[str(competition_id)] = saved_stage.standings.duplicate(true)
 		for group_id in fixtures_by_stage.keys():
 			if str(group_id).begins_with(str(competition_id) + "_") and str(group_id) != str(competition_id):
-				var saved_group: Dictionary = FootballDatabase.get_competition_state(str(group_id))
+				var saved_group: Dictionary = _football_database.get_competition_state(str(group_id))
 				if not saved_group.is_empty() and saved_group.get("fixtures", []) is Array and saved_group.get("standings", {}) is Dictionary:
 					fixtures_by_stage[str(group_id)] = saved_group.fixtures.duplicate(true)
 					standings_by_stage[str(group_id)] = saved_group.standings.duplicate(true)
-	var catalog_saved := FootballDatabase.save_catalog_snapshot(registry.export_catalog_snapshot())
+	var catalog_saved := _football_database.save_catalog_snapshot(registry.export_catalog_snapshot())
 	if not catalog_saved:
 		initialization_failed = true
-		initialization_errors.append("Base de datos: " + FootballDatabase.last_error)
+		initialization_errors.append("Base de datos: " + _football_database.last_error)
 	var master_result: Dictionary = MASTER_CATALOG_IMPORTER.build_catalog(registry)
 	if bool(master_result.get("ok", false)):
 		var master_catalog: Dictionary = master_result.catalog
@@ -177,9 +181,9 @@ func initialize_catalog() -> bool:
 			master_catalog["national_teams"].append(national_teams_by_id[national_team_id].duplicate(true))
 		for national_player_id in national_players_by_id:
 			master_catalog["national_players"].append(national_players_by_id[national_player_id].duplicate(true))
-		if not FootballDatabase.save_master_catalog(master_catalog):
+		if not _football_database.save_master_catalog(master_catalog):
 			initialization_failed = true
-			initialization_errors.append("Catálogo maestro: " + FootballDatabase.last_error)
+			initialization_errors.append("Catálogo maestro: " + _football_database.last_error)
 	else:
 		initialization_failed = true
 		for error in master_result.get("errors", []):
@@ -223,11 +227,11 @@ func _build_stage(stage_id: String, competition_id: String, team_ids: Array, dou
 	single_round_stages[stage_id] = not double_round_robin
 
 func get_database_summary() -> Dictionary:
-	return FootballDatabase.get_summary()
+	return _football_database.get_summary()
 
 func get_master_clubs_by_country(country_id: String) -> Array:
 	var result: Array = []
-	for club in FootballDatabase.database.get("master_catalog", {}).get("clubs", []):
+	for club in _football_database.database.get("master_catalog", {}).get("clubs", []):
 		if str(club.get("country_id", "")) == country_id:
 			result.append(club.duplicate(true))
 	return result
@@ -238,7 +242,7 @@ func get_catalog_summary() -> Dictionary:
 		total_fixtures += fixtures_by_stage[stage_id].size()
 	return {
 		"initialized": initialized,
-		"database": FootballDatabase.get_summary(),
+		"database": _football_database.get_summary(),
 		"players": registry.players_by_id.size() if registry != null else 0,
 		"teams_with_rosters": _count_teams_with_full_rosters(),
 		"teams_missing_rosters": registry.teams_by_id.size() - _count_teams_with_full_rosters() if registry != null else 0,
@@ -345,7 +349,7 @@ func apply_match_result(stage_id: String, result: Dictionary) -> bool:
 	if not standings_by_stage.has(stage_id) or not fixtures_by_stage.has(stage_id):
 		return false
 	var match_id := str(result.get("match_id", result.get("fixture_id", "")))
-	if match_id.is_empty() or FootballDatabase.has_match_result(match_id):
+	if match_id.is_empty() or _football_database.has_match_result(match_id):
 		return false
 	var standings_snapshot: Dictionary = standings_by_stage[stage_id].duplicate(true)
 	var fixtures_snapshot: Array = fixtures_by_stage[stage_id].duplicate(true)
@@ -380,16 +384,16 @@ func apply_match_result(stage_id: String, result: Dictionary) -> bool:
 		return false
 	if bool(statistics_result.get("ok", false)):
 		registry.players_by_id = statistics_result.players
-		if not FootballDatabase.save_catalog_snapshot(registry.export_catalog_snapshot()):
+		if not _football_database.save_catalog_snapshot(registry.export_catalog_snapshot()):
 			registry.players_by_id = previous_players
 			standings_by_stage[stage_id] = standings_snapshot
 			fixtures_by_stage[stage_id] = fixtures_snapshot
 			return false
-	var committed := FootballDatabase.commit_match_and_competition_state(stage_id, result_season_id, result, fixtures_by_stage[stage_id], standings_by_stage[stage_id])
+	var committed := _football_database.commit_match_and_competition_state(stage_id, result_season_id, result, fixtures_by_stage[stage_id], standings_by_stage[stage_id])
 	if not committed:
 		registry.players_by_id = previous_players
 		if bool(statistics_result.get("ok", false)):
-			FootballDatabase.save_catalog_snapshot(registry.export_catalog_snapshot())
+			_football_database.save_catalog_snapshot(registry.export_catalog_snapshot())
 		standings_by_stage[stage_id] = standings_snapshot
 		fixtures_by_stage[stage_id] = fixtures_snapshot
 		return false
@@ -515,13 +519,13 @@ func get_download_recommendations() -> Dictionary:
 
  
 func get_installed_content_packages() -> Dictionary:
-	return ContentPackages.get_installed_packages()
+	return _content_packages.get_installed_packages()
 
 func get_downloaded_content_import_summary() -> Dictionary:
 	return downloaded_import_summary.duplicate(true)
 
 func is_downloaded_league_package_installed(package_id: String) -> bool:
-	return ContentPackages.is_package_installed(package_id)
+	return _content_packages.is_package_installed(package_id)
 
  
 func get_downloaded_national_teams() -> Array:
@@ -631,10 +635,10 @@ func apply_promotion_relegation_plan(moves: Array) -> Dictionary:
 		team["competition_level"] = target_level
 		team["division_level"] = target_level
 		registry.teams_by_id[team_id] = team
-	if not FootballDatabase.save_catalog_snapshot(registry.export_catalog_snapshot()):
+	if not _football_database.save_catalog_snapshot(registry.export_catalog_snapshot()):
 		registry.teams_by_id = previous_teams
 		registry.competitions_by_id = previous_competitions
-		return {"ok": false, "error": "No se pudieron guardar los ascensos y descensos: " + FootballDatabase.last_error}
+		return {"ok": false, "error": "No se pudieron guardar los ascensos y descensos: " + _football_database.last_error}
 	return {"ok": true, "moved_clubs": moved_ids.size(), "moves": moves.duplicate(true)}
 
 # Inicia una nueva edición de una fase ya terminada, manteniendo los participantes
@@ -654,11 +658,11 @@ func start_next_season_for_stage(stage_id: String, next_season_id: String, team_
 	fixtures_by_stage[stage_id] = generated.fixtures
 	standings_by_stage[stage_id] = STANDINGS.create_table(team_ids)
 	single_round_stages[stage_id] = not double_round_robin
-	if not FootballDatabase.save_competition_state(stage_id, next_season_id, fixtures_by_stage[stage_id], standings_by_stage[stage_id]):
+	if not _football_database.save_competition_state(stage_id, next_season_id, fixtures_by_stage[stage_id], standings_by_stage[stage_id]):
 		fixtures_by_stage[stage_id] = previous_fixtures
 		standings_by_stage[stage_id] = previous_standings
 		single_round_stages[stage_id] = previous_single_round
-		return {"ok": false, "error": "No se pudo guardar la nueva temporada: " + FootballDatabase.last_error}
+		return {"ok": false, "error": "No se pudo guardar la nueva temporada: " + _football_database.last_error}
 	return {"ok": true, "stage_id": stage_id, "season_id": next_season_id, "fixture_count": generated.fixture_count}
 
 # Archiva las estadísticas de temporada de todos los futbolistas y reinicia
@@ -671,9 +675,9 @@ func archive_season_player_statistics(season_id: String) -> Dictionary:
 		return archived
 	var previous_players: Dictionary = registry.players_by_id.duplicate(true)
 	registry.players_by_id = archived.players
-	if not FootballDatabase.save_catalog_snapshot(registry.export_catalog_snapshot()):
+	if not _football_database.save_catalog_snapshot(registry.export_catalog_snapshot()):
 		registry.players_by_id = previous_players
-		return {"ok": false, "error": "No se pudieron guardar las estadísticas archivadas: " + FootballDatabase.last_error}
+		return {"ok": false, "error": "No se pudieron guardar las estadísticas archivadas: " + _football_database.last_error}
 	return {"ok": true, "season_id": season_id, "archived_players": int(archived.get("archived_players", 0))}
 
 
@@ -696,20 +700,20 @@ func create_american_regional_champions_edition(competition_id: String, season_i
 	var created: Dictionary = AMERICAN_REGIONAL_CHAMPIONS_ENGINE.create_edition(competition_id, season_id, participants, expected_associations, matchday_windows, seed)
 	if not bool(created.get("ok", false)):
 		return created
-	var season_state: Dictionary = FootballDatabase.get_season_state(season_id)
+	var season_state: Dictionary = _football_database.get_season_state(season_id)
 	var regional_states: Dictionary = season_state.get("american_regional_champions_leagues", {})
 	if regional_states.has(competition_id):
 		return {"ok": false, "errors": ["Ya existe una edición regional de esa competición para la temporada."]}
 	regional_states[competition_id] = created.duplicate(true)
 	season_state["american_regional_champions_leagues"] = regional_states
-	if not FootballDatabase.save_season_state(season_id, season_state):
-		return {"ok": false, "errors": ["No se pudo guardar la edición regional: " + str(FootballDatabase.last_error)]}
+	if not _football_database.save_season_state(season_id, season_state):
+		return {"ok": false, "errors": ["No se pudo guardar la edición regional: " + str(_football_database.last_error)]}
 	var competition_name := "Liga de Campeones de Sudamérica" if competition_id == "south_america_champions_league_nova" else "Liga de Campeones de Norteamérica y Centroamérica"
 	_emit_competition_draw(competition_name, created.get("draw_presentation", []))
 	return {"ok": true, "edition": created.duplicate(true)}
 
 func get_american_regional_champions_edition(season_id: String, competition_id: String) -> Dictionary:
-	var season_state: Dictionary = FootballDatabase.get_season_state(season_id)
+	var season_state: Dictionary = _football_database.get_season_state(season_id)
 	var regional_states: Dictionary = season_state.get("american_regional_champions_leagues", {})
 	return regional_states.get(competition_id, {}).duplicate(true)
 
@@ -766,7 +770,7 @@ func _emit_competition_draw(competition_name: String, draw_result: Array) -> voi
 func create_tas_edition(season_id: String, qualifiers: Dictionary) -> Dictionary:
 	if registry == null or season_id.is_empty():
 		return {"ok": false, "error": "El registro deportivo o la temporada TAS no están disponibles."}
-	if tas_editions_by_season.has(season_id) or not FootballDatabase.get_competition_state(_tas_storage_key(season_id)).is_empty():
+	if tas_editions_by_season.has(season_id) or not _football_database.get_competition_state(_tas_storage_key(season_id)).is_empty():
 		return {"ok": false, "error": "Ya existe una edición TAS para esa temporada."}
 	var validation: Dictionary = TAS_COMPETITION_ENGINE.validate_qualifiers(qualifiers)
 	if not bool(validation.get("ok", false)):
@@ -781,7 +785,7 @@ func create_tas_edition(season_id: String, qualifiers: Dictionary) -> Dictionary
 		return created
 	var edition: Dictionary = created.edition
 	if not _persist_tas_edition(edition):
-		return {"ok": false, "error": "No se pudo guardar la edición TAS: " + str(FootballDatabase.last_error)}
+		return {"ok": false, "error": "No se pudo guardar la edición TAS: " + str(_football_database.last_error)}
 	tas_editions_by_season[season_id] = edition.duplicate(true)
 	_emit_competition_draw("Torneo Americano de Supercampeones (TAS)", edition.get("draw_presentation", []))
 	return {"ok": true, "edition": edition.duplicate(true)}
@@ -810,7 +814,7 @@ func advance_tas_edition(season_id: String) -> Dictionary:
 		return transition
 	var updated: Dictionary = transition.edition
 	if not _persist_tas_edition(updated):
-		return {"ok": false, "error": "No se pudo guardar el avance del TAS: " + str(FootballDatabase.last_error)}
+		return {"ok": false, "error": "No se pudo guardar el avance del TAS: " + str(_football_database.last_error)}
 	tas_editions_by_season[season_id] = updated.duplicate(true)
 	var stage_draw: Array = []
 	var draw_title := ""
@@ -845,7 +849,7 @@ func simulate_tas_fixture(season_id: String, stage_id: String, fixture: Dictiona
 			break
 	if stored_fixture.is_empty():
 		return {"ok": false, "error": "El fixture no pertenece a la fase y edición TAS indicadas."}
-	if str(stored_fixture.get("status", "scheduled")) == "finished" or FootballDatabase.has_match_result(fixture_id):
+	if str(stored_fixture.get("status", "scheduled")) == "finished" or _football_database.has_match_result(fixture_id):
 		return {"ok": false, "error": "El partido TAS ya tiene un resultado guardado."}
 	if str(stored_fixture.home_team_id) != str(fixture.home_team_id) or str(stored_fixture.away_team_id) != str(fixture.away_team_id):
 		return {"ok": false, "error": "Los clubes no coinciden con el fixture registrado."}
@@ -875,7 +879,7 @@ func simulate_tas_fixture(season_id: String, stage_id: String, fixture: Dictiona
 		return applied
 	var updated: Dictionary = applied.edition
 	if not _persist_tas_edition(updated, result):
-		return {"ok": false, "error": "No se pudo guardar el resultado y estado TAS: " + str(FootballDatabase.last_error)}
+		return {"ok": false, "error": "No se pudo guardar el resultado y estado TAS: " + str(_football_database.last_error)}
 	tas_editions_by_season[season_id] = updated.duplicate(true)
 	return {"ok": true, "result": result, "edition_status": str(updated.get("status", ""))}
 
@@ -885,7 +889,7 @@ func _tas_storage_key(season_id: String) -> String:
 func _load_tas_edition(season_id: String) -> Dictionary:
 	if tas_editions_by_season.has(season_id):
 		return tas_editions_by_season[season_id].duplicate(true)
-	var stored: Dictionary = FootballDatabase.get_competition_state(_tas_storage_key(season_id))
+	var stored: Dictionary = _football_database.get_competition_state(_tas_storage_key(season_id))
 	var wrapper: Dictionary = stored.get("standings", {})
 	var edition: Dictionary = wrapper.get("tas_edition", {})
 	if edition.is_empty():
@@ -901,8 +905,8 @@ func _persist_tas_edition(edition: Dictionary, result: Dictionary = {}) -> bool:
 	var fixtures: Array = TAS_COMPETITION_ENGINE.get_all_fixtures(edition)
 	var payload := {"tas_edition": edition.duplicate(true)}
 	if result.is_empty():
-		return FootballDatabase.save_competition_state(storage_key, season_id, fixtures, payload)
-	return FootballDatabase.commit_match_and_competition_state(storage_key, season_id, result, fixtures, payload)
+		return _football_database.save_competition_state(storage_key, season_id, fixtures, payload)
+	return _football_database.commit_match_and_competition_state(storage_key, season_id, result, fixtures, payload)
 
 
 func resolve_tas_group_result(regulation_result: Dictionary) -> Dictionary:
@@ -916,7 +920,7 @@ func save_tas_standings(season_id: String, stage_id: String, table: Dictionary, 
 		return {"ok": false, "error": "La temporada o la fase de clasificación del TAS no son válidas."}
 	if table.size() != 3:
 		return {"ok": false, "error": "Cada grupo del TAS debe contener exactamente tres clubes."}
-	var season_state: Dictionary = FootballDatabase.get_season_state(season_id)
+	var season_state: Dictionary = _football_database.get_season_state(season_id)
 	var tas_state: Dictionary = season_state.get("american_super_champions_tas", {})
 	var standings_by_stage: Dictionary = tas_state.get("standings_by_stage", {})
 	var ordered_by_stage: Dictionary = tas_state.get("ordered_standings_by_stage", {})
@@ -934,8 +938,8 @@ func save_tas_standings(season_id: String, stage_id: String, table: Dictionary, 
 	tas_state["ordered_standings_by_stage"] = ordered_by_stage
 	tas_state["tiebreak_draws_by_stage"] = draw_records
 	season_state["american_super_champions_tas"] = tas_state
-	if not FootballDatabase.save_season_state(season_id, season_state):
-		return {"ok": false, "error": "No se pudo guardar la clasificación y el registro de desempate del TAS: " + str(FootballDatabase.last_error)}
+	if not _football_database.save_season_state(season_id, season_state):
+		return {"ok": false, "error": "No se pudo guardar la clasificación y el registro de desempate del TAS: " + str(_football_database.last_error)}
 	return {"ok": true, "season_id": season_id, "stage_id": stage_id, "ordered_standings": ordered, "draw_record": draw_records[stage_id]}
 
 func resolve_tas_championship_final(regulation_result: Dictionary, extra_time_goals: Dictionary, penalty_shootout: Dictionary = {}) -> Dictionary:
@@ -959,15 +963,15 @@ func create_caribbean_champions_league_edition(season_id: String, participants: 
 	var edition: Dictionary = CARIBBEAN_CHAMPIONS_ENGINE.create_edition(season_id, participants, neutral_final_venue, seed)
 	if not bool(edition.get("ok", false)):
 		return edition
-	var season_state: Dictionary = FootballDatabase.get_season_state(season_id)
+	var season_state: Dictionary = _football_database.get_season_state(season_id)
 	season_state["caribbean_champions_league"] = edition
-	if not FootballDatabase.save_season_state(season_id, season_state):
-		return {"ok": false, "errors": ["No se pudo guardar la edición: " + str(FootballDatabase.last_error)]}
+	if not _football_database.save_season_state(season_id, season_state):
+		return {"ok": false, "errors": ["No se pudo guardar la edición: " + str(_football_database.last_error)]}
 	_emit_competition_draw("Liga de Campeones del Caribe", edition.get("draw_presentation", []))
 	return edition
 
 func get_caribbean_champions_league_state(season_id: String) -> Dictionary:
-	var saved: Dictionary = FootballDatabase.get_season_state(season_id)
+	var saved: Dictionary = _football_database.get_season_state(season_id)
 	return saved.get("caribbean_champions_league", {}).duplicate(true)
 
 func record_caribbean_group_result(season_id: String, group_id: String, result: Dictionary) -> Dictionary:
@@ -976,9 +980,9 @@ func record_caribbean_group_result(season_id: String, group_id: String, result: 
 		return {"ok": false, "error": "No existe una edición guardada para esa temporada."}
 	var response: Dictionary = CARIBBEAN_CHAMPIONS_ENGINE.record_group_result(edition, group_id, result, FootballDatabase)
 	if bool(response.get("ok", false)):
-		var saved: Dictionary = FootballDatabase.get_season_state(season_id)
+		var saved: Dictionary = _football_database.get_season_state(season_id)
 		saved["caribbean_champions_league"] = edition
-		if not FootballDatabase.save_season_state(season_id, saved):
+		if not _football_database.save_season_state(season_id, saved):
 			return {"ok": false, "error": "No se pudo actualizar la edición en el guardado de temporada."}
 	return response
 
@@ -989,9 +993,9 @@ func build_caribbean_champions_league_playoff(season_id: String) -> Dictionary:
 	var response: Dictionary = CARIBBEAN_CHAMPIONS_ENGINE.build_playoff(edition)
 	if not bool(response.get("ok", false)):
 		return response
-	var saved: Dictionary = FootballDatabase.get_season_state(season_id)
+	var saved: Dictionary = _football_database.get_season_state(season_id)
 	saved["caribbean_champions_league"] = edition
-	if not FootballDatabase.save_season_state(season_id, saved):
+	if not _football_database.save_season_state(season_id, saved):
 		return {"ok": false, "errors": ["No se pudo guardar la repesca."]}
 	return response
 
@@ -1002,9 +1006,9 @@ func set_caribbean_champions_league_round_of_16_draw(season_id: String, pairings
 	var response: Dictionary = CARIBBEAN_CHAMPIONS_ENGINE.set_round_of_16_draw(edition, pairings)
 	if not bool(response.get("ok", false)):
 		return response
-	var saved: Dictionary = FootballDatabase.get_season_state(season_id)
+	var saved: Dictionary = _football_database.get_season_state(season_id)
 	saved["caribbean_champions_league"] = edition
-	if not FootballDatabase.save_season_state(season_id, saved):
+	if not _football_database.save_season_state(season_id, saved):
 		return {"ok": false, "errors": ["No se pudo guardar el sorteo de octavos."]}
 	_emit_competition_draw("Liga de Campeones del Caribe · Octavos de final", _pairings_to_draw_presentation(pairings))
 	return response
@@ -1026,17 +1030,17 @@ func record_caribbean_knockout_result(season_id: String, fixture_bucket: String,
 			return response
 		edition.knockout_fixtures[fixture_bucket] = edition[fixture_bucket + "_fixtures"]
 		edition.erase(fixture_bucket + "_fixtures")
-		var saved_state: Dictionary = FootballDatabase.get_season_state(season_id)
+		var saved_state: Dictionary = _football_database.get_season_state(season_id)
 		saved_state["caribbean_champions_league"] = edition
-		if not FootballDatabase.save_season_state(season_id, saved_state):
+		if not _football_database.save_season_state(season_id, saved_state):
 			return {"ok": false, "error": "Resultado guardado, pero no se pudo actualizar el estado de temporada."}
 		return response
 	var playoff_response: Dictionary = CARIBBEAN_CHAMPIONS_ENGINE.record_knockout_result(edition, "playoff_fixtures", result, FootballDatabase)
 	if not bool(playoff_response.get("ok", false)):
 		return playoff_response
-	var saved: Dictionary = FootballDatabase.get_season_state(season_id)
+	var saved: Dictionary = _football_database.get_season_state(season_id)
 	saved["caribbean_champions_league"] = edition
-	if not FootballDatabase.save_season_state(season_id, saved):
+	if not _football_database.save_season_state(season_id, saved):
 		return {"ok": false, "error": "Resultado guardado, pero no se pudo actualizar el estado de temporada."}
 	return playoff_response
 
@@ -1047,9 +1051,9 @@ func set_caribbean_knockout_round(season_id: String, round_id: String, pairings:
 	var response: Dictionary = CARIBBEAN_CHAMPIONS_ENGINE.set_knockout_round(edition, round_id, pairings)
 	if not bool(response.get("ok", false)):
 		return response
-	var saved: Dictionary = FootballDatabase.get_season_state(season_id)
+	var saved: Dictionary = _football_database.get_season_state(season_id)
 	saved["caribbean_champions_league"] = edition
-	if not FootballDatabase.save_season_state(season_id, saved):
+	if not _football_database.save_season_state(season_id, saved):
 		return {"ok": false, "errors": ["No se pudo guardar el cuadro de " + round_id]}
 	_emit_competition_draw("Liga de Campeones del Caribe · " + round_id.replace("_", " ").capitalize(), _pairings_to_draw_presentation(pairings))
 	return response
@@ -1061,9 +1065,9 @@ func set_caribbean_champions_league_final(season_id: String, finalist_a: String,
 	var response: Dictionary = CARIBBEAN_CHAMPIONS_ENGINE.set_single_match_final(edition, finalist_a, finalist_b)
 	if not bool(response.get("ok", false)):
 		return response
-	var saved: Dictionary = FootballDatabase.get_season_state(season_id)
+	var saved: Dictionary = _football_database.get_season_state(season_id)
 	saved["caribbean_champions_league"] = edition
-	if not FootballDatabase.save_season_state(season_id, saved):
+	if not _football_database.save_season_state(season_id, saved):
 		return {"ok": false, "error": "No se pudo guardar la final."}
 	return response
 
@@ -1117,8 +1121,8 @@ func resolve_caribbean_knockout_tie(season_id: String, fixture_bucket: String, t
 		edition["playoff_fixtures"] = response.fixtures
 	else:
 		edition.knockout_fixtures[fixture_bucket] = response.fixtures
-	var saved: Dictionary = FootballDatabase.get_season_state(season_id)
+	var saved: Dictionary = _football_database.get_season_state(season_id)
 	saved["caribbean_champions_league"] = edition
-	if not FootballDatabase.save_season_state(season_id, saved):
+	if not _football_database.save_season_state(season_id, saved):
 		return {"ok": false, "error": "No se pudo guardar la decisión de la eliminatoria."}
 	return response
