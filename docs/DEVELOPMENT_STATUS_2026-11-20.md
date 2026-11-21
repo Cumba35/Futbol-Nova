@@ -310,3 +310,13 @@ Los reinicios ya se colocan en el campo y asignan el equipo correcto, pero aún 
 - La implementación todavía no está validada por CI. Los workflows 530–534 se cancelaron por pushes sucesivos; el workflow 535 quedó pendiente y la actualización de documentación generará otro run. Se debe esperar un workflow que incluya el último commit y revisar todos los pasos antes de marcarlo como terminado.
 - Próxima revisión técnica: comprobar compilación Godot 4.4.1, ciclo de cambio con posesión/no posesión, promoción y retorno a los modelos originales, controles táctiles, pausa/reanudación y exportación/smoke test Android. No fusionar PR #10 ni publicar APK.
 - La PR #10 permanece abierta en draft, pero su head actual es `feature/friendly-runtime-research-2026-11-20`, no la rama de trabajo `work/friendly-match-completion-2026-11-20`. La comparación indica ramas divergidas (48 commits exclusivos en work y 3 en feature); no se ha alterado la PR. Resolver esta discrepancia de integración antes de presentar estos commits como parte de PR #10.
+
+
+## Fútbol Nova — control de equipo / jugador individual (2026-11-21 09:41 UTC)
+
+- Se implementó la selección persistente entre control de equipo (estilo FIFA) y control de un jugador desde la preparación del amistoso y Configuración > Juego.
+- En control individual se puede elegir el futbolista inicial del once local. En pausa se puede seleccionar otro jugador o volver al control de equipo.
+- El controlador expone los once IDs y selección directa; el cambio puede hacerse con el partido pausado.
+- Se añadió avatar genérico para jugadores locales sin escena 3D individual, evitando sustituir su identidad visual por el avatar de Anier.
+- Se corrigió la prueba de ciclo para recorrer once cambios y regresar al jugador inicial; la prueba de falta usa el jugador actualmente controlado.
+- No declarar validado hasta que el workflow Godot 4.4.1 termine en verde. El último workflow observado antes de estos commits falló en el test de amistoso por expectativas incorrectas del ciclo y por emitir una falta para un jugador que ya no era el controlado.
