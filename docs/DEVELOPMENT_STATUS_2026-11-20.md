@@ -262,3 +262,12 @@ Los reinicios ya se colocan en el campo y asignan el equipo correcto, pero aún 
 - Run 44884835646 (commit `bcc2677dbcc3da63367c87b5bdb9919176d6ab5b`) continúa ejecutando; importación de clubes y pruebas previas de base, 11v11, arranque atómico y partido completo han pasado en la última consulta. El test del importador original/Raymond estaba en curso; no hay resultado global final ni APK validada.
 - Próximo cambio de código: P1 control de los once con intercambio atómico de identidad, modelo, ID, estado y posesión. No implementar un teletransporte que conserve el modelo visual de Anier bajo el ID de otro jugador.
 - No fusionar PR #10 ni publicar sin autorización expresa.
+
+
+## Corrección de regresión del selector de avatar — 21-11-2026
+
+- El run 44884835646 (workflow 518) terminó en fallo en el check 86 de `tests/test_anier_cumba_profile.gd`. El error no estaba en la escena de Anier: la prueba aún exigía el antiguo selector por nombre de club («Litoral Barcelona»), mientras `scripts/main.gd` ya resuelve el avatar por ID de futbolista (`NOVA-PLAYER-0035/0036/0037`).
+- Se actualizó la prueba para verificar el contrato vigente: selección por ID, escenas dedicadas para Máximo y Raymond, y Anier como escena predeterminada. No se alteró la lógica de juego ni se cambió la identidad visual.
+- Commit: `c117774c483da8d78b4f35d4369922b1d74eed9c`. Espejo actualizado en Nova Workspace; el blob del archivo de prueba coincide exactamente (`8b2255b246a35d6989ef0c7eda6d16da4e5f8d6e`).
+- Nuevo workflow 521 / run `44886164732` está pendiente al registrar esta nota. Se esperará su resultado antes de declarar CI verde o APK validada.
+- La implementación de control directo de los once aún no se ha modificado: primero debe resolverse el traspaso correcto de visual, estado y control entre actores, sin teletransportar ni mezclar identidades.
