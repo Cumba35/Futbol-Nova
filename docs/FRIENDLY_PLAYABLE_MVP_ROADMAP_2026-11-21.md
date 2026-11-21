@@ -15,7 +15,7 @@ Entregar primero un amistoso local completo que pueda iniciarse, jugarse y final
 | Subsistema | Lo que existe | Trabajo necesario antes de marcarlo completo |
 |---|---|---|
 | Inicio de amistoso | Selector de equipos, alineaciones 11v11 y validación de catálogo | Validar la sesión real de principio a fin en Android |
-| Control humano | Un `CharacterBody3D` y un ID controlado | No existe cambio funcional entre los once jugadores |
+| Control humano | Cambio manual entre los once jugadores locales, con ID y nodo visual conservados | Pendiente de validación Godot/CI y prueba táctil en Android; modo de un jugador y cambio asistido aún pendientes |
 | IA | Movimiento táctico, persecución del balón, pases, tiros y tackles básicos | Roles, apoyos, presión, decisiones de pase/tiro y comportamiento sin balón más robustos |
 | Porteros | Posicionamiento predictivo y `AnimatableBody3D` con cápsula | Reacción a disparos, desplazamiento lateral explosivo, blocaje/desvío, recuperación y estadísticas de atajadas |
 | Reglas | Reloj, goles, pausas, cambio de campo y algunos reinicios | Árbitro/estado de reinicios unificado, faltas, tiros libres, penaltis reglamentarios y límites de balón |
@@ -40,9 +40,10 @@ Entregar primero un amistoso local completo que pueda iniciarse, jugarse y final
 ### P1 — Control de equipo (prioridad máxima)
 - [ ] Ajuste de amistoso: `Controlar los 11 jugadores` (predeterminado).
 - [ ] Ajuste alternativo: `Controlar un solo jugador`.
-- [ ] En modo 11: cambiar de jugador con botón táctil y acción configurable de teclado/mando.
+- [x] En modo 11: cambio manual cíclico con botón táctil `CAMBIO` y tecla `TAB`.
+- [ ] Validar la promoción/reutilización de actores, animaciones y colisiones en Godot 4.4.1 y Android.
 - [ ] Cambio asistido opcional al defender, sin cambiar de forma inesperada al jugador cuando el usuario usa cambio manual.
-- [ ] Mantener control humano solo en un futbolista a la vez; los otros diez vuelven a IA inmediatamente.
+- [x] Mantener control humano solo en un futbolista a la vez; los otros diez vuelven a IA inmediatamente (implementación inicial pendiente de CI).
 - [ ] Conservar ID, dorsal, modelo/visual, atributos, stamina, posición y equipo al cambiar.
 - [ ] No permitir seleccionar jugadores del rival.
 - [ ] Probar cambio con balón, sin balón, durante pase, tiro, pausa, gol y reinicio.
@@ -105,4 +106,15 @@ Cada cambio de código, prueba, configuración o documento de Fútbol Nova debe 
 
 ## Estado de esta revisión
 
-La auditoría de código confirma que el cambio entre once jugadores no está implementado. El modo de amistoso está en fase de prototipo funcional con limitaciones; no se declara terminado. El siguiente cambio de código debe abordar P1 con una solución de identidad/modelo y control atómica, seguida de pruebas headless y Android.
+La auditoría inicial confirmó que el cambio entre once no existía. Se ha añadido una primera implementación: el actor que deja de estar controlado conserva su nodo/modelo y estado como actor IA; el siguiente actor local se promueve a CharacterBody3D conservando sus hijos visuales, ID y posición. Se incorporó ciclo manual con TAB y botón táctil CAMBIO, más una prueba de aceptación que recorre los once IDs. Esta implementación todavía no se considera validada: debe pasar Godot 4.4.1, la prueba de amistoso y la exportación/smoke test Android. El amistoso sigue en desarrollo.
+
+
+## Implementación inicial del cambio manual — 21-11-2026
+
+- Se añadió `switch_to_next_home_player()` al controlador 11v11 con ciclo determinista por los once IDs del once local.
+- El futbolista saliente conserva su mismo nodo CharacterBody3D, script, modelo y metadatos, y pasa a IA. Un actor genérico seleccionado se promueve a CharacterBody3D transfiriendo sus hijos visuales, ID y transformación; no se teletransporta el avatar anterior para fingir otra identidad.
+- Se conserva el último toque registrado al cambiar de futbolista y se actualiza la referencia `main.player` al nuevo nodo controlado.
+- Se añadió tecla TAB y botón táctil CAMBIO. La prueba de runtime recorre diez cambios desde Anier para comprobar once IDs únicos, 11 jugadores por equipo, 21 actores IA, referencia activa y conservación del último toque.
+- Commits de implementación: `f03952ca37066e81d64c75d7a67d9d5e16704cd0`, `ba7f37fa0a0983d56b2b2bf4ece424e785a4a64e`, `8f8fd368cc25c834a90bf38b32479f1fe1a66fda`, `63c9f298025caeb3c3bd8e7d95b602c201858129`, `1c4b4bce97e7ff8e5b0b7b5ab938112532de423a` y `1e768a3c0beb706ac89c3c0eaf22eae0eb8900f1`.
+- Los cuatro archivos de código/prueba afectados se espejaron en Nova Workspace y se releyeron con igualdad exacta de SHA de blob.
+- El workflow 535 está pendiente al registrar esta actualización. Los runs 530–534 fueron cancelados por pushes sucesivos; el run 528 anterior sigue en ejecución. No se declara aprobado el cambio hasta que un workflow que incluya el último commit termine correctamente.
