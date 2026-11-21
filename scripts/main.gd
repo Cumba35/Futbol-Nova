@@ -387,6 +387,7 @@ func _create_match_11v11_controller() -> void:
 	match_11v11_controller = MATCH_11V11_CONTROLLER.new()
 	match_11v11_controller.name = "LocalMatch11v11Controller"
 	match_11v11_controller.add_to_group("match_controller")
+	match_11v11_controller.foul_committed.connect(_on_friendly_foul_committed)
 	add_child(match_11v11_controller)
 
 func _create_hud() -> void:
@@ -774,6 +775,51 @@ func _on_player_pressure_action_requested() -> void:
 	else:
 		if gesture_hint_label != null:
 			gesture_hint_label.text = "Presión disponible durante un partido 11 contra 11."
+
+
+func _on_friendly_foul_committed(player_id: String, fouling_team_id: String, severity: String) -> void:
+	if not is_instance_valid(match_11v11_controller) or not match_11v11_controller.is_match_active():
+		return
+	var summary: Dictionary = match_11v11_controller.get_match_summary()
+	var home_team_id := str(summary.get("home_team_id", ""))
+	var away_team_id := str(summary.get("away_team_id", ""))
+	if fouling_team_id != home_team_id and fouling_team_id != away_team_id:
+		return
+	var foul_position := ball.global_position if is_instance_valid(ball) else Vector3.ZERO
+	if player_id == controlled_player_id or player_id == "controlled_player":
+		if is_instance_valid(player):
+			foul_position = player.global_position
+	else:
+		for actor_data in match_11v11_controller.get("_actors"):
+			if str(actor_data.get("player_id", "")) == player_id:
+				var actor: Node3D = actor_data.get("node")
+				if is_instance_valid(actor):
+					foul_position = actor.global_position
+				break
+	var restart_position := Vector3(
+		clampf(foul_position.x, -FIELD_WIDTH * 0.5 + 1.0, FIELD_WIDTH * 0.5 - 1.0),
+		0.35,
+		clampf(foul_position.z, -FIELD_LENGTH * 0.5 + 1.0, FIELD_LENGTH * 0.5 - 1.0)
+	)
+	var awarded_home := fouling_team_id == away_team_id
+	var restart_team := 1 if awarded_home else 0
+	match_11v11_controller.call("set_clock_interruption", "foul_restart", true)
+	if not bool(match_11v11_controller.call("reset_ball_for_restart", restart_position, restart_team)):
+		match_11v11_controller.call("set_clock_interruption", "foul_restart", false)
+		return
+	_friendly_restart_cooldown = 0.9
+	_previous_friendly_ball_position = ball.global_position
+	_has_previous_friendly_ball_position = true
+	if gesture_hint_label != null:
+		var awarded_name := home_team_display_name if awarded_home else away_team_display_name
+		var foul_label := "grave" if severity == "serious" else "cometida"
+		gesture_hint_label.text = "Falta %s. Tiro libre para %s." % [foul_label, awarded_name]
+	_release_foul_clock_interruption()
+
+func _release_foul_clock_interruption() -> void:
+	await get_tree().create_timer(1.25).timeout
+	if is_instance_valid(match_11v11_controller) and match_11v11_controller.is_match_active():
+		match_11v11_controller.call("set_clock_interruption", "foul_restart", false)
 
 
 func _open_optional_modules_catalog() -> void:
