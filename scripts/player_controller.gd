@@ -1,5 +1,7 @@
 extends CharacterBody3D
 
+var _procedural_walk_phase := 0.0
+
 signal skill_action_requested
 signal pressure_action_requested
 
@@ -28,6 +30,7 @@ func _physics_process(delta: float) -> void:
 		rotation.y = atan2(-direction.x, -direction.z)
 
 	move_and_slide()
+	_update_procedural_walk(delta)
 
 	if Input.is_action_just_pressed("pass_ball"):
 		_kick_ball(pass_force)
@@ -37,6 +40,26 @@ func _physics_process(delta: float) -> void:
 		skill_action_requested.emit()
 	if Input.is_action_just_pressed("pressure_action"):
 		pressure_action_requested.emit()
+
+func _update_procedural_walk(delta: float) -> void:
+	var visual := get_node_or_null("FootballerVisual") as Node3D
+	if visual == null:
+		return
+	_procedural_walk_phase += delta * (4.5 + velocity.length() * 0.45)
+	var intensity := clampf(Vector2(velocity.x, velocity.z).length() / maxf(move_speed, 0.1), 0.0, 1.0)
+	var swing := sin(_procedural_walk_phase) * 0.62 * intensity
+	var left_leg := visual.get_node_or_null("LeftLegPivot") as Node3D
+	var right_leg := visual.get_node_or_null("RightLegPivot") as Node3D
+	var left_arm := visual.get_node_or_null("LeftArmPivot") as Node3D
+	var right_arm := visual.get_node_or_null("RightArmPivot") as Node3D
+	if left_leg != null:
+		left_leg.rotation.x = swing
+	if right_leg != null:
+		right_leg.rotation.x = -swing
+	if left_arm != null:
+		left_arm.rotation.x = -swing * 0.72
+	if right_arm != null:
+		right_arm.rotation.x = swing * 0.72
 
 func _kick_ball(force: float) -> void:
 	var ball := get_tree().get_first_node_in_group("match_ball") as RigidBody3D
