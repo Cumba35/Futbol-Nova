@@ -260,6 +260,8 @@ func start_match(controlled_player: CharacterBody3D, match_ball: RigidBody3D, ma
 	return {"ok": true, "home_players": 11, "away_players": 11, "controlled_player_id": _controlled_player_id}
 
 func switch_to_next_home_player() -> Dictionary:
+	if _control_mode == "single":
+		return {"ok": false, "error": "Control individual activo. Cambia de futbolista desde Configuración > Juego o vuelve al control de equipo."}
 	if not _active or _paused or not is_instance_valid(_player) or _home_player_order.size() != 11:
 		return {"ok": false, "error": "El cambio de jugador no está disponible ahora."}
 	var current_index := _home_player_order.find(_controlled_player_id)
