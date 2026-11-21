@@ -47,9 +47,9 @@ func _run() -> void:
 	_check(str(clock_state.get("clock_mode", "")) == "continuous", "El estado del reloj debe usar el modo continuo predeterminado.", failures)
 
 	var roster: Array[Dictionary] = []
-	var positions := ["POR", "LI", "DFC", "DFC", "LD", "MCD", "MC", "MCO", "EI", "DC", "ED"]
+	var positions: Array[String] = ["POR", "LI", "DFC", "DFC", "LD", "MCD", "MC", "MCO", "EI", "DC", "ED"]
 	for index in range(22):
-		var position := positions[index] if index < positions.size() else "MC"
+		var position: String = positions[index] if index < positions.size() else "MC"
 		roster.append({"id": "TEST_PLAYER_%02d" % index, "primary_position": position, "overall": 60 + index})
 	var lineup := PreMatchSetup.build_starting_eleven(roster)
 	_check(lineup.size() == 11, "La selección de titulares debe devolver exactamente once IDs.", failures)
