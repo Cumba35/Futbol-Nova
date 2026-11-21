@@ -323,3 +323,14 @@ Los reinicios ya se colocan en el campo y asignan el equipo correcto, pero aún 
 
 - Diferencia funcional de modalidades: `team` permite alternar al vuelo con CAMBIO/TAB; `single` mantiene al futbolista elegido y bloquea el ciclo automático. Si el usuario quiere cambiarlo, abre pausa > Configuración > Juego y selecciona otro; desde ahí también puede volver a Control de equipo.
 - El último futbolista activo se guarda como preferencia local cuando se cambia mediante CAMBIO/TAB o el selector de pausa.
+
+
+## Validación del amistoso y APK Android — 21-11-2026 19:53 UTC
+
+- La ejecución GitHub Actions #591 (44942050664) terminó con conclusión success en el commit 46c9f1a67250aad6bfaa6744f3d704cbee98789c.
+- Los 61 pasos del job finalizaron correctamente. Incluye importación de recursos Godot 4.4.1, exportación Android ARM64, pruebas de entrada táctil, base 11v11, partido amistoso en vivo con goles y períodos, IA de tiro y dirección, posicionamiento del portero, escena Android, regresiones completas y validación de módulos opcionales.
+- Se generó y subió el artefacto futbol-nova-android-debug, ID 14722277336, tamaño 29,752,378 bytes, SHA-256 7b0b7964226f985ad914935e4aac5886149fe3aaa9f5aab946cd455687d13887, con vencimiento el 05-12-2026 19:52 UTC. Es una APK de depuración Android ARM64.
+- También se publicó el artefacto de código fuente Godot futbol-nova-godot-source, ID 14721828251.
+- Esto confirma compilación y pruebas automatizadas en CI; no equivale a una instalación ni prueba física en el teléfono del usuario. La validación real de controles, rendimiento y experiencia de juego en Android queda pendiente de que el usuario instale y juegue la APK.
+- No se fusionó ninguna PR ni se publicó una versión de producción. La APK es un artefacto de prueba de CI.
+- Ejecución y descarga: https://github.com/Cumba35/Futbol-Nova/actions/runs/44942050664
