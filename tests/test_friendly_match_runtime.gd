@@ -157,6 +157,7 @@ func _run_acceptance_test() -> void:
 			var selected_home_id: String = str(setup._selected_team_id(setup._home_teams))
 			var selected_away_id: String = str(setup._selected_team_id(setup._away_teams))
 			var expected_controlled_player_id := setup._selected_controlled_player_id()
+			var expected_controlled_player_name := setup._controlled_player.get_item_text(setup._controlled_player.selected) if setup._controlled_player.selected >= 0 else expected_controlled_player_id
 			if selected_home_id != "FN-NOVA-C35":
 				failures.append("El amistoso debe mostrar Nova C35 como selección local inicial.")
 			if selected_away_id != "FN-NOVA-RDA":
@@ -201,7 +202,7 @@ func _run_acceptance_test() -> void:
 					failures.append("El partido no creó los 21 futbolistas de IA además del jugador controlado.")
 				if str(summary.get("controlled_player_id", "")) != expected_controlled_player_id:
 					failures.append("El motor no conservó el futbolista seleccionado en la preparación del amistoso.")
-				if str(game.controlled_player_display_name) != str(summary.get("controlled_player_name", "")):
+				if str(game.controlled_player_display_name) != expected_controlled_player_name:
 					failures.append("El avatar controlado no coincide con la identidad del futbolista elegido.")
 				var custom_actor_found := false
 				var raymond_actor_found := false
