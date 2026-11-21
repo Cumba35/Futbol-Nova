@@ -91,3 +91,12 @@ La ejecución `44676705137` terminó cancelada; no debe leerse como prueba aprob
 - La documentación de plantillas ahora refleja 22 IDs por club y distingue los perfiles ficticios de datos históricos reales.
 - CI de esta rama: ejecución `44838944703` en curso y ejecución `44839033925` en cola al registrar esta actualización. La primera ya superó importación, exportación de prueba y pruebas base de entrada, balón y 11v11; todavía ejecutaba la aceptación integrada del amistoso. La segunda incluye las pruebas nuevas de selección e inicio atómico.
 - La copia maestra y sus documentos se sincronizaron en `Cumba35/Nova-Workspace/proyectos/juegos/futbol-nova/`. No se ha fusionado ninguna rama y el APK de esta iteración no está validado hasta completar CI e instalación real en Android.
+
+
+## Validación de amistoso y APK de prueba — 21-11-2026
+
+- GitHub Actions #591 (44942050664) terminó en verde: los 61 pasos del job finalizaron correctamente, incluidas las pruebas integradas del amistoso 11v11, IA, goles, períodos, portero, escena Android y regresiones.
+- APK Android ARM64 de depuración generada y subida como artefacto futbol-nova-android-debug (ID 14722277336, 29,752,378 bytes; SHA-256 7b0b7964226f985ad914935e4aac5886149fe3aaa9f5aab946cd455687d13887). Disponible hasta el 05-12-2026.
+- La CI confirma exportación y pruebas automatizadas, no una prueba física en el dispositivo del usuario. La instalación y el partido real en Android siguen pendientes de comprobación por el usuario.
+- Abrir ejecución #591 y descargar el artefacto: https://github.com/Cumba35/Futbol-Nova/actions/runs/44942050664
+- No se fusionó la PR ni se publicó una versión de producción.
