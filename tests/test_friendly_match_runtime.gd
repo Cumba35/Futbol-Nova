@@ -450,6 +450,17 @@ func _run_acceptance_test() -> void:
 				if not bool(restarted_match.get("ok", false)):
 					failures.append("No se pudo reiniciar el amistoso para comprobar los goles.")
 				else:
+					# A ball crossing the touchline must be put back in play and
+					# the restart must be awarded to the side that did not touch it last.
+					game._previous_friendly_ball_position = Vector3(33.7, 0.35, 12.0)
+					game._has_previous_friendly_ball_position = true
+					game.ball.global_position = Vector3(34.5, 0.35, 12.0)
+					game._update_friendly_ball_exit(0.016)
+					var touchline_summary: Dictionary = game.match_11v11_controller.get_match_summary()
+					if str(touchline_summary.get("restart_team", "")) != "away":
+						failures.append("El saque de banda no se asignó al equipo contrario al último toque.")
+					if game.ball.global_position.distance_to(Vector3(34.0, 0.35, 12.0)) > 0.01:
+						failures.append("El balón no volvió a una posición válida dentro del campo tras el saque de banda.")
 					game._on_goal_body_entered(game.ball, "home")
 					if game.score_home != 1 or game.score_away != 0:
 						failures.append("El gol válido en la portería visitante no actualizó el marcador local.")
