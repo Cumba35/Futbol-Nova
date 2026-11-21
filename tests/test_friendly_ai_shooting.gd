@@ -74,7 +74,12 @@ func _run_tests() -> void:
 		"player_data": {"attributes": {"shot": 90, "fin": 90}}
 	}
 	controller._actors.append(actor_data)
+	controller._controlled_player_id = "human_controlled_player_test"
 	controller.call("_try_ai_ball_action", 0, actor_data)
+	if controller.get_last_touch_player_id() != "friendly_ai_shooter_test":
+		failures.append("El último toque del remate IA no conserva el ID del futbolista que disparó.")
+	if controller.get_last_touch_player_id() == controller._controlled_player_id:
+		failures.append("El remate IA se atribuyó incorrectamente al futbolista controlado.")
 	await physics_frame
 	if ball.linear_velocity.length() < 1.0:
 		failures.append("La IA con posesión en zona de remate no aplicó un impulso real al balón.")
@@ -90,5 +95,5 @@ func _run_tests() -> void:
 			push_error("FÚTBOL NOVA AI SHOOTING: " + failure)
 		quit(1)
 		return
-	print("FÚTBOL NOVA AI SHOOTING: selección de tiro, orientación por lado y lanzamiento físico superados.")
+	print("FÚTBOL NOVA AI SHOOTING: selección de tiro, orientación por lado, lanzamiento físico y atribución del último toque superados.")
 	quit(0)
