@@ -238,3 +238,13 @@ Los reinicios ya se colocan en el campo y asignan el equipo correcto, pero aún 
 - Añadir pruebas automatizadas para el valor predeterminado, ambas modalidades, bloqueo del cambio de jugador en modo individual y persistencia durante los estados del partido.
 
 **Estado:** requisito confirmado y registrado para la siguiente fase; todavía no se declara implementado ni probado. Debe implementarse respetando las reglas y controles ya existentes, sin reemplazar el modo 11 jugadores como predeterminado.
+
+
+## Diagnóstico CI y corrección de perfil — 21-11-2026
+
+- Run 44884181189 (workflow run 515, commit inicial `5c516b0096846c6ba9aef914622d921c548f4f1e`) superó la importación, exportación inicial ARM64, controles básicos, partido amistoso, goles/períodos, IA de remate, posicionamiento del portero, geometría del estadio, perfil de Máximo y políticas de acceso/recursos.
+- Falló en `tests/test_anier_cumba_profile.gd`: la prueba esperaba el club Real Madrid, pero el registro canónico `data/custom_players.json` ya asigna a Anier a Nova C35 (`FN-NOVA-C35`). No es un fallo de atributos ni del motor de partido; es una aserción obsoleta.
+- Se corrigieron las aserciones de club actual en `tests/test_anier_cumba_profile.gd` y la ficha `docs/ANIER_CUMBA_PLAYER_IMPLEMENTATION.md`. Se conserva Real Madrid como club favorito y Nova C35 como club actual dentro de Fútbol Nova.
+- Commit de corrección de prueba: `e11dd4a196a7bcb6da01b2dfcce268ce5499280d`. Commit de documentación: `927521eafbbed1c788d11666b590b553f664ac88`.
+- El nuevo CI debe confirmar la corrección y ejecutar las regresiones restantes. No se declara validado ni se publica APK hasta obtener resultado completo.
+- La modalidad «Controlar a los 11 jugadores» por defecto y «Controlar un solo jugador» sigue siendo requisito registrado, no implementación terminada. La siguiente fase debe incluir selección/cambio de jugador en el primer modo, bloqueo de cambio en el segundo, IA para los demás y pruebas de persistencia en goles, pausas, reinicios y cambios de período.
