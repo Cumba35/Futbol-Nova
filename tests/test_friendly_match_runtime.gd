@@ -227,6 +227,16 @@ func _run_acceptance_test() -> void:
 					failures.append("Raymond y Máximo deben aparecer una sola vez en sus equipos durante el amistoso.")
 				if duplicate_controlled_actor_found:
 					failures.append("El futbolista controlado no debe aparecer duplicado como actor de IA.")
+				var actors_without_humanoid_visual := 0
+				for actor_data in game.match_11v11_controller._actors:
+					var actor_node := actor_data.get("node") as Node3D
+					var footballer_visual := actor_node.get_node_or_null("FootballerVisual") as Node3D if is_instance_valid(actor_node) else null
+					if footballer_visual == null or not bool(footballer_visual.get_meta("procedural_footballer", false)):
+						actors_without_humanoid_visual += 1
+					elif footballer_visual.get_node_or_null("LeftLegPivot") == null or footballer_visual.get_node_or_null("RightArmPivot") == null:
+						actors_without_humanoid_visual += 1
+				if actors_without_humanoid_visual > 0:
+					failures.append("El amistoso creó %d actores IA sin modelo humanoide 3D articulado." % actors_without_humanoid_visual)
 				if game.player == null or not is_instance_valid(game.player):
 					failures.append("El jugador controlado dejó de existir al iniciar el amistoso.")
 				elif game.match_11v11_controller._player != game.player:
