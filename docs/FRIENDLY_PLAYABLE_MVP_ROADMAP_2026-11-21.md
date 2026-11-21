@@ -1,0 +1,108 @@
+# Fútbol Nova — plan de cierre del amistoso jugable
+
+**Fecha:** 2026-11-21  
+**Rama de trabajo:** `work/friendly-match-completion-2026-11-20`  
+**Partido de aceptación fijo:** Nova C35 vs FC Río de Argenti  
+**Jugador de prueba:** Anier Cumbá (`NOVA-PLAYER-0035`)  
+**Motor:** Godot 4.4.1, GDScript, objetivo Android ARM64.
+
+## Objetivo
+
+Entregar primero un amistoso local completo que pueda iniciarse, jugarse y finalizarse de forma repetible. No ampliar carrera, online ni modos secundarios mientras el amistoso tenga bloqueos de jugabilidad.
+
+## Auditoría del estado real del código
+
+| Subsistema | Lo que existe | Trabajo necesario antes de marcarlo completo |
+|---|---|---|
+| Inicio de amistoso | Selector de equipos, alineaciones 11v11 y validación de catálogo | Validar la sesión real de principio a fin en Android |
+| Control humano | Un `CharacterBody3D` y un ID controlado | No existe cambio funcional entre los once jugadores |
+| IA | Movimiento táctico, persecución del balón, pases, tiros y tackles básicos | Roles, apoyos, presión, decisiones de pase/tiro y comportamiento sin balón más robustos |
+| Porteros | Posicionamiento predictivo y `AnimatableBody3D` con cápsula | Reacción a disparos, desplazamiento lateral explosivo, blocaje/desvío, recuperación y estadísticas de atajadas |
+| Reglas | Reloj, goles, pausas, cambio de campo y algunos reinicios | Árbitro/estado de reinicios unificado, faltas, tiros libres, penaltis reglamentarios y límites de balón |
+| Estadísticas | `NovaPlayerStatisticsService` para carrera/temporada | Resumen exclusivo del amistoso; no escribir estadísticas de liga/carrera en amistosos de prueba |
+| Validación | Pruebas de importación, alineación, IA, portero y runtime | Prueba de control/cambio, atajadas reales, faltas/reinicios, resumen estadístico y ciclo completo en dispositivo |
+
+### Hallazgo crítico de control
+
+`NovaMatch11v11Controller.start_match()` crea un jugador humano y 21 actores IA. El modo de control de los once no está implementado todavía. La opción de un solo jugador debe conservar la selección fija (Anier por defecto cuando C35 es local). El modo de once debe permitir cambiar de futbolista sin duplicar nodos, perder la posesión, alterar el ID del último toque ni romper la IA del jugador que queda sin control.
+
+**Requisito de arquitectura:** no simular un cambio de jugador teletransportando el avatar de Anier y dejando su identidad visual asociada a otro ID. La identidad, el modelo, el estado de movimiento, la posesión y el ID de estadísticas deben cambiar de forma atómica. Si el modelo no puede intercambiarse correctamente, no habilitar la opción hasta resolverlo.
+
+## Fases de implementación y criterios de aceptación
+
+### P0 — Base CI y ejecución repetible
+- [ ] Completar el workflow actual; registrar el resultado de cada prueba.
+- [ ] Corregir cualquier regresión con prueba que reproduzca el fallo.
+- [ ] Exportar APK ARM64 y comprobar instalación/arranque en Android.
+- [ ] Confirmar C35 local, RDA visitante y Anier seleccionado por defecto.
+- [ ] No fusionar PR #10 ni publicar APK sin autorización.
+
+### P1 — Control de equipo (prioridad máxima)
+- [ ] Ajuste de amistoso: `Controlar los 11 jugadores` (predeterminado).
+- [ ] Ajuste alternativo: `Controlar un solo jugador`.
+- [ ] En modo 11: cambiar de jugador con botón táctil y acción configurable de teclado/mando.
+- [ ] Cambio asistido opcional al defender, sin cambiar de forma inesperada al jugador cuando el usuario usa cambio manual.
+- [ ] Mantener control humano solo en un futbolista a la vez; los otros diez vuelven a IA inmediatamente.
+- [ ] Conservar ID, dorsal, modelo/visual, atributos, stamina, posición y equipo al cambiar.
+- [ ] No permitir seleccionar jugadores del rival.
+- [ ] Probar cambio con balón, sin balón, durante pase, tiro, pausa, gol y reinicio.
+- [ ] Modo de un jugador: el jugador controlado nunca cambia automáticamente.
+
+### P2 — IA para los 21 no controlados
+- [ ] Roles de 4-3-3, líneas y distancias de apoyo.
+- [ ] Reacción de compañeros a pase, desmarque, pérdida y recuperación.
+- [ ] Presión por cercanía/ángulo, cobertura y repliegue.
+- [ ] Portador IA: decidir entre pase, conducción, tiro y despeje.
+- [ ] Evitar persecución colectiva del balón y solapamientos.
+- [ ] Dificultad y coste de CPU configurables para Android.
+- [ ] Pruebas deterministas de escenarios y test de carga de 22 jugadores.
+
+### P3 — Porteros
+- [ ] Predicción de punto de intercepción y tiempo de reacción.
+- [ ] Paso lateral y estirada con límite de alcance, cooldown y recuperación.
+- [ ] Blocaje cuando la velocidad/altura y orientación lo permitan; si no, desvío controlado.
+- [ ] Despeje con dirección segura y sin conceder posesión fantasma.
+- [ ] Reacción a rebotes y segundas jugadas.
+- [ ] Pruebas de tiro bajo, alto, cruzado, cercano, lejano, rebote y penalti.
+- [ ] Contabilizar atajadas solo tras contacto/intervención válida, no por mero posicionamiento.
+
+### P4 — Reglas y reinicios
+- [ ] Máquina de estados única para saque inicial, banda, córner, saque de puerta, falta, penalti, descanso y final.
+- [ ] Determinar equipo beneficiado a partir del último toque registrado.
+- [ ] Colocar jugadores y balón en posiciones legales antes de reanudar.
+- [ ] Evitar movimiento, robo de balón o gol durante el estado de reinicio.
+- [ ] Añadir faltas, ventaja si se implementa, tiros libres y tarjetas con pruebas.
+- [ ] Verificar cambio de lado y equipo que saca en cada período.
+
+### P5 — Estadísticas y validación
+- [ ] Estadísticas de partido aisladas: posesión, tiros, tiros a puerta, goles, pases, precisión, tackles, faltas y paradas.
+- [ ] Atribución por jugador solo con ID de evento verificable.
+- [ ] Resumen final y reinicio limpio para un segundo amistoso.
+- [ ] No modificar tablas de liga, carrera, Momentos diarios ni estadísticas oficiales.
+- [ ] Pruebas de invariantes: 22 jugadores, 11 por lado, IDs únicos, marcador consistente, reloj válido y eventos ordenados.
+- [ ] Prueba de sesión larga, pausa/reanudación, descanso, prórroga, penaltis y salida al menú.
+
+## Investigación de repositorios públicos (solo patrones; no copiar sin licencia y procedencia auditadas)
+
+1. [awest813/League-Soccer](https://github.com/awest813/League-Soccer) — README declara Apache-2.0. Buen referente funcional: 22 jugadores, árbitro, faltas, set pieces, estadísticas, stamina y pruebas de integración. Motor C++/SDL, no es una dependencia para Godot; estudiar separación de reglas, eventos y test de partido.
+2. [erengaygusuz/fotbiler-football](https://github.com/erengaygusuz/fotbiler-football) — README declara Apache-2.0. Referencia de controles, cambio manual/asistido, configuración de duración y tácticas. Arquitectura C++/CMake distinta; adaptar comportamiento, no portar código sin revisión.
+3. [namelesssyf/soccer-box-game](https://github.com/namelesssyf/soccer-box-game) — Godot 4.7.1, 110 commits visibles, pruebas automatizadas, telemetría, física y portero IA. No se verificó licencia en esta revisión; no reutilizar código ni assets.
+4. [aliyavuzz/Godotball](https://github.com/aliyavuzz/Godotball) — README declara Apache-2.0 y Godot 4.4.1, con física y IA de 22 jugadores. El README declara un port de GameplayFootball; verificar LICENSE real y cadena de procedencia antes de copiar cualquier componente. Por ahora, referencia arquitectónica.
+5. [Habeeb-Rahman-CA/soccer-game-godot](https://github.com/Habeeb-Rahman-CA/soccer-game-godot) — referencia Godot de cambio asistido, estado de reinicio y control manual; licencia aún no auditada en esta revisión, no copiar.
+6. [antxiko/OpenComputerFutbolSimulator](https://github.com/antxiko/OpenComputerFutbolSimulator) — MIT, simulación 2D y pruebas/estructura de datos; útil como referencia de tests y datos, no como motor 3D.
+
+## Política de integración externa
+
+- Priorizar algoritmos descritos en documentación y patrones generales de arquitectura.
+- Antes de portar código: leer LICENSE del repositorio y de los componentes/copias de origen, comprobar dependencias, avisos y compatibilidad con Godot 4.4.1/Android ARM64.
+- No añadir motores completos ni extensiones nativas si el beneficio no supera el coste de compilación, tamaño y mantenimiento en Android.
+- Mantener atribución y avisos de licencia si una integración se aprueba.
+- No descargar assets protegidos ni reproducir animaciones/modelos de futbolistas reales.
+
+## Regla de sincronización
+
+Cada cambio de código, prueba, configuración o documento de Fútbol Nova debe sincronizarse a la ruta equivalente en `Cumba35/Nova-Workspace/proyectos/juegos/futbol-nova/`. Después, volver a leer ambos repositorios y comparar SHA de contenido. Registrar commit, pruebas ejecutadas, resultado y pendientes. No fusionar ni publicar sin autorización expresa del propietario.
+
+## Estado de esta revisión
+
+La auditoría de código confirma que el cambio entre once jugadores no está implementado. El modo de amistoso está en fase de prototipo funcional con limitaciones; no se declara terminado. El siguiente cambio de código debe abordar P1 con una solución de identidad/modelo y control atómica, seguida de pruebas headless y Android.
