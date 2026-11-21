@@ -495,3 +495,68 @@ Los parámetros están definidos en JSON/documentación; el reconocimiento secue
 ### Verificación de espejo al cierre de esta revisión
 
 Se compararon los árboles de ambos repositorios para 207 rutas relevantes (configuración del proyecto, datos, módulos, documentos, preferencias, controles, estadios, reloj, preparación de amistoso, prueba de defaults, prueba de Máximo y su modelo). Todas están presentes en el espejo Workspace. Sus SHA coinciden salvo una diferencia intencional y documentada: `modules/nova_3d_animation/nova_3d_animation.gd`, que conserva funciones extra en Workspace para perfiles de animación, habilidades y celebraciones. No se detectaron otras diferencias en ese conjunto.
+
+
+## 18. Reglamentos de competiciones, cantera y estadísticas
+
+### Reglas comunes de liga
+
+Fuente: `data/cuban_competition_rules.json`.
+
+- Puntos: victoria 3, empate 1, derrota 0.
+- Duración reglamentaria oficial: 90 minutos.
+- Sustituciones: máximo 5 en 3 ventanas; el descanso no cuenta como ventana.
+- Sin playoff de descenso.
+- Los desempates varían por formato:
+  - Doble vuelta con dos equipos empatados: puntos, diferencia de goles particular, diferencia general, goles a favor, puntos disciplinarios ascendentes y sorteo.
+  - Doble vuelta con tres o más: puntos, puntos entre empatados, diferencia particular, diferencia general, goles a favor, disciplina ascendente y sorteo.
+  - Una vuelta: puntos, diferencia general, goles a favor, puntos particular, diferencia particular, disciplina ascendente y sorteo.
+
+La duración de 90 minutos es el reglamento de competición; el amistoso de prueba usa un reloj comprimido seleccionable de 3–20 minutos por tiempo. No son dos valores que deban sustituirse uno por otro.
+
+### Pirámide cubana definida
+
+- Primera: 16 clubes, grupo único a doble vuelta, 30 jornadas; descienden 3 a Segunda.
+- Segunda: 16 clubes, grupo único a doble vuelta, 30 jornadas; ascienden directamente 2 y los puestos 3–6 juegan semifinales y final a doble partido por el tercer ascenso; descienden 3 a Tercera.
+- Tercera: 20 clubes, 2 grupos regionales de 10, 9 jornadas a una vuelta; ascienden directamente los dos campeones de grupo y los segundos juegan una eliminatoria a doble partido por el tercer ascenso.
+
+### Copa y Supercopa de Cuba
+
+- Copa: todos los clubes elegibles de Primera, Segunda y Tercera; eliminatorias a partido único salvo semifinales a doble partido; el club de división inferior recibe al superior; si son de la misma división, se sortea localía; final única en sede neutral.
+- Rondas previstas: preliminar si es necesaria, dieciseisavos si el cuadro lo requiere, treintaidosavos, octavos, cuartos, semifinales a doble partido y final.
+- Empates: prórroga y penaltis en eliminatorias a partido único y final.
+- Los participantes de la Supercopa entran en la Copa en treintaidosavos si el tamaño del cuadro lo permite.
+- Sorteos tempranos por proximidad geográfica y después sorteo abierto.
+- Supercopa: campeón y subcampeón de liga más campeón y subcampeón de Copa; si hay duplicados, entra el siguiente mejor clasificado de liga no clasificado.
+- Formato final four: semifinales y final a partido único, sede neutral, sin partido por tercer puesto; empate se resuelve directamente por penaltis, sin prórroga. Evitar repetir emparejamientos de semifinales cuando sea posible.
+
+### Cantera
+
+Fuente: `data/youth_academy_rules.json`.
+
+- Cantera automática incluida hasta Primera División.
+- Divisiones 2–6 empiezan sin cantera automática.
+- Para crear cantera desde Segunda: licencia de asociación, instalaciones o contrato, personal cualificado, protección de menores aprobada, plan de desarrollo, fondos iniciales y liquidez operativa.
+- Cobertura mínima de operación: 6 meses; reserva mínima: 2 meses.
+- Sin cantera no se generan juveniles automáticamente.
+
+### Estadísticas de jugadores
+
+Fuente: `data/player_statistics_schema.json`.
+
+- Todos los valores sin partidos empiezan en cero; tasas indefinidas son `null).
+- Nunca inferir eventos de partido a partir de atributos.
+- Cada registro requiere `match_id`; IDs duplicados se rechazan.
+- Mantener totales por temporada y carrera.
+- Categorías: participación, resultados colectivos, ataque, creación/pase, regate, defensa, disciplina, portería, rendimiento/premios e indicadores derivados.
+- Incluye apariciones, titularidades, suplencias, minutos, victorias/empates/derrotas, goles, asistencias, tiros, penaltis, pases, pases clave, ocasiones, regates, entradas, intercepciones, recuperaciones, faltas, tarjetas, paradas, porterías a cero, MVP y valoración media.
+- Los indicadores derivados se calculan desde eventos registrados; no deben inventarse partidos ni estadísticas anteriores.
+
+### Balones oficiales
+
+Fuente: `data/league_official_balls.json`.
+
+- `nova_classic_white` — Nova Classic.
+- `nova_cuba_tropical` — Cuba Tropical.
+- Ambos son recursos originales y usan el perfil físico `standard_match_ball`.
+- La liga nacional cubana comparte Cuba Tropical entre sus divisiones.
