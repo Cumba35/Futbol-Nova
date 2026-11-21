@@ -236,15 +236,18 @@ func _run_acceptance_test() -> void:
 				var initial_controlled_id := str(summary.get("controlled_player_id", ""))
 				var visited_controlled_ids := {initial_controlled_id: true}
 				var last_touch_before_switch := str(game.match_11v11_controller.get_last_touch_player_id())
-				for switch_index in range(10):
+				for switch_index in range(11):
 					var switch_result: Dictionary = game.call("_switch_to_next_home_player")
 					if not bool(switch_result.get("ok", false)):
 						failures.append("El cambio manual entre los once falló en el paso %d: %s" % [switch_index + 1, str(switch_result.get("error", ""))])
 						break
 					var switched_id := str(switch_result.get("player_id", ""))
-					if switched_id.is_empty() or visited_controlled_ids.has(switched_id):
-						failures.append("El cambio manual repitió o perdió la identidad de un futbolista.")
-					visited_controlled_ids[switched_id] = true
+					if switched_id.is_empty() or (switch_index < 10 and visited_controlled_ids.has(switched_id)):
+						failures.append("El cambio manual repitió o perdió la identidad de un futbolista antes de recorrer los once.")
+					if switch_index < 10:
+						visited_controlled_ids[switched_id] = true
+					elif switched_id != initial_controlled_id:
+						failures.append("El ciclo completo no regresó al futbolista inicial después de once cambios.")
 					if game.player == null or not is_instance_valid(game.player) or str(game.player.get_meta("player_id", "")) != switched_id:
 						failures.append("El modelo activo no conservó el ID del futbolista seleccionado.")
 					if game.match_11v11_controller._player != game.player:
@@ -255,7 +258,7 @@ func _run_acceptance_test() -> void:
 				if visited_controlled_ids.size() != 11:
 					failures.append("El ciclo manual no permitió controlar los once IDs del equipo local.")
 				if str(game.match_11v11_controller.get_match_summary().get("controlled_player_id", "")) != initial_controlled_id:
-					failures.append("El ciclo de control no regresó al futbolista inicial tras recorrer los once.")
+					failures.append("El ciclo de control no regresó al futbolista inicial tras once cambios.")
 				if str(game.match_11v11_controller.get_last_touch_player_id()) != last_touch_before_switch:
 					failures.append("Cambiar de futbolista modificó incorrectamente el último toque del balón.")
 				if not game.touch_controls.call("_button_layout").has("switch_player"):
@@ -277,7 +280,7 @@ func _run_acceptance_test() -> void:
 				# A committed foul must stop the clock, place the ball at the incident,
 				# and award a free kick to the opposing team.
 				var foul_position: Vector3 = game.player.global_position
-				game.match_11v11_controller.foul_committed.emit("NOVA-PLAYER-0035", selected_home_id, "serious")
+				game.match_11v11_controller.foul_committed.emit(str(game.player.get_meta("player_id", "")), selected_home_id, "serious")
 				var foul_summary: Dictionary = game.match_11v11_controller.get_match_summary()
 				if str(foul_summary.get("restart_team", "")) != "away":
 					failures.append("La falta local no concedió el tiro libre al equipo visitante.")
