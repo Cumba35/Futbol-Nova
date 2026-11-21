@@ -25,10 +25,11 @@
 | Pie dominante | Derecho |
 | Especialización | Velocista |
 | Club favorito | Real Madrid |
+| Club actual en Fútbol Nova | Nova C35 (`FN-NOVA-C35`) |
 | Media general (GRL) | **92** |
 | Potencial (POT) | **97** |
 
-La selección preferida no cambia la nacionalidad ni concede elegibilidad automática. El club favorito no confirma contrato ni historial contractual.
+La selección preferida no cambia la nacionalidad ni concede elegibilidad automática. El club favorito no confirma contrato ni historial contractual. En el catálogo jugable de Fútbol Nova, Anier está asignado actualmente a Nova C35 (`FN-NOVA-C35`); esa asignación deportiva del juego es independiente de su club favorito.
 
 ## Media general y potencial
 
