@@ -16,6 +16,7 @@ on:
       - 'assets/**'
       - 'modules/**'
       - 'tools/**'
+      - 'docs/**'
   pull_request:
     branches:
       - main
@@ -30,6 +31,7 @@ on:
       - 'assets/**'
       - 'modules/**'
       - 'tools/**'
+      - 'docs/**'
   workflow_dispatch:
 
 concurrency:
