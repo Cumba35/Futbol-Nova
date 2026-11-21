@@ -49,7 +49,7 @@ static func create_visual(player_data: Dictionary, home_team: bool) -> Node3D:
 
 	if is_goalkeeper:
 		for side in [-1.0, 1.0]:
-			_add_sphere(root, "GoalkeeperGlove", 0.09, Vector3(side * 0.34, 0.91, -0.02), _material(Color("#F4D34E"), 0.7))
+			_add_sphere(root, "LeftGoalkeeperGlove" if side < 0.0 else "RightGoalkeeperGlove", 0.09, Vector3(side * 0.34, 0.91, -0.02), _material(Color("#F4D34E"), 0.7))
 
 	root.set_meta("player_id", str(player_data.get("player_id", "")))
 	root.set_meta("shirt_number", int(player_data.get("shirt_number", 0)))
