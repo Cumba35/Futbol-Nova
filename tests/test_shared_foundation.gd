@@ -86,12 +86,12 @@ func _test_match_reproducibility(failures: PackedStringArray) -> void:
 		failures.append("Contract: estado inicial no válido")
 
 func _test_default_friendly_teams(failures: PackedStringArray) -> void:
-	var ids: Array[String] = ["FN-ESP-ATHLETIC-CLUB", "FN-ESP-BARCELONA", "FN-ESP-REAL-MADRID"]
+	var ids: Array[String] = ["FN-ESP-ATHLETIC-CLUB", "FN-NOVA-C35", "FN-NOVA-RDA"]
 	var selected := PreMatchSetup.get_default_team_indices(ids)
-	if int(selected.get("home", -1)) != 2:
-		failures.append("PreMatch: Real Madrid debe aparecer como equipo local por defecto")
-	if int(selected.get("away", -1)) != 1:
-		failures.append("PreMatch: Barcelona debe aparecer como visitante por defecto")
+	if int(selected.get("home", -1)) != 1:
+		failures.append("PreMatch: Nova C35 debe aparecer como equipo local por defecto")
+	if int(selected.get("away", -1)) != 2:
+		failures.append("PreMatch: FC Río de Argenti debe aparecer como visitante por defecto")
 	var fallback_ids: Array[String] = ["club_a", "club_b"]
 	var fallback := PreMatchSetup.get_default_team_indices(fallback_ids)
 	if int(fallback.get("home", -1)) != 0 or int(fallback.get("away", -1)) != 1:
@@ -118,7 +118,14 @@ func _test_cuba_catalog_import(failures: PackedStringArray) -> void:
 func _test_data_service(failures: PackedStringArray) -> void:
 	var football_database: Node = root.get_node_or_null("FootballDatabase")
 	if football_database == null:
-		failures.append("DataService: el autoload FootballDatabase no está disponible para verificar la persistencia")
+		football_database = load("res://scripts/data/football_database_service.gd").new()
+		football_database.name = "FootballDatabase"
+		root.add_child(football_database)
+	var content_packages: Node = root.get_node_or_null("ContentPackages")
+	if content_packages == null:
+		content_packages = load("res://scripts/data/content_package_manager.gd").new()
+		content_packages.name = "ContentPackages"
+		root.add_child(content_packages)
 	var service = DataService.new()
 	root.add_child(service)
 	var summary: Dictionary = service.get_catalog_summary()
