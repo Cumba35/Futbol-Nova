@@ -205,3 +205,10 @@ Decisión: no añadir dependencias ni assets. Mantener el motor actual y usar la
 ## Hallazgo del controlador — atribución de último toque
 
 La IA llamaba `notify_ball_kicked()` sin identificar al actor, y el método sustituía el último toque por el ID del jugador controlado. Se corrigió enviando el ID del futbolista IA en los tres caminos (portero, remate y pase/despeje), y se añadió una aserción de regresión en `tests/test_friendly_ai_shooting.gd`. La ejecución CI 44843892726 fue cancelada antes de crear jobs; la corrección aún requiere validación automatizada.
+
+
+## Reinicios de balón fuera del campo — 21-11-2026
+
+El clasificador `scripts/gameplay/match_rules.gd` ya está conectado al ciclo del amistoso mediante la posición previa y actual del balón. Se resuelven saques de banda, córners y saques de puerta, incluyendo la asignación del equipo según el último toque y la orientación tras el cambio de lado. El controlador mantiene el equipo concedido como único equipo que presiona el punto de reinicio hasta recuperar la posesión; el balón se recoloca dentro del campo.
+
+La prueba integrada `tests/test_friendly_match_runtime.gd` verifica los tres tipos de reinicio. Esta primera implementación no incluye todavía animaciones ni rutinas reglamentarias completas de los saques; tampoco sustituye las pendientes atajadas, faltas/tiros libres y estadísticas. CI debe confirmar la ejecución antes de considerar validado el cambio.
