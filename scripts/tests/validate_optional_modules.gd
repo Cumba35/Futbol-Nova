@@ -87,7 +87,7 @@ func _initialize() -> void:
 			errors.append("El gestor de paquetes no admite input_extension para mandos.")
 		if not manager_text.contains('"continental_competition_module"'):
 			errors.append("El gestor de paquetes no admite módulos de competiciones continentales.")
-		if not manager_text.contains("installed_dependencies.has(str(dependency_id))"):
+		if not manager_text.contains("if not installed_dependencies.has(dependency_key)"):
 			errors.append("El gestor no bloquea el TAS si una liga regional requerida falla.")
 		if not manager_text.contains("required_dependencies.has(package_id)"):
 			errors.append("El gestor permite desinstalar una liga que usa un módulo TAS instalado.")
