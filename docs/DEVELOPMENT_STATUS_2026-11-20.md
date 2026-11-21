@@ -271,3 +271,12 @@ Los reinicios ya se colocan en el campo y asignan el equipo correcto, pero aún 
 - Commit: `c117774c483da8d78b4f35d4369922b1d74eed9c`. Espejo actualizado en Nova Workspace; el blob del archivo de prueba coincide exactamente (`8b2255b246a35d6989ef0c7eda6d16da4e5f8d6e`).
 - Nuevo workflow 521 / run `44886164732` está pendiente al registrar esta nota. Se esperará su resultado antes de declarar CI verde o APK validada.
 - La implementación de control directo de los once aún no se ha modificado: primero debe resolverse el traspaso correcto de visual, estado y control entre actores, sin teletransportar ni mezclar identidades.
+
+
+## Correcciones de regresión compartida — 21-11-2026
+
+- El run 44886277408 (workflow 522) confirmó que la corrección del selector de avatar funcionó: `test_anier_cumba_profile.gd` pasó y también pasaron las pruebas del amistoso, IA, portero, geometría y smoke test Android. El workflow llegó a 47 pasos correctos y se detuvo en `test_shared_foundation.gd`.
+- El nuevo fallo mostró dos problemas independientes: `football_data_service.gd` dependía de nombres globales de autoload al compilarse como script aislado, y la prueba de clubes predeterminados todavía esperaba Real Madrid/Barcelona en lugar de Nova C35/FC Río de Argenti.
+- Se cambió la resolución de `FootballDatabase` y `ContentPackages` a referencias obtenidas desde el árbol de escenas, y se añadieron esos servicios como fixtures en la prueba aislada cuando no están presentes. También se actualizó la expectativa de clubes predeterminados para el amistoso de aceptación.
+- Commits de código: `e59c362031af0738adbe89852ec19a9f5d663742` y `f2b3a26b40e224677c71d1b0ba6a70354f8ab651`. Los dos archivos se espejaron en Nova Workspace con igualdad de blob.
+- Próxima validación: ejecutar el workflow completo con ambos cambios. No se declara todavía CI verde ni APK validada.
