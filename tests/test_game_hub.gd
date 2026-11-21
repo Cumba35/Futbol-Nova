@@ -278,7 +278,7 @@ func _run_tests() -> void:
 	_expect(service_code.contains('_emit_competition_draw("Copa de Cuba"') and service_code.contains('_emit_competition_draw("Supercopa de Cuba"'), "Domestic cup and supercup draws must use the same ceremony")
 	_expect(service_code.contains("build_second_division_playoff") and service_code.contains("build_third_division_promotion_playoff"), "Promotion playoffs must publish their pairings")
 	_expect(service_code.contains("final_group_team_ids") and service_code.contains("Torneo Americano de Supercampeones (TAS) · Final"), "TAS progression draws must use the same ceremony")
-	_expect(service_code.contains("if not bool(response.get(\"ok\", false)):\n\t\treturn response\n\tvar saved: Dictionary = FootballDatabase.get_season_state(season_id)"), "Caribbean draw setters must stop on invalid draws before persistence")
+	_expect(service_code.contains("if not bool(response.get(\"ok\", false)):\n\t\treturn response\n\tvar saved: Dictionary = _football_database.get_season_state(season_id)"), "Caribbean draw setters must stop on invalid draws before persistence")
 	_expect(service_code.contains("_emit_competition_draw(\"Liga de Campeones del Caribe · Octavos de final\"") and service_code.contains("_emit_competition_draw(\"Liga de Campeones del Caribe · \""), "Successful Caribbean knockout draws must open the common ceremony")
 	_expect(service_code.contains("draw_ceremony_requested.emit"), "Competition service must publish completed draw results")
 	_expect(service_code.contains("func publish_resolved_competition_draw"), "Custom tournaments must have a shared draw publication API")
