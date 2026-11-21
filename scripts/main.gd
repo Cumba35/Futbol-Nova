@@ -965,11 +965,11 @@ func _update_friendly_ball_exit(delta: float) -> void:
 			if gesture_hint_label != null:
 				match restart:
 					"throw_in":
-						gesture_hint_label.text = "Saque de banda: %s." % ("Nova C35" if awarded_home else "equipo visitante")
+						gesture_hint_label.text = "Saque de banda: %s." % (home_team_display_name if awarded_home else away_team_display_name)
 					"corner":
-						gesture_hint_label.text = "Córner para %s." % ("Nova C35" if awarded_home else "equipo visitante")
+						gesture_hint_label.text = "Córner para %s." % (home_team_display_name if awarded_home else away_team_display_name)
 					"goal_kick":
-						gesture_hint_label.text = "Saque de puerta para %s." % ("Nova C35" if awarded_home else "equipo visitante")
+						gesture_hint_label.text = "Saque de puerta para %s." % (home_team_display_name if awarded_home else away_team_display_name)
 			return
 	_previous_friendly_ball_position = current_position
 	_has_previous_friendly_ball_position = true
