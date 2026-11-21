@@ -7,7 +7,7 @@
 **Proyecto:** Fútbol Nova  
 **Datos canónicos:** `data/custom_players.json`  
 **Fotografía de referencia:** `assets/players/maximo_padilla_reference.jpg`  
-**Revisión:** 18-11-2026
+**Revisión:** 20-11-2026
 
 ## Identidad
 | Campo | Valor |
@@ -19,8 +19,9 @@
 | País de nacimiento / nacionalidad | Cuba (CUB) |
 | Selección nacional | Cuba |
 | Selección favorita | Argentina (ARG) |
-| Club solicitado | Barcelona |
-| Club interno de Fútbol Nova | Litoral Barcelona (`FN-ESP-BARCELONA`) |
+| Club actual | Nova C35 (`FN-NOVA-C35`) |
+| Club favorito | FC Barcelona (preferencia personal conservada) |
+| Historial | Traspaso confirmado desde Litoral Barcelona a Nova C35 el 20-11-2026 |
 | Posición principal | MCD |
 | Segunda posición | MC |
 | Medias | Altas |
@@ -45,7 +46,7 @@ La media general **94** y la proyección **97** no se recalculan ni se alteran c
 - Fotografía de referencia archivada como JPEG optimizado 200 × 356 px: `assets/players/maximo_padilla_reference.jpg`.
 - Escena: `scenes/players/maximo_padilla.tscn`.
 - Controlador: `scripts/players/maximo_padilla.gd`.
-- Blockout procedural con cápsula de colisión de 180 cm, cabello muy corto, rasgos faciales básicos orientados al frente, tono de piel orientativo según la fotografía, equipación blaugrana inspirada en Barcelona, dorsal 30 y nombre PADILLA renderizados como texto 3D en la espalda, medias altas, espinilleras y mangas interiores blancas de compresión de manga larga visibles sobre los antebrazos.
+- Blockout procedural con cápsula de colisión de 180 cm, cabello muy corto, rasgos faciales básicos orientados al frente, tono de piel orientativo según la fotografía, equipación original provisional de Nova C35 en azul marino y cian, dorsal 30 y nombre PADILLA renderizados como texto 3D en la espalda, medias altas, espinilleras y mangas interiores blancas de compresión de manga larga visibles sobre los antebrazos.
 - El blockout es un personaje 3D procedural inicial, no un escaneo ni un esculpido facial de alta fidelidad. La foto se conserva como referencia para mejorar el parecido.
 
 ## Valoración confirmada
@@ -57,9 +58,10 @@ La media general **94** y la proyección **97** no se recalculan ni se alteran c
 - [x] Ficha canónica en `data/custom_players.json`.
 - [x] Fotografía guardada en el repositorio.
 - [x] Escena 3D y controlador procedural creados.
-- [x] Añadido a la plantilla `player_ids` de Litoral Barcelona en `data/spain_clubs_2026_27.json`.
+- [x] Traspaso registrado en `data/custom_players.json` y jugador incluido en `data/players/nova_original_club_rosters_2026.json` para Nova C35.
+- [x] Retirado de `FN-ESP-BARCELONA` en `data/spain_clubs_2026_27.json` para evitar doble pertenencia.
 - [x] Incluido en el catálogo del Modo Leyenda con verificación de sesión de propietario.
-- [x] El amistoso cambia el personaje controlado a Máximo cuando Litoral Barcelona es el equipo local.
+- [x] La selección de control del amistoso conserva la regla vigente: Anier cuando Nova C35 es local y Raymond cuando FC Río de Argenti es local; Máximo forma parte de la plantilla C35, pero no sustituye esos controles predeterminados.
 - [x] Edad declarada de 29 años aceptada sin fabricar una fecha exacta de nacimiento, también en el guardado de Modo Leyenda.
 - [x] Escena con cápsula de colisión alineada a 180 cm.
 - [x] Prueba automatizada añadida: `tests/test_maximo_padilla_profile.gd` y conectada al workflow Android.
