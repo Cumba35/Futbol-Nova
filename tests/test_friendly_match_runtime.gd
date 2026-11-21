@@ -260,6 +260,19 @@ func _run_acceptance_test() -> void:
 					failures.append("Cambiar de futbolista modificó incorrectamente el último toque del balón.")
 				if not game.touch_controls.call("_button_layout").has("switch_player"):
 					failures.append("Los controles táctiles no muestran la acción CAMBIO.")
+				var selectable_home_players: Array = game.match_11v11_controller.get_home_player_options()
+				if selectable_home_players.size() != 11:
+					failures.append("La configuración de control no ofrece los once futbolistas locales.")
+				else:
+					var requested_player_id := str(selectable_home_players[3].get("player_id", ""))
+					var selected_result: Dictionary = game.match_11v11_controller.switch_to_home_player(requested_player_id)
+					if not bool(selected_result.get("ok", false)) or str(selected_result.get("player_id", "")) != requested_player_id:
+						failures.append("No se pudo seleccionar directamente un futbolista local desde las opciones.")
+					if not game.match_11v11_controller.set_control_mode("single") or game.match_11v11_controller.get_control_mode() != "single":
+						failures.append("No se pudo activar el modo de control de un jugador.")
+					if not game.match_11v11_controller.set_control_mode("team") or game.match_11v11_controller.get_control_mode() != "team":
+						failures.append("No se pudo regresar al control de equipo.")
+
 
 				# A committed foul must stop the clock, place the ball at the incident,
 				# and award a free kick to the opposing team.
