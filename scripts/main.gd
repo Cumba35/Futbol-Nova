@@ -811,6 +811,9 @@ func _switch_to_next_home_player() -> Dictionary:
 			player.connect("skill_action_requested", _on_player_skill_action_requested)
 		if not player.is_connected("pressure_action_requested", _on_player_pressure_action_requested):
 			player.connect("pressure_action_requested", _on_player_pressure_action_requested)
+	var preferences: Node = get_node_or_null("/root/NovaPreferences")
+	if preferences != null:
+		preferences.call("set_match_control_preferences", match_11v11_controller.get_control_mode(), controlled_player_id)
 	if gesture_hint_label != null:
 		gesture_hint_label.text = "Ahora controlas a %s · %s" % [controlled_player_display_name, controlled_player_id]
 	return result
