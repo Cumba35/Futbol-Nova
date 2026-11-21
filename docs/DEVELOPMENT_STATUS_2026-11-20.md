@@ -168,3 +168,11 @@ La primera ejecución que probó la cápsula falló en la prueba de posicionamie
 - El modelo procedural de Máximo ahora utiliza la paleta provisional azul marino/cian de Nova C35 en lugar de la equipación blaugrana anterior. Su club favorito FC Barcelona se conserva como preferencia, separado del club actual.
 - Se actualizó `docs/MAXIMO_PADILLA_PLAYER.md` y se sincronizaron datos, test, modelo y documentación en Workspace.
 - Run 487 sigue validando el commit anterior a esta corrección; la nueva actualización de código debe generar una ejecución posterior para validar este arreglo junto con el test de configuración.
+
+
+### Ejecuciones CI posteriores a la corrección de Máximo — 21-11-2026
+
+- Run 487 `44840858252` continúa validando el HEAD anterior a la corrección de Máximo; no valida la nueva prueba/plantilla.
+- Runs 488 (`44841228459`) y 489 (`44841243972`) se cancelaron al llegar commits consecutivos; no cuentan como aprobados.
+- Run 490 [`44841303999`](https://github.com/Cumba35/Futbol-Nova/actions/runs/44841303999), commit `ae613a827283b6a8cf018e03e226046386af2a97`, está pendiente. Su snapshot incluye la corrección del registro de club de Máximo, la prueba aislada con archivo temporal y la paleta C35 del blockout.
+- Run 490 es la ejecución relevante para comprobar la corrección de Máximo; debe terminar todas las pruebas y subir el artefacto antes de validar el APK. La prueba de configuración nueva también debe aparecer como paso ejecutado y aprobada.
