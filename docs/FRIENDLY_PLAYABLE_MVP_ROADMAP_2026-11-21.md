@@ -174,3 +174,11 @@ Esta actualización prevalece sobre los estados de workflows anteriores anotados
 - La prueba de ciclo actual realiza once cambios para regresar al futbolista inicial; no presupone que el jugador inicial sea Anier. La nota histórica anterior que describía diez cambios desde Anier queda reemplazada por este criterio actualizado.
 - El roadmap fue releído en el repositorio principal y en Nova Workspace; ambos contenidos y SHA de blob coinciden.
 - PR #10 permanece abierta, en draft y sin fusionar. No publicar APK sin autorización expresa.
+
+
+## Auditoría CI adicional — 2026-11-21
+- Run 44911426562 terminó `failure` en `Regression — test_shared_foundation.gd`; las 30 validaciones anteriores, incluido amistoso 11v11, futbolistas 3D, portero, porterías, estadio y smoke test Android, pasaron.
+- La exportación `build/FutbolNova-debug.apk` terminó correctamente, pero la subida del APK quedó omitida por el fallo posterior de regresión. El único artefacto publicado en esa ejecución es `futbol-nova-godot-source`, no un APK.
+- Se corrigieron en `tests/test_shared_foundation.gd` expectativas obsoletas del catálogo (727 equipos, 15.994 jugadores y 727 plantillas completas) y se amplió el diagnóstico para exponer `initialization_errors` y el resumen completo si el catálogo sigue sin inicializar.
+- Cambio guardado y releído en la rama de trabajo; espejo actualizado y comparado byte por byte en Nova Workspace. Pendiente ejecutar CI sobre este commit y corregir el error real de inicialización si persiste.
+- No se fusiona PR ni se publica APK hasta obtener CI verde y validar el artefacto.
