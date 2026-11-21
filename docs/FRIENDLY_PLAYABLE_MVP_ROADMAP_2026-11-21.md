@@ -149,3 +149,6 @@ La auditoría inicial confirmó que el cambio entre once no existía. Se ha aña
 - Para jugadores sin escena 3D individual se añadió un avatar genérico de Nova, evitando presentar erróneamente el modelo de Anier como otro futbolista.
 - Se corrigió el test de ciclo: se requieren once cambios para volver al ID inicial (no diez); la prueba de falta usa el ID del jugador realmente controlado.
 - Los cambios de código están guardados en la rama de trabajo y se releyeron tras cada escritura. Pendiente: workflow Godot 4.4.1 y sincronización verificada con Nova Workspace.
+
+- Diferencia funcional de modalidades: `team` permite alternar al vuelo con CAMBIO/TAB; `single` mantiene al futbolista elegido y bloquea el ciclo automático. Si el usuario quiere cambiarlo, abre pausa > Configuración > Juego y selecciona otro; desde ahí también puede volver a Control de equipo.
+- El último futbolista activo se guarda como preferencia local cuando se cambia mediante CAMBIO/TAB o el selector de pausa.
