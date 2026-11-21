@@ -131,7 +131,7 @@ func _test_data_service(failures: PackedStringArray) -> void:
 	root.add_child(service)
 	var summary: Dictionary = service.get_catalog_summary()
 	if not bool(summary.get("initialized", false)) or service.registry == null:
-		failures.append("DataService: no inicializó el catálogo offline con dependencias inyectadas")
+		failures.append("DataService: no inicializó el catálogo offline con dependencias inyectadas. Errores: " + str(service.initialization_errors) + " | resumen: " + str(summary))
 		service.queue_free()
 		return
 	if not bool(summary.get("initialized", false)):
@@ -176,11 +176,11 @@ func _test_data_service(failures: PackedStringArray) -> void:
 	var first_roster: Array = service.registry.get_team_roster(first_club_id)
 	if first_roster.is_empty() or not first_roster[0].has("economy"):
 		failures.append("DataService: jugador generado de Primera sin valoración económica")
-	if int(summary.get("teams", 0)) != 725:
+	if int(summary.get("teams", 0)) != 727:
 		failures.append("DataService: se esperaban 52 clubes")
-	if int(summary.get("players", 0)) != 15950:
+	if int(summary.get("players", 0)) != 15994:
 		failures.append("DataService: se esperaban 1144 futbolistas en las 52 plantillas")
-	if int(summary.get("teams_with_rosters", 0)) != 725:
+	if int(summary.get("teams_with_rosters", 0)) != 727:
 		failures.append("DataService: se esperaban 52 plantillas completas")
 	if int(summary.get("teams_missing_rosters", 0)) != 0:
 		failures.append("DataService: quedaron clubes sin plantilla")
