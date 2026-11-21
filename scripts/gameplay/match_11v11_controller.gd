@@ -59,6 +59,7 @@ var _away_team_id := "nova_away"
 var _controlled_player_id := ""
 var _controlled_player_data: Dictionary = {}
 var _home_player_order: Array[String] = []
+var _control_mode := "team"
 var _last_touch_player_id := ""
 var _last_touch_home_team := true
 # -1 means no restart restriction, 0 means away team, 1 means home team.
@@ -312,6 +313,49 @@ func switch_to_next_home_player() -> Dictionary:
 			return {"ok": true, "player": _player, "player_id": _controlled_player_id, "display_name": str(target_data.get("display_name", target_id))}
 	return {"ok": false, "error": "No se encontró otro jugador local disponible para controlar."}
 
+
+func get_home_player_options() -> Array[Dictionary]:
+	var options: Array[Dictionary] = []
+	if _home_player_order.size() != 11:
+		return options
+	for player_id in _home_player_order:
+		var display_name := player_id
+		if player_id == _controlled_player_id:
+			var current_record: Dictionary = _controlled_player_data.get("player_data", {})
+			display_name = str(current_record.get("display_name", current_record.get("full_name", player_id)))
+		else:
+			for actor_data in _actors:
+				if bool(actor_data.get("home_team", false)) and str(actor_data.get("player_id", "")) == player_id:
+					display_name = str(actor_data.get("display_name", player_id))
+					break
+		options.append({"player_id": player_id, "display_name": display_name})
+	return options
+
+func switch_to_home_player(player_id: String) -> Dictionary:
+	if not _home_player_order.has(player_id):
+		return {"ok": false, "error": "El jugador seleccionado no pertenece al equipo local."}
+	if player_id == _controlled_player_id:
+		return {"ok": true, "player": _player, "player_id": _controlled_player_id, "display_name": str(_controlled_player_data.get("display_name", player_id))}
+	var original_order := _home_player_order.duplicate()
+	var reordered: Array[String] = [_controlled_player_id, player_id]
+	for candidate in original_order:
+		if candidate != _controlled_player_id and candidate != player_id:
+			reordered.append(candidate)
+	_home_player_order = reordered
+	var result := switch_to_next_home_player()
+	_home_player_order = original_order
+	return result
+
+func set_control_mode(mode: String) -> bool:
+	if not mode in ["team", "single"]:
+		return false
+	_control_mode = mode
+	return true
+
+func get_control_mode() -> String:
+	return _control_mode
+
+
 func _promote_ai_actor_to_controlled(actor: Node3D, actor_data: Dictionary) -> CharacterBody3D:
 	if not is_instance_valid(actor):
 		return null
@@ -348,6 +392,7 @@ func stop_match() -> void:
 	_controlled_player_id = ""
 	_controlled_player_data.clear()
 	_home_player_order.clear()
+	_control_mode = "team"
 	_last_touch_player_id = ""
 	_last_touch_home_team = true
 	_restart_team_home = -1
