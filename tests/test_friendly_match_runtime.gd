@@ -461,6 +461,7 @@ func _run_acceptance_test() -> void:
 						failures.append("El saque de banda no se asignó al equipo contrario al último toque.")
 					if game.ball.global_position.distance_to(Vector3(34.0, 0.35, 12.0)) > 0.01:
 						failures.append("El balón no volvió a una posición válida dentro del campo tras el saque de banda.")
+					game.ball.global_position = Vector3(0.0, 1.0, -53.0)
 					game._on_goal_body_entered(game.ball, "home")
 					if game.score_home != 1 or game.score_away != 0:
 						failures.append("El gol válido en la portería visitante no actualizó el marcador local.")
