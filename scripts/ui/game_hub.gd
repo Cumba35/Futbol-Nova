@@ -1705,6 +1705,19 @@ func _show_match_control_settings() -> void:
 	player_option.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var options: Array = match_controller.call("get_home_player_options") if match_controller != null and match_controller.has_method("get_home_player_options") else []
 	if options.is_empty():
+		var football_service: Node = get_node_or_null("/root/FootballData")
+		var registry: Variant = football_service.get("registry") if football_service != null else null
+		if registry != null and registry.teams_by_id.has("FN-NOVA-C35"):
+			var roster: Array = registry.get_team_roster("FN-NOVA-C35")
+			var lineup: Array[String] = NovaPreMatchSetup.build_starting_eleven(roster)
+			for player_id in lineup:
+				var player_name := player_id
+				for record in roster:
+					if record is Dictionary and str(record.get("id", "")) == player_id:
+						player_name = str(record.get("display_name", record.get("full_name", player_id)))
+						break
+				options.append({"player_id": player_id, "display_name": player_name})
+	if options.is_empty():
 		player_option.add_item("Selecciona el jugador al preparar el amistoso")
 		player_option.set_item_disabled(0, true)
 	else:
@@ -1721,7 +1734,8 @@ func _show_match_control_settings() -> void:
 		if player_id.is_empty():
 			return
 		if preferences != null:
-			preferences.call("set_match_control_preferences", str(saved.get("mode", "team")), player_id)
+			var latest: Dictionary = preferences.call("get_match_control_preferences") if preferences != null else saved
+			preferences.call("set_match_control_preferences", str(latest.get("mode", "team")), player_id)
 		match_control_player_requested.emit(player_id)
 		status_label.text = "Ahora controlas a " + player_option.get_item_text(index) + "."
 	)
