@@ -288,3 +288,13 @@ Los reinicios ya se colocan en el campo y asignan el equipo correcto, pero aún 
 - Se declararon explícitamente como `bool` los resultados de guardado del catálogo y commit del partido, conservando la resolución dinámica de `FootballDatabase` y `ContentPackages`.
 - Commit: `a92beccb8d496f92f5262295e82276f8a0916c1c`; espejo de código actualizado en Nova Workspace con blob idéntico.
 - El siguiente workflow debe validar el tipado, los fixtures de autoload y la selección predeterminada Nova C35 vs FC Río de Argenti. No se considera todavía validado el APK.
+
+
+## Diagnóstico y corrección de CI — 21-11-2026 09:17 UTC
+
+- Workflow 527 / run `44887708165` terminó en `failure`. Godot 4.4.1 importó el proyecto y exportó/firma el APK arm64 de depuración correctamente; las validaciones de nombres de clubes, archivo histórico, acciones de entrada y controles táctiles pasaron.
+- La suite se detuvo en el test del hub (`tests/test_game_hub.gd`) antes de ejecutar las pruebas centrales del amistoso. El fallo era una expectativa textual desactualizada: el test exigía que el servicio usara el autoload global `FootballDatabase`, pero el servicio ya resuelve la base de datos mediante la referencia dinámica `_football_database` para soportar tests aislados.
+- Se corrigió la expectativa del test para verificar la misma guarda de error y la lectura de temporada mediante `_football_database`, sin cambiar la lógica de juego ni la persistencia real. La corrección se guardó también en `Nova-Workspace/proyectos/juegos/futbol-nova/tests/test_game_hub.gd`.
+- La exportación APK de ese run no se considera validada: el workflow falló antes de completar las pruebas y omitió la subida del artefacto validado.
+- Próximo paso: comprobar el nuevo workflow generado por la corrección. Si el hub pasa, continuar con las pruebas 11v11, control/rotación de jugadores, IA, goles, porteros, tiempos y smoke test Android. No declarar CI verde ni APK validada hasta que termine toda la suite.
+- Nota de ramas: la PR #10 sigue abierta y en draft, pero GitHub informa como head `feature/friendly-runtime-research-2026-11-20`; la rama de trabajo solicitada es `work/friendly-match-completion-2026-11-20`. Ambas ramas están divergidas (48 commits exclusivos en work, 3 exclusivos en feature según la comparación actual). No se fusionó ni se cambió la PR; hay que reconciliar esta relación antes de atribuir los commits nuevos a la PR #10.
