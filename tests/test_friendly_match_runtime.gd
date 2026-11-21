@@ -156,6 +156,7 @@ func _run_acceptance_test() -> void:
 				failures.append("El estadio Nova Central debe ser la selección inicial.")
 			var selected_home_id: String = str(setup._selected_team_id(setup._home_teams))
 			var selected_away_id: String = str(setup._selected_team_id(setup._away_teams))
+			var expected_controlled_player_id := setup._selected_controlled_player_id()
 			if selected_home_id != "FN-NOVA-C35":
 				failures.append("El amistoso debe mostrar Nova C35 como selección local inicial.")
 			if selected_away_id != "FN-NOVA-RDA":
@@ -198,21 +199,21 @@ func _run_acceptance_test() -> void:
 					failures.append("El equipo visitante no quedó con once jugadores en el campo.")
 				if int(summary.get("ai_players", 0)) != 21:
 					failures.append("El partido no creó los 21 futbolistas de IA además del jugador controlado.")
-				if str(summary.get("controlled_player_id", "")) != "NOVA-PLAYER-0035":
-					failures.append("El jugador controlado debe ser Anier Cumbá, no un perfil distinto duplicado.")
-				if str(game.controlled_player_display_name) != "Anier Cumbá":
-					failures.append("Nova C35 debe usar el avatar 3D de Anier Cumbá.")
+				if str(summary.get("controlled_player_id", "")) != expected_controlled_player_id:
+					failures.append("El motor no conservó el futbolista seleccionado en la preparación del amistoso.")
+				if str(game.controlled_player_display_name) != str(summary.get("controlled_player_name", "")):
+					failures.append("El avatar controlado no coincide con la identidad del futbolista elegido.")
 				var custom_actor_found := false
 				var raymond_actor_found := false
 				var maximo_actor_found := false
-				var duplicate_anier_actor_found := false
+				var duplicate_controlled_actor_found := false
 				for actor_data in game.match_11v11_controller._actors:
 					if str(actor_data.get("player_id", "")) == "NOVA-PLAYER-0037":
 						raymond_actor_found = true
 					if str(actor_data.get("player_id", "")) == "NOVA-PLAYER-0036":
 						maximo_actor_found = true
-					if str(actor_data.get("player_id", "")) == "NOVA-PLAYER-0035":
-						duplicate_anier_actor_found = true
+					if str(actor_data.get("player_id", "")) == expected_controlled_player_id:
+						duplicate_controlled_actor_found = true
 					if str(actor_data.get("player_id", "")) == "NOVA-FRIENDLY-CUSTOM-ROSTER-TEST":
 						custom_actor_found = true
 						if str(actor_data.get("display_name", "")) != "Prueba NOVA Plantilla" or int(actor_data.get("overall", 0)) != 99:
@@ -223,8 +224,8 @@ func _run_acceptance_test() -> void:
 					failures.append("El futbolista personalizado incorporado no llegó a la alineación activa del amistoso.")
 				if not raymond_actor_found or not maximo_actor_found:
 					failures.append("Raymond y Máximo deben aparecer una sola vez en sus equipos durante el amistoso.")
-				if duplicate_anier_actor_found:
-					failures.append("Anier no debe aparecer duplicado como IA cuando es el jugador controlado.")
+				if duplicate_controlled_actor_found:
+					failures.append("El futbolista controlado no debe aparecer duplicado como actor de IA.")
 				if game.player == null or not is_instance_valid(game.player):
 					failures.append("El jugador controlado dejó de existir al iniciar el amistoso.")
 				elif game.match_11v11_controller._player != game.player:
@@ -268,9 +269,11 @@ func _run_acceptance_test() -> void:
 					failures.append("La configuración de control no ofrece los once futbolistas locales.")
 				else:
 					var requested_player_id := str(selectable_home_players[3].get("player_id", ""))
-					var selected_result: Dictionary = game.match_11v11_controller.switch_to_home_player(requested_player_id)
-					if not bool(selected_result.get("ok", false)) or str(selected_result.get("player_id", "")) != requested_player_id:
-						failures.append("No se pudo seleccionar directamente un futbolista local desde las opciones.")
+					# Exercise the same main-scene handler used by the pause UI so
+					# both the match controller and the live player reference are updated.
+					game._on_match_control_player_requested(requested_player_id)
+					if str(game.match_11v11_controller.get_match_summary().get("controlled_player_id", "")) != requested_player_id or str(game.player.get_meta("player_id", "")) != requested_player_id:
+						failures.append("La selección desde Configuración > Juego no actualizó el futbolista activo y su referencia en main.")
 					if not game.match_11v11_controller.set_control_mode("single") or game.match_11v11_controller.get_control_mode() != "single":
 						failures.append("No se pudo activar el modo de control de un jugador.")
 					if bool(game.match_11v11_controller.switch_to_next_home_player().get("ok", false)):

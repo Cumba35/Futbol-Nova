@@ -64,7 +64,8 @@ func _end_touch(index: int) -> void:
 		var action := str(action_touch_ids[index])
 		action_touch_ids.erase(index)
 		if not action_touch_ids.values().has(action):
-			Input.action_release(action)
+			if InputMap.has_action(action):
+				Input.action_release(action)
 			pressed_actions.erase(action)
 	queue_redraw()
 
@@ -83,6 +84,8 @@ func _update_direction_actions(value: Vector2) -> void:
 	_set_action_strength("move_back", maxf(0.0, value.y))
 
 func _set_action_strength(action: String, strength: float) -> void:
+	if not InputMap.has_action(action):
+		return
 	if strength > 0.02:
 		Input.action_press(action, strength)
 	else:
@@ -119,7 +122,8 @@ func _release_all() -> void:
 	joystick_touch_id = -1
 	joystick_vector = Vector2.ZERO
 	for action in ["move_left", "move_right", "move_forward", "move_back", "pass_ball", "shoot_ball", "skill_action", "pressure_action", "switch_player"]:
-		Input.action_release(action)
+		if InputMap.has_action(action):
+			Input.action_release(action)
 	action_touch_ids.clear()
 	pressed_actions.clear()
 	queue_redraw()

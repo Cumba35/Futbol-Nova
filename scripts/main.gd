@@ -25,7 +25,7 @@ var score_home := 0
 var score_away := 0
 var home_team_display_name := "LOCAL"
 var away_team_display_name := "VISITANTE"
-var controlled_player_display_name := "Anier Cumbá"
+var controlled_player_display_name := "Jugador local"
 var controlled_player_id := ""
 var score_label: Label
 var match_clock_label: Label
@@ -343,10 +343,8 @@ func _get_controlled_player_scene_for_home_team() -> PackedScene:
 			return null
 
 func _create_player() -> void:
-	# The initial avatar is only a safe scene placeholder. The friendly setup
-	# replaces it with the selected roster member before the match starts.
-	if controlled_player_id.is_empty():
-		controlled_player_id = "NOVA-PLAYER-0035"
+	# The menu uses a neutral placeholder; the pre-match screen chooses the
+	# actual roster member so no player is treated as the game's protagonist.
 	var selected_scene := _get_controlled_player_scene_for_home_team()
 	var selected_player: CharacterBody3D
 	if selected_scene != null:

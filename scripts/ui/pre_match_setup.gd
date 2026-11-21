@@ -37,13 +37,9 @@ static func get_default_team_indices(team_ids: Array[String]) -> Dictionary:
 				break
 	return {"home": home_index, "away": away_index}
 
-static func get_default_controlled_player_id(home_team_id: String, home_player_ids: Array) -> String:
-	var fallback_id := str(home_player_ids[9]) if home_player_ids.size() > 9 else ""
-	if home_team_id == "FN-NOVA-C35" and home_player_ids.has("NOVA-PLAYER-0035"):
-		return "NOVA-PLAYER-0035"
-	if home_team_id == "FN-NOVA-RDA" and home_player_ids.has("NOVA-PLAYER-0037"):
-		return "NOVA-PLAYER-0037"
-	return fallback_id
+static func get_default_controlled_player_id(_home_team_id: String, home_player_ids: Array) -> String:
+	# Neutral central-midfield default. Any player can be selected manually.
+	return str(home_player_ids[mini(6, home_player_ids.size() - 1)]) if not home_player_ids.is_empty() else ""
 
 static func build_starting_eleven(roster: Array) -> Array[String]:
 	var selected: Array[String] = []
