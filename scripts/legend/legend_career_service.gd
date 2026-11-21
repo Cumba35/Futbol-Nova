@@ -48,6 +48,17 @@ const SPECIALIZATION_BONUSES := {
 
 var career: Dictionary = {}
 
+# Absolute /root paths are unavailable when this service is instantiated outside
+# the active SceneTree (for example, isolated headless tests). Resolve optional
+# autoloads only after the service has entered the tree.
+func _get_root_service(service_name: String) -> Node:
+	if not is_inside_tree():
+		return null
+	var scene_tree := get_tree()
+	if scene_tree == null or scene_tree.root == null:
+		return null
+	return scene_tree.root.get_node_or_null(service_name)
+
 func start_career(player_data: Dictionary) -> Dictionary:
 	return _start_career_internal(player_data, false)
 
@@ -506,7 +517,7 @@ func start_manager_after_retirement(club_id: String = "") -> Dictionary:
 	var target_club := club_id if not club_id.is_empty() else str(career.get("last_club_id", ""))
 	if target_club.is_empty():
 		return {"ok": false, "error": "Selecciona un club para iniciar tu carrera de entrenador."}
-	var manager_career := get_node_or_null("/root/ManagerCareer")
+	var manager_career := _get_root_service("ManagerCareer")
 	if manager_career == null:
 		return {"ok": false, "error": "El servicio ManagerCareer no está disponible en esta ejecución."}
 	if manager_career.load_career():
@@ -549,7 +560,7 @@ func save_career() -> bool:
 		if FileAccess.file_exists(backup_path):
 			DirAccess.rename_absolute(backup_path, ProjectSettings.globalize_path(persistence_path))
 		return false
-	var football_database := get_node_or_null("/root/FootballDatabase") if sync_to_database else null
+	var football_database := _get_root_service("FootballDatabase") if sync_to_database else null
 	if football_database != null:
 		return bool(football_database.save_career_record("legend_active", career))
 	return true
