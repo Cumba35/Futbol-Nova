@@ -470,6 +470,7 @@ func _load_eligible_teams() -> void:
 		if home_index >= 0 and away_index >= 0 and home_index != away_index:
 			_home_teams.select(home_index)
 			_away_teams.select(away_index)
+			_refresh_control_player_options()
 			_refresh_validation()
 		else:
 			_summary.text = "No se pudieron asignar dos clubes diferentes para el amistoso."
