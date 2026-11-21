@@ -54,14 +54,24 @@ func _run() -> void:
 		"height_cm": 180, "weight_kg": 75, "attributes": found.get("attributes", {})
 	})
 	assert(legend_errors.is_empty(), "Máximo debe superar la validación del catálogo de Modo Leyenda: %s" % str(legend_errors))
+	assert(str(found.get("club_id", "")) == "FN-NOVA-C35", "El club actual confirmado de Máximo debe ser Nova C35")
 	var club_file := FileAccess.open("res://data/spain_clubs_2026_27.json", FileAccess.READ)
 	assert(club_file != null)
 	var clubs: Dictionary = JSON.parse_string(club_file.get_as_text())
-	var barcelona_found := false
+	var barcelona_has_player := false
 	for club in clubs.get("clubs", []):
 		if str(club.get("id", "")) == "FN-ESP-BARCELONA":
-			barcelona_found = club.get("player_ids", []).has("NOVA-PLAYER-0036")
-	assert(barcelona_found, "Máximo debe figurar en la plantilla de Litoral Barcelona")
+			barcelona_has_player = club.get("player_ids", []).has("NOVA-PLAYER-0036")
+	assert(not barcelona_has_player, "Máximo ya no debe permanecer en Litoral Barcelona después del traspaso confirmado")
+	var original_rosters_file := FileAccess.open("res://data/players/nova_original_club_rosters_2026.json", FileAccess.READ)
+	assert(original_rosters_file != null)
+	var original_rosters: Dictionary = JSON.parse_string(original_rosters_file.get_as_text())
+	var c35_roster: Dictionary = {}
+	for club in original_rosters.get("clubs", []):
+		if str(club.get("id", "")) == "FN-NOVA-C35":
+			c35_roster = club
+			break
+	assert(c35_roster.get("player_ids", []).has("NOVA-PLAYER-0036"), "Máximo debe figurar en la plantilla actual de Nova C35")
 	var instance := PLAYER_SCENE.instantiate()
 	assert(instance is CharacterBody3D, "La escena debe instanciar un CharacterBody3D")
 	assert(instance.get_script() == PLAYER_SCRIPT, "La escena debe usar el controlador de Máximo")
@@ -86,14 +96,21 @@ func _run() -> void:
 	instance.queue_free()
 	await process_frame
 	var career_service = preload("res://scripts/legend/legend_career_service.gd").new()
+	career_service.sync_to_database = false
+	var career_test_path := "user://test_maximo_padilla_legend_career.json"
+	career_service.persistence_path = career_test_path
 	var career_result: Dictionary = career_service.start_career_from_catalog(found)
 	assert(career_result.get("ok", false), "Máximo debe poder iniciar una carrera desde el catálogo: %s" % str(career_result.get("error", career_result.get("errors", []))))
 	var career_player: Dictionary = career_result.get("career", {}).get("player", {})
 	assert(int(career_player.get("age", 0)) == 29, "La edad declarada debe conservarse")
 	assert(str(career_player.get("birth_date", "")) == "", "No debe inventarse una fecha de nacimiento")
 	assert(str(career_player.get("shirt_name", "")) == "PADILLA", "El nombre de uniforme debe conservarse")
-	assert(str(career_result.get("career", {}).get("club_id", "")) == "FN-ESP-BARCELONA", "Debe conservarse el club elegido")
+	assert(str(career_result.get("career", {}).get("club_id", "")) == "FN-NOVA-C35", "Debe conservarse el club actual confirmado de Máximo")
+	assert(str(career_result.get("career", {}).get("club_name", "")) == "Nova C35", "Debe conservarse el nombre del club actual")
 	print("MAXIMO_PROFILE_TEST: career validated")
 	career_service.free()
+	for cleanup_path in [career_test_path, career_test_path + ".tmp", career_test_path + ".bak"]:
+		if FileAccess.file_exists(cleanup_path):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(cleanup_path))
 	print("FUTBOL_NOVA_MAXIMO_PADILLA_PROFILE_TEST: PASS")
 	quit(0)
