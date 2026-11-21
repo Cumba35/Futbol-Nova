@@ -202,3 +202,15 @@ Los reinicios ya se colocan en el campo y asignan el equipo correcto, pero aún 
 - Al producirse una falta durante un amistoso activo, se identifica el futbolista infractor, se coloca el balón cerca del punto de contacto dentro del campo, se concede el reinicio al equipo contrario y se detiene brevemente el reloj para preparar el tiro libre.
 - La prueba integrada `tests/test_friendly_match_runtime.gd` emite la señal de falta del jugador controlado y verifica equipo beneficiado, posición del balón e interrupción del reloj.
 - Alcance: se completa el reinicio funcional básico; todavía no hay barrera reglamentaria, animación de colocación, árbitro visible ni selección de tiro directo/indirecto. Las pruebas de Godot 4.4.1 y las regresiones deben pasar antes de considerar validado este cambio.
+
+
+
+## Registro de implementación — reinicio por falta — 20-11-2026
+
+- Rama de distribución: `work/friendly-match-completion-2026-11-20`.
+- Rama canónica de Nova Workspace: `work/futbol-nova-friendly-match-completion-2026-11-20`.
+- Distribución: `scripts/main.gd` commit `10ea872e0217d0957521218ecc40f8d0dff79fff`; prueba `tests/test_friendly_match_runtime.gd` commit `d3287d13571d229838cc22e7dae0c04cf4bfdf50`.
+- Nova Workspace: espejo de código commit `e989f559087d025c56b6cf140dbe27fd62e90598`; espejo de prueba commit `d823d7691890f6867938c7f2b7ad750103056ffa`.
+- Los archivos de código y prueba se releyeron desde ambas ramas. Los SHA de contenido coinciden exactamente entre distribución y Workspace: main `a0df194a3a02d8fba38d1bbaf750c18b5acbeab8`; prueba `8899ef1667b5a29fc157152afc11f678aa3e9280`.
+- Validación CI: pendiente/no confirmada. La consulta de estados del commit no devolvió checks; no se afirma que Godot haya ejecutado la prueba ni que el APK de esta rama esté validado.
+- No se fusionó ninguna rama ni se publicó una versión final.
