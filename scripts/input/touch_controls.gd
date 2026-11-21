@@ -35,7 +35,8 @@ func _button_layout() -> Dictionary:
 		"pass_ball": {"center": Vector2(size.x * 0.73, size.y * 0.70), "label": "PASE"},
 		"shoot_ball": {"center": Vector2(size.x * 0.89, size.y * 0.79), "label": "TIRO"},
 		"skill_action": {"center": Vector2(size.x * 0.72, size.y * 0.91), "label": "TÉCNICA"},
-		"pressure_action": {"center": Vector2(size.x * 0.89, size.y * 0.94), "label": "PRESIÓN"}
+		"pressure_action": {"center": Vector2(size.x * 0.89, size.y * 0.94), "label": "PRESIÓN"},
+		"switch_player": {"center": Vector2(size.x * 0.54, size.y * 0.84), "label": "CAMBIO"}
 	}
 
 func _begin_touch(index: int, position: Vector2) -> void:
@@ -117,7 +118,7 @@ func _notification(what: int) -> void:
 func _release_all() -> void:
 	joystick_touch_id = -1
 	joystick_vector = Vector2.ZERO
-	for action in ["move_left", "move_right", "move_forward", "move_back", "pass_ball", "shoot_ball", "skill_action", "pressure_action"]:
+	for action in ["move_left", "move_right", "move_forward", "move_back", "pass_ball", "shoot_ball", "skill_action", "pressure_action", "switch_player"]:
 		Input.action_release(action)
 	action_touch_ids.clear()
 	pressed_actions.clear()
