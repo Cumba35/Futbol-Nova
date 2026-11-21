@@ -88,6 +88,10 @@ var _start_button: Button
 var _team_ids: Array[String] = []
 var _custom_players: OptionButton
 var _roster_status: Label
+var _control_mode: OptionButton
+var _controlled_player: OptionButton
+var _control_hint: Label
+var _home_lineup_ids: Array[String] = []
 
 func _ready() -> void:
 	_build_interface()
@@ -191,6 +195,37 @@ func _build_interface() -> void:
 	_away_teams.item_selected.connect(_on_team_selection_changed)
 	away_column.add_child(_away_teams)
 
+	var control_title := Label.new()
+	control_title.text = "CONTROL DEL PARTIDO"
+	control_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	control_title.add_theme_color_override("font_color", ACCENT)
+	column.add_child(control_title)
+	var control_description := Label.new()
+	control_description.text = "Elige controlar a todo el equipo como en FIFA o comenzar manejando a un solo futbolista. Podrás cambiar de jugador durante el encuentro."
+	control_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	control_description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	control_description.add_theme_color_override("font_color", MUTED)
+	column.add_child(control_description)
+	_control_mode = OptionButton.new()
+	_control_mode.add_item("Control de equipo (cambiar entre los 11)", 0)
+	_control_mode.add_item("Control de un jugador", 1)
+	_control_mode.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var preferences: Node = get_node_or_null("/root/NovaPreferences")
+	var saved_control: Dictionary = preferences.call("get_match_control_preferences") if preferences != null else {"mode": "team", "player_id": ""}
+	_control_mode.select(1 if str(saved_control.get("mode", "team")) == "single" else 0)
+	_control_mode.item_selected.connect(_on_control_mode_changed)
+	column.add_child(_control_mode)
+	_controlled_player = OptionButton.new()
+	_controlled_player.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_controlled_player.custom_minimum_size.y = 44
+	column.add_child(_controlled_player)
+	_control_hint = Label.new()
+	_control_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_control_hint.add_theme_color_override("font_color", MUTED)
+	column.add_child(_control_hint)
+	_refresh_control_player_options()
+	_on_control_mode_changed(_control_mode.selected)
+
 	var custom_roster_title := Label.new()
 	custom_roster_title.text = "JUGADORES PERSONALIZADOS"
 	custom_roster_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -293,6 +328,42 @@ func _build_interface() -> void:
 	_start_button.disabled = true
 	_start_button.pressed.connect(_start_match)
 	actions.add_child(_start_button)
+
+func _on_control_mode_changed(_index: int) -> void:
+	if _controlled_player != null:
+		_controlled_player.visible = _control_mode != null and _control_mode.get_selected_id() == 1
+	if _control_hint != null:
+		_control_hint.text = "En control de equipo puedes cambiar libremente entre los once. En control de un jugador eliges el futbolista inicial; también podrás cambiarlo o volver al control de equipo desde la pausa."
+		
+func _refresh_control_player_options() -> void:
+	if _controlled_player == null:
+		return
+	_controlled_player.clear()
+	var home_id := _selected_team_id(_home_teams)
+	var roster := _get_combined_team_roster(home_id) if not home_id.is_empty() else []
+	_home_lineup_ids = build_starting_eleven(roster)
+	var preferred_id := ""
+	var preferences: Node = get_node_or_null("/root/NovaPreferences")
+	if preferences != null:
+		var saved: Dictionary = preferences.call("get_match_control_preferences")
+		preferred_id = str(saved.get("player_id", ""))
+	for player_id in _home_lineup_ids:
+		var display_name := player_id
+		for record in roster:
+			if record is Dictionary and str(record.get("id", "")) == player_id:
+				display_name = str(record.get("display_name", record.get("full_name", player_id)))
+				break
+		_controlled_player.add_item(display_name)
+		_controlled_player.set_item_metadata(_controlled_player.item_count - 1, player_id)
+		if player_id == preferred_id:
+			_controlled_player.select(_controlled_player.item_count - 1)
+	if _controlled_player.item_count > 0 and _controlled_player.selected < 0:
+		_controlled_player.select(mini(6, _controlled_player.item_count - 1))
+
+func _selected_controlled_player_id() -> String:
+	if _controlled_player == null or _controlled_player.item_count == 0 or _controlled_player.selected < 0:
+		return ""
+	return str(_controlled_player.get_item_metadata(_controlled_player.selected))
 
 func _get_custom_roster_service() -> Node:
 	return get_node_or_null("/root/CustomPlayerRoster")
@@ -442,6 +513,7 @@ func _selected_stadium_id() -> String:
 	return str(_stadiums.get_item_metadata(_stadiums.selected))
 
 func _on_team_selection_changed(_index: int) -> void:
+	_refresh_control_player_options()
 	_refresh_validation()
 
 func _start_match() -> void:
@@ -461,7 +533,13 @@ func _start_match() -> void:
 	var away_roster: Array = _get_combined_team_roster(away_id)
 	var home_player_ids := build_starting_eleven(home_roster)
 	var away_player_ids := build_starting_eleven(away_roster)
-	var controlled_player_id := get_default_controlled_player_id(home_id, home_player_ids)
+	var controlled_player_id := _selected_controlled_player_id()
+	if not home_player_ids.has(controlled_player_id):
+		controlled_player_id = str(home_player_ids[mini(6, home_player_ids.size() - 1)]) if not home_player_ids.is_empty() else ""
+	var control_mode := "single" if _control_mode != null and _control_mode.get_selected_id() == 1 else "team"
+	var preferences: Node = get_node_or_null("/root/NovaPreferences")
+	if preferences != null:
+		preferences.call("set_match_control_preferences", control_mode, controlled_player_id)
 	var players_by_id: Dictionary = {}
 	for raw_player in home_roster + away_roster:
 		if raw_player is Dictionary:
@@ -481,6 +559,7 @@ func _start_match() -> void:
 		"home_player_ids": home_player_ids,
 		"away_player_ids": away_player_ids,
 		"controlled_player_id": controlled_player_id,
+		"control_mode": control_mode,
 		"players_by_id": players_by_id,
 		"stadium_id": _selected_stadium_id(),
 		"half_length_minutes": _half_length.get_selected_id(),
