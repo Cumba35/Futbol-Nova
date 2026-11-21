@@ -175,3 +175,21 @@ No se añaden dependencias ni assets de terceros. Se conserva la arquitectura li
 5. Validar el ciclo completo y el rendimiento instalando la APK ARM64 en Android. La exportación CI no sustituye esta prueba.
 
 No se declara finalizado el modo amistoso ni se fusiona/publica la rama.
+
+
+## Reinicios de balón fuera del campo — 21-11-2026
+
+Se conectó el clasificador de reglas del partido al ciclo de actualización del amistoso. El juego conserva la posición anterior del balón para resolver correctamente qué línea cruzó primero y usa el último toque y el sentido de ataque vigente para determinar el saque correspondiente.
+
+- Saque de banda cuando el balón cruza una línea lateral.
+- Córner cuando el último toque fue del equipo defensor antes de salir por su línea de meta.
+- Saque de puerta cuando el último toque fue del equipo atacante antes de salir por la línea de meta.
+- El balón vuelve a una posición válida dentro del campo, se limpian velocidad/posesión y el motor prioriza el equipo al que se concedió el reinicio hasta que recupere la posesión.
+- La interfaz informa el tipo de reinicio y usa los nombres de los clubes seleccionados.
+- La prueba integrada `tests/test_friendly_match_runtime.gd` cubre saque de banda, córner y saque de puerta, además del flujo existente de goles y períodos.
+
+Archivos: `scripts/main.gd`, `scripts/gameplay/match_11v11_controller.gd` y `tests/test_friendly_match_runtime.gd`. Los cambios están guardados en esta rama y sincronizados en Nova Workspace. La nueva ejecución de CI debe validar la compilación y las pruebas; todavía no se declara aprobado.
+
+## Estado de funcionalidad pendiente
+
+Los reinicios ya se colocan en el campo y asignan el equipo correcto, pero aún no son una animación reglamentaria de saque de banda/córner/saque de puerta. También siguen pendientes las atajadas con blocaje y animación, la gestión completa de faltas y tiros libres, estadísticas de partido y la prueba manual del APK en Android.
