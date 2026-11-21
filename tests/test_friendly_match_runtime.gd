@@ -461,6 +461,26 @@ func _run_acceptance_test() -> void:
 						failures.append("El saque de banda no se asignó al equipo contrario al último toque.")
 					if game.ball.global_position.distance_to(Vector3(34.0, 0.35, 12.0)) > 0.01:
 						failures.append("El balón no volvió a una posición válida dentro del campo tras el saque de banda.")
+					# A defender last touching the ball over their own goal line awards a corner.
+					game.match_11v11_controller.notify_ball_kicked(0.18, "home_defender_restart_test", true)
+					game._previous_friendly_ball_position = Vector3(5.0, 0.35, 52.0)
+					game._has_previous_friendly_ball_position = true
+					game._friendly_restart_cooldown = 0.0
+					game.ball.global_position = Vector3(5.0, 0.35, 53.0)
+					game._update_friendly_ball_exit(0.016)
+					var corner_summary: Dictionary = game.match_11v11_controller.get_match_summary()
+					if str(corner_summary.get("restart_team", "")) != "away":
+						failures.append("El córner no se asignó al equipo atacante tras el último toque del defensor.")
+					# An attacker last touching the same exit must award a goal kick.
+					game.match_11v11_controller.notify_ball_kicked(0.18, "away_attacker_restart_test", false)
+					game._previous_friendly_ball_position = Vector3(5.0, 0.35, 52.0)
+					game._has_previous_friendly_ball_position = true
+					game._friendly_restart_cooldown = 0.0
+					game.ball.global_position = Vector3(5.0, 0.35, 53.0)
+					game._update_friendly_ball_exit(0.016)
+					var goal_kick_summary: Dictionary = game.match_11v11_controller.get_match_summary()
+					if str(goal_kick_summary.get("restart_team", "")) != "home":
+						failures.append("El saque de puerta no se asignó al equipo defensor tras el último toque atacante.")
 					game.ball.global_position = Vector3(0.0, 1.0, -53.0)
 					game._on_goal_body_entered(game.ball, "home")
 					if game.score_home != 1 or game.score_away != 0:
