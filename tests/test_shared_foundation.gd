@@ -211,7 +211,7 @@ func _test_data_service(failures: PackedStringArray) -> void:
 		failures.append("DataService: calendario total esperado de 10.965 partidos con calendarios USA/Argentina")
 	var cup_calendar: Dictionary = service.build_copa_calendar()
 	if not bool(cup_calendar.get("ok", false)) or int(cup_calendar.get("team_count", 0)) != 52:
-		failures.append("DataService: no generó Copa de Cuba para los 52 clubes")
+		failures.append("DataService: no generó Copa de Cuba para los 52 clubes. Resultado: " + str(cup_calendar))
 	if service.build_second_division_playoff().size() != 6:
 		failures.append("DataService: no generó playoff de ascenso de Segunda")
 	var third_promotion_playoff := service.build_third_division_promotion_playoff()
