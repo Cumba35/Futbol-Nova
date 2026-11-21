@@ -24,7 +24,8 @@ func _run() -> void:
 	_check(int(defaults.get("minimum_roster_size", 0)) == 22, "Cada club debe disponer de 22 futbolistas.", failures)
 	_check(int(defaults.get("starting_lineup_size", 0)) == 11, "El once inicial debe tener once futbolistas.", failures)
 
-	var indices := PreMatchSetup.get_default_team_indices(["OTHER", "FN-NOVA-C35", "FN-NOVA-RDA"])
+	var available_team_ids: Array[String] = ["OTHER", "FN-NOVA-C35", "FN-NOVA-RDA"]
+	var indices := PreMatchSetup.get_default_team_indices(available_team_ids)
 	_check(int(indices.get("home", -1)) == 1 and int(indices.get("away", -1)) == 2, "La selección predeterminada debe localizar C35 y RDA por ID estable.", failures)
 
 	var c35_ids: Array[String] = ["NOVA-PLAYER-0035", "C35_02", "C35_03", "C35_04", "C35_05", "C35_06", "C35_07", "C35_08", "C35_09", "C35_10", "C35_11"]
