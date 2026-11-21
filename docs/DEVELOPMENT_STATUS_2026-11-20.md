@@ -184,3 +184,8 @@ La primera ejecución que probó la cápsula falló en la prueba de posicionamie
 - Se tiparon el fixture como `Array[String]` y la variable como `String`; no se cambiaron los valores ni las aserciones de configuración.
 - Run 490 fue encolado antes de esta corrección y usa el archivo anterior; no valida el arreglo de parseo.
 - El commit nuevo `c97372984a3ba78cc8a3dc6667ccc5f174bda551` contiene el arreglo y debe ser validado por la siguiente ejecución CI.
+
+
+- Ajuste preventivo adicional del test de configuración: el fixture de IDs de clubes ahora también declara explícitamente `Array[String]`, acorde con la firma tipada de `get_default_team_indices()`.
+- Run 491 `44841498185` fue cancelado al entrar un commit consecutivo; no ejecutó validación completa. Run 492 [`44841677455`](https://github.com/Cumba35/Futbol-Nova/actions/runs/44841677455) está pendiente sobre el commit `a9cade2b1f175b318c7092caaa4de30fc29d0131`, que contiene ambas anotaciones de tipo.
+- Run 490 sigue ejecutándose sobre un snapshot anterior al arreglo de parseo; no se usará como prueba del test corregido.
