@@ -258,7 +258,7 @@ func _run_acceptance_test() -> void:
 					failures.append("El ciclo de control no regresó al futbolista inicial tras recorrer los once.")
 				if str(game.match_11v11_controller.get_last_touch_player_id()) != last_touch_before_switch:
 					failures.append("Cambiar de futbolista modificó incorrectamente el último toque del balón.")
-				if not game.touch_controls._button_layout().has("switch_player"):
+				if not game.touch_controls.call("_button_layout").has("switch_player"):
 					failures.append("Los controles táctiles no muestran la acción CAMBIO.")
 
 				# A committed foul must stop the clock, place the ball at the incident,
