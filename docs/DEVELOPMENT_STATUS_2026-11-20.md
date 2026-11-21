@@ -176,3 +176,11 @@ La primera ejecución que probó la cápsula falló en la prueba de posicionamie
 - Runs 488 (`44841228459`) y 489 (`44841243972`) se cancelaron al llegar commits consecutivos; no cuentan como aprobados.
 - Run 490 [`44841303999`](https://github.com/Cumba35/Futbol-Nova/actions/runs/44841303999), commit `ae613a827283b6a8cf018e03e226046386af2a97`, está pendiente. Su snapshot incluye la corrección del registro de club de Máximo, la prueba aislada con archivo temporal y la paleta C35 del blockout.
 - Run 490 es la ejecución relevante para comprobar la corrección de Máximo; debe terminar todas las pruebas y subir el artefacto antes de validar el APK. La prueba de configuración nueva también debe aparecer como paso ejecutado y aprobada.
+
+
+### Corrección de parseo de la prueba de defaults — 21-11-2026
+
+- Run 487 terminó fallando en `tests/test_match_configuration_defaults.gd` durante el análisis del script: Godot 4.4.1 no podía inferir el tipo de la variable local `position` construida desde un array sin tipo explícito.
+- Se tiparon el fixture como `Array[String]` y la variable como `String`; no se cambiaron los valores ni las aserciones de configuración.
+- Run 490 fue encolado antes de esta corrección y usa el archivo anterior; no valida el arreglo de parseo.
+- El commit nuevo `c97372984a3ba78cc8a3dc6667ccc5f174bda551` contiene el arreglo y debe ser validado por la siguiente ejecución CI.
