@@ -148,9 +148,7 @@
       "fictional": true,
       "identity_type": "original_fictional_club",
       "status": "draft_review_required",
-      "player_ids": [
-        "NOVA-PLAYER-0036"
-      ],
+      "player_ids": [],
       "visual": {
         "crest": "original_svg_pending",
         "home_kit": "original_design_pending",
