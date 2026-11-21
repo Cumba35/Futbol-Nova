@@ -273,6 +273,8 @@ func _run_acceptance_test() -> void:
 						failures.append("No se pudo seleccionar directamente un futbolista local desde las opciones.")
 					if not game.match_11v11_controller.set_control_mode("single") or game.match_11v11_controller.get_control_mode() != "single":
 						failures.append("No se pudo activar el modo de control de un jugador.")
+					if bool(game.match_11v11_controller.switch_to_next_home_player().get("ok", false)):
+						failures.append("El modo de un jugador permitió el cambio cíclico de equipo sin solicitarlo.")
 					if not game.match_11v11_controller.set_control_mode("team") or game.match_11v11_controller.get_control_mode() != "team":
 						failures.append("No se pudo regresar al control de equipo.")
 
