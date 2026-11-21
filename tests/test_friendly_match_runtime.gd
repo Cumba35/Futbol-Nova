@@ -239,7 +239,7 @@ func _run_acceptance_test() -> void:
 					failures.append("La falta local no concedió el tiro libre al equipo visitante.")
 				if game.ball.global_position.distance_to(Vector3(foul_position.x, 0.35, foul_position.z)) > 0.02:
 					failures.append("El balón no se colocó en el lugar de la falta.")
-			if not bool(game.match_11v11_controller.get_clock_summary().get("interruptions", {}).get("foul_restart", false)):
+			if not bool(game.match_11v11_controller.get_clock_summary().get("interruption_reasons", []).has("foul_restart")):
 				failures.append("El reloj no se detuvo durante la preparación del tiro libre.")
 
 				# Verify both sides' live AI react to the ball, not merely spawn 21
