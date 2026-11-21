@@ -248,3 +248,17 @@ Los reinicios ya se colocan en el campo y asignan el equipo correcto, pero aún 
 - Commit de corrección de prueba: `e11dd4a196a7bcb6da01b2dfcce268ce5499280d`. Commit de documentación: `927521eafbbed1c788d11666b590b553f664ac88`.
 - El nuevo CI debe confirmar la corrección y ejecutar las regresiones restantes. No se declara validado ni se publica APK hasta obtener resultado completo.
 - La modalidad «Controlar a los 11 jugadores» por defecto y «Controlar un solo jugador» sigue siendo requisito registrado, no implementación terminada. La siguiente fase debe incluir selección/cambio de jugador en el primer modo, bloqueo de cambio en el segundo, IA para los demás y pruebas de persistencia en goles, pausas, reinicios y cambios de período.
+
+
+## Enfoque prioritario: amistoso jugable — 21-11-2026
+
+- El propietario confirma que la prioridad de desarrollo es exclusivamente completar el modo de amistosos para probar el juego; no ampliar modos secundarios.
+- Partido de aceptación: Nova C35 vs FC Río de Argenti. Jugador de prueba: Anier Cumbá.
+- Auditoría del controlador `scripts/gameplay/match_11v11_controller.gd`: `start_match()` crea un `CharacterBody3D` humano y 21 actores IA. No existe todavía cambio real entre los once jugadores del equipo. El modo de control de un jugador es el comportamiento actual; la opción configurable todavía no está integrada.
+- El portero dispone de posicionamiento predictivo y cápsula física `AnimatableBody3D`; aún no hay sistema completo de reacción, blocaje, estirada, recuperación y conteo validado de atajadas.
+- `NovaPlayerStatisticsService` registra carrera/temporada con alineaciones y goles, pero el amistoso requiere estadísticas efímeras de partido separadas para no alterar datos oficiales.
+- Se añadió `docs/FRIENDLY_PLAYABLE_MVP_ROADMAP_2026-11-21.md` con fases P0-P5, criterios de aceptación, arquitectura exigida para cambiar de jugador, pruebas Android y auditoría de alternativas públicas.
+- Investigación: League-Soccer y Fotbiler Football declaran Apache-2.0 en sus README; se estudian sus patrones de reglas/estadísticas y cambio manual/asistido, sin portar componentes C++ a Godot. Soccer Box y otros repositorios sin licencia verificable quedan como referencia conceptual únicamente. Godotball exige auditoría de la procedencia de GameplayFootball antes de reutilización.
+- Run 44884835646 (commit `bcc2677dbcc3da63367c87b5bdb9919176d6ab5b`) continúa ejecutando; importación de clubes y pruebas previas de base, 11v11, arranque atómico y partido completo han pasado en la última consulta. El test del importador original/Raymond estaba en curso; no hay resultado global final ni APK validada.
+- Próximo cambio de código: P1 control de los once con intercambio atómico de identidad, modelo, ID, estado y posesión. No implementar un teletransporte que conserve el modelo visual de Anier bajo el ID de otro jugador.
+- No fusionar PR #10 ni publicar sin autorización expresa.
