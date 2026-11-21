@@ -152,3 +152,17 @@ La auditoría inicial confirmó que el cambio entre once no existía. Se ha aña
 
 - Diferencia funcional de modalidades: `team` permite alternar al vuelo con CAMBIO/TAB; `single` mantiene al futbolista elegido y bloquea el ciclo automático. Si el usuario quiere cambiarlo, abre pausa > Configuración > Juego y selecciona otro; desde ahí también puede volver a Control de equipo.
 - El último futbolista activo se guarda como preferencia local cuando se cambia mediante CAMBIO/TAB o el selector de pausa.
+
+
+## Actualización de seguimiento CI — 2026-11-21 10:21 UTC
+
+Esta actualización prevalece sobre los estados de workflows anteriores anotados en las secciones históricas:
+
+- La rama de trabajo apunta a `2174be25f2737829d27f1f8f67e7ca915e80981e`.
+- El run `44893468053` (run 560) terminó en fallo por inferencia de tipo en la variable del test de aceptación. Ese run usa el commit anterior y no contiene la corrección.
+- Se corrigió el test declarando explícitamente `expected_controlled_player_id: String`; el commit de la corrección es `2174be25f2737829d27f1f8f67e7ca915e80981e`.
+- El run `44893672150` (run 561) corresponde exactamente a ese commit y sigue en ejecución. El job `build-debug-apk` completó checkout, empaquetado del proyecto y configuración de Java; al último sondeo estaba configurando Android SDK. Las pruebas Godot, el smoke test Android y la subida del APK todavía no habían comenzado.
+- No se declara CI verde, amistoso validado ni APK validada. No se debe iniciar otro push mientras este workflow sigue ejecutándose, salvo que aparezca un fallo real que requiera corrección.
+- La prueba de ciclo actual realiza once cambios para regresar al futbolista inicial; no presupone que el jugador inicial sea Anier. La nota histórica anterior que describía diez cambios desde Anier queda reemplazada por este criterio actualizado.
+- El roadmap fue releído en el repositorio principal y en Nova Workspace; ambos contenidos y SHA de blob coinciden.
+- PR #10 permanece abierta, en draft y sin fusionar. No publicar APK sin autorización expresa.
