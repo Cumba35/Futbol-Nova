@@ -10,6 +10,14 @@
 
 Entregar primero un amistoso local completo que pueda iniciarse, jugarse y finalizarse de forma repetible. No ampliar carrera, online ni modos secundarios mientras el amistoso tenga bloqueos de jugabilidad.
 
+## Requisito visual 3D — decisión del propietario (2026-11-21)
+
+El juego debe ser un simulador de fútbol 3D con presentación de partido inspirada en la experiencia de FIFA; una versión 2D no satisface el objetivo. El amistoso debe mostrar campo y estadio tridimensionales, porterías físicas, balón 3D, cámara dinámica de partido, 22 futbolistas 3D, equipaciones diferenciadas, animaciones de locomoción y controles táctiles utilizables durante el encuentro.
+
+**Estado visual real:** el proyecto ya utiliza Godot 4.4.1, nodos 3D, física 3D, cámara de partido y estadio procedural. Los futbolistas de IA eran cápsulas/cabezas primitivas; se añadió un constructor humanoide procedural ligero con torso, cabeza, uniforme, brazos, piernas, botas y oscilación de extremidades para locomoción, además de una prueba automatizada específica. Esto mejora la lectura 3D, pero es todavía un modelo provisional low-poly: no equivale a la fidelidad visual, esqueletos, animaciones, texturas, iluminación y calidad de producción de FIFA. No se debe presentar como acabado gráfico final.
+
+**Criterios visuales pendientes:** sustituir progresivamente los modelos provisionales por personajes 3D originales con rig/esqueleto, ciclos de carrera y giro, animaciones de pase/tiro/entrada/salto/celebración, animación del portero, uniformes con dorsales y materiales, LOD y optimización para Android ARM64. Mantener todos los activos originales o con licencia comprobada; no copiar modelos, animaciones ni marcas protegidas de FIFA.
+
 ## Auditoría del estado real del código
 
 | Subsistema | Lo que existe | Trabajo necesario antes de marcarlo completo |
