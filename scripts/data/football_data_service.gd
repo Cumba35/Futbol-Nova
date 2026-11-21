@@ -978,7 +978,7 @@ func record_caribbean_group_result(season_id: String, group_id: String, result: 
 	var edition := get_caribbean_champions_league_state(season_id)
 	if edition.is_empty():
 		return {"ok": false, "error": "No existe una edición guardada para esa temporada."}
-	var response: Dictionary = CARIBBEAN_CHAMPIONS_ENGINE.record_group_result(edition, group_id, result, FootballDatabase)
+	var response: Dictionary = CARIBBEAN_CHAMPIONS_ENGINE.record_group_result(edition, group_id, result, _football_database)
 	if bool(response.get("ok", false)):
 		var saved: Dictionary = _football_database.get_season_state(season_id)
 		saved["caribbean_champions_league"] = edition
@@ -1025,7 +1025,7 @@ func record_caribbean_knockout_result(season_id: String, fixture_bucket: String,
 		if not knockout.has(fixture_bucket):
 			return {"ok": false, "error": "No existe el cuadro de esa ronda."}
 		edition[fixture_bucket + "_fixtures"] = knockout[fixture_bucket]
-		var response: Dictionary = CARIBBEAN_CHAMPIONS_ENGINE.record_knockout_result(edition, fixture_bucket + "_fixtures", result, FootballDatabase)
+		var response: Dictionary = CARIBBEAN_CHAMPIONS_ENGINE.record_knockout_result(edition, fixture_bucket + "_fixtures", result, _football_database)
 		if not bool(response.get("ok", false)):
 			return response
 		edition.knockout_fixtures[fixture_bucket] = edition[fixture_bucket + "_fixtures"]
@@ -1035,7 +1035,7 @@ func record_caribbean_knockout_result(season_id: String, fixture_bucket: String,
 		if not _football_database.save_season_state(season_id, saved_state):
 			return {"ok": false, "error": "Resultado guardado, pero no se pudo actualizar el estado de temporada."}
 		return response
-	var playoff_response: Dictionary = CARIBBEAN_CHAMPIONS_ENGINE.record_knockout_result(edition, "playoff_fixtures", result, FootballDatabase)
+	var playoff_response: Dictionary = CARIBBEAN_CHAMPIONS_ENGINE.record_knockout_result(edition, "playoff_fixtures", result, _football_database)
 	if not bool(playoff_response.get("ok", false)):
 		return playoff_response
 	var saved: Dictionary = _football_database.get_season_state(season_id)
