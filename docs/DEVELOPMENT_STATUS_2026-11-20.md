@@ -280,3 +280,11 @@ Los reinicios ya se colocan en el campo y asignan el equipo correcto, pero aún 
 - Se cambió la resolución de `FootballDatabase` y `ContentPackages` a referencias obtenidas desde el árbol de escenas, y se añadieron esos servicios como fixtures en la prueba aislada cuando no están presentes. También se actualizó la expectativa de clubes predeterminados para el amistoso de aceptación.
 - Commits de código: `e59c362031af0738adbe89852ec19a9f5d663742` y `f2b3a26b40e224677c71d1b0ba6a70354f8ab651`. Los dos archivos se espejaron en Nova Workspace con igualdad de blob.
 - Próxima validación: ejecutar el workflow completo con ambos cambios. No se declara todavía CI verde ni APK validada.
+
+
+## Ajuste de tipado para autoloads dinámicos — 21-11-2026
+
+- El run 44887407639 (workflow 523) detectó que Godot 4.4.1 no podía inferir el tipo de dos resultados al llamar métodos sobre referencias dinámicas de tipo `Node` en `football_data_service.gd`. El fallo impedía cargar el autoload y provocaba que el test del hub se quedara esperando.
+- Se declararon explícitamente como `bool` los resultados de guardado del catálogo y commit del partido, conservando la resolución dinámica de `FootballDatabase` y `ContentPackages`.
+- Commit: `a92beccb8d496f92f5262295e82276f8a0916c1c`; espejo de código actualizado en Nova Workspace con blob idéntico.
+- El siguiente workflow debe validar el tipado, los fixtures de autoload y la selección predeterminada Nova C35 vs FC Río de Argenti. No se considera todavía validado el APK.
