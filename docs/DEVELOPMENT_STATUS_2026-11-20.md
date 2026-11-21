@@ -193,3 +193,12 @@ Archivos: `scripts/main.gd`, `scripts/gameplay/match_11v11_controller.gd` y `tes
 ## Estado de funcionalidad pendiente
 
 Los reinicios ya se colocan en el campo y asignan el equipo correcto, pero aún no son una animación reglamentaria de saque de banda/córner/saque de puerta. También siguen pendientes las atajadas con blocaje y animación, la gestión completa de faltas y tiros libres, estadísticas de partido y la prueba manual del APK en Android.
+
+
+
+## Integración de faltas y tiros libres — 20-11-2026
+
+- La señal real `foul_committed` del motor 11v11 ahora está conectada a la escena principal.
+- Al producirse una falta durante un amistoso activo, se identifica el futbolista infractor, se coloca el balón cerca del punto de contacto dentro del campo, se concede el reinicio al equipo contrario y se detiene brevemente el reloj para preparar el tiro libre.
+- La prueba integrada `tests/test_friendly_match_runtime.gd` emite la señal de falta del jugador controlado y verifica equipo beneficiado, posición del balón e interrupción del reloj.
+- Alcance: se completa el reinicio funcional básico; todavía no hay barrera reglamentaria, animación de colocación, árbitro visible ni selección de tiro directo/indirecto. Las pruebas de Godot 4.4.1 y las regresiones deben pasar antes de considerar validado este cambio.
