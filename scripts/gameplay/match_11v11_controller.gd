@@ -58,6 +58,9 @@ var _home_team_id := "nova_home"
 var _away_team_id := "nova_away"
 var _controlled_player_id := ""
 var _last_touch_player_id := ""
+var _last_touch_home_team := true
+# -1 means no restart restriction, 0 means away team, 1 means home team.
+var _restart_team_home := -1
 var _team_colors := {
 	"home": Color("#D92E3A"),
 	"away": Color("#E7E9EF")
@@ -261,6 +264,8 @@ func stop_match() -> void:
 	_match_clock_state.clear()
 	_controlled_player_id = ""
 	_last_touch_player_id = ""
+	_last_touch_home_team = true
+	_restart_team_home = -1
 	_ball_possession_lockout = 0.0
 	_clear_ball_possession()
 	if is_instance_valid(_player):
@@ -319,7 +324,9 @@ func set_match_score(home_score: int, away_score: int) -> void:
 	if not _match_clock_state.is_empty():
 		_match_clock_state = MATCH_CLOCK_STATE.set_score(_match_clock_state, home_score, away_score)
 
-func reset_ball_for_restart(position: Vector3 = Vector3(0.0, 0.35, 0.0)) -> bool:
+func reset_ball_for_restart(position: Vector3 = Vector3(0.0, 0.35, 0.0), restart_team_home: int = -1) -> bool:
+	if restart_team_home < -1 or restart_team_home > 1:
+		return false
 	_ball_flight_spin = Vector3.ZERO
 	_clear_ball_possession()
 	if not is_instance_valid(_ball):
@@ -330,6 +337,7 @@ func reset_ball_for_restart(position: Vector3 = Vector3(0.0, 0.35, 0.0)) -> bool
 	_ball.angular_velocity = Vector3.ZERO
 	_ball.global_position = position
 	_ball.reset_physics_interpolation()
+	_restart_team_home = restart_team_home
 	return true
 
 func set_clock_interruption(reason: String, active: bool) -> void:
@@ -393,22 +401,26 @@ func is_match_active() -> bool:
 func has_controlled_possession() -> bool:
 	return _possession_is_controlled and is_instance_valid(_possession_owner)
 
-func notify_ball_kicked(lockout_seconds: float = 0.18, player_id: String = "") -> void:
+func notify_ball_kicked(lockout_seconds: float = 0.18, player_id: String = "", home_team: bool = true) -> void:
 	_ball_possession_lockout = maxf(_ball_possession_lockout, clampf(lockout_seconds, 0.0, 0.5))
 	# Never attribute an AI action to the human-controlled player. Callers that
 	# know the kicker must provide its real ID; an omitted ID preserves last touch.
 	if not player_id.is_empty():
 		_last_touch_player_id = player_id
+		_last_touch_home_team = home_team
 
 func get_last_touch_player_id() -> String:
 	return _last_touch_player_id
+
+func get_last_touch_home_team() -> bool:
+	return _last_touch_home_team
 
 func release_controlled_ball(direction: Vector3, power: float = 7.0, spin: Vector3 = Vector3.ZERO) -> bool:
 	if not has_controlled_possession() or not is_instance_valid(_ball):
 		return false
 	if direction.length_squared() < 0.001 or not direction.is_finite() or not spin.is_finite() or not is_finite(power):
 		return false
-	notify_ball_kicked(0.18, _controlled_player_id)
+	notify_ball_kicked(0.18, _controlled_player_id, true)
 	_clear_ball_possession()
 	_ball_flight_spin = spin.limit_length(BALL_FLIGHT_MODEL.MAX_SPIN)
 	_ball.apply_central_impulse(direction.normalized() * clampf(power, 1.0, 14.0))
@@ -433,6 +445,7 @@ func get_match_summary() -> Dictionary:
 		"home_team_id": _home_team_id,
 		"away_team_id": _away_team_id,
 		"controlled_player_id": _controlled_player_id,
+		"restart_team": "home" if _restart_team_home == 1 else ("away" if _restart_team_home == 0 else ""),
 		"match_phase": str(_match_clock_state.get("phase", "not_started")),
 		"clock_remaining_seconds": MATCH_CLOCK_STATE.get_remaining_seconds(_match_clock_state) if not _match_clock_state.is_empty() else 0.0
 	}
@@ -531,6 +544,16 @@ func _update_ball_possession() -> void:
 		return
 	_possession_owner = nearest_owner
 	_possession_is_controlled = nearest_owner == _player
+	if _possession_is_controlled:
+		_last_touch_player_id = _controlled_player_id
+		_last_touch_home_team = true
+	else:
+		for actor_data in _actors:
+			if actor_data.get("node") == nearest_owner:
+				_last_touch_player_id = str(actor_data.get("player_id", nearest_owner.name))
+				_last_touch_home_team = bool(actor_data.get("home_team", false))
+				break
+	_restart_team_home = -1
 	_ball_flight_spin = Vector3.ZERO
 	possession_changed.emit("controlled_player" if _possession_is_controlled else str(nearest_owner.name), _possession_is_controlled)
 	_ball.freeze = true
@@ -569,6 +592,9 @@ func attempt_controlled_tackle() -> Dictionary:
 func _transfer_possession(new_owner: Node3D, home_team: bool, player_id: String) -> void:
 	_possession_owner = new_owner
 	_possession_is_controlled = new_owner == _player
+	_last_touch_player_id = _controlled_player_id if _possession_is_controlled else player_id
+	_last_touch_home_team = home_team
+	_restart_team_home = -1
 	_ball_flight_spin = Vector3.ZERO
 	if is_instance_valid(_ball):
 		_ball.freeze = true
@@ -739,6 +765,10 @@ func _choose_target(actor_index: int, actor_data: Dictionary) -> Vector3:
 	var target := base + tactical_shift
 	if str(actor_data.role) == "GK":
 		return goalkeeper_home_position(ball_position, home_team, _ends_swapped, _ball.linear_velocity)
+	# During a throw-in, corner or goal kick, only the awarded team presses
+	# toward the restart point; the opponent keeps its tactical shape.
+	if _restart_team_home >= 0 and home_team != (_restart_team_home == 1):
+		return Vector3(clampf(target.x, -FIELD_HALF_WIDTH + 2.0, FIELD_HALF_WIDTH - 2.0), 0.0, clampf(target.z, -FIELD_HALF_LENGTH + 3.0, FIELD_HALF_LENGTH - 3.0))
 	var nearest_index := _nearest_teammate_to_ball(home_team)
 	if nearest_index == actor_index and Vector2(ball_position.x, ball_position.z).distance_to(Vector2(base.x, base.z)) < 29.0:
 		var attack_sign := _attack_sign(home_team)
@@ -788,7 +818,7 @@ func _try_ai_ball_action(actor_index: int, actor_data: Dictionary) -> void:
 			return
 		# Atajada/despeje básico: el portero desvía hacia una zona lateral y segura.
 		var clear_direction := goalkeeper_clear_direction(home_team, _ball.global_position.x, _ends_swapped)
-		notify_ball_kicked(0.18, str(actor_data.get("player_id", "")))
+		notify_ball_kicked(0.18, str(actor_data.get("player_id", "")), bool(actor_data.get("home_team", false)))
 		_clear_ball_possession()
 		apply_ai_kick(_ball, clear_direction, 10.5)
 		actor_data.kick_cooldown = 1.8
@@ -802,7 +832,7 @@ func _try_ai_ball_action(actor_index: int, actor_data: Dictionary) -> void:
 		var shot_rating := float(attributes.get("shot", attributes.get("fin", 60)))
 		var shot_force := clampf(10.5 + shot_rating * 0.045, 11.0, 15.0)
 		var shot_direction := ai_shot_direction(_ball.global_position, home_team, _ends_swapped)
-		notify_ball_kicked(0.18, str(actor_data.get("player_id", "")))
+		notify_ball_kicked(0.18, str(actor_data.get("player_id", "")), bool(actor_data.get("home_team", false)))
 		_clear_ball_possession()
 		apply_ai_kick(_ball, shot_direction, shot_force)
 		actor_data.kick_cooldown = 1.65
@@ -821,7 +851,7 @@ func _try_ai_ball_action(actor_index: int, actor_data: Dictionary) -> void:
 		# Sin línea de pase clara: progresión/ despeje hacia campo rival.
 		impulse_direction = Vector3(-_ball.global_position.x * 0.035, 0.10, attack_sign).normalized()
 		force = 8.8 if attacking_third else 4.6
-	notify_ball_kicked(0.18, str(actor_data.get("player_id", "")))
+	notify_ball_kicked(0.18, str(actor_data.get("player_id", "")), bool(actor_data.get("home_team", false)))
 	_clear_ball_possession()
 	apply_ai_kick(_ball, impulse_direction, force)
 	actor_data.kick_cooldown = 1.25
