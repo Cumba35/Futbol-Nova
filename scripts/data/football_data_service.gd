@@ -63,9 +63,15 @@ var _football_database: Node
 var _content_packages: Node
 
 func _ready() -> void:
-	_football_database = get_node_or_null("/root/FootballDatabase")
-	_content_packages = get_node_or_null("/root/ContentPackages")
+	if _football_database == null:
+		_football_database = get_node_or_null("/root/FootballDatabase")
+	if _content_packages == null:
+		_content_packages = get_node_or_null("/root/ContentPackages")
 	initialize_catalog()
+
+func configure_runtime_services(database: Node, content_packages: Node) -> void:
+	_football_database = database
+	_content_packages = content_packages
 
 func initialize_catalog() -> bool:
 	initialized = false
