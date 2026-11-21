@@ -136,3 +136,12 @@ La primera ejecución que probó la cápsula falló en la prueba de posicionamie
 - Runs 476–478 fueron cancelados al actualizar commits sucesivos; no se cuentan como pruebas aprobadas.
 - Aunque el paso de exportación APK ya pasó en run 475, la subida del artefacto está al final del workflow y depende de que terminen correctamente todas las pruebas. No se confirmó un APK nuevo descargable para esta revisión.
 - El siguiente resultado válido debe ser una ejecución completa de run 479 (o una posterior equivalente), seguida de inspección del artefacto, instalación y partido manual en Android.
+
+
+## Corrección de regresión del perfil de Máximo — 21-11-2026
+
+- La ejecución CI 44839033925 superó las pruebas principales del amistoso 11v11, el runtime con goles y períodos, selección del jugador controlado, IA de tiro y posicionamiento/colisión del portero; falló después en `test_maximo_padilla_profile.gd`.
+- La causa funcional de la aserción era una expectativa obsoleta: la ficha canónica de Máximo ya registra su club actual como Nova C35 (`FN-NOVA-C35`), pero la prueba todavía exigía Litoral Barcelona (`FN-ESP-BARCELONA`). Se actualizó la expectativa para validar el club actual y su nombre.
+- La prueba aislada ahora agrega el servicio de carrera al SceneTree, desactiva la sincronización con FootballDatabase y usa un archivo temporal propio; esto evita consultar rutas absolutas `/root` desde un Node fuera del árbol y evita tocar datos persistentes del usuario.
+- Cambio guardado en el commit `20724842f9f097c6cd67c6a7ac974e19b6092083` de la rama `work/friendly-match-stability-2026-11-20`.
+- Pendiente: releer y verificar el archivo en GitHub, confirmar la nueva ejecución CI completa, revisar pruebas que estaban omitidas tras el fallo y validar la APK en Android. No declarar el amistoso terminado hasta probarlo manualmente.
