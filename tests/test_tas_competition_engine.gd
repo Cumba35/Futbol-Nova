@@ -8,7 +8,8 @@ func _initialize() -> void:
 	if not bool(edition_result.get("ok", false)):
 		_fail(edition_result.get("errors", []))
 		return
-	var edition: Dictionary = edition_result.edition
+	# create_edition devuelve la edición directamente junto con ok/errors, no dentro de una clave edition.
+	var edition: Dictionary = edition_result
 	if edition.get("draw_presentation", []).size() != 9:
 		errors.append("La presentación del sorteo debe incluir los nueve clasificados del TAS.")
 	if int(edition.get("participant_count", 0)) != 9 or int(edition.get("total_scheduled_matches", 0)) != 9:
