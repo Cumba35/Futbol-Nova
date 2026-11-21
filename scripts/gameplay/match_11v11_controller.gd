@@ -342,8 +342,13 @@ func switch_to_home_player(player_id: String) -> Dictionary:
 		if candidate != _controlled_player_id and candidate != player_id:
 			reordered.append(candidate)
 	_home_player_order = reordered
+	var was_paused := _paused
+	_paused = false
 	var result := switch_to_next_home_player()
+	_paused = was_paused
 	_home_player_order = original_order
+	if was_paused and is_instance_valid(_player):
+		_player.set_physics_process(false)
 	return result
 
 func set_control_mode(mode: String) -> bool:
