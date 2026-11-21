@@ -140,7 +140,7 @@ func _run() -> void:
 	if not _check(main_source.contains('match controlled_player_id'), "The selected player ID must resolve the correct player scene"): return
 	if not _check(main_source.contains('"NOVA-PLAYER-0036"') and main_source.contains('"NOVA-PLAYER-0037"'), "Máximo and Raymond must keep their dedicated scenes"): return
 	if not _check(main_source.contains('return ANIER_PLAYER_SCENE'), "Anier must remain the default player scene"): return
-	if not _check(main_source.contains("selected_player_scene.instantiate()"), "The selected player scene must be instantiated"): return
+	if not _check(main_source.contains("selected_scene.instantiate()"), "The selected player scene must be instantiated"): return
 
 	anier.queue_free()
 	print("Anier Cumba profile and scene integration: PASS")
