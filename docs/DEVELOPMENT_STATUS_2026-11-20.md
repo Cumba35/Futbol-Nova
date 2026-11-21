@@ -145,3 +145,33 @@ La primera ejecución que probó la cápsula falló en la prueba de posicionamie
 - La prueba aislada ahora agrega el servicio de carrera al SceneTree, desactiva la sincronización con FootballDatabase y usa un archivo temporal propio; esto evita consultar rutas absolutas `/root` desde un Node fuera del árbol y evita tocar datos persistentes del usuario.
 - Cambio guardado en el commit `20724842f9f097c6cd67c6a7ac974e19b6092083` de la rama `work/friendly-match-stability-2026-11-20`.
 - Pendiente: releer y verificar el archivo en GitHub, confirmar la nueva ejecución CI completa, revisar pruebas que estaban omitidas tras el fallo y validar la APK en Android. No declarar el amistoso terminado hasta probarlo manualmente.
+
+
+## Corrección de atribución del último toque — 21-11-2026
+
+La revisión del controlador detectó un error de atribución que podía contaminar celebraciones y cualquier estadística futura: `notify_ball_kicked()` asignaba por defecto el ID del jugador humano aunque quien ejecutara la acción fuera un actor IA. Se corrigieron los tres caminos de acción de IA (despeje del portero, remate y pase/despeje de campo) para enviar el ID real del actor. La función ya no sustituye un último toque conocido cuando recibe una llamada sin ID.
+
+- Código: `scripts/gameplay/match_11v11_controller.gd`.
+- Prueba ampliada: `tests/test_friendly_ai_shooting.gd`, que mantiene un ID humano distinto y exige que el último toque corresponda al delantero IA.
+- Commit de código: `a02fbce41f3863f74bc2020f0dd3f6ee2bd31f99`.
+- Commit de prueba: `befa749c402451f9a8191112bb7c64cb6cb2cb31`.
+- Ejecución CI que contiene ambos cambios: https://github.com/Cumba35/Futbol-Nova/actions/runs/44843892726 (pendiente al registrar esta nota).
+- Sincronización de los dos archivos en `Cumba35/Nova-Workspace/proyectos/juegos/futbol-nova/`: commits `b5bca1cecabb7d77a47ca37aaef03ed1b48906ff` y `9e02524572696544cada0477348184bbb959cd9a`.
+
+## Revisión de alternativas públicas — 21-11-2026
+
+- `awest813/League-Soccer`: Apache-2.0; motor completo con 22 agentes, reglas, IA táctica, estadísticas y pruebas de integración. Se usa como referencia arquitectónica, no como dependencia: su motor C++/OpenGL/SDL no es un reemplazo de bajo riesgo para el controlador Godot/GDScript y el objetivo Android ARM64.
+- `krimshi/godot-soccer`: MIT; ejemplo pequeño 2D en Godot. Útil como comparación de interacción jugador-balón, no como motor 3D 11v11.
+- `Tobilion/footysim`: simulador 11v11 por agentes, determinista y con pruebas; no se pudo verificar una licencia declarada, por lo que no se copia ni integra código.
+
+No se añaden dependencias ni assets de terceros. Se conserva la arquitectura ligera de Fútbol Nova y se adoptan únicamente criterios de diseño y validación.
+
+## Pendientes inmediatos
+
+1. Confirmar CI del arreglo de último toque y ejecutar el resto de regresiones.
+2. Integrar atajada controlada del portero (captura/parada, rebote y despeje con transición de posesión), no solo colisión física.
+3. Resolver faltas y salidas del campo con reinicios jugables; actualmente la señal de falta no completa por sí sola la colocación y reanudación.
+4. Añadir estadísticas de partido derivadas de eventos reales y pruebas de goles atribuidos al jugador correcto.
+5. Validar el ciclo completo y el rendimiento instalando la APK ARM64 en Android. La exportación CI no sustituye esta prueba.
+
+No se declara finalizado el modo amistoso ni se fusiona/publica la rama.
