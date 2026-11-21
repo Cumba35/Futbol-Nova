@@ -50,6 +50,9 @@ var pre_match_setup
 var stadium_root: Node3D
 var current_stadium_id := "nova_central"
 var current_training_mode_id := ""
+var _previous_friendly_ball_position := Vector3.ZERO
+var _has_previous_friendly_ball_position := false
+var _friendly_restart_cooldown := 0.0
 
 func _ready() -> void:
 	var loading_screen := LOADING_SCREEN.new()
@@ -584,14 +587,17 @@ func _reset_ball() -> void:
 	var reset_by_controller := false
 	if is_instance_valid(match_11v11_controller) and match_11v11_controller.has_method("reset_ball_for_restart"):
 		reset_by_controller = bool(match_11v11_controller.call("reset_ball_for_restart", Vector3(0.0, 0.35, 0.0)))
-	if reset_by_controller or not is_instance_valid(ball):
-		return
-	ball.freeze = false
-	ball.sleeping = false
-	ball.linear_velocity = Vector3.ZERO
-	ball.angular_velocity = Vector3.ZERO
-	ball.global_position = Vector3(0, 0.35, 0)
-	ball.reset_physics_interpolation()
+	if not reset_by_controller and is_instance_valid(ball):
+		ball.freeze = false
+		ball.sleeping = false
+		ball.linear_velocity = Vector3.ZERO
+		ball.angular_velocity = Vector3.ZERO
+		ball.global_position = Vector3(0, 0.35, 0)
+		ball.reset_physics_interpolation()
+	if is_instance_valid(ball):
+		_previous_friendly_ball_position = ball.global_position
+		_has_previous_friendly_ball_position = true
+		_friendly_restart_cooldown = 0.0
 
  
 func _open_download_catalog() -> void:
@@ -818,6 +824,9 @@ func _start_11v11_match(match_overrides: Dictionary = {}) -> void:
 	score_home = 0
 	score_away = 0
 	_reset_ball()
+	_previous_friendly_ball_position = ball.global_position
+	_has_previous_friendly_ball_position = true
+	_friendly_restart_cooldown = 0.0
 	if game_hub != null and game_hub.root != null:
 		game_hub.root.visible = false
 	if touch_controls != null:
@@ -914,3 +923,53 @@ func _process(delta: float) -> void:
 	var desired_position := Vector3(target.x * 0.18, 72.0, target.z + 24.0)
 	match_camera.position = match_camera.position.lerp(desired_position, clampf(delta * 1.6, 0.0, 1.0))
 	match_camera.look_at(Vector3(target.x * 0.18, 0.0, target.z), Vector3.UP)
+	_update_friendly_ball_exit(delta)
+
+func _update_friendly_ball_exit(delta: float) -> void:
+	if not is_instance_valid(match_11v11_controller) or not is_instance_valid(ball) or not match_11v11_controller.is_match_active():
+		return
+	var current_position := ball.global_position
+	var match_summary: Dictionary = match_11v11_controller.get_match_summary()
+	if bool(match_summary.get("paused", false)):
+		_previous_friendly_ball_position = current_position
+		_has_previous_friendly_ball_position = true
+		return
+	_friendly_restart_cooldown = maxf(0.0, _friendly_restart_cooldown - delta)
+	if _friendly_restart_cooldown > 0.0 or not _has_previous_friendly_ball_position:
+		_previous_friendly_ball_position = current_position
+		_has_previous_friendly_ball_position = true
+		return
+	var last_touch_home := bool(match_11v11_controller.call("get_last_touch_home_team")) if match_11v11_controller.has_method("get_last_touch_home_team") else true
+	var exit_result: Dictionary = MATCH_RULES.classify_ball_exit(
+		current_position,
+		last_touch_home,
+		FIELD_WIDTH * 0.5,
+		FIELD_LENGTH * 0.5,
+		3.66,
+		2.44,
+		0.22,
+		_previous_friendly_ball_position,
+		true,
+		bool(match_summary.get("ends_swapped", false))
+	)
+	var restart := str(exit_result.get("restart", "in_play"))
+	if restart in ["throw_in", "corner", "goal_kick"]:
+		var restart_position: Vector3 = exit_result.get("position", current_position)
+		restart_position.y = 0.35
+		var awarded_home := bool(exit_result.get("awarded_home", false))
+		var restart_team := 1 if awarded_home else 0
+		if match_11v11_controller.call("reset_ball_for_restart", restart_position, restart_team):
+			_friendly_restart_cooldown = 0.65
+			_previous_friendly_ball_position = ball.global_position
+			_has_previous_friendly_ball_position = true
+			if gesture_hint_label != null:
+				match restart:
+					"throw_in":
+						gesture_hint_label.text = "Saque de banda: %s." % ("Nova C35" if awarded_home else "equipo visitante")
+					"corner":
+						gesture_hint_label.text = "Córner para %s." % ("Nova C35" if awarded_home else "equipo visitante")
+					"goal_kick":
+						gesture_hint_label.text = "Saque de puerta para %s." % ("Nova C35" if awarded_home else "equipo visitante")
+			return
+	_previous_friendly_ball_position = current_position
+	_has_previous_friendly_ball_position = true
