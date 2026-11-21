@@ -639,6 +639,8 @@ func _create_game_hub() -> void:
 	game_hub = GAME_HUB.new()
 	game_hub.name = "GameHub"
 	game_hub.training_mode_selected.connect(_on_training_mode_selected)
+	game_hub.match_control_mode_requested.connect(_on_match_control_mode_requested)
+	game_hub.match_control_player_requested.connect(_on_match_control_player_requested)
 	game_hub.match_11v11_requested.connect(_open_pre_match_setup)
 	game_hub.catalog_requested.connect(_open_download_catalog)
 	game_hub.set_match_controller(match_11v11_controller)
@@ -775,6 +777,38 @@ func _switch_to_next_home_player() -> Dictionary:
 		gesture_hint_label.text = "Ahora controlas a %s · %s" % [controlled_player_display_name, controlled_player_id]
 	return result
 
+
+func _on_match_control_mode_requested(mode: String) -> void:
+	if match_11v11_controller == null or not match_11v11_controller.is_match_active():
+		return
+	if match_11v11_controller.set_control_mode(mode):
+		var preferences: Node = get_node_or_null("/root/NovaPreferences")
+		if preferences != null:
+			preferences.call("set_match_control_preferences", mode, controlled_player_id)
+		if gesture_hint_label != null:
+			gesture_hint_label.text = "Control de equipo: puedes cambiar entre los once." if mode == "team" else "Control individual: %s. Puedes cambiarlo cuando quieras." % controlled_player_display_name
+
+func _on_match_control_player_requested(player_id: String) -> void:
+	if match_11v11_controller == null or not match_11v11_controller.is_match_active():
+		return
+	var result: Dictionary = match_11v11_controller.switch_to_home_player(player_id)
+	if not bool(result.get("ok", false)):
+		return
+	player = result.get("player") as CharacterBody3D
+	controlled_player_id = str(result.get("player_id", ""))
+	controlled_player_display_name = str(result.get("display_name", controlled_player_id))
+	if player != null:
+		if not player.is_connected("skill_action_requested", _on_player_skill_action_requested):
+			player.connect("skill_action_requested", _on_player_skill_action_requested)
+		if not player.is_connected("pressure_action_requested", _on_player_pressure_action_requested):
+			player.connect("pressure_action_requested", _on_player_pressure_action_requested)
+	var preferences: Node = get_node_or_null("/root/NovaPreferences")
+	if preferences != null:
+		preferences.call("set_match_control_preferences", match_11v11_controller.get_control_mode(), controlled_player_id)
+	if gesture_hint_label != null:
+		gesture_hint_label.text = "Ahora controlas a %s." % controlled_player_display_name
+
+
 func _on_player_skill_action_requested() -> void:
 	if player != null and player.has_method("play_skill_animation"):
 		player.call("play_skill_animation")
@@ -885,6 +919,7 @@ func _start_11v11_match(match_overrides: Dictionary = {}) -> void:
 		gesture_hint_label.text = "No se pudo preparar el futbolista controlado."
 		return
 	var result: Dictionary = match_11v11_controller.start_match(player, ball, match_settings)
+	match_11v11_controller.set_control_mode(str(match_settings.get("control_mode", "team")))
 	if not bool(result.get("ok", false)):
 		gesture_hint_label.text = str(result.get("error", "No se pudo iniciar el partido."))
 		return
@@ -924,7 +959,7 @@ func _start_11v11_match(match_overrides: Dictionary = {}) -> void:
 		addons_button.visible = false
 	score_label.add_theme_font_size_override("font_size", 18)
 	score_label.text = "%s  0 - 0  %s" % [home_team_display_name, away_team_display_name]
-	gesture_hint_label.text = "Amistoso: %s vs %s. Controlas a %s." % [home_team_display_name, away_team_display_name, controlled_player_display_name]
+	gesture_hint_label.text = "Amistoso: %s vs %s. %s: %s." % [home_team_display_name, away_team_display_name, "Control de equipo" if match_11v11_controller.get_control_mode() == "team" else "Control individual", controlled_player_display_name]
 	print("Fútbol Nova: partido local 11v11 iniciado con reloj por períodos.")
 
 func _on_match_clock_updated(phase: String, _elapsed_seconds: float, remaining_seconds: float, _added_seconds: int) -> void:
