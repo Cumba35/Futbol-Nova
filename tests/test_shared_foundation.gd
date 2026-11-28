@@ -12,6 +12,7 @@ const DataService = preload("res://scripts/data/football_data_service.gd")
 const CompetitionRules = preload("res://scripts/simulation/competition_format_rules.gd")
 const CommercialService = preload("res://scripts/manager/club_commercial_service.gd")
 const PreMatchSetup = preload("res://scripts/ui/pre_match_setup.gd")
+const StadiumBuilder = preload("res://scripts/stadiums/stadium_builder.gd")
 
 func _initialize() -> void:
 	var failures := PackedStringArray()
@@ -20,6 +21,7 @@ func _initialize() -> void:
 	_test_match_reproducibility(failures)
 	_test_default_friendly_teams(failures)
 	_test_default_friendly_stadium(failures)
+	_test_nova_player_team_assignments(failures)
 	_test_autoload_safe_pre_match_source(failures)
 	_test_profile_validation(failures)
 	_test_cuba_catalog_import(failures)
@@ -99,15 +101,47 @@ func _test_default_friendly_teams(failures: PackedStringArray) -> void:
 		failures.append("PreMatch: debe conservar una selección alternativa válida si faltan los clubes de muestra")
 
 func _test_default_friendly_stadium(failures: PackedStringArray) -> void:
-	var stadiums: Array = [
-		{"id": "nova_central", "club_id": "FN-NOVA-CENTRAL"},
-		{"id": "nova_c35", "club_id": "FN-NOVA-C35"},
-		{"id": "rio_de_argenti", "club_id": "FN-NOVA-RDA"}
-	]
-	if PreMatchSetup.get_default_stadium_index(stadiums, "FN-NOVA-C35") != 1:
-		failures.append("PreMatch: Nova C35 debe usar el Estadio del Fénix como sede local")
-	if PreMatchSetup.get_default_stadium_index(stadiums, "FN-NOVA-RDA") != 2:
+	var stadiums: Array = StadiumBuilder.get_catalog()
+	var nova_c35_index := PreMatchSetup.get_default_stadium_index(stadiums, "FN-NOVA-C35")
+	if nova_c35_index < 0 or nova_c35_index >= stadiums.size():
+		failures.append("PreMatch: no se encontró el estadio predeterminado de Nova C35")
+	elif str(stadiums[nova_c35_index].get("id", "")) != "nova_c35" or str(stadiums[nova_c35_index].get("name", "")) != "Estadio del Fénix":
+		failures.append("PreMatch: Nova C35 debe usar el Estadio del Fénix")
+	var rio_index := PreMatchSetup.get_default_stadium_index(stadiums, "FN-NOVA-RDA")
+	if rio_index < 0 or rio_index >= stadiums.size() or str(stadiums[rio_index].get("id", "")) != "rio_de_argenti":
 		failures.append("PreMatch: el estadio predeterminado debe corresponder al club local seleccionado")
+
+func _test_nova_player_team_assignments(failures: PackedStringArray) -> void:
+	var custom_data: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/custom_players.json"))
+	if not custom_data is Dictionary:
+		failures.append("Roster: no se pudo leer data/custom_players.json")
+		return
+	var expected_assignments := {
+		"NOVA-PLAYER-0035": "FN-NOVA-C35",
+		"NOVA-PLAYER-0036": "FN-NOVA-C35",
+		"NOVA-PLAYER-0037": "FN-NOVA-RDA"
+	}
+	var actual_assignments := {}
+	for raw_player in custom_data.get("players", []):
+		if raw_player is Dictionary:
+			actual_assignments[str(raw_player.get("id", ""))] = str(raw_player.get("club_id", ""))
+	for player_id in expected_assignments:
+		if str(actual_assignments.get(player_id, "")) != str(expected_assignments[player_id]):
+			failures.append("Roster: asignación de club incorrecta para " + player_id)
+
+	var roster_data: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/players/nova_original_club_rosters_2026.json"))
+	if not roster_data is Dictionary:
+		failures.append("Roster: no se pudo leer el archivo de plantillas originales")
+		return
+	var roster_by_club := {}
+	for raw_club in roster_data.get("clubs", []):
+		if raw_club is Dictionary:
+			roster_by_club[str(raw_club.get("id", ""))] = raw_club.get("player_ids", [])
+	for player_id in ["NOVA-PLAYER-0035", "NOVA-PLAYER-0036"]:
+		if not roster_by_club.get("FN-NOVA-C35", []).has(player_id):
+			failures.append("Roster: " + player_id + " debe estar en Nova C35")
+	if not roster_by_club.get("FN-NOVA-RDA", []).has("NOVA-PLAYER-0037"):
+		failures.append("Roster: Raymond debe estar en FC Río de Argenti")
 
 func _test_profile_validation(failures: PackedStringArray) -> void:
 	var player := {"id": "p1", "display_name": "Jugador de prueba", "nationality_id": "CUB", "primary_position": "DC", "preferred_foot": "right", "attributes": {"pace": {"acceleration": 70, "sprint_speed": 72}}}
