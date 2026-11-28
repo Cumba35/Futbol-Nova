@@ -154,6 +154,23 @@ func _run_acceptance_test() -> void:
 				failures.append("La preparación debe mostrar los tres estadios base y los cuatro estadios originales.")
 			if setup._selected_stadium_id() != "nova_c35":
 				failures.append("El amistoso predeterminado de Nova C35 debe usar el Estadio del Fénix.")
+			var original_home_index := setup._home_teams.selected
+			var rio_home_index := -1
+			for option_index in range(setup._home_teams.item_count):
+				if str(setup._home_teams.get_item_metadata(option_index)) == "FN-NOVA-RDA":
+					rio_home_index = option_index
+					break
+			if rio_home_index >= 0:
+				setup._home_teams.select(rio_home_index)
+				setup._on_team_selection_changed(rio_home_index)
+				if setup._selected_stadium_id() != "rio_de_argenti":
+					failures.append("Al cambiar el local a FC Río de Argenti debe seleccionarse su estadio.")
+				setup._home_teams.select(original_home_index)
+				setup._on_team_selection_changed(original_home_index)
+				if setup._selected_stadium_id() != "nova_c35":
+					failures.append("Al restaurar Nova C35 como local debe volver el Estadio del Fénix.")
+			else:
+				failures.append("No se encontró FC Río de Argenti para probar el cambio de sede local.")
 			var selected_home_id: String = str(setup._selected_team_id(setup._home_teams))
 			var selected_away_id: String = str(setup._selected_team_id(setup._away_teams))
 			var expected_controlled_player_id: String = str(setup._selected_controlled_player_id())
