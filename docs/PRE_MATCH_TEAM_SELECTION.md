@@ -26,8 +26,10 @@ La selección de equipos y el once inicial no deben confundirse con una integrac
 
 ## Selección predeterminada del amistoso de muestra — 18 noviembre 2026
 
-- Equipo local (izquierda): `FN-ESP-REAL-MADRID`, nombre original del juego **Albor Madrid**, referencia deportiva interna: Real Madrid.
-- Equipo visitante (derecha): `FN-ESP-BARCELONA`, nombre original del juego **Litoral Barcelona**, referencia deportiva interna: FC Barcelona.
+- Equipo local (izquierda): `FN-NOVA-C35` — **Nova C35**.
+- Equipo visitante (derecha): `FN-NOVA-RDA` — **FC Río de Argenti**.
+- El amistoso predeterminado se disputa en el estadio asociado al club local: Nova C35 usa `nova_c35` (**Estadio del Fénix**).
+- Jugadores ya asignados en los datos de plantilla: Anier Cumbá (`NOVA-PLAYER-0035`) y Máximo Padilla (`NOVA-PLAYER-0036`) en Nova C35; Raymond Valdez (`NOVA-PLAYER-0037`) en FC Río de Argenti.
 - La selección usa IDs estables, no búsquedas por texto visible; si falta uno de los clubes, se conserva una pareja alternativa válida y distinta.
 - Los nombres, escudos, uniformes, modelos y demás elementos visuales deben seguir siendo originales de Fútbol Nova; las referencias no autorizan copiar marcas ni assets.
 - Se añadió una prueba unitaria de la selección predeterminada y de su fallback en `tests/test_shared_foundation.gd`. La prueba debe ejecutarse en Godot 4.4.1 antes de marcarla como validada.
