@@ -83,6 +83,80 @@ static func create_edition(season_id: String, qualifiers: Dictionary, draw_seed:
 			fixture["match_system"] = "single_match"
 		fixtures_by_stage[stage_id] = fixtures
 		standings_by_stage[stage_id] = STANDINGS.create_table(groups[group_id])
+
+	return {"ok": true, "edition": edition}
+}
+
+static func validate_qualifiers(qualifiers: Dictionary) -> Dictionary:
+	var errors: Array[String] = []
+	var seen := {}
+	for region in REGIONS:
+		var entries: Array = qualifiers.get(region, [])
+		if entries.size() != 3:
+			errors.append("La región %s debe aportar exactamente tres clubes." % region)
+			continue
+		var positions := {}
+		for entry in entries:
+			if not entry is Dictionary:
+				errors.append("Clasificado inválido en " + region)
+				continue
+			var team_id := str(entry.get("team_id", entry.get("id", "")))
+			var position := int(entry.get("position", 0))
+			if team_id.is_empty() or position < 1 or position > 3 or positions.has(position):
+				errors.append("Clasificado con ID o posición inválida en " + region)
+				continue
+			if seen.has(team_id):
+				errors.append("Un club no puede ocupar dos plazas del TAS: " + team_id)
+			seen[team_id] = true
+			positions[position] = team_id
+		for position in [1, 2, 3]:
+			if not positions.has(position):
+				errors.append("Falta el puesto %d de %s." % [position, region])
+	return {"ok": errors.is_empty(), "errors": errors, "participant_count": seen.size()}
+
+static func create_edition(season_id: String, qualifiers: Dictionary, draw_seed: int = 1) -> Dictionary:
+	if season_id.is_empty():
+		return {"ok": false, "errors": ["Falta la temporada del TAS."]}
+	var validation := validate_qualifiers(qualifiers)
+	if not bool(validation.ok):
+		return {"ok": false, "errors": validation.errors}
+	var groups := {"A": [], "B": [], "C": []}
+	for group_id in GROUP_IDS:
+		for region in REGIONS:
+			var required_position := int(GROUP_ASSIGNMENT[group_id][region])
+			for entry in qualifiers[region]:
+				if int(entry.get("position", 0)) == required_position:
+					groups[group_id].append(str(entry.get("team_id", entry.get("id", ""))))
+					break
+		if groups[group_id].size() != 3:
+			return {"ok": false, "errors": ["No se pudo formar el grupo " + group_id + "."]}
+	var draw_presentation: Array = []
+	for group_id in GROUP_IDS:
+		for region in REGIONS:
+			var required_position := int(GROUP_ASSIGNMENT[group_id][region])
+			for entry in qualifiers[region]:
+				if int(entry.get("position", 0)) == required_position:
+					draw_presentation.append({
+						"team_id": str(entry.get("team_id", entry.get("id", ""))),
+						"group": group_id,
+						"association": region,
+						"position": required_position
+					})
+					break
+	var fixtures_by_stage := {}
+	var standings_by_stage := {}
+	for group_id in GROUP_IDS:
+		var stage_id: String = "first_phase_group_" + str(group_id)
+		var fixtures: Array = SCHEDULER.create_fixtures(groups[group_id], stage_id, season_id, false)
+		if fixtures.size() != 3:
+			return {"ok": false, "errors": ["El grupo %s no generó sus tres partidos a partido único." % group_id]}
+		for fixture in fixtures:
+			fixture["stage_id"] = stage_id
+			fixture["phase"] = "first_phase"
+			fixture["legs"] = 1
+			fixture["match_system"] = "single_match"
+		fixtures_by_stage[stage_id] = fixtures
+		standings_by_stage[stage_id] = STANDINGS.create_table(groups[group_id])
 	return {
 		"ok": true,
 		"competition_id": "american_super_champions_tas",

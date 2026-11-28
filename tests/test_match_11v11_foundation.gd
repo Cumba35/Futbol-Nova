@@ -235,6 +235,19 @@ func _run_tests() -> void:
 	if touchline_first.restart != "throw_in":
 		failures.append("MatchRules: no concedió saque de banda cuando la línea lateral se cruzó primero")
 
+	var crossing_goal := MatchRules.classify_ball_exit(
+		Vector3(38, 3.0, 60), false, 34.0, 52.5, 3.66, 2.44, 0.22,
+		Vector3(0, 1.0, 52.0), true
+	)
+	if crossing_goal.restart != "goal":
+		failures.append("MatchRules: no evaluó el gol en el punto real de cruce de la línea de meta")
+	var crossing_throw_in := MatchRules.classify_ball_exit(
+		Vector3(35.44, 0, 10), true, 34.0, 52.5, 3.66, 2.44, 0.22,
+		Vector3(33, 0, 0), true
+	)
+	if crossing_throw_in.restart != "throw_in" or not is_equal_approx(crossing_throw_in.position.z, 5.0):
+		failures.append("MatchRules: no colocó el saque de banda en el punto real de salida")
+
 	print("FUTBOL_NOVA_11V11_FOUNDATION_TESTS: lineup and restart checks completed")
 	# Match clock rules from the original Fútbol Nova design.
 	for half_minutes in [3, 5, 6, 8, 10, 15, 20]:

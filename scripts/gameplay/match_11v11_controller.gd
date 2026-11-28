@@ -614,6 +614,9 @@ func _create_ai_actor(player_data: Dictionary) -> void:
 		goalkeeper_material.friction = 0.18
 		goalkeeper_body.physics_material_override = goalkeeper_material
 		var goalkeeper_shape := CollisionShape3D.new()
+		# Give the physics shape an explicit stable name so tests and tooling can
+		# resolve it without depending on Godot's generated node-name suffixes.
+		goalkeeper_shape.name = "GoalkeeperShape"
 		var goalkeeper_capsule := CapsuleShape3D.new()
 		goalkeeper_capsule.radius = 0.42
 		goalkeeper_capsule.height = 1.85
