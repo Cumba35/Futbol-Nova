@@ -19,6 +19,7 @@ func _initialize() -> void:
 	_test_standings(failures)
 	_test_match_reproducibility(failures)
 	_test_default_friendly_teams(failures)
+	_test_default_friendly_stadium(failures)
 	_test_autoload_safe_pre_match_source(failures)
 	_test_profile_validation(failures)
 	_test_cuba_catalog_import(failures)
@@ -96,6 +97,17 @@ func _test_default_friendly_teams(failures: PackedStringArray) -> void:
 	var fallback := PreMatchSetup.get_default_team_indices(fallback_ids)
 	if int(fallback.get("home", -1)) != 0 or int(fallback.get("away", -1)) != 1:
 		failures.append("PreMatch: debe conservar una selección alternativa válida si faltan los clubes de muestra")
+
+func _test_default_friendly_stadium(failures: PackedStringArray) -> void:
+	var stadiums: Array = [
+		{"id": "nova_central", "club_id": "FN-NOVA-CENTRAL"},
+		{"id": "nova_c35", "club_id": "FN-NOVA-C35"},
+		{"id": "rio_de_argenti", "club_id": "FN-NOVA-RDA"}
+	]
+	if PreMatchSetup.get_default_stadium_index(stadiums, "FN-NOVA-C35") != 1:
+		failures.append("PreMatch: Nova C35 debe usar el Estadio del Fénix como sede local")
+	if PreMatchSetup.get_default_stadium_index(stadiums, "FN-NOVA-RDA") != 2:
+		failures.append("PreMatch: el estadio predeterminado debe corresponder al club local seleccionado")
 
 func _test_profile_validation(failures: PackedStringArray) -> void:
 	var player := {"id": "p1", "display_name": "Jugador de prueba", "nationality_id": "CUB", "primary_position": "DC", "preferred_foot": "right", "attributes": {"pace": {"acceleration": 70, "sprint_speed": 72}}}
