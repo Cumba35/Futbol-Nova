@@ -70,15 +70,15 @@ static func classify_ball_exit(
 		exit_position = previous_ball_position.lerp(ball_position, goal_fraction if exited_goal_line else touch_fraction)
 	elif has_previous_ball_position:
 		if beyond_goal_line:
-			var goal_boundary := signf(ball_position.z) * (half_length + ball_radius)
-			var goal_fraction := _boundary_crossing_fraction(previous_ball_position.z, ball_position.z, goal_boundary)
-			if goal_fraction != INF:
-				exit_position = previous_ball_position.lerp(ball_position, goal_fraction)
+			var single_goal_boundary := signf(ball_position.z) * (half_length + ball_radius)
+			var single_goal_fraction := _boundary_crossing_fraction(previous_ball_position.z, ball_position.z, single_goal_boundary)
+			if single_goal_fraction != INF:
+				exit_position = previous_ball_position.lerp(ball_position, single_goal_fraction)
 		elif beyond_touchline:
-			var touch_boundary := signf(ball_position.x) * (half_width + ball_radius)
-			var touch_fraction := _boundary_crossing_fraction(previous_ball_position.x, ball_position.x, touch_boundary)
-			if touch_fraction != INF:
-				exit_position = previous_ball_position.lerp(ball_position, touch_fraction)
+			var single_touch_boundary := signf(ball_position.x) * (half_width + ball_radius)
+			var single_touch_fraction := _boundary_crossing_fraction(previous_ball_position.x, ball_position.x, single_touch_boundary)
+			if single_touch_fraction != INF:
+				exit_position = previous_ball_position.lerp(ball_position, single_touch_fraction)
 
 	if exited_goal_line:
 		var defending_home := (ball_position.z > 0.0) != home_attacks_positive_z
