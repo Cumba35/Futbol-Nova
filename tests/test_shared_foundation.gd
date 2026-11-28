@@ -19,6 +19,7 @@ func _initialize() -> void:
 	_test_standings(failures)
 	_test_match_reproducibility(failures)
 	_test_default_friendly_teams(failures)
+	_test_starting_eleven_selection(failures)
 	_test_autoload_safe_pre_match_source(failures)
 	_test_profile_validation(failures)
 	_test_cuba_catalog_import(failures)
@@ -96,6 +97,37 @@ func _test_default_friendly_teams(failures: PackedStringArray) -> void:
 	var fallback := PreMatchSetup.get_default_team_indices(fallback_ids)
 	if int(fallback.get("home", -1)) != 0 or int(fallback.get("away", -1)) != 1:
 		failures.append("PreMatch: debe conservar una selección alternativa válida si faltan los clubes de muestra")
+
+func _test_starting_eleven_selection(failures: PackedStringArray) -> void:
+	var roster: Array = [
+		{"id": "gk_low", "primary_position": "POR", "estimated_overall": 65},
+		{"id": "gk_high", "primary_position": "POR", "estimated_overall": 85},
+		{"id": "left_back", "primary_position": "LI", "estimated_overall": 60},
+		{"id": "center_back_a", "primary_position": "DFC", "estimated_overall": 60},
+		{"id": "center_back_b", "primary_position": "DFC", "estimated_overall": 60},
+		{"id": "right_back", "primary_position": "LD", "estimated_overall": 60},
+		{"id": "utility_midfielder", "primary_position": "MC", "secondary_positions": ["MCD"], "estimated_overall": 72},
+		{"id": "central_midfielder", "primary_position": "MC", "estimated_overall": 71},
+		{"id": "attacking_midfielder", "primary_position": "MCO", "overall": 95},
+		{"id": "left_wide", "primary_position": "MI", "estimated_overall": 60},
+		{"id": "striker", "primary_position": "DC", "estimated_overall": 60},
+		{"id": "right_wide", "primary_position": "MD", "estimated_overall": 60}
+	]
+	var starting_eleven := PreMatchSetup.build_starting_eleven(roster)
+	if starting_eleven.size() != 11:
+		failures.append("PreMatch: debe construir once titulares cuando existen al menos once jugadores válidos")
+		return
+	if starting_eleven[0] != "gk_high":
+		failures.append("PreMatch: debe ordenar jugadores base por estimated_overall cuando no existe overall")
+	if starting_eleven[5] != "utility_midfielder":
+		failures.append("PreMatch: debe utilizar posiciones secundarias antes de recurrir a un jugador fuera de posición")
+	if starting_eleven[6] != "central_midfielder":
+		failures.append("PreMatch: no debe duplicar al jugador utilizado en una posición secundaria")
+	var unique_ids := {}
+	for player_id in starting_eleven:
+		if unique_ids.has(player_id):
+			failures.append("PreMatch: el once inicial no puede contener IDs duplicados")
+		unique_ids[player_id] = true
 
 func _test_profile_validation(failures: PackedStringArray) -> void:
 	var player := {"id": "p1", "display_name": "Jugador de prueba", "nationality_id": "CUB", "primary_position": "DC", "preferred_foot": "right", "attributes": {"pace": {"acceleration": 70, "sprint_speed": 72}}}
