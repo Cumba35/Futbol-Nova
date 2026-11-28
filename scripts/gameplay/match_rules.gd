@@ -54,6 +54,8 @@ static func classify_ball_exit(
 	var beyond_goal_line := absf(ball_position.z) - ball_radius > half_length
 	if not beyond_touchline and not beyond_goal_line:
 		return {"restart": "in_play", "awarded_home": false, "position": ball_position}
+
+	var exit_position := ball_position
 	var exited_goal_line := beyond_goal_line
 	if beyond_touchline and beyond_goal_line:
 		if not has_previous_ball_position:
@@ -65,18 +67,34 @@ static func classify_ball_exit(
 		if touch_fraction == INF or goal_fraction == INF:
 			return {"restart": "ambiguous_exit", "awarded_home": false, "position": ball_position, "reason": "invalid_crossing_segment"}
 		exited_goal_line = goal_fraction <= touch_fraction
+		exit_position = previous_ball_position.lerp(ball_position, goal_fraction if exited_goal_line else touch_fraction)
+	elif has_previous_ball_position:
+		if beyond_goal_line:
+			var goal_boundary := signf(ball_position.z) * (half_length + ball_radius)
+			var goal_fraction := _boundary_crossing_fraction(previous_ball_position.z, ball_position.z, goal_boundary)
+			if goal_fraction != INF:
+				exit_position = previous_ball_position.lerp(ball_position, goal_fraction)
+		elif beyond_touchline:
+			var touch_boundary := signf(ball_position.x) * (half_width + ball_radius)
+			var touch_fraction := _boundary_crossing_fraction(previous_ball_position.x, ball_position.x, touch_boundary)
+			if touch_fraction != INF:
+				exit_position = previous_ball_position.lerp(ball_position, touch_fraction)
+
 	if exited_goal_line:
 		var defending_home := (ball_position.z > 0.0) != home_attacks_positive_z
 		var attacking_home := not defending_home
-		if absf(ball_position.x) + ball_radius <= goal_half_width and ball_position.y - ball_radius >= 0.0 and ball_position.y + ball_radius <= crossbar_height:
+		# A goal is judged at the instant the whole ball crosses the goal line,
+		# not at a later physics position that may already be outside the pitch.
+		if absf(exit_position.x) + ball_radius <= goal_half_width and exit_position.y - ball_radius >= 0.0 and exit_position.y + ball_radius <= crossbar_height:
 			return {"restart": "goal", "awarded_home": attacking_home, "position": Vector3(0.0, 0.0, 0.0)}
 		if last_touch_home == defending_home:
-			var corner_x := signf(ball_position.x) * half_width
-			var corner_z := signf(ball_position.z) * half_length
+			var corner_x := signf(exit_position.x) * half_width
+			var corner_z := signf(exit_position.z) * half_length
 			return {"restart": "corner", "awarded_home": attacking_home, "position": Vector3(corner_x, 0.0, corner_z)}
-		return {"restart": "goal_kick", "awarded_home": defending_home, "position": Vector3(0.0, 0.0, signf(ball_position.z) * half_length * 0.88)}
-	var throw_x := clampf(ball_position.x, -half_width, half_width)
-	var throw_z := clampf(ball_position.z, -half_length, half_length)
+		return {"restart": "goal_kick", "awarded_home": defending_home, "position": Vector3(0.0, 0.0, signf(exit_position.z) * half_length * 0.88)}
+
+	var throw_x := clampf(exit_position.x, -half_width, half_width)
+	var throw_z := clampf(exit_position.z, -half_length, half_length)
 	return {"restart": "throw_in", "awarded_home": not last_touch_home, "position": Vector3(throw_x, 0.0, throw_z)}
 
 static func _boundary_crossing_fraction(origin: float, destination: float, boundary: float) -> float:
