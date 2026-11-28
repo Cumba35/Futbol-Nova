@@ -37,21 +37,41 @@ static func get_default_team_indices(team_ids: Array[String]) -> Dictionary:
 				break
 	return {"home": home_index, "away": away_index}
 
+static func _player_rating(raw_player: Variant) -> int:
+	if not raw_player is Dictionary:
+		return -1
+	return int(raw_player.get("overall", raw_player.get("estimated_overall", raw_player.get("overall_rating", 0))))
+
 static func build_starting_eleven(roster: Array) -> Array[String]:
 	var selected: Array[String] = []
 	var used_ids := {}
 	var ordered_roster := roster.duplicate(true)
-	ordered_roster.sort_custom(func(a, b): return int(a.get("overall", 0)) > int(b.get("overall", 0)))
+	ordered_roster.sort_custom(func(a, b):
+		var rating_a := _player_rating(a)
+		var rating_b := _player_rating(b)
+		if rating_a == rating_b:
+			var id_a := str(a.get("id", "")) if a is Dictionary else ""
+			var id_b := str(b.get("id", "")) if b is Dictionary else ""
+			return id_a < id_b
+		return rating_a > rating_b
+	)
 	for preferred_positions in STARTING_POSITION_PRIORITY:
 		var selected_id := ""
 		for raw_player in ordered_roster:
 			if not raw_player is Dictionary:
 				continue
 			var player_id := str(raw_player.get("id", ""))
-			var position := str(raw_player.get("primary_position", "")).to_upper()
+			var position := str(raw_player.get("primary_position", raw_player.get("position", ""))).to_upper()
 			if player_id.is_empty() or used_ids.has(player_id):
 				continue
-			if preferred_positions.has(position):
+			var supports_position := preferred_positions.has(position)
+			var secondary_positions: Variant = raw_player.get("secondary_positions", [])
+			if not supports_position and secondary_positions is Array:
+				for secondary_position in secondary_positions:
+					if preferred_positions.has(str(secondary_position).to_upper()):
+						supports_position = true
+						break
+			if supports_position:
 				selected_id = player_id
 				break
 		if selected_id.is_empty():
