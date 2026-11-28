@@ -1,6 +1,6 @@
 # Fútbol Nova — selector de equipos y preparación del partido
 
-**Estado:** selector de clubes, equipos de muestra y selector funcional de siete estadios procedurales integrados el 18-11-2026. La validación Godot/Android sigue pendiente. Los modelos de futbolistas, OVR, escudos, equipaciones, vista previa de estadio/balón y catálogo de balones siguen pendientes.
+**Estado:** selector de clubes, amistoso predeterminado Nova C35 vs FC Río de Argenti y selección automática del estadio local integrados el 28-11-2026; catálogo de siete estadios procedurales. La validación Godot/Android sigue pendiente. Los modelos de futbolistas, OVR, escudos, equipaciones, vista previa de estadio/balón y catálogo de balones siguen pendientes.
 **Referencia:** captura aportada por el usuario de una pantalla de amistoso con dos futbolistas 3D, escudos, valoración OVR, estadio, accesos de equipación, balón, ajustes y botón de inicio.
 
 ## Estado de implementación — 17 noviembre 2026
