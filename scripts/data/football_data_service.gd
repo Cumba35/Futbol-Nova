@@ -126,7 +126,7 @@ func initialize_catalog() -> bool:
 	if registry.players_by_id.size() != 15950:
 		initialization_failed = true
 		initialization_errors.append("Se esperaban 15.950 perfiles de jugadores base; encontrados " + str(registry.players_by_id.size()))
-	var installed_packages: Dictionary = ContentPackages.get_installed_packages()
+	var installed_packages: Dictionary = get_installed_content_packages()
 	downloaded_import_summary = DOWNLOADED_LEAGUE_IMPORTER.import_installed_packages(registry, installed_packages)
 	downloaded_national_summary = DOWNLOADED_NATIONAL_IMPORTER.load_installed_packages(installed_packages)
 	national_teams_by_id = downloaded_national_summary.get("national_teams_by_id", {}).duplicate(true)
@@ -505,13 +505,20 @@ func get_download_recommendations() -> Dictionary:
 
  
 func get_installed_content_packages() -> Dictionary:
-	return ContentPackages.get_installed_packages()
+	# Resolve the optional package manager dynamically so isolated headless
+	# tests can compile this service even before the autoload tree is created.
+	var manager: Node = get_node_or_null("/root/ContentPackages")
+	if manager == null:
+		return {}
+	var installed: Variant = manager.call("get_installed_packages")
+	return installed if installed is Dictionary else {}
 
 func get_downloaded_content_import_summary() -> Dictionary:
 	return downloaded_import_summary.duplicate(true)
 
 func is_downloaded_league_package_installed(package_id: String) -> bool:
-	return ContentPackages.is_package_installed(package_id)
+	var manager: Node = get_node_or_null("/root/ContentPackages")
+	return bool(manager.call("is_package_installed", package_id)) if manager != null else false
 
  
 func get_downloaded_national_teams() -> Array:
