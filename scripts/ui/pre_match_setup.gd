@@ -80,7 +80,13 @@ static func build_starting_eleven(roster: Array) -> Array[String]:
 				if player_id.is_empty() or used_ids.has(player_id):
 					continue
 				var secondary_positions: Variant = raw_player.get("secondary_positions", [])
-				if secondary_positions is Array and secondary_positions.any(func(position): return str(position).to_upper() == str(preferred_position)):
+				var supports_secondary := false
+				if secondary_positions is Array:
+					for secondary_position in secondary_positions:
+						if str(secondary_position).to_upper() == str(preferred_position):
+							supports_secondary = true
+							break
+				if supports_secondary:
 					selected_id = player_id
 					break
 			if not selected_id.is_empty():
