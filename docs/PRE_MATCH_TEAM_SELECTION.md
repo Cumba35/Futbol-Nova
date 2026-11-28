@@ -189,3 +189,18 @@ La aceptación de controles táctiles encontró un fallo real del motor: despué
 - Se aplica a los golpes del jugador, despejes del portero y pases/despejes de la IA; se reinicia al iniciar o detener un partido.
 - La prueba de amistoso adquiere posesión real con el jugador controlado, pulsa PASE/TIRO táctiles y verifica velocidad, balón libre y ausencia de congelación inmediata.
 - La prueba también verifica el reposicionamiento de IA local/visitante y el movimiento del jugador con joystick virtual.
+
+
+## Reconciliación de plantillas y amistoso predeterminado — 28 noviembre 2026
+
+Se mantiene el catálogo existente de 22 jugadores por club y no se reemplazan plantillas ni perfiles personales. El amistoso de muestra conserva los identificadores estables:
+- Local: `FN-ESP-REAL-MADRID` — **Albor Madrid**.
+- Visitante: `FN-ESP-BARCELONA` — **Litoral Barcelona**.
+
+Corrección del once inicial:
+- El orden de valoración reconoce `overall`, `estimated_overall` y `overall_rating`, en ese orden de precedencia. Esto permite ordenar correctamente los jugadores generados de las plantillas españolas, que usan `estimated_overall`, y los futbolistas personalizados, que pueden usar `overall`.
+- Los empates de valoración se resuelven por ID para mantener un resultado determinista.
+- La selección posicional reconoce la posición principal y las posiciones secundarias antes de recurrir a un jugador fuera de posición.
+- Se conserva la protección contra IDs vacíos y duplicados.
+
+La regresión correspondiente está en `tests/test_shared_foundation.gd`. La escritura de código y prueba está verificada mediante relectura de GitHub; la ejecución Godot 4.4.1/CI sigue pendiente y no se declara aprobada hasta que termine.
