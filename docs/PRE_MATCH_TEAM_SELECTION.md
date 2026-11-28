@@ -1,6 +1,6 @@
 # Fútbol Nova — selector de equipos y preparación del partido
 
-**Estado:** selector de clubes, equipos de muestra y selector funcional de tres estadios procedurales integrados el 18-11-2026. La validación Godot/Android sigue pendiente. Los modelos de futbolistas, OVR, escudos, equipaciones, vista previa de estadio/balón y catálogo de balones siguen pendientes.
+**Estado:** selector de clubes, equipos de muestra y selector funcional de siete estadios procedurales integrados el 18-11-2026. La validación Godot/Android sigue pendiente. Los modelos de futbolistas, OVR, escudos, equipaciones, vista previa de estadio/balón y catálogo de balones siguen pendientes.
 **Referencia:** captura aportada por el usuario de una pantalla de amistoso con dos futbolistas 3D, escudos, valoración OVR, estadio, accesos de equipación, balón, ajustes y botón de inicio.
 
 ## Estado de implementación — 17 noviembre 2026
@@ -17,14 +17,14 @@ Implementado en la rama de trabajo:
 Pendiente de implementación y validación:
 - Modelos 3D representativos y valoración OVR de los equipos.
 - Escudos/banderas y vistas previas de equipaciones.
-- Selector de balón y vistas previas 3D de equipaciones y estadios; el selector de estadio ya dispone de tres entornos procedurales originales, pero todavía no hay vistas previas dentro de la pantalla.
+- Selector de balón y vistas previas 3D de equipaciones y estadios; el selector de estadio ya dispone de siete entornos procedurales originales, pero todavía no hay vistas previas dentro de la pantalla.
 - Detección de conflictos de equipación y reglas visuales de porteros.
 - Persistencia de preferencias de amistosos.
 - Pruebas de interfaz en Godot, diferentes resoluciones y dispositivos Android.
 
 La selección de equipos y el once inicial no deben confundirse con una integración completa de perfiles, atributos, animaciones o apariencias: los actores del partido siguen usando la representación procedural del motor actual.
 
-## Selección predeterminada del amistoso de muestra — 18 noviembre 2026
+## Selección predeterminada del amistoso de muestra — 28 noviembre 2026
 
 - Equipo local (izquierda): `FN-NOVA-C35` — **Nova C35**.
 - Equipo visitante (derecha): `FN-NOVA-RDA` — **FC Río de Argenti**.
@@ -32,7 +32,7 @@ La selección de equipos y el once inicial no deben confundirse con una integrac
 - Jugadores ya asignados en los datos de plantilla: Anier Cumbá (`NOVA-PLAYER-0035`) y Máximo Padilla (`NOVA-PLAYER-0036`) en Nova C35; Raymond Valdez (`NOVA-PLAYER-0037`) en FC Río de Argenti.
 - La selección usa IDs estables, no búsquedas por texto visible; si falta uno de los clubes, se conserva una pareja alternativa válida y distinta.
 - Los nombres, escudos, uniformes, modelos y demás elementos visuales deben seguir siendo originales de Fútbol Nova; las referencias no autorizan copiar marcas ni assets.
-- Se añadió una prueba unitaria de la selección predeterminada y de su fallback en `tests/test_shared_foundation.gd`. La prueba debe ejecutarse en Godot 4.4.1 antes de marcarla como validada.
+- Se añadió una prueba unitaria de la selección predeterminada y de su fallback en `tests/test_shared_foundation.gd`. La prueba debe ejecutarse en Godot 4.4.1 antes de marcarla como validada; la cobertura añadida también comprueba el estadio real del catálogo y la asignación de Anier, Máximo y Raymond a sus clubes.
 
 ## Selector de estadios — 18 noviembre 2026
 
@@ -41,8 +41,12 @@ El selector de amistosos carga el catálogo offline de `scripts/stadiums/stadium
 - `nova_central` — Estadio Nova Central, capacidad registrada: 42.000.
 - `bahia_arena` — Arena Bahía, capacidad registrada: 28.500.
 - `aurora_park` — Parque Aurora, capacidad registrada: 19.000.
+- `nova_c35` — Estadio del Fénix, capacidad registrada: 105.000.
+- `rio_de_argenti` — Estadio Río de Argenti, capacidad registrada: 105.000.
+- `nova_genesis` — Arena Nova Génesis, capacidad registrada: 105.000.
+- `sangre_galactica` — Estadio Sangre de Estrellas, capacidad registrada: 105.000.
 
-Los tres usan geometría procedural original, gradas, cubiertas, postes de iluminación visual y marcador. Cambiar de estadio no altera clubes ni datos de competición. La prueba `tests/test_stadium_builder.gd` comprueba catálogo, IDs, capacidad y construcción; `tests/test_friendly_match_runtime.gd` comprueba que el estadio elegido llegue al partido. La vista previa del selector, colisiones de gradas, iluminación dinámica y diseños arquitectónicos más diferenciados quedan pendientes.
+Los siete usan geometría procedural original, gradas, cubiertas, postes de iluminación visual y marcador. Cambiar de estadio no altera clubes ni datos de competición. La prueba `tests/test_stadium_builder.gd` comprueba catálogo, IDs, capacidad y construcción; `tests/test_friendly_match_runtime.gd` comprueba que el estadio elegido llegue al partido. La vista previa del selector, colisiones de gradas, iluminación dinámica y diseños arquitectónicos más diferenciados quedan pendientes.
 
 ## 1. Objetivo
 
@@ -153,14 +157,14 @@ Las elecciones cosméticas de un amistoso no deben alterar los datos permanentes
 11. Las opciones no soportadas o recursos ausentes aparecen deshabilitados con explicación.
 12. El botón de inicio no permite lanzar un partido con datos inválidos o selecciones incompatibles.
 
-**Límite actual:** el selector de equipos, el once inicial, las opciones básicas del amistoso y el selector de tres estadios procedurales ya están conectados al inicio del partido. Las vistas 3D de jugadores/estadios dentro de la preparación, OVR, escudos, equipaciones, balón, preferencias persistentes y la validación visual completa siguen pendientes. No se consideran terminados hasta superar CI Godot 4.4.1 y pruebas Android.
+**Límite actual:** el selector de equipos, el once inicial, las opciones básicas del amistoso y el selector de siete estadios procedurales ya está conectado al inicio del partido. Las vistas 3D de jugadores/estadios dentro de la preparación, OVR, escudos, equipaciones, balón, preferencias persistentes y la validación visual completa siguen pendientes. No se consideran terminados hasta superar CI Godot 4.4.1 y pruebas Android.
 
 
 ## Prioridad de validación: amistoso jugable y controles Android — 19 noviembre 2026
 
 El modo Amistoso es ahora la ruta principal de aceptación del juego. La prueba automatizada `tests/test_friendly_match_runtime.gd` abre la escena principal y utiliza el mismo flujo de preparación e inicio que el jugador. Comprueba:
 
-- Selección inicial de Real Madrid a la izquierda y Barcelona a la derecha, dos plantillas válidas, once titulares por lado y selección del estadio.
+- Selección inicial de Nova C35 a la izquierda y FC Río de Argenti a la derecha, con dos plantillas válidas, once titulares por lado y el Estadio del Fénix como sede predeterminada.
 - Inicio real del controlador 11v11, creación de 22 futbolistas, jugador controlado correcto, nombres y marcador.
 - Controles Android de extremo a extremo: joystick virtual que desplaza al futbolista, botón táctil PASE y botón táctil TIRO que impulsan el balón mediante el controlador real del jugador.
 - Pausa y reanudación del partido, inmovilización/restauración del balón, reinicios después de gol y protección del marcador cuando el encuentro no está activo.
