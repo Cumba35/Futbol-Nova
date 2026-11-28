@@ -57,22 +57,33 @@ static func build_starting_eleven(roster: Array) -> Array[String]:
 	)
 	for preferred_positions in STARTING_POSITION_PRIORITY:
 		var selected_id := ""
-		for raw_player in ordered_roster:
-			if not raw_player is Dictionary:
-				continue
-			var player_id := str(raw_player.get("id", ""))
-			var position := str(raw_player.get("primary_position", raw_player.get("position", ""))).to_upper()
-			if player_id.is_empty() or used_ids.has(player_id):
-				continue
-			var supports_position: bool = preferred_positions.has(position)
-			var secondary_positions: Variant = raw_player.get("secondary_positions", [])
-			if not supports_position and secondary_positions is Array:
-				for secondary_position in secondary_positions:
-					if preferred_positions.has(str(secondary_position).to_upper()):
-						supports_position = true
-						break
-			if supports_position:
-				selected_id = player_id
+		# Respect the tactical priority order first, then the player's rating.
+		# This prevents a high-rated MCO from occupying the MC slot when a
+		# natural MC is available for that position and the next slot is MCO.
+		for preferred_position in preferred_positions:
+			for raw_player in ordered_roster:
+				if not raw_player is Dictionary:
+					continue
+				var player_id := str(raw_player.get("id", ""))
+				var primary_position := str(raw_player.get("primary_position", raw_player.get("position", ""))).to_upper()
+				if not player_id.is_empty() and not used_ids.has(player_id) and primary_position == str(preferred_position):
+					selected_id = player_id
+					break
+			if not selected_id.is_empty():
+				break
+			# A secondary position is considered before moving to the next
+			# tactical position, but never reuses a player already selected.
+			for raw_player in ordered_roster:
+				if not raw_player is Dictionary:
+					continue
+				var player_id := str(raw_player.get("id", ""))
+				if player_id.is_empty() or used_ids.has(player_id):
+					continue
+				var secondary_positions: Variant = raw_player.get("secondary_positions", [])
+				if secondary_positions is Array and secondary_positions.any(func(position): return str(position).to_upper() == str(preferred_position)):
+					selected_id = player_id
+					break
+			if not selected_id.is_empty():
 				break
 		if selected_id.is_empty():
 			for raw_player in ordered_roster:
