@@ -8,12 +8,18 @@ const PlayerProfile = preload("res://scripts/data/player_profile.gd")
 const TeamProfile = preload("res://scripts/data/team_profile.gd")
 const Registry = preload("res://scripts/data/football_data_registry.gd")
 const CubaImporter = preload("res://scripts/data/cuba_league_importer.gd")
-const DataService = preload("res://scripts/data/football_data_service.gd")
+const DATA_SERVICE_SCRIPT_PATH := "res://scripts/data/football_data_service.gd"
 const CompetitionRules = preload("res://scripts/simulation/competition_format_rules.gd")
 const CommercialService = preload("res://scripts/manager/club_commercial_service.gd")
 const PreMatchSetup = preload("res://scripts/ui/pre_match_setup.gd")
 
 func _initialize() -> void:
+	# Run after the SceneTree has initialized project autoloads. The data
+	# service is loaded dynamically below to avoid parsing its autoload
+	# references before the headless test tree exists.
+	call_deferred("_run")
+
+func _run() -> void:
 	var failures := PackedStringArray()
 	_test_scheduler(failures)
 	_test_standings(failures)
@@ -151,7 +157,11 @@ func _test_data_service(failures: PackedStringArray) -> void:
 	var football_database: Node = root.get_node_or_null("FootballDatabase")
 	if football_database == null:
 		failures.append("DataService: el autoload FootballDatabase no está disponible para verificar la persistencia")
-	var service = DataService.new()
+	var data_service_script: Script = load(DATA_SERVICE_SCRIPT_PATH)
+	if data_service_script == null or not data_service_script.can_instantiate():
+		failures.append("DataService: el script no se pudo cargar o compilar en el árbol headless")
+		return
+	var service = data_service_script.new()
 	root.add_child(service)
 	var summary: Dictionary = service.get_catalog_summary()
 	if not bool(summary.get("initialized", false)):
