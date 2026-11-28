@@ -78,6 +78,10 @@ func _run_tests() -> void:
 		failures.append("El portero no tiene un cuerpo físico animable sincronizado con su movimiento.")
 	else:
 		var keeper_shape_node = keeper_collision.get_node_or_null("CollisionShape3D")
+		print("GK diagnostic: collision body=", keeper_collision.get_class())
+		print("GK diagnostic: shape node=", keeper_shape_node.get_class() if keeper_shape_node != null else "null")
+		if keeper_shape_node is CollisionShape3D:
+			print("GK diagnostic: shape resource=", keeper_shape_node.shape.get_class() if keeper_shape_node.shape != null else "null")
 		if not (keeper_shape_node is CollisionShape3D) or not (keeper_shape_node.shape is CapsuleShape3D):
 			failures.append("La colisión física del portero no utiliza una cápsula válida.")
 		if not keeper_collision.sync_to_physics:
