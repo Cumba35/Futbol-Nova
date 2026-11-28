@@ -152,8 +152,8 @@ func _run_acceptance_test() -> void:
 				failures.append("La preparación no muestra al menos dos clubes elegibles.")
 			if setup._stadiums.item_count != 7:
 				failures.append("La preparación debe mostrar los tres estadios base y los cuatro estadios originales.")
-			if setup._selected_stadium_id() != "nova_central":
-				failures.append("El estadio Nova Central debe ser la selección inicial.")
+			if setup._selected_stadium_id() != "nova_c35":
+				failures.append("El amistoso predeterminado de Nova C35 debe usar el Estadio del Fénix.")
 			var selected_home_id: String = str(setup._selected_team_id(setup._home_teams))
 			var selected_away_id: String = str(setup._selected_team_id(setup._away_teams))
 			var expected_controlled_player_id: String = str(setup._selected_controlled_player_id())
