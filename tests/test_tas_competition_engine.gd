@@ -8,7 +8,11 @@ func _initialize() -> void:
 	if not bool(edition_result.get("ok", false)):
 		_fail(edition_result.get("errors", []))
 		return
-	var edition: Dictionary = edition_result.edition
+	var edition_value: Variant = edition_result.get("edition", {})
+	if not edition_value is Dictionary or edition_value.is_empty():
+		_fail(["El motor TAS debe devolver la edición dentro del campo edition."])
+		return
+	var edition: Dictionary = edition_value
 	if edition.get("draw_presentation", []).size() != 9:
 		errors.append("La presentación del sorteo debe incluir los nueve clasificados del TAS.")
 	if int(edition.get("participant_count", 0)) != 9 or int(edition.get("total_scheduled_matches", 0)) != 9:
