@@ -163,7 +163,19 @@ jobs:
         run: timeout --signal=TERM --kill-after=15s 120s godot --headless --path . --script res://tests/test_friendly_ai_shooting.gd
 
       - name: Core test — friendly goalkeeper positioning
-        run: timeout --signal=TERM --kill-after=15s 120s godot --headless --path . --script res://tests/test_friendly_goalkeeper_positioning.gd
+        shell: bash
+        run: |
+          set -o pipefail
+          timeout --signal=TERM --kill-after=15s 120s godot --headless --path . --script res://tests/test_friendly_goalkeeper_positioning.gd 2>&1 | tee "$RUNNER_TEMP/futbol-nova-goalkeeper.log"
+
+      - name: Upload goalkeeper test diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: futbol-nova-goalkeeper-diagnostics
+          path: ${{ runner.temp }}/futbol-nova-goalkeeper.log
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Core test — physical goal frames and net containment
         run: timeout --signal=TERM --kill-after=15s 180s godot --headless --path . --script res://tests/test_goal_frame_physics.gd
