@@ -64,7 +64,7 @@ static func build_starting_eleven(roster: Array) -> Array[String]:
 			var position := str(raw_player.get("primary_position", raw_player.get("position", ""))).to_upper()
 			if player_id.is_empty() or used_ids.has(player_id):
 				continue
-			var supports_position := preferred_positions.has(position)
+			var supports_position: bool = preferred_positions.has(position)
 			var secondary_positions: Variant = raw_player.get("secondary_positions", [])
 			if not supports_position and secondary_positions is Array:
 				for secondary_position in secondary_positions:
