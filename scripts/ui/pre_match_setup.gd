@@ -37,6 +37,13 @@ static func get_default_team_indices(team_ids: Array[String]) -> Dictionary:
 				break
 	return {"home": home_index, "away": away_index}
 
+static func get_default_stadium_index(stadium_catalog: Array, home_team_id: String) -> int:
+	for index in range(stadium_catalog.size()):
+		var stadium: Variant = stadium_catalog[index]
+		if stadium is Dictionary and str(stadium.get("club_id", "")) == home_team_id:
+			return index
+	return 0 if not stadium_catalog.is_empty() else -1
+
 static func get_default_controlled_player_id(_home_team_id: String, home_player_ids: Array) -> String:
 	# Neutral central-midfield default. Any player can be selected manually.
 	return str(home_player_ids[mini(6, home_player_ids.size() - 1)]) if not home_player_ids.is_empty() else ""
@@ -466,6 +473,7 @@ func _load_eligible_teams() -> void:
 		if home_index >= 0 and away_index >= 0 and home_index != away_index:
 			_home_teams.select(home_index)
 			_away_teams.select(away_index)
+			_select_stadium_for_home_team()
 			_refresh_control_player_options()
 			_refresh_validation()
 		else:
@@ -504,12 +512,22 @@ func _refresh_validation() -> void:
 	else:
 		_summary.text = "Cada club debe tener al menos 22 jugadores únicos y un once inicial válido. El partido permanece bloqueado."
 
+func _select_stadium_for_home_team() -> void:
+	if _stadiums == null or _stadiums.item_count == 0:
+		return
+	var home_team_id := _selected_team_id(_home_teams)
+	var catalog := STADIUM_BUILDER.get_catalog()
+	var stadium_index := get_default_stadium_index(catalog, home_team_id)
+	if stadium_index >= 0 and stadium_index < _stadiums.item_count:
+		_stadiums.select(stadium_index)
+
 func _selected_stadium_id() -> String:
 	if _stadiums == null or _stadiums.item_count == 0 or _stadiums.selected < 0:
 		return ""
 	return str(_stadiums.get_item_metadata(_stadiums.selected))
 
 func _on_team_selection_changed(_index: int) -> void:
+	_select_stadium_for_home_team()
 	_refresh_control_player_options()
 	_refresh_validation()
 
