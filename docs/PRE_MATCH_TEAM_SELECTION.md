@@ -29,6 +29,7 @@ La selección de equipos y el once inicial no deben confundirse con una integrac
 - Equipo local (izquierda): `FN-NOVA-C35` — **Nova C35**.
 - Equipo visitante (derecha): `FN-NOVA-RDA` — **FC Río de Argenti**.
 - El amistoso predeterminado se disputa en el estadio asociado al club local: Nova C35 usa `nova_c35` (**Estadio del Fénix**).
+- Si se cambia el equipo local en la pantalla previa, el selector actualiza automáticamente el estadio para que corresponda al nuevo local; el amistoso vuelve al Estadio del Fénix al seleccionar Nova C35.
 - Jugadores ya asignados en los datos de plantilla: Anier Cumbá (`NOVA-PLAYER-0035`) y Máximo Padilla (`NOVA-PLAYER-0036`) en Nova C35; Raymond Valdez (`NOVA-PLAYER-0037`) en FC Río de Argenti.
 - La selección usa IDs estables, no búsquedas por texto visible; si falta uno de los clubes, se conserva una pareja alternativa válida y distinta.
 - Los nombres, escudos, uniformes, modelos y demás elementos visuales deben seguir siendo originales de Fútbol Nova; las referencias no autorizan copiar marcas ni assets.
